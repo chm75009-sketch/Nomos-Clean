@@ -5459,6 +5459,12 @@ var CATALOGUES_SECTEUR = {
       // Produits finis surgelés
       'Frites surgelées','Glaces et sorbets (bac)',
       'Baguettines pré-cuites surgelées','Pains divers pré-cuits surgelés',
+      // + Enrichissement réception
+      'Filet de dorade surgelé','Filet de bar surgelé','Anneaux d\'encornet surgelés',
+      'Moules décoquillées surgelées','Noix de Saint-Jacques surgelées (sachet)',
+      'Poêlée de légumes surgelée','Ratatouille surgelée','Purée de pommes de terre surgelée',
+      'Pommes noisettes surgelées','Viennoiseries crues surgelées (croissants)',
+      'Pâte feuilletée surgelée','Fruits rouges surgelés','Herbes surgelées (persil, basilic)',
     ]},
     {cat:'🔴 Ultra-frais — seuil ≤ +2°C', seuil:'2', items:[
       // Boucherie ultra-fraîche
@@ -5483,6 +5489,10 @@ var CATALOGUES_SECTEUR = {
       'Huîtres plates vivantes','Moules de bouchot fraîches',
       'Coques vivantes','Palourdes vivantes',
       'Coquilles Saint-Jacques fraîches (noix)','Coquilles Saint-Jacques (coquilles entières)',
+      // + Enrichissement réception
+      'Tartare de bœuf préparé (service immédiat)','Rouget barbet frais','Merlan frais',
+      'Lotte fraîche (queue)','Raie fraîche (aile)','Saint-Pierre frais','Turbot frais',
+      'Bulots vivants','Bigorneaux vivants','Tourteau cuit frais',
     ]},
     {cat:'🟠 Frais réfrigéré — seuil ≤ +4°C', seuil:'4', items:[
       // BŒUF
@@ -5552,6 +5562,12 @@ var CATALOGUES_SECTEUR = {
       'Poivrons rouges','Poivrons verts','Poivrons jaunes',
       'Avocats frais','Citrons jaunes frais','Citrons verts frais',
       'Fruits rouges frais (décoration)',
+      // + Enrichissement réception — volaille & frais
+      'Aiguillettes de poulet fraîches','Suprême de volaille (poulet jaune)',
+      'Caille fraîche (entière)','Lapin frais (râble / cuisse)',
+      'Saucisse de Toulouse fraîche','Merguez fraîche','Chipolatas fraîches',
+      'Saumon fumé (tranché)','Truite fumée (tranchée)','Surimi (bâtonnets)',
+      'Tofu nature frais','Tarama frais (pot)',
     ]},
     {cat:'🟡 Réfrigéré — seuil ≤ +8°C', seuil:'8', items:[
       'Œufs de poule calibre L (boîte)','Œufs de poule calibre M',
@@ -5561,6 +5577,10 @@ var CATALOGUES_SECTEUR = {
       'Fromage de chèvre (bûche)','Roquefort (quartier)',
       'Gorgonzola (quartier)','Parmesan (bloc)',
       'Fromage râpé emmental (sachet)',
+      // + Enrichissement réception
+      'Yaourt nature (cuisine)','Fromage blanc (pot)','Skyr nature',
+      'Charcuterie sous vide (jambon, saucisson)','Pâté / Terrine (sous vide)',
+      'Pâtes fraîches (tagliatelles, ravioles)',
     ]},
     {cat:'📦 Température ambiante', seuil:'amb', items:[
       // HUILES & VINAIGRES
@@ -6051,6 +6071,11 @@ var CATALOGUES_SECTEUR = {
       'Pain à hot dog surgelé','Pain pita surgelé',
       'Wrap farine de blé surgelé',
       'Glace vanille (bac)','Glace chocolat (bac)','Sundae (kit surgelé)',
+      // + Enrichissement réception
+      'Onion rings surgelés','Mozzarella sticks surgelés','Galette de pomme de terre (hash brown) surgelée',
+      'Churros surgelés','Beignets surgelés','Cookies crus surgelés (pâton)',
+      'Falafels surgelés','Camembert pané surgelé','Ailes de poulet marinées surgelées',
+      'Tacos garnis surgelés',
     ]},
     {cat:'🔴 Ultra-frais — seuil ≤ +2°C', seuil:'2', items:[
       'Steak haché bœuf frais 15% (barquette)',
@@ -6060,6 +6085,10 @@ var CATALOGUES_SECTEUR = {
       'Viande de kebab fraîche (mixte bœuf/agneau)',
       'Escalope de poulet fraîche (filet)',
       'Filet de poulet frais (à découper)',
+      // + Enrichissement réception
+      'Steak haché bœuf frais 5% (barquette)','Galette de viande fraîche façonnée',
+      'Saucisse fraîche (hot dog)','Merguez fraîche (hot dog)',
+      'Filet de poisson frais (fish burger)','Chair de crabe fraîche (pour wrap)',
     ]},
     {cat:'🟠 Frais réfrigéré — seuil ≤ +4°C', seuil:'4', items:[
       // Viandes fraîches
@@ -6106,6 +6135,9 @@ var CATALOGUES_SECTEUR = {
       'Œufs de poule calibre L (boîte)','Œufs de poule calibre M',
       'Beurre doux (plaquette)','Margarine',
       'Fromage à tartiner (type Philadelphia)','Fromage fondu en portions',
+      // + Enrichissement réception
+      'Yaourt à boire (pour sauces)','Crème fraîche (pot)','Skyr (pour sauces)',
+      'Cheddar fondu (tranches individuelles)',
     ]},
     {cat:'📦 Température ambiante', seuil:'amb', items:[
       'Pain à burger brioché (sachet longue conservation)',
@@ -6140,6 +6172,10 @@ var CATALOGUES_SECTEUR = {
       'Volaille surgelée (poulet entier)','Lapin surgelé entier',
       'Abats surgelés (foie de bœuf, rognons...)',
       'Boyaux naturels salés surgelés',
+      // + Enrichissement réception
+      'Merguez surgelées','Chipolatas surgelées','Saucisse de Toulouse surgelée',
+      'Brochettes de viande surgelées','Magret de canard surgelé','Lapin surgelé en morceaux',
+      'Gésiers surgelés','Foie gras cru surgelé',
     ]},
     {cat:'🔴 Ultra-frais — seuil ≤ +2°C', seuil:'2', items:[
       'Steak haché bœuf frais façonné 5%','Steak haché bœuf frais 10%',
@@ -6238,6 +6274,9 @@ var CATALOGUES_SECTEUR = {
       'Fromage de tête (produit fini réfrigéré)',
       'Jambon cuit tranché (réfrigéré)','Saucisson cuit (réfrigéré)',
       'Pâté en croûte (refroidi)','Galantine (refroidie)',
+      // + Enrichissement réception
+      'Yaourt nature (liant farces)','Crème fraîche épaisse (pot)',
+      'Rillettes (pot, produit fini)','Aspic / Gelée (produit fini réfrigéré)',
     ]},
     {cat:'📦 Température ambiante', seuil:'amb', items:[
       'Sel fin (sac 25kg)','Sel de mer gros','Sel nitrite (sel nitrité)',
@@ -6275,11 +6314,19 @@ var CATALOGUES_SECTEUR = {
       'Gratin dauphinois surgelé (portion)','Purée de pommes de terre surgelée',
       'Plat cuisiné surgelé (hachis, lasagnes, couscous...)',
       'Dessert glacé (portion individuelle)','Glace pot individuel',
+      // + Enrichissement réception
+      'Poêlée de légumes surgelée (service)','Riz cuit surgelé (portion)',
+      'Blé / Boulgour cuit surgelé','Poisson meunière surgelé (portion)',
+      'Boulettes de bœuf surgelées','Cordon bleu surgelé','Omelette surgelée (portion)',
     ]},
     {cat:'🔴 Ultra-frais — seuil ≤ +2°C', seuil:'2', items:[
       'Steak haché bœuf frais façonné (plateau service)','Viande hachée fraîche vrac',
       'Poisson frais livraison (filet de cabillaud, saumon)',
       'Huîtres fraîches (pour crèches/EHPAD haut de gamme)',
+      // + Enrichissement réception
+      'Filet de poulet frais (plateau service)','Viande hachée fraîche conditionnée (vrac)',
+      'Saumon frais portionné (service immédiat)','Tartare préparé (service immédiat)',
+      'Crevettes fraîches cuites (plateau)',
     ]},
     {cat:'🟠 Frais réfrigéré — seuil ≤ +4°C', seuil:'4', items:[
       // Viandes
@@ -6333,6 +6380,9 @@ var CATALOGUES_SECTEUR = {
       'Fromage de chèvre (bûche pour service)',
       'Coulommiers','Reblochon','Munster',
       'Plateau de fromages (service)','Fromages individuels portions',
+      // + Enrichissement réception
+      'Yaourts nature (multipack service)','Fromage blanc (pot grand format)',
+      'Crème dessert (pot individuel)','Flan / Liégeois (service)','Beurre portions (service)',
     ]},
     {cat:'📦 Température ambiante', seuil:'amb', items:[
       'Riz long grain (sac 5kg)','Pâtes sèches (carton)','Semoule de couscous (sac)',
