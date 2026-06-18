@@ -15929,9 +15929,23 @@ function renderBarometre() {
     // Jauge SVG demi-cercle
     var cx = 130, cy = 122, r = 104;
     var needle = _baroPoint(cx, cy, r - 14, pct);
+    // Cadran gradué 1 → 6 : chaque chiffre est posé à l'angle EXACT que vise
+    // l'aiguille pour ce nombre de contrôles → l'aiguille pointe pile le bon numéro.
+    var grads = '';
+    for (var gk = 1; gk <= BAROMETRE_OBJECTIF; gk++) {
+      var gt = gk / BAROMETRE_OBJECTIF;
+      var gIn  = _baroPoint(cx, cy, r - 9,  gt);   // bord intérieur de l'arc
+      var gOut = _baroPoint(cx, cy, r + 9,  gt);   // bord extérieur de l'arc
+      var gLbl = _baroPoint(cx, cy, r - 28, gt);   // position du chiffre
+      var gOn  = gk <= nb;                          // chiffre déjà atteint ?
+      grads +=
+        '<line x1="' + gIn.x.toFixed(1) + '" y1="' + gIn.y.toFixed(1) + '" x2="' + gOut.x.toFixed(1) + '" y2="' + gOut.y.toFixed(1) + '" stroke="#ffffff" stroke-width="2"/>' +
+        '<text x="' + gLbl.x.toFixed(1) + '" y="' + (gLbl.y + 4).toFixed(1) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="800" font-size="12.5" fill="' + (gOn ? couleur : '#cbd5e1') + '">' + gk + '</text>';
+    }
     var svg = '<svg viewBox="0 0 260 142" width="100%" style="max-width:260px;display:block;margin:0 auto">' +
       '<path d="' + _baroArc(cx, cy, r, 0, 1) + '" fill="none" stroke="#e5e7eb" stroke-width="18" stroke-linecap="round"/>' +
       '<path d="' + _baroArc(cx, cy, r, 0, pct < 0.02 ? 0.02 : pct) + '" fill="none" stroke="' + couleur + '" stroke-width="18" stroke-linecap="round"/>' +
+      grads +
       '<line x1="' + cx + '" y1="' + cy + '" x2="' + needle.x.toFixed(1) + '" y2="' + needle.y.toFixed(1) + '" stroke="#1f2937" stroke-width="3.5" stroke-linecap="round"/>' +
       '<circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#1f2937"/>' +
       '<text x="' + cx + '" y="100" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="900" font-size="40" fill="' + couleur + '">' + nb + '</text>' +
