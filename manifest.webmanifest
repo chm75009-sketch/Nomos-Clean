@@ -1,0 +1,19 @@
+{
+  "name": "Nomos Clean",
+  "short_name": "Nomos Clean",
+  "description": "Nomos Clean — hygiène alimentaire : audit & mise en conformité (ExpertAudit) + gestion HACCP au quotidien (HACCP Pro). Une seule installation.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "./accueil.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0a0e1a",
+  "theme_color": "#1e1b4b",
+  "categories": ["business", "food", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

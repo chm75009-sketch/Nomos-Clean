@@ -1,0 +1,165 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Count 1 /Kids [6 0 R] >>
+endobj
+3 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>
+endobj
+4 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
+endobj
+5 0 obj
+<< /Length 3035 >>
+stream
+BT
+0.040 0.240 0.380 rg
+/F2 18 Tf
+1 0 0 1 60 800 Tm
+(Relevé automatique de température) Tj
+0.330 0.330 0.330 rg
+/F1 10 Tf
+1 0 0 1 60 766 Tm
+(Comment ça marche — le chemin de la température, du frigo jusqu'au Pack DDPP) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 727 Tm
+(DANS CHAQUE ENCEINTE \(X 11\)) Tj
+0.040 0.240 0.380 rg
+/F2 12 Tf
+1 0 0 1 60 711 Tm
+(1. Le capteur connecté \(tout-en-un\)) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 694 Tm
+(Un seul petit boîtier posé directement dans le frigo / congélateur / chambre froide. Il) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 679 Tm
+(mesure la température ET l'envoie par radio — sans sonde ni fil. Pile longue durée ; garde) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 664 Tm
+(les mesures en mémoire en cas de coupure.) Tj
+0.570 0.250 0.050 rg
+/F2 9 Tf
+1 0 0 1 72 649 Tm
+([ À acheter — 1 par enceinte ]) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 635 Tm
+(|  signal radio \(LoRa\)) Tj
+0.040 0.240 0.380 rg
+/F2 12 Tf
+1 0 0 1 60 619 Tm
+(2. La passerelle) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 602 Tm
+(Un seul boîtier pour tout l'établissement. Il capte la radio des 11 capteurs et l'envoie) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 587 Tm
+(sur internet.) Tj
+0.570 0.250 0.050 rg
+/F2 9 Tf
+1 0 0 1 72 572 Tm
+([ À acheter — 1 seule pour tout le site ]) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 558 Tm
+(|) Tj
+0.040 0.240 0.380 rg
+/F2 12 Tf
+1 0 0 1 60 542 Tm
+(3. La box internet) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 525 Tm
+(Celle du restaurant, déjà en place. La passerelle s'y branche.) Tj
+0.570 0.250 0.050 rg
+/F2 9 Tf
+1 0 0 1 72 510 Tm
+([ Déjà là ]) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 496 Tm
+(|  internet) Tj
+0.040 0.240 0.380 rg
+/F2 12 Tf
+1 0 0 1 60 480 Tm
+(4. Le cloud) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 463 Tm
+(Reçoit les données et les met à disposition \(via une « API »\).) Tj
+0.570 0.250 0.050 rg
+/F2 9 Tf
+1 0 0 1 72 448 Tm
+([ Inclus dans l'option ]) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 434 Tm
+(|) Tj
+0.040 0.240 0.380 rg
+/F2 12 Tf
+1 0 0 1 60 418 Tm
+(5. HACCP Pro \(votre application\)) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 401 Tm
+(Récupère et enregistre les relevés, envoie les alertes, trace les courbes et les met dans) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 72 386 Tm
+(le Pack DDPP.) Tj
+0.570 0.250 0.050 rg
+/F2 9 Tf
+1 0 0 1 72 371 Tm
+([ Votre application ]) Tj
+0.050 0.650 0.910 rg
+/F2 11 Tf
+1 0 0 1 60 346 Tm
+(CE QUE LE CLIENT DOIT PRÉVOIR \(11 ENCEINTES\)) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 68 330 Tm
+(- 11 capteurs connectés \(tout-en-un, sans sonde\) — 1 par enceinte \(à sa charge\)) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 68 315 Tm
+(- 1 passerelle — pour tout le site \(à sa charge\)) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 68 300 Tm
+(- Internet — déjà en place) Tj
+0.130 0.130 0.130 rg
+/F1 10 Tf
+1 0 0 1 68 285 Tm
+(- Abonnement « option capteurs » — service logiciel HACCP Pro) Tj
+0.530 0.530 0.530 rg
+/F1 8 Tf
+1 0 0 1 60 255 Tm
+(HACCP Pro — RTH NETGOCE — Document explicatif) Tj
+ET
+endstream
+endobj
+6 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents 5 0 R >>
+endobj
+xref
+0 7
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000212 00000 n 
+0000000314 00000 n 
+0000003401 00000 n 
+trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+3537
+%%EOF

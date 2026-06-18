@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clean Food | Tarifs & Prestations HACCP</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>(function(){ emailjs.init({ publicKey: 'EpsrNibYc0mrPUXnR' }); })();</script>
+<style>
+:root {
+  --navy:#153e35; --navy2:#1f5649; --teal:#2d6f60; --teal2:#3b8a77;
+  --bg:#f5f2ea; --card:#fff; --border:#dfe6e0;
+  --text:#17211d; --muted:#65716b;
+  color-scheme: light only;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:#17211d}
+
+/* ── TOASTS ── */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:6px}
+.toast{background:#153e35;color:#fff;padding:10px 15px;border-radius:8px;font-size:.82rem;box-shadow:0 4px 20px rgba(0,0,0,.25);animation:tIn .3s ease;min-width:220px}
+@keyframes tIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.ok{border-left:4px solid #2a9a57}
+.toast.err{border-left:4px solid #d84f43}
+.toast.inf{border-left:4px solid #2d6f60}
+
+/* ── FAQ ── */
+.cf-faq{border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)}
+
+/* ── FORM INSCRIPTION ── */
+.ins-field{display:flex;flex-direction:column;gap:5px}
+.ins-field label{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#65716b}
+.ins-field input,.ins-field select,.ins-field textarea{padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.9rem;color:#153e35;background:#fafbfd;transition:all .2s;width:100%}
+.ins-field input:focus,.ins-field select:focus,.ins-field textarea:focus{outline:none;border-color:#2d6f60;background:#fff}
+
+@media(max-width:768px){
+  /* Classes existantes */
+  .calc-grid{grid-template-columns:1fr !important}
+  .prest-grid-2{grid-template-columns:1fr !important}
+  .prest-grid-3{grid-template-columns:1fr !important}
+
+  /* Anti-débordement global */
+  html, body { overflow-x: hidden; max-width: 100%; }
+
+  /* Toutes les grilles inline → 1 colonne */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns:1fr 1fr 1fr"],
+  div[style*="grid-template-columns:1.1fr"],
+  div[style*="grid-template-columns:repeat(3"],
+  div[style*="grid-template-columns:repeat(4"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="grid-column:1/-1"] { grid-column: 1 !important; }
+
+  /* FAQ + contact : 2 colonnes → 1 */
+  div[style*="grid-template-columns:1fr 1fr"][style*="align-items:start"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Grille services */
+  #serviceChoixGrid { grid-template-columns: 1fr !important; }
+
+  /* Padding latéral */
+  div[style*="max-width:1180px"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Footer tableau comparatif */
+  div[style*="grid-template-columns:1.1fr .9fr"] {
+    grid-template-columns: 1fr !important;
+    overflow-x: auto !important;
+  }
+
+  /* Toasts */
+  .toasts { right: 8px; left: 8px; bottom: 8px; }
+  .toast { min-width: unset; }
+
+  /* Titres */
+  h1 { font-size: clamp(20px, 6vw, 28px) !important; }
+  h2 { font-size: clamp(18px, 5vw, 24px) !important; }
+
+  /* Tableaux */
+  table { display: block; overflow-x: auto; width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="siteNavbar"></div>
+<div style="padding:10px 24px;border-bottom:1px solid #e2e8f0;background:#fff"><button onclick="goBack()" style="display:inline-flex;align-items:center;gap:6px;color:#153e35;font-weight:700;font-size:.85rem;text-decoration:none;padding:6px 14px;background:#f5f2ea;border:1.5px solid #dfe6e0;border-radius:999px;cursor:pointer;font-family:'Source Sans 3',sans-serif">← Retour</button></div>
+<div style="background:#f5f2ea;padding:10px 24px;border-bottom:1px solid #e2e8f0">
+  <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px">
+    <a href="index.html" style="display:inline-flex;align-items:center;gap:6px;color:#153e35;font-weight:700;font-size:.85rem;text-decoration:none;padding:6px 14px;background:#fff;border:1.5px solid #dfe6e0;border-radius:999px">← Accueil</a>
+    <span style="font-size:.82rem;color:#65716b">💼 Prestations & Tarifs</span>
+  </div>
+</div>
+
+
+<!-- ══ HERO TARIFS ══ -->
+<section style="padding:48px 0 24px;background:linear-gradient(180deg,#fbfaf7,#f5f2ea)">
+  <div style="max-width:860px;margin:0 auto;padding:0 24px;text-align:center">
+    <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">Tarifs & Prestations</span>
+    <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:2.2rem;color:#153e35;margin:0 0 12px;line-height:1.15">Choisissez la formule adaptée à votre établissement</h1>
+    <p style="font-size:1.05rem;color:#65716b;max-width:680px;margin:0 auto 24px">Audit HACCP en ligne, documents réglementaires ou accompagnement complet par nos experts — une solution pour chaque besoin.</p>
+    <a href="#contact-tarifs" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.95rem;text-decoration:none">📩 Démarrer maintenant</a>
+  </div>
+</section>
+
+  <section style="padding:48px 0;background:#f5f2ea" id="prestations">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;max-width:860px;margin:0 auto 32px">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Prestations</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 8px">Plusieurs formules selon votre besoin.</h2>
+        <p style="font-size:1rem;color:#65716b;text-align:justify">Audit en ligne avec ExpertAudit, documents réglementaires ou formule complète — choisissez selon votre situation.</p>
+      </div>
+
+      <!-- Ligne 1 : Audits -->
+      <div style="font-size:.75rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">🔍 Audits HACCP</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #dfe6e0;display:flex;flex-direction:column">
+          <div style="font-size:1.5rem;margin-bottom:10px">🔑</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit par le client</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#1f5649;margin-bottom:8px">200 €</div>
+          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Code usage unique · Le client réalise lui-même l'audit · Rapport complet · Score de conformité · Recommandations</div>
+          <button onclick="showInscriptionAvecService('audit_client')" style="width:100%;padding:11px;background:#1f5649;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #2d6f60;display:flex;flex-direction:column;position:relative">
+          <div style="position:absolute;top:-11px;left:18px;background:#2d6f60;color:#fff;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px">RECOMMANDÉ</div>
+          <div style="font-size:1.5rem;margin-bottom:10px">🧪</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit par nos experts</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#2d6f60;margin-bottom:8px">300 €</div>
+          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Nos auditeurs réalisent l'audit complet · Rapport professionnel · Accompagnement personnalisé</div>
+          <button onclick="showInscriptionAvecService('audit_admin')" style="width:100%;padding:11px;background:#2d6f60;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
+        </div>
+      </div>
+
+      <!-- Ligne 2 : Docs + Full -->
+      <div style="font-size:.75rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">📄 Documents & Formules complètes</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #b79029;display:flex;flex-direction:column;position:relative">
+          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#b79029;color:#201806;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px;white-space:nowrap">POPULAIRE</div>
+          <div style="font-size:1.5rem;margin-bottom:10px">📄</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Pack Documents</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#b79029;margin-bottom:4px">250 €</div>
+          <div style="font-size:.75rem;color:#65716b;margin-bottom:8px">ou 100 € par document</div>
+          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">PMS · Plan Nettoyage · DUERP · Format Word</div>
+          <button onclick="showInscriptionAvecService('docs')" style="width:100%;padding:11px;background:#b79029;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour commander</button>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #d84f43;display:flex;flex-direction:column">
+          <div style="font-size:1.5rem;margin-bottom:10px">🎯</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Full client</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#d84f43;margin-bottom:8px">350 €</div>
+          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Audit client + Pack Documents · Tout inclus</div>
+          <button onclick="showInscriptionAvecService('full_client')" style="width:100%;padding:11px;background:#d84f43;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;margin-top:auto">📩 S'inscrire pour choisir</button>
+        </div>
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #5c3d8f;display:flex;flex-direction:column">
+          <div style="font-size:1.5rem;margin-bottom:10px">⭐</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Full premium</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#5c3d8f;margin-bottom:8px">450 €</div>
+          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Audit réalisé <strong style="color:#153e35">par nos experts sur site</strong> + Pack Documents (PMS, Nettoyage, DUERP) · Accompagnement complet</div>
+          <button onclick="showInscriptionAvecService('full_admin')" style="width:100%;padding:11px;background:#5c3d8f;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;margin-top:auto">📩 S'inscrire pour choisir</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CALCULATEUR ── -->
+  <section style="padding:48px 0" id="calculateur">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+      <div style="background:rgba(255,255,255,.94);border:1px solid rgba(21,62,53,.08);border-radius:24px;padding:28px;box-shadow:0 14px 40px rgba(21,62,53,.08)">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Calculateur de risque</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.7rem;color:#153e35;margin:0 0 10px">Estimez le coût potentiel d'une interruption d'activité.</h2>
+        <p style="color:#65716b;font-size:.95rem;margin:0 0 18px;text-align:justify">Ce simulateur a une fonction pédagogique : il vous aide à visualiser le poids possible d'une fermeture temporaire sur la trésorerie.</p>
+        <div style="display:grid;gap:14px">
+          <div><label style="display:block;font-weight:800;color:#153e35;margin-bottom:6px;font-size:.92rem">Chiffre d'affaires journalier estimé (€)</label><input type="number" id="caJour" min="0" step="100" placeholder="Ex. 1800" style="width:100%;padding:13px 14px;border:1px solid rgba(31,86,73,.14);border-radius:12px;background:#fff;font-size:.95rem;box-sizing:border-box"></div>
+          <div><label style="display:block;font-weight:800;color:#153e35;margin-bottom:6px;font-size:.92rem">Nombre de jours de fermeture</label><select id="joursFermeture" style="width:100%;padding:13px 14px;border:1px solid rgba(31,86,73,.14);border-radius:12px;background:#fff;font-size:.95rem;box-sizing:border-box"><option value="7">7 jours</option><option value="15">15 jours</option><option value="30" selected>30 jours</option><option value="45">45 jours</option></select></div>
+          <div><label style="display:block;font-weight:800;color:#153e35;margin-bottom:6px;font-size:.92rem">Charges fixes mensuelles estimées (€)</label><input type="number" id="chargesFixes" min="0" step="100" placeholder="Ex. 6500" style="width:100%;padding:13px 14px;border:1px solid rgba(31,86,73,.14);border-radius:12px;background:#fff;font-size:.95rem;box-sizing:border-box"></div>
+        </div>
+        <button id="calcBtn" type="button" onclick="runCalc()" style="display:inline-flex;align-items:center;justify-content:center;border:none;border-radius:999px;padding:13px 22px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;margin-top:16px">Calculer</button>
+      </div>
+      <div style="background:linear-gradient(180deg,#2d6f60,#3b8a77);color:#fff;padding:28px;border-radius:28px;box-shadow:0 20px 60px rgba(21,62,53,.15)">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:#fff;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Lecture immédiate</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:2.1rem;color:#fff;margin:0 0 8px">Impact potentiel</h2>
+        <p style="color:rgba(255,255,255,.76);margin:0 0 18px">Une estimation simple pour mettre en perspective le coût de l'inaction.</p>
+        <div style="display:grid;gap:10px">
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px"><div style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.66);font-weight:800">Perte brute d'activité</div><div id="perteBrute" style="font-size:2.2rem;font-weight:900;margin-top:4px">0 €</div></div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px"><div style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.66);font-weight:800">Poids des charges fixes</div><div id="poidsCharges" style="font-size:2.2rem;font-weight:900;margin-top:4px">0 €</div></div>
+          <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px"><div style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.66);font-weight:800">Impact cumulé estimatif</div><div id="impactTotal" style="font-size:2.2rem;font-weight:900;margin-top:4px">0 €</div></div>
+        </div>
+        <div id="calcAlert" style="margin-top:12px;padding:12px;border-radius:14px;background:rgba(216,79,67,.16);border:1px solid rgba(216,79,67,.25);color:#ffd8d4;font-size:.88rem">Renseignez votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FAQ ── -->
+  <section style="padding:48px 0" id="faq">
+    <div style="max-width:860px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;margin-bottom:28px">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">FAQ</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0">Les questions les plus fréquentes avant une demande d'audit.</h2>
+      </div>
+      <div style="display:grid;gap:12px" id="faqList">
+        <div class="cf-faq" style="border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)"><button type="button" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:18px 20px;font-weight:800;color:#153e35;display:flex;justify-content:space-between;gap:14px;font-family:'Source Sans 3',sans-serif;font-size:.95rem">À qui s'adresse Clean Food ?<span class="faq-plus" style="font-size:1.3rem;color:#b79029">+</span></button><div class="cf-faq-content" style="display:none;padding:0 20px 18px;color:#65716b">Clean Food s'adresse aux restaurants, fast-foods, snacks, traiteurs, cuisines de production et, plus largement, aux établissements qui manipulent et servent des denrées alimentaires.</div></div>
+        <div class="cf-faq" style="border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)"><button type="button" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:18px 20px;font-weight:800;color:#153e35;display:flex;justify-content:space-between;gap:14px;font-family:'Source Sans 3',sans-serif;font-size:.95rem">Que contient concrètement l'audit ?<span class="faq-plus" style="font-size:1.3rem;color:#b79029">+</span></button><div class="cf-faq-content" style="display:none;padding:0 20px 18px;color:#65716b">L'audit porte sur les pratiques d'hygiène, l'organisation, les températures, la traçabilité, les contrôles, certains éléments documentaires et les points critiques susceptibles d'exposer l'établissement à un risque élevé.</div></div>
+        <div class="cf-faq" style="border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)"><button type="button" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:18px 20px;font-weight:800;color:#153e35;display:flex;justify-content:space-between;gap:14px;font-family:'Source Sans 3',sans-serif;font-size:.95rem">Recevons-nous un rapport après l'intervention ?<span class="faq-plus" style="font-size:1.3rem;color:#b79029">+</span></button><div class="cf-faq-content" style="display:none;padding:0 20px 18px;color:#65716b">Oui. Le rapport distingue les points conformes, les points à améliorer et les points critiques, avec une logique de priorité pour faciliter la mise en action.</div></div>
+        <div class="cf-faq" style="border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)"><button type="button" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:18px 20px;font-weight:800;color:#153e35;display:flex;justify-content:space-between;gap:14px;font-family:'Source Sans 3',sans-serif;font-size:.95rem">Quelle est la différence entre le site Clean Food et ExpertAudit ?<span class="faq-plus" style="font-size:1.3rem;color:#b79029">+</span></button><div class="cf-faq-content" style="display:none;padding:0 20px 18px;color:#65716b">Clean Food est notre activité — l'audit et l'accompagnement en hygiène alimentaire. ExpertAudit est notre outil numérique qui permet de réaliser l'audit en ligne et de générer les documents réglementaires (PMS, Plan Nettoyage, DUERP) au format Word.</div></div>
+        <div class="cf-faq" style="border-radius:18px;overflow:hidden;border:1px solid rgba(31,86,73,.08);background:rgba(255,255,255,.9)"><button type="button" onclick="toggleFaq(this)" style="width:100%;text-align:left;background:none;border:none;cursor:pointer;padding:18px 20px;font-weight:800;color:#153e35;display:flex;justify-content:space-between;gap:14px;font-family:'Source Sans 3',sans-serif;font-size:.95rem">Pouvons-nous demander seulement un audit sans accompagnement ?<span class="faq-plus" style="font-size:1.3rem;color:#b79029">+</span></button><div class="cf-faq-content" style="display:none;padding:0 20px 18px;color:#65716b">Oui. Vous pouvez choisir un audit seul, puis décider ensuite si vous souhaitez ou non un accompagnement complémentaire pour traiter les écarts constatés.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FORMULAIRE D'INSCRIPTION / CONTACT ── -->
+  
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+
+<!-- ══ FORMULAIRE D'INSCRIPTION ══ -->
+<div id="contact-tarifs">
+  <section style="padding:48px 0;background:#f5f2ea" id="contact-tarifs-form">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;margin-bottom:28px">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Démarrer</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 6px">Démarrez votre audit</h2>
+        <p style="color:#65716b;font-size:.95rem">Remplissez le formulaire — notre équipe vous contactera sous 24h avec votre code d'accès.</p>
+      </div>
+      <div style="max-width:680px;margin:0 auto">
+        <div style="background:#fff;border-radius:20px;padding:30px;box-shadow:0 14px 40px rgba(21,62,53,.08)">
+          <div id="inscriptionMsg" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:10px;padding:14px;margin-bottom:16px;font-size:.88rem;color:#2e7d32;text-align:center"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Nom du responsable *</label><input type="text" id="ins_resp" placeholder="Jean Dupont" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Nom de l'établissement *</label><input type="text" id="ins_etab" placeholder="Restaurant La Belle Vue" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Secteur d'activité *</label><select id="ins_secteur" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box;background:#fff"><option value="">-- Sélectionner --</option><option value="RESTAURATION">🍽️ Restauration Traditionnelle</option><option value="RESTAURATION_RAPIDE">🍔 Restauration Rapide</option><option value="BOULANGERIE">🥖 Boulangerie / Pâtisserie</option><option value="BOUCHERIE">🥩 Boucherie / Charcuterie</option></select></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Téléphone *</label><input type="tel" id="ins_tel" placeholder="06 12 34 56 78" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div style="grid-column:1/-1"><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Email *</label><input type="email" id="ins_email" placeholder="contact@etablissement.fr" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div style="grid-column:1/-1">
+              <input type="hidden" id="ins_service" value="">
+              <label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:8px">Service souhaité * <span style="font-weight:400;color:#65716b">(cliquez pour sélectionner)</span></label>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="serviceChoixGrid">
+                <div onclick="selectService('audit_client',this)" data-val="audit_client" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#1f5649;font-size:.88rem">🔑 Audit par moi-même</div><div style="font-size:1.1rem;font-weight:900;color:#1f5649;margin:2px 0">200 €</div><div style="font-size:.75rem;color:#65716b">Vous réalisez vous-même l'audit en ligne avec ExpertAudit. Vous obtenez un rapport complet avec votre score et les points à corriger en priorité.</div></div>
+                <div onclick="selectService('audit_admin',this)" data-val="audit_admin" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#2d6f60;font-size:.88rem">🧪 Audit par un expert</div><div style="font-size:1.1rem;font-weight:900;color:#2d6f60;margin:2px 0">300 €</div><div style="font-size:.75rem;color:#65716b">Un auditeur se déplace dans votre établissement. Vous recevez un rapport professionnel avec un plan d'action personnalisé.</div></div>
+                <div onclick="selectService('docs',this)" data-val="docs" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#b79029;font-size:.88rem">📄 Pack Documents</div><div style="font-size:1.1rem;font-weight:900;color:#b79029;margin:2px 0">250 €</div><div style="font-size:.75rem;color:#65716b">Accédez à 8 documents réglementaires à personnaliser et à adapter à votre situation par vos soins.</div></div>
+                <div onclick="selectService('full_client',this)" data-val="full_client" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#d84f43;font-size:.88rem">🎯 Full client</div><div style="font-size:1.1rem;font-weight:900;color:#d84f43;margin:2px 0">350 €</div><div style="font-size:.75rem;color:#65716b">Formule complète : vous réalisez vous-même l'audit ET recevez 8 documents réglementaires, à personnaliser et à adapter à votre situation par vos soins.</div></div>
+                <div onclick="selectService('full_admin',this)" data-val="full_admin" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;grid-column:1/-1"><div style="font-weight:700;color:#5c3d8f;font-size:.88rem">⭐ Full premium</div><div style="font-size:1.1rem;font-weight:900;color:#5c3d8f;margin:2px 0">450 €</div><div style="font-size:.75rem;color:#65716b">Notre formule tout inclus : un expert se déplace pour réaliser l'audit ET vous recevez l'ensemble de 8 documents réglementaires, à personnaliser et à adapter à votre situation par vos soins.</div></div>
+              </div>
+            </div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Adresse</label><input type="text" id="ins_adresse" placeholder="12 rue du Marché, 75001 Paris" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">SIRET <span style="font-weight:400;color:#65716b">(14 chiffres)</span></label><input type="text" id="ins_siret" placeholder="44424477600019" maxlength="14" oninput="this.value=this.value.replace(/\D/g,'').slice(0,14); var s=document.getElementById('ins_siren'); if(s) s.value=this.value.slice(0,9);" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Effectif</label><input type="number" id="ins_effectif" placeholder="Ex: 5" min="1" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
+            <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Message (optionnel)</label><textarea id="ins_message" rows="3" placeholder="Précisions..." style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box;resize:vertical"></textarea></div>
+          </div>
+          <button onclick="soumettreInscription()" style="width:100%;padding:14px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:1rem">📩 Envoyer ma demande</button>
+          <div style="margin-top:12px;padding:12px;background:#f5f2ea;border-radius:10px;border:1px solid rgba(31,86,73,.1)">
+            <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px">
+              <input type="checkbox" id="rgpd_consent" style="margin-top:3px;accent-color:#153e35;flex:0 0 auto">
+              <label for="rgpd_consent" style="font-size:.78rem;color:#65716b;line-height:1.5;cursor:pointer">J'accepte que mes données personnelles soient utilisées par <strong>RTH NETGOCE / Clean Food</strong> pour traiter ma demande d'audit. Conformément au RGPD, je dispose d'un droit d'accès, de rectification et de suppression de mes données. <button type="button" onclick="showPolitiqueConfidentialite()" style="background:none;border:none;color:#153e35;font-size:.78rem;cursor:pointer;padding:0;font-weight:700;text-decoration:underline">En savoir plus →</button></label>
+            </div>
+            <p style="font-size:.73rem;color:#8a9e95;margin:0">Vos données ne seront jamais revendues ni transmises à des tiers. Conservation : 3 ans maximum.</p>
+          </div>
+          <p style="font-size:.76rem;color:#65716b;text-align:center;margin-top:10px">Notre équipe vous contactera sous 24h avec votre code d'accès personnalisé.</p>
+          <div style="margin-top:14px;padding-top:14px;border-top:1px solid #f0f0ec;text-align:center;background:#f5f2ea;border-radius:10px;padding:14px">
+            <span style="font-size:.88rem;color:#17211d;font-weight:600">Vous avez déjà un code d'accès ? </span>
+            <button onclick="window.location.href='audit.html'" style="background:#2d6f60;border:none;color:#fff;font-size:.88rem;font-weight:700;cursor:pointer;padding:8px 18px;border-radius:999px;margin-left:8px">Accéder ici →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer style="padding:40px 0 28px;border-top:1px solid rgba(31,86,73,.08);background:linear-gradient(180deg,rgba(255,255,255,.76),rgba(255,255,255,.92))">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="display:grid;grid-template-columns:1.1fr .9fr .9fr .9fr;gap:20px;margin-bottom:20px">
+        <div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+            <div style="width:40px;height:40px;border-radius:12px;background:#1f5649;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center">CF</div>
+            <div><div style="font-weight:900;font-size:.95rem;letter-spacing:.08em;color:#153e35">CLEAN FOOD</div><div style="font-size:.7rem;color:#65716b;font-weight:700;letter-spacing:.1em;text-transform:uppercase">ExpertAudit HACCP</div></div>
+          </div>
+          <p style="color:#65716b;font-size:.88rem;line-height:1.7;margin:0">Audit et prévention des risques sanitaires pour les établissements alimentaires.</p>
+        </div>
+        <div>
+          <h4 style="margin-bottom:10px;color:#153e35;font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em">Société</h4>
+          <p style="color:#65716b;font-size:.88rem;line-height:1.8;margin:0">RTH NETGOCE<br>49 Rue de Douai<br>75009 Paris<br>Tél : 06 61 47 61 65<br>TVA : FR27444244776</p>
+        </div>
+        <div>
+          <h4 style="margin-bottom:10px;color:#153e35;font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em">Légal</h4>
+          <p style="color:#65716b;font-size:.88rem;line-height:1.8;margin:0">SIRET : 44424477600019<br><button onclick="showMentionsLegales()" style="background:none;border:none;color:#65716b;font-size:.88rem;cursor:pointer;padding:0;font-family:'Source Sans 3',sans-serif;text-decoration:underline">Mentions légales</button><br><button onclick="showPolitiqueConfidentialite()" style="background:none;border:none;color:#65716b;font-size:.88rem;cursor:pointer;padding:0;font-family:'Source Sans 3',sans-serif;text-decoration:underline">Politique de confidentialité</button></p>
+        </div>
+        <div>
+          <h4 style="margin-bottom:10px;color:#153e35;font-size:.88rem;font-weight:800;text-transform:uppercase;letter-spacing:.06em">Navigation</h4>
+          <div style="display:grid;gap:6px">
+            <button onclick="window.location.href='index.html'" style="background:none;border:none;color:#65716b;font-size:.88rem;cursor:pointer;text-align:left;padding:0;font-family:'Source Sans 3',sans-serif">Accueil</button>
+            <a href="#prestations" style="color:#65716b;font-size:.88rem;text-decoration:none">Prestations</a>
+            <a href="#contact-tarifs" style="color:#65716b;font-size:.88rem;text-decoration:none">S'inscrire</a>
+            <button onclick="window.location.href='audit.html'" style="background:none;border:none;color:#65716b;font-size:.88rem;cursor:pointer;text-align:left;padding:0;font-family:'Source Sans 3',sans-serif">Espace client →</button>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid rgba(31,86,73,.08);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;color:#65716b;font-size:.84rem">
+        <div>© 2026 Clean Food — RTH NETGOCE</div>
+        <div>49 Rue de Douai, 75009 Paris — SIRET 44424477600019</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ── BANDEAU COOKIES RGPD ── -->
+  <div id="cookieBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;background:#ffffff;padding:16px 24px;box-shadow:0 -4px 24px rgba(21,62,53,.15);border-top:3px solid #153e35">
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script src="shared.js"></script>
+<script>
+
+// ── Calculateur de risque ──
+var euro = new Intl.NumberFormat('fr-FR', {style:'currency', currency:'EUR', maximumFractionDigits:0});
+function runCalc() {
+  var ca      = Number(document.getElementById('caJour').value || 0);
+  var jours   = Number(document.getElementById('joursFermeture').value || 0);
+  var charges = Number(document.getElementById('chargesFixes').value || 0);
+  var perte   = ca * jours;
+  var impact  = perte + charges;
+  var pEl = document.getElementById('perteBrute');
+  var cEl = document.getElementById('poidsCharges');
+  var iEl = document.getElementById('impactTotal');
+  var aEl = document.getElementById('calcAlert');
+  if (pEl) pEl.textContent = euro.format(perte);
+  if (cEl) cEl.textContent = euro.format(charges);
+  if (iEl) iEl.textContent = euro.format(impact);
+  if (aEl) {
+    if (impact === 0) aEl.textContent = "Renseignez votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.";
+    else if (impact < 10000) aEl.textContent = "Même sur une hypothèse modérée, l'impact financier potentiel reste supérieur au coût d'une démarche préventive structurée.";
+    else if (impact < 30000) aEl.textContent = "L'estimation montre un risque financier significatif. L'enjeu n'est pas seulement sanitaire, mais aussi économique.";
+    else aEl.textContent = "Sur cette hypothèse, le coût potentiel d'une interruption d'activité devient majeur. Un audit en amont vise précisément à réduire ce niveau de risque.";
+  }
+}
+
+// ── Sélection service ──
+function selectService(val, el) {
+  document.getElementById('ins_service').value = val;
+  var colors = { audit_client:'#1f5649', audit_admin:'#00796b', docs:'#6b3fa0', full_client:'#b7410e', full_admin:'#5c3d8f' };
+  document.querySelectorAll('#serviceChoixGrid > div').forEach(function(d) {
+    var isSelected = d.dataset.val === val;
+    d.style.border = isSelected ? '2px solid ' + (colors[val]||'#2d6f60') : '2px solid #dfe6e0';
+    d.style.background = isSelected ? (colors[val]||'#2d6f60') + '14' : '#fff';
+  });
+}
+
+function showInscriptionAvecService(service) {
+  var el = document.getElementById('contact-tarifs');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  setTimeout(function() {
+    var card = document.querySelector('#serviceChoixGrid > div[data-val="' + service + '"]');
+    if (card) selectService(service, card);
+  }, 500);
+}
+
+// ── Soumettre inscription ──
+function soumettreInscription() {
+  var resp    = document.getElementById('ins_resp').value.trim();
+  var etab    = document.getElementById('ins_etab').value.trim();
+  var secteur = document.getElementById('ins_secteur').value;
+  var service = document.getElementById('ins_service').value;
+  var tel     = document.getElementById('ins_tel').value.trim();
+  var email   = document.getElementById('ins_email').value.trim();
+  var adresse = (document.getElementById('ins_adresse') || {}).value || '';
+  var siret   = (document.getElementById('ins_siret') || {}).value || '';
+  var effectif= (document.getElementById('ins_effectif') || {}).value || '';
+  var message = (document.getElementById('ins_message') || {}).value || '';
+
+  if (!resp)    { alert('Veuillez saisir votre nom.'); return; }
+  if (!etab)    { alert('Veuillez saisir le nom de l\'établissement.'); return; }
+  if (!secteur) { alert('Veuillez sélectionner votre secteur d\'activité.'); return; }
+  if (!service) { alert('Veuillez sélectionner le service souhaité.'); return; }
+  if (!tel)     { alert('Veuillez saisir votre téléphone.'); return; }
+  if (!email)   { alert('Veuillez saisir votre email.'); return; }
+  var consent = document.getElementById('rgpd_consent');
+  if (consent && !consent.checked) { alert('Veuillez accepter la politique de confidentialité pour continuer.'); return; }
+
+  var serviceLabels = {
+    audit_client: 'Audit par le client — 200 €',
+    audit_admin:  'Audit par nos experts — 300 €',
+    docs:         'Pack Documents — 250 €',
+    full_client:  'Full client (audit + docs) — 350 €',
+    full_admin:   'Full premium (expert + docs) — 450 €'
+  };
+  var secteurLabels = { RESTAURATION:'Restauration Traditionnelle', RESTAURATION_RAPIDE:'Restauration Rapide', BOULANGERIE:'Boulangerie / Pâtisserie', BOUCHERIE:'Boucherie / Charcuterie' };
+
+  var nouvelleDemande = {
+    id: Date.now(), resp: resp, etab: etab, secteur: secteur, service: service,
+    tel: tel, email: email, adresse: adresse, siret: siret,
+    effectif: effectif, message: message,
+    date: new Date().toLocaleDateString('fr-FR'), statut: 'nouveau'
+  };
+  var demandes = getDemandes();
+  demandes.unshift(nouvelleDemande);
+  saveDemandes(demandes);
+  saveDemande_remote(nouvelleDemande).catch(function(e){ console.error('Supabase inscription:', e); });
+
+  // ── Notification admin via EmailJS ──
+  var adminEmail = (typeof getAdminEmail === 'function' ? getAdminEmail() : '') || 'r.t.h@orange.fr';
+  var serviceInfo = serviceLabels[service] || service;
+  emailjs.send('service_84lz31w', 'template_ti43bkh', {
+    to_name:      'Administrateur Clean Food',
+    to_email:     adminEmail,
+    email:        adminEmail,
+    code:         '⚠️ NOUVELLE DEMANDE — À TRAITER',
+    service:      serviceInfo + '\nClient : ' + resp + ' — ' + tel + '\n' + (adresse ? adresse : '') + (siret ? ' — SIRET : ' + siret : '') + (message ? '\nMessage : ' + message : ''),
+    business:     etab,
+    lien_site:    window.location.origin + '/audit.html',
+    resp:         resp,
+    tel:          tel,
+    client_email: email,
+    date:         new Date().toLocaleDateString('fr-FR')
+  }).then(function() {
+    console.log('✅ Notif admin envoyée');
+  }, function(err) {
+    console.warn('⚠️ Notif admin non envoyée:', err);
+  });
+
+  var msg = document.getElementById('inscriptionMsg');
+  if (msg) {
+    msg.textContent = '✅ Votre demande a bien été envoyée ! Notre équipe vous contactera sous 24h avec votre code d\'accès.';
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth' });
+  }
+  ['ins_resp','ins_etab','ins_tel','ins_email','ins_adresse','ins_siret','ins_effectif','ins_message'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+  ['ins_secteur','ins_service'].forEach(function(id){
+    var el = document.getElementById(id); if(el) el.value = '';
+  });
+}
+
+// ── Toast ──
+function toast(m, t) {
+  if (t === undefined) t = 'inf';
+  var c = document.getElementById('toasts');
+  if (!c) return;
+  var d = document.createElement('div');
+  d.className = 'toast ' + t;
+  d.textContent = m;
+  c.appendChild(d);
+  setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 3000);
+}
+
+// ── Init ──
+window.addEventListener('DOMContentLoaded', function() {
+  injectNavbar('tarifs');
+
+  // Pré-remplir depuis les données du quiz (si le client vient de index.html)
+  try {
+    var quizData = localStorage.getItem('haccp_quiz_prefill');
+    if (quizData) {
+      var d = JSON.parse(quizData);
+      var fields = {
+        'ins_resp':    d.resp    || '',
+        'ins_etab':    d.etab   || '',
+        'ins_email':   d.email  || '',
+        'ins_tel':     d.tel    || '',
+        'ins_secteur': d.secteur|| '',
+        'ins_adresse': d.ville  || ''
+      };
+      Object.keys(fields).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && fields[id]) el.value = fields[id];
+      });
+      // Mettre en évidence le choix de formule sans pré-sélectionner
+      setTimeout(function() {
+        var grid = document.getElementById('serviceChoixGrid');
+        if (grid) {
+          grid.style.transition = 'box-shadow 0.4s';
+          grid.style.boxShadow = '0 0 0 3px #2d6f60, 0 0 24px rgba(45,111,96,.25)';
+          grid.style.borderRadius = '12px';
+          setTimeout(function() { grid.style.boxShadow = ''; }, 3000);
+        }
+      }, 500);
+      // Supprimer après utilisation
+      localStorage.removeItem('haccp_quiz_prefill');
+    }
+  } catch(e) {}
+
+  // Attacher les événements du calculateur
+  var caEl  = document.getElementById('caJour');
+  var jEl   = document.getElementById('joursFermeture');
+  var chEl  = document.getElementById('chargesFixes');
+  var cbEl  = document.getElementById('calcBtn');
+  if (caEl)  caEl.addEventListener('input', runCalc);
+  if (jEl)   jEl.addEventListener('change', runCalc);
+  if (chEl)  chEl.addEventListener('input', runCalc);
+  if (cbEl)  cbEl.addEventListener('click', runCalc);
+  runCalc();
+
+  // Si un service est passé en paramètre URL (ex: tarifs.html?service=docs)
+  var params = new URLSearchParams(window.location.search);
+  var svc = params.get('service');
+  if (svc) {
+    setTimeout(function() {
+      var card = document.querySelector('#serviceChoixGrid > div[data-val="' + svc + '"]');
+      if (card) { selectService(svc, card); showInscriptionAvecService(svc); }
+    }, 400);
+  }
+
+  // Pré-remplir le formulaire depuis les données du quiz
+  setTimeout(function() {
+    try {
+      var qd = JSON.parse(localStorage.getItem('haccp_quiz_data') || '{}');
+      if (!qd.etab && !qd.resp) return; // Pas de données quiz
+      var map = {
+        'ins_resp':    qd.resp    || '',
+        'ins_etab':    qd.etab    || '',
+        'ins_email':   qd.email   || '',
+        'ins_tel':     qd.tel     || '',
+        'ins_secteur': qd.secteur || '',
+        'ins_adresse': qd.ville   || ''
+      };
+      var filled = false;
+      Object.keys(map).forEach(function(id) {
+        var el = document.getElementById(id);
+        if (el && map[id] && !el.value) { el.value = map[id]; filled = true; }
+      });
+      if (filled) {
+        var msg = document.getElementById('inscriptionMsg');
+        if (msg) {
+          msg.textContent = '✅ Vos informations ont été pré-remplies depuis votre test. Vérifiez et complétez si nécessaire.';
+          msg.style.display = 'block';
+          msg.style.background = '#e8f5e9';
+          msg.style.borderColor = '#a5d6a7';
+          msg.style.color = '#2e7d32';
+        }
+      }
+    } catch(e) {}
+  }, 500);
+});
+</script>
+</body>
+</html>

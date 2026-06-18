@@ -1,0 +1,1977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clean Food | Documents Réglementaires HACCP</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<script>
+// Fallback si cdnjs ne charge pas
+window.addEventListener('load', function() {
+  if (!window.docx) {
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/docx@8.5.0/build/index.umd.js';
+    s.onload = function() { console.log('docx chargé via unpkg'); };
+    document.head.appendChild(s);
+  }
+});
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#153e35; --navy2:#1f5649; --teal:#2d6f60; --teal2:#3b8a77;
+  --bg:#f5f2ea; --card:#fff; --border:#dfe6e0;
+  --text:#17211d; --muted:#65716b;
+  color-scheme: light only;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:#17211d}
+
+/* ── TOASTS ── */
+.toasts{position:fixed;bottom:20px;right:20px;z-index:300;display:flex;flex-direction:column;gap:6px}
+.toast{background:#153e35;color:#fff;padding:10px 15px;border-radius:8px;font-size:.82rem;box-shadow:0 4px 20px rgba(0,0,0,.25);animation:tIn .3s ease;min-width:220px}
+@keyframes tIn{from{transform:translateX(60px);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.ok{border-left:4px solid #2a9a57}
+.toast.err{border-left:4px solid #d84f43}
+.toast.inf{border-left:4px solid #2d6f60}
+
+/* ── DOCS CLIENT PANEL ── */
+.doc-btn{padding:15px;border:none;border-radius:10px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.9rem;font-weight:600;display:flex;align-items:center;gap:10px;width:100%;text-align:left;color:#fff;transition:opacity .2s}
+.doc-btn:hover{opacity:.88}
+.doc-btn .icon{font-size:1.4rem;flex-shrink:0}
+.doc-btn .label{display:flex;flex-direction:column;gap:2px}
+.doc-btn .sublabel{font-size:.75rem;opacity:.8;font-weight:400}
+
+/* ══════════════════════════════════════════
+   MOBILE RESPONSIVE — correctif global
+   ══════════════════════════════════════════ */
+@media(max-width:768px){
+  html, body { overflow-x: hidden; max-width: 100%; }
+
+  /* Grilles fixes → 1 colonne */
+  div[style*="grid-template-columns:1fr 1fr"],
+  div[style*="grid-template-columns:1fr 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* minmax trop large → forcer colonne unique */
+  div[style*="minmax(300px"] {
+    grid-template-columns: 1fr !important;
+  }
+  div[style*="minmax(200px"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  /* Padding latéral */
+  .cf-nav div[style*="max-width:1180px"],
+  .cf-nav [style*="max-width:1180px"] { padding-left: 20px !important; padding-right: 20px !important; }
+  div[style*="max-width:1180px"] {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Toasts */
+  .toasts { right: 8px; left: 8px; bottom: 8px; }
+  .toast { min-width: unset; }
+
+  /* Tableaux */
+  table { display: block; overflow-x: auto; width: 100%; }
+
+  /* Titres */
+  h1 { font-size: clamp(20px, 6vw, 28px) !important; }
+  h2 { font-size: clamp(18px, 5vw, 24px) !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<div id="siteNavbar"></div>
+
+<!-- BOUTON RETOUR -->
+<div style="max-width:1180px;margin:0 auto;padding:12px 24px 0">
+  <button onclick="history.back()" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;background:#fff;border:1.5px solid rgba(21,62,53,.18);border-radius:999px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.82rem;font-weight:700;color:#153e35">← Retour</button>
+</div>
+
+
+<!-- ══ BANDEAU CLIENT DOCS (affiché si connecté avec code DOCS ou FULL) ══ -->
+<div id="clientDocsBar" style="display:none;background:linear-gradient(135deg,#153e35,#1f5649);padding:16px 24px;font-family:'Source Sans 3',sans-serif">
+  <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <div style="color:#fff">
+      <div style="font-weight:700;font-size:.9rem">📦 Vos documents sont prêts à télécharger</div>
+      <div id="clientDocsEtab" style="font-size:.8rem;color:rgba(255,255,255,.7);margin-top:2px"></div>
+    </div>
+    <button onclick="scrollToClientDocs()" style="padding:10px 22px;background:#d2ad46;color:#201806;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">⬇ Accéder à mes documents</button>
+  </div>
+</div>
+
+  <section style="padding:56px 0;background:#fff" id="documents">
+    <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+      <div style="text-align:center;max-width:860px;margin:0 auto 36px">
+        <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Documents Réglementaires</span>
+        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 8px">Documents réglementaires : protégez votre établissement, évitez les sanctions</h2>
+        <p style="font-size:1rem;color:#65716b">Ce que dit la loi, les sanctions encourues et les données de contrôle en France.</p>
+      </div>
+
+      <!-- Textes de référence -->
+      <div style="background:#f0f4f8;border-radius:14px;padding:18px 24px;margin-bottom:28px;text-align:center">
+        <div style="font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#4a6080;margin-bottom:8px">Textes de référence</div>
+        <div style="font-size:.85rem;color:#2d4a5e;line-height:1.8">
+          Règlement CE 852/2004 &nbsp;·&nbsp; Règlement CE 178/2002 &nbsp;·&nbsp; Règlement CE 1169/2011 &nbsp;·&nbsp; Arrêté du 21/12/2009 &nbsp;·&nbsp; Art. R.4121-1 Code du Travail &nbsp;·&nbsp; Art. L218-1 Code de la Consommation
+        </div>
+      </div>
+
+      <!-- Les 11 documents : 2 visibles, 9 floutés -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:32px">
+
+        <!-- FLOUTÉS -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #153e35;filter:blur(3px);user-select:none;pointer-events:none;position:relative">
+          <div style="font-weight:700;color:#153e35;margin-bottom:6px">📄 Plan de Maîtrise Sanitaire (PMS)</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 852/2004 — Obligatoire pour tout établissement manipulant des denrées alimentaires.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de l'avertissement à la fermeture administrative — amende pouvant aller de 1 500 € à 7 500 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #2d6a4f;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#2d6a4f;margin-bottom:6px">🧹 Plan de Nettoyage & Désinfection</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Arrêté du 21/12/2009 — Art. L218-1 Code de la Consommation — Inclus dans le PMS.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de la mise en demeure à la fermeture administrative — amende pouvant aller de 1 500 € à 15 000 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #6b3fa0;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#6b3fa0;margin-bottom:6px">⚠️ Document Unique des Risques (DUERP)</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Art. R.4121-1 Code du Travail — Obligatoire dès le 1er salarié.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : amende pouvant aller de 3 750 € à 9 000 € — récidive : jusqu'à 1 an d'emprisonnement</div>
+        </div>
+
+        <!-- VISIBLE 1 : Relevé des Températures -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #0277bd">
+          <div style="font-weight:700;color:#0277bd;margin-bottom:6px">🌡️ Relevé des Températures</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 852/2004 — Enregistrement obligatoire des températures de conservation des denrées.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de l'avertissement à la fermeture administrative — amende pouvant aller de 750 € à 1 500 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #c0392b;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#c0392b;margin-bottom:6px">📦 Fiche de Réception</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 178/2002 — Traçabilité obligatoire à la réception de toute denrée alimentaire.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de l'avertissement à la fermeture administrative — amende pouvant aller de 750 € à 1 500 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #e67e22;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#e67e22;margin-bottom:6px">🔍 Traçabilité</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 178/2002 — Obligation de traçabilité de toutes les denrées alimentaires.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de l'avertissement à la fermeture administrative — amende pouvant aller de 750 € à 1 500 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #27ae60;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#27ae60;margin-bottom:6px">🌾 Allergènes</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 1169/2011 — Information obligatoire des consommateurs sur les 14 allergènes majeurs.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : de l'avertissement à la fermeture administrative — amende pouvant aller de 750 € à 1 500 €</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #7f8c8d;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#7f8c8d;margin-bottom:6px">❌ Gestion des Non-Conformités</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 852/2004 — Enregistrement obligatoire de toute non-conformité détectée et des actions correctives.</div>
+          <div style="background:#f0f4f8;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#4a6080">📋 Pas de sanction directe — mais preuve indispensable en cas de contrôle DDPP ou d'intoxication alimentaire</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #00695c;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#00695c;margin-bottom:6px">🏷️ Étiquettes de Traçabilité Interne (70×45mm)</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 178/2002 Art.18 — Étiquetage obligatoire de toutes les préparations conservées : produit, N° lot, DLC, date ouverture, DLC secondaire, estampille sanitaire.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : amende jusqu'à 1 500 € par produit non tracé — responsabilité pénale en cas de crise sanitaire</div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #1565c0;filter:blur(3px);user-select:none;pointer-events:none">
+          <div style="font-weight:700;color:#1565c0;margin-bottom:6px">🖐️ Affiche Lavage des Mains</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Règlement CE 852/2004 Annexe II Ch.VIII — Affichage obligatoire dans les zones de préparation. 7 étapes, durée minimale 30 secondes.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : mise en demeure immédiate — fermeture administrative possible — amende jusqu'à 1 500 € par infraction</div>
+        </div>
+
+        <!-- VISIBLE 2 : Fiche Contrôle des Huiles de Friture -->
+        <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #e65100">
+          <div style="font-weight:700;color:#e65100;margin-bottom:6px">🍟 Fiche Contrôle des Huiles de Friture</div>
+          <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Arrêté du 28 mai 1997 modifié — Décret n°2008-184 — Contrôle obligatoire : CPT ≤ 25%, température ≤ 180°C. Registre de suivi obligatoire.</div>
+          <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : amende jusqu'à 1 500 € — mise en danger du consommateur jusqu'à 3 750 € — élimination incorrecte jusqu'à 75 000 €</div>
+        </div>
+
+        <!-- Bandeau cadenas sur les 9 floutés -->
+        <div style="grid-column:1/-1;background:linear-gradient(135deg,#153e35,#1f5649);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+          <div>
+            <div style="font-weight:800;color:#fff;font-size:.95rem;margin-bottom:4px">🔒 9 documents supplémentaires réservés aux clients</div>
+            <div style="font-size:.82rem;color:rgba(255,255,255,.75)">PMS, Nettoyage, DUERP, Réception, Traçabilité, Allergènes, Non-Conformités, Étiquettes, Lavage des mains</div>
+          </div>
+          <a href="audit.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,#d2ad46,#b79029);color:#201806;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;text-decoration:none;white-space:nowrap">📩 Accéder à tous les documents</a>
+        </div>
+
+      </div>
+
+      <!-- Mention base de travail -->
+      <div style="background:#f0f4f8;border:1px solid #b0c4d8;border-radius:12px;padding:16px 20px;margin-bottom:32px">
+        <div style="font-size:.82rem;color:#4a6080;line-height:1.7">
+          <strong>⚠️ Important :</strong> Les documents fournis (PMS, Plan de Nettoyage &amp; Désinfection, DUERP, etc.) constituent une base de travail adaptée à votre secteur d'activité. Ils doivent être personnalisés et complétés par vos soins en fonction de l'évolution de votre activité. Ces documents n'ont pas valeur contractuelle.
+        </div>
+      </div>
+
+      <!-- Liens vers pages dédiées -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:28px">
+        <a href="sanctions.html" style="display:flex;align-items:center;gap:14px;background:#fdecea;border:1px solid rgba(216,79,67,.2);border-radius:14px;padding:18px;text-decoration:none">
+          <span style="font-size:1.8rem">⚖️</span>
+          <div><div style="font-weight:800;color:#c0392b;font-size:.92rem">Cas Réels & Sanctions</div><div style="font-size:.78rem;color:#65716b;margin-top:3px">Jurisprudence et condamnations réelles</div></div>
+        </a>
+        <a href="controles.html" style="display:flex;align-items:center;gap:14px;background:#e8f5e9;border:1px solid rgba(45,111,96,.2);border-radius:14px;padding:18px;text-decoration:none">
+          <span style="font-size:1.8rem">📊</span>
+          <div><div style="font-weight:800;color:#1f5649;font-size:.92rem">Contrôles dans votre département</div><div style="font-size:.78rem;color:#65716b;margin-top:3px">Statistiques DGAL 2024 par département</div></div>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  
+
+
+<!-- ══ SECTION TÉLÉCHARGEMENT CLIENT (visible si connecté) ══ -->
+<div id="clientDocsSection" style="display:none;background:linear-gradient(135deg,#153e35,#1f5649);padding:56px 0">
+  <div style="max-width:600px;margin:0 auto;padding:0 24px">
+    <div style="background:#fff;border-radius:18px;padding:36px;box-shadow:0 20px 60px rgba(0,0,0,.35)">
+      <div style="text-align:center;margin-bottom:24px">
+        <div style="font-size:2.5rem;margin-bottom:8px">📦</div>
+        <h2 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;color:#153e35;margin-bottom:4px">Vos Documents Réglementaires</h2>
+        <p id="clientDocsEtabName" style="color:#65716b;font-size:.83rem"></p>
+      </div>
+      <div id="clientDocsInfoBox" style="background:#f0faf8;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:.8rem;color:#2d4a3e;line-height:1.8;border:1px solid rgba(0,168,150,.3)"></div>
+      <div id="clientDocsBtns" style="display:flex;flex-direction:column;gap:10px"></div>
+      <p style="margin-top:16px;font-size:.74rem;color:#8a9e95;text-align:center">Documents au format Word (.docx) — Ouvrir avec Word, LibreOffice ou Google Docs</p>
+      <button onclick="logoutAndRedirect()" style="width:100%;margin-top:12px;padding:10px;background:#f5f2ea;border:1px solid #dfe6e0;border-radius:8px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.82rem;color:#65716b">⏻ Se déconnecter</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer style="padding:40px 0 28px;border-top:1px solid rgba(31,86,73,.08);background:linear-gradient(180deg,rgba(255,255,255,.76),rgba(255,255,255,.92))">
+  <div style="max-width:1180px;margin:0 auto;padding:0 24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:40px;height:40px;border-radius:12px;background:#1f5649;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center">CF</div>
+        <div><div style="font-weight:900;font-size:.95rem;letter-spacing:.08em;color:#153e35">CLEAN FOOD</div><div style="font-size:.7rem;color:#65716b;font-weight:700;letter-spacing:.1em;text-transform:uppercase">ExpertAudit HACCP</div></div>
+      </div>
+      <div style="color:#65716b;font-size:.84rem">© 2026 Clean Food — RTH NETGOCE · 49 Rue de Douai, 75009 Paris</div>
+    </div>
+  </div>
+</footer>
+
+<div class="toasts" id="toasts"></div>
+
+
+<script src="shared.js"></script>
+<script>
+// ════════════════════════════════════════════════════
+// SYSTÈME D'AUTORISATION DOCUMENTS
+// ════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════
+// DONNÉES NETTOYAGE PAR SECTEUR
+// ════════════════════════════════════════════════════
+var NETTOYAGE_DATA = {
+  RESTAURATION: [
+    ['Plans de travail', 'Entre 2 opérations + fin de service', 'Désinfectant contact alimentaire', 'Cuisine'],
+    ['Hottes et filtres', '1 fois/semaine', 'Dégraissant professionnel', 'Cuisine'],
+    ['Friteuses (vidange + nettoyage)', '1 fois/jour (fin de service)', 'Dégraissant alimentaire', 'Cuisine'],
+    ['Réfrigérateurs positifs (0-4°C)', '1 fois/semaine', 'Désinfectant alimentaire', 'Cuisine'],
+    ['Congélateurs (-18°C)', '1 fois/mois', 'Désinfectant alimentaire', 'Cuisine'],
+    ['Four / Salamandre', '1 fois/jour (fin de service)', 'Dégraissant four', 'Cuisine'],
+    ['Trancheuse / Robot coupe', 'Après chaque utilisation', 'Désinfectant contact alimentaire', 'Cuisine'],
+    ['Sol cuisine', 'Fin de chaque service', 'Dégraissant + désinfectant', 'Plonge'],
+    ['Murs / Carrelage cuisine', '1 fois/semaine', 'Détergent désinfectant', 'Cuisine'],
+    ['Poubelles', 'Chaque jour', 'Détergent + désinfectant', 'Plonge'],
+    ['Lave-mains dédié', 'Chaque jour', 'Détergent bactéricide', 'Personnel'],
+    ['Salle / Tables / Chaises', 'Chaque service', 'Désinfectant surfaces', 'Salle'],
+    ['Toilettes personnel', '1 fois/jour minimum', 'Détartrant + désinfectant', 'Plonge'],
+    ['Poignées de portes / Interrupteurs', '1 fois/jour', 'Désinfectant virucide', 'Personnel'],
+  ],
+  RESTAURATION_RAPIDE: [
+    ['Comptoir de vente', 'Toutes les heures + fin de service', 'Désinfectant contact alimentaire', 'Équipe vente'],
+    ['Zone préparation sandwiches', 'Entre chaque préparation + fin de service', 'Désinfectant alimentaire', 'Cuisine'],
+    ['Friteuses (vidange + nettoyage)', '1 fois/jour (fin de service)', 'Dégraissant alimentaire', 'Cuisine'],
+    ['Grills / Plaques de cuisson', 'Après chaque service', 'Dégraissant grill', 'Cuisine'],
+    ['Réfrigérateurs sandwiches (≤4°C)', '1 fois/semaine', 'Désinfectant alimentaire', 'Cuisine'],
+    ['Congélateurs (-18°C)', '1 fois/mois', 'Désinfectant alimentaire', 'Cuisine'],
+    ['Sol cuisine + salle', 'Fin de chaque service', 'Dégraissant + désinfectant', 'Plonge'],
+    ['Poubelles internes', 'Chaque service', 'Détergent + désinfectant', 'Équipe'],
+    ['Lave-mains dédié', 'Chaque jour', 'Détergent bactéricide', 'Personnel'],
+    ['Hottes / Extraction', '1 fois/semaine', 'Dégraissant professionnel', 'Cuisine'],
+    ['Distributeurs / Écrans tactiles', '1 fois/jour', 'Désinfectant surfaces', 'Équipe vente'],
+  ],
+  BOULANGERIE: [
+    ['Pétrin (démontage complet)', 'Après chaque utilisation (soir)', 'Détergent alimentaire + brosse', 'Boulanger'],
+    ['Façonneuse / Diviseuse', 'Après chaque utilisation', 'Détergent alimentaire', 'Boulanger'],
+    ['Laminoir', 'Après chaque utilisation', 'Détergent alimentaire + grattoir', 'Pâtissier'],
+    ['Batteur / Robot pâtissier', 'Après chaque utilisation (démontage)', 'Détergent alimentaire', 'Pâtissier'],
+    ['Fours (intérieur + sole)', '1 fois/semaine', 'Dégraissant four professionnel', 'Boulanger'],
+    ['Grilles / Filets de cuisson', '1 fois/semaine', 'Détergent dégraissant', 'Boulanger'],
+    ['Réfrigérateurs crèmes / frais', '1 fois/semaine', 'Désinfectant alimentaire', 'Pâtissier'],
+    ['Congélateurs (-18°C)', '1 fois/mois', 'Désinfectant alimentaire', 'Pâtissier'],
+    ['Vitrine réfrigérée vente', '1 fois/jour (fermeture)', 'Désinfectant alimentaire', 'Vente'],
+    ['Plan de travail / Marbre', 'Après chaque utilisation + fin de journée', 'Désinfectant contact alimentaire', 'Pâtissier'],
+    ['Sol laboratoire', 'Fin de journée', 'Dégraissant + désinfectant', 'Équipe'],
+    ['Toiles de pousse / Bannetons', '1 fois/semaine (brossage + séchage)', 'Brossage sec', 'Boulanger'],
+    ['Poubelles', 'Chaque jour', 'Détergent + désinfectant', 'Équipe'],
+    ['Zone stockage farines', '1 fois/semaine (aspiration)', 'Aspirateur + désinfectant', 'Boulanger'],
+  ],
+  BOUCHERIE: [
+    ['Hachoir (démontage complet)', 'Après chaque utilisation', 'Détergent alimentaire + désinfectant', 'Boucher'],
+    ['Trancheuse (démontage)', 'Après chaque utilisation', 'Désinfectant contact alimentaire', 'Boucher'],
+    ['Scie à os (démontage)', 'Après chaque utilisation + fin journée', 'Détergent alimentaire + désinfectant', 'Boucher'],
+    ['Plans de travail / Billots', 'Entre chaque espèce + fin journée', 'Désinfectant contact alimentaire', 'Boucher'],
+    ['Couteaux / Fusils (par espèce)', 'Entre chaque espèce de viande', 'Bain désinfectant 82°C ou chimique', 'Boucher'],
+    ['Chambre froide viandes (0-4°C)', '1 fois/semaine', 'Désinfectant alimentaire', 'Boucher'],
+    ['Congélateur (-18°C)', '1 fois/mois', 'Désinfectant alimentaire', 'Boucher'],
+    ['Vitrine réfrigérée vente', 'Fin de journée (vidage + nettoyage)', 'Désinfectant alimentaire', 'Vente'],
+    ['Sol atelier de découpe', 'Fin de chaque service', 'Dégraissant + désinfectant', 'Équipe'],
+    ['Murs / Carrelage atelier', '1 fois/semaine', 'Détergent désinfectant', 'Équipe'],
+    ['Tabliers / Cotes de mailles', '1 fois/jour', 'Détergent + désinfectant', 'Boucher'],
+    ['Poubelles / Bacs sous-produits', 'Chaque jour', 'Détergent + désinfectant', 'Équipe'],
+    ['Lave-mains dédié', 'Chaque jour', 'Détergent bactéricide', 'Personnel'],
+  ]
+};
+
+// ════════════════════════════════════════════════════
+// DONNÉES DUERP PAR SECTEUR
+// ════════════════════════════════════════════════════
+var DUERP_DATA = {
+  RESTAURATION: [
+    {unite:'Cuisine / cuisson', risque:'Brûlures (four, plaques, huile)', niveau:'Élevé', mesures:'Gants thermiques, manches longues, outils adaptés', actions:'Affichage consignes, formation gestes, trousse premiers secours'},
+    {unite:'Cuisine', risque:'Coupures (couteaux, mandoline)', niveau:'Élevé', mesures:'Gants anti-coupures, couteaux rangés protégés', actions:'Formation taille sécurisée, collecteur lames usagées'},
+    {unite:'Cuisine / salle', risque:'Glissades / chutes (sols mouillés)', niveau:'Élevé', mesures:'Chaussures antidérapantes, serpillières, panneaux', actions:'Nettoyage immédiat des projections, revêtement antidérapant'},
+    {unite:'Toutes unités', risque:'TMS — postures contraignantes', niveau:'Moyen', mesures:'Tables réglables, organisation des postes', actions:'Formation gestes & postures, rotation des tâches'},
+    {unite:'Toutes unités', risque:'Fortes chaleurs / stress thermique', niveau:'Élevé', mesures:'Eau disponible, aération, pauses régulières', actions:'Procédure épisode chaleur, adaptation horaires été'},
+    {unite:'Cuisine', risque:'Projections (huile bouillante, vapeur)', niveau:'Moyen', mesures:'Couvercles, écrans de protection', actions:'EPI adaptés, formation manipulation'},
+    {unite:'Plonge', risque:'Exposition aux produits chimiques', niveau:'Moyen', mesures:'Gants résistants, FDS disponibles', actions:'Formation utilisation produits, stockage séparé'},
+    {unite:'Réserves / Livraisons', risque:'Manutentions lourdes (TMS)', niveau:'Moyen', mesures:'Diable, transpalette, aide à la manutention', actions:'Limite charges unitaires 25kg, formation postures'},
+    {unite:'Salle', risque:'RPS — agressions clients / stress', niveau:'Faible', mesures:'Procédure gestion conflits, présence responsable', actions:'Formation gestion stress, soutien managérial'},
+    {unite:'Toutes unités', risque:'Risque électrique (équipements)', niveau:'Faible', mesures:'Contrôle électrique annuel, câbles protégés', actions:'Maintenance préventive, signalement pannes'},
+  ],
+  RESTAURATION_RAPIDE: [
+    {unite:'Friture / cuisson', risque:'Brûlures (friteuses, huile, vapeur)', niveau:'Élevé', mesures:'Gants thermiques, écrans, EPI', actions:'Formation obligatoire, affichage températures'},
+    {unite:'Toutes unités', risque:'Glissades / chutes (sols gras)', niveau:'Élevé', mesures:'Chaussures antidérapantes, nettoyage fréquent', actions:'Revêtements antidérapants, signalétique sol mouillé'},
+    {unite:'Préparation', risque:'Coupures (trancheuse, couteaux)', niveau:'Moyen', mesures:'Gants anti-coupures, protège-doigts', actions:'Formation outils tranchants, collecteur lames'},
+    {unite:'Toutes unités', risque:'TMS — gestes répétitifs', niveau:'Élevé', mesures:'Organisation poste, outils ergonomiques', actions:'Rotation des tâches, pauses régulières'},
+    {unite:'Comptoir / Caisse', risque:'RPS — stress / pression client', niveau:'Moyen', mesures:'Planning adapté, management bienveillant', actions:'Formation gestion conflits, soutien équipe'},
+    {unite:'Toutes unités', risque:'Fortes chaleurs', niveau:'Moyen', mesures:'Eau disponible, ventilation, pauses', actions:'Procédure canicule, horaires adaptés'},
+    {unite:'Réception / Stockage', risque:'Manutentions lourdes', niveau:'Moyen', mesures:'Diable, transpalette', actions:'Limite 25kg, formation gestes'},
+    {unite:'Plonge / Nettoyage', risque:'Produits chimiques (détergents)', niveau:'Moyen', mesures:'Gants, masque, FDS disponibles', actions:'Formation, stockage séparé des denrées'},
+  ],
+  BOULANGERIE: [
+    {unite:'Four / cuisson', risque:'Brûlures (plaques, soles, vapeur)', niveau:'Élevé', mesures:'Gants thermiques, manches longues coton, outils sortie plaques', actions:'Thermomètres/timers, zones de dépose sécurisées, trousse dédiée'},
+    {unite:'Pétrin / façonnage / laminoir', risque:'Entraînement / écrasement', niveau:'Élevé', mesures:'Carters en place, arrêt d\'urgence, clés de sécurité', actions:'Interdiction nettoyage en mouvement, maintenance préventive mensuelle'},
+    {unite:'Toutes unités', risque:'Fortes chaleurs / stress thermique', niveau:'Élevé', mesures:'Accès à l\'eau potable, information équipes, aération', actions:'Procédure épisode chaleur, adaptation horaires'},
+    {unite:'Pétrin / façonnage / laminoir', risque:'Irritation / asthme du boulanger', niveau:'Moyen', mesures:'Farines versées doucement, ventilation, masques P2', actions:'Silo/aspiration locale, humidification légère avant nettoyage'},
+    {unite:'Pâtisserie / crème / chocolat', risque:'Coupures (couteaux, lames)', niveau:'Moyen', mesures:'Gants anticoupure fins, couteaux entretenus', actions:'Collecteur lames usagées, tapis antidérapant plan de travail'},
+    {unite:'Réception / stockage', risque:'Manutentions sacs farine / cartons', niveau:'Moyen', mesures:'Diable/transpalette, rayonnage bas pour lourds', actions:'Limite charges unitaires, rotation tâches, formation gestes'},
+    {unite:'Vente comptoir / caisse', risque:'RPS / horaires matinaux', niveau:'Faible', mesures:'Organisation planning, pauses, eau disponible', actions:'Équipe renfort week-end, anti-fatigue au comptoir'},
+    {unite:'Vente', risque:'Rayonnements ionisants', niveau:'Non exposé', mesures:'Sans objet', actions:'Non applicable'},
+  ],
+  BOUCHERIE: [
+    {unite:'Atelier découpe', risque:'Coupures graves (couteaux, scies, hachoir)', niveau:'Élevé', mesures:'Gants anti-coupures (cote de mailles), couteaux rangés, garde-doigts', actions:'Formation obligatoire, collecteur lames, contrôle affûtage régulier'},
+    {unite:'Atelier / Chambre froide', risque:'Stress thermique froid (exposition ≤4°C)', niveau:'Élevé', mesures:'Vêtements chauds, durées d\'exposition limitées', actions:'Rotation au froid, pauses chauffées, suivi médical'},
+    {unite:'Atelier / Toutes unités', risque:'TMS — gestes répétitifs (désossage)', niveau:'Élevé', mesures:'Outils ergonomiques, rotation des tâches', actions:'Formation gestes & postures, pauses actives'},
+    {unite:'Atelier découpe', risque:'Glissades / chutes (sols mouillés, graisses)', niveau:'Élevé', mesures:'Chaussures de sécurité antidérapantes, nettoyage continu', actions:'Revêtement antidérapant, panneaux sol mouillé'},
+    {unite:'Atelier découpe', risque:'Bruit (machines de découpe)', niveau:'Moyen', mesures:'Bouchons d\'oreille, capotages machines', actions:'Mesure sonométrique annuelle, EPI auditifs obligatoires'},
+    {unite:'Réception viandes', risque:'Manutentions lourdes (carcasses, cartons)', niveau:'Moyen', mesures:'Crochets, rails, transpalette', actions:'Aide à la manutention, limite charges, formation'},
+    {unite:'Nettoyage', risque:'Produits chimiques (désinfectants)', niveau:'Moyen', mesures:'Gants résistants, masque, FDS disponibles', actions:'Formation utilisation, stockage séparé denrées'},
+    {unite:'Vente', risque:'RPS — contact clientèle', niveau:'Faible', mesures:'Management bienveillant, planning adapté', actions:'Formation gestion conflits'},
+  ]
+};
+
+
+// ════════════════════════════════════════════════════
+// CONFIGURATION — modifier ces valeurs
+// ════════════════════════════════════════════════════
+var PRIX_AUDIT_CLIENT = 200; // Code HACCP- : audit fait par le client (€)
+var PRIX_AUDIT_ADMIN  = 300; // Audit fait par l'admin (€)
+var PRIX_DOCS_PACK    = 250; // Code DOCS-  : pack 3 documents (€)
+var PRIX_DOCS_UNITE   = 100; // Par document à l'unité (€)
+var PRIX_FULL_CLIENT  = 350; // Code FULL-  : audit client + documents (€)
+var PRIX_FULL_ADMIN   = 450; // Full admin  : audit admin + documents (€)
+var ADMIN_EMAIL_KEY = 'haccp_admin_email'; // clé localStorage email admin
+function getAdminEmail() { return localStorage.getItem(ADMIN_EMAIL_KEY) || ''; }
+function saveAdminEmail(e) { localStorage.setItem(ADMIN_EMAIL_KEY, e); }
+
+var DOC_AUTH_KEY = 'haccp_doc_auth'; // gardé pour compatibilité
+
+function getDocAuths() {
+  return JSON.parse(localStorage.getItem(DOC_AUTH_KEY) || '{}');
+}
+function saveDocAuths(a) { localStorage.setItem(DOC_AUTH_KEY, JSON.stringify(a)); }
+
+// Débloquer/bloquer les docs — stocké DANS l'objet code (partagé via session)
+function toggleDocAuth(code) {
+  var codes = getCodes();
+  var found = codes.find(function(c){ return c.code === code; });
+  if (!found) return;
+  found.docsUnlocked = !found.docsUnlocked;
+  saveCodes(codes);
+  // Aussi dans DOC_AUTH_KEY pour l'affichage admin
+  var auths = getDocAuths();
+  auths[code] = found.docsUnlocked;
+  saveDocAuths(auths);
+  refreshAdminTable();
+  toast(found.docsUnlocked ? '✅ Documents débloqués pour ce client.' : '🔒 Documents verrouillés.', found.docsUnlocked ? 'ok' : 'inf');
+}
+
+function isDocAuthorized(code) {
+  // Admin toujours autorisé
+  var sess = getSession();
+  if (sess && sess.role === 'admin') return true;
+  // Session docs-only : toujours autorisé
+  if (sess && sess.docsOnly) return true;
+  // Session client normale : vérifier docsUnlocked dans la session
+  if (sess && sess.docsUnlocked) return true;
+  // Fallback : vérifier dans les codes (si même appareil que l'admin)
+  var codes = getCodes();
+  var found = codes.find(function(c){ return c.code === code; });
+  if (found && found.docsUnlocked) return true;
+  return false;
+}
+// MOTEUR DE GÉNÉRATION WORD (via docx.js CDN)
+// ════════════════════════════════════════════════════
+
+function todayFR() {
+  return new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+function getInfoByCode(code) {
+  // Chercher dans les codes (inclut admin_temp)
+  var codes = getCodes();
+  var found = codes.find(function(c){ return c.code === code; });
+  if (found && found.info && found.info.etab) return found.info;
+  // Session admin auditant un client
+  var sess = getSession();
+  if (sess && sess.auditClientInfo && sess.auditClientInfo.etab) return sess.auditClientInfo;
+  // Session client
+  if (sess && sess.info && sess.info.etab) return sess.info;
+  return {};
+}
+
+function downloadBlob(blob, filename) {
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+}
+
+// ─── Génération PMS Word complet ───
+function genDocsPMS(code) {
+  if (!isDocAuthorized(code)) {
+    toast('🔒 Non autorisé. L\'administrateur doit débloquer ce document.', 'err');
+    alert('Ce document n\'est pas encore autorisé par l\'administrateur.\nDemandez à votre auditeur de débloquer vos documents.');
+    return;
+  }
+  var info = getInfoByCode(code);
+  if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+
+  toast('⏳ Génération du PMS en cours...', 'inf');
+
+  try {
+    var d = window.docx;
+    var today = todayFR();
+    var secteur = info.secteur || 'RESTAURATION';
+    var nData = NETTOYAGE_DATA[secteur] || NETTOYAGE_DATA['RESTAURATION'];
+    var W = 9026; // A4 content width DXA
+
+    var bdr = { style: d.BorderStyle.SINGLE, size: 1, color: 'AAAAAA' };
+    var borders = { top:bdr, bottom:bdr, left:bdr, right:bdr };
+
+    function hcell(text, w) {
+      return new d.TableCell({ borders, width:{size:w,type:d.WidthType.DXA},
+        shading:{fill:'2C6E8A',type:d.ShadingType.CLEAR}, verticalAlign:d.VerticalAlign.CENTER,
+        margins:{top:80,bottom:80,left:120,right:120},
+        children:[new d.Paragraph({children:[new d.TextRun({text,bold:true,size:18,font:'Arial',color:'FFFFFF'})]})]
+      });
+    }
+    function tcell(text, w, opts) {
+      opts = opts || {};
+      return new d.TableCell({ borders, width:{size:w,type:d.WidthType.DXA},
+        shading: opts.shade ? {fill:opts.shade,type:d.ShadingType.CLEAR} : undefined,
+        verticalAlign:d.VerticalAlign.CENTER, margins:{top:80,bottom:80,left:120,right:120},
+        children:[new d.Paragraph({
+          alignment: opts.center ? d.AlignmentType.CENTER : d.AlignmentType.LEFT,
+          children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||20,font:'Arial',color:opts.color||'000000'})]
+        })]
+      });
+    }
+    function p(text, opts) {
+      opts = opts || {};
+      return new d.Paragraph({spacing:{before:60,after:60}, alignment: opts.center ? d.AlignmentType.CENTER : d.AlignmentType.LEFT,
+        children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]
+      });
+    }
+    function h1(text) { return new d.Paragraph({ heading:d.HeadingLevel.HEADING_1, spacing:{before:400,after:200},
+      children:[new d.TextRun({text,bold:true,size:32,font:'Arial',color:'1A2332'})]
+    }); }
+    function h2(text) { return new d.Paragraph({ heading:d.HeadingLevel.HEADING_2, spacing:{before:280,after:140},
+      border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'00A896'}},
+      children:[new d.TextRun({text,bold:true,size:24,font:'Arial',color:'243044'})]
+    }); }
+    function pb() { return new d.Paragraph({children:[new d.PageBreak()]}); }
+    function empty() { return p(''); }
+
+    function infoTable(rows) {
+      var half = Math.floor(W/2);
+      return new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[half,half],
+        rows: rows.map(function(r){ return new d.TableRow({children:[
+          tcell(r[0],half,{bold:true,shade:'EEF2F7'}), tcell(r[1],half)
+        ]}); })
+      });
+    }
+
+    // Grille températures
+    function tempGrid(label, minT, maxT) {
+      var dayW = Math.floor((W-700)/31);
+      var headerCells = [hcell(label+'\nT(°C)',700)];
+      for(var d2=1;d2<=31;d2++) headerCells.push(hcell(String(d2),dayW));
+      var tRows = [new d.TableRow({children:headerCells})];
+      for(var t=maxT;t>=minT;t--) {
+        var cells = [tcell(String(t),700,{bold:true,center:true,shade:t===0?'FFE8E8':undefined})];
+        for(var dd=0;dd<31;dd++) cells.push(tcell('',dayW));
+        tRows.push(new d.TableRow({children:cells}));
+      }
+      return new d.Table({width:{size:W,type:d.WidthType.DXA}, columnWidths:[700,...Array(31).fill(dayW)], rows:tRows});
+    }
+
+    // CCP table
+    var ccpRows;
+    if(secteur==='BOULANGERIE'){ccpRows=[
+      ['Cuisson crèmes pâtissières','Salmonelle, Listeria','≥ 82°C à cœur','Sonde étalonnée à chaque fournée','Prolonger cuisson – détruire si doute'],
+      ['Refroidissement crèmes','Prolifération bactérienne','+63°C → +10°C en < 2h','Relevé T° après refroidissement','Détruire si dépassement'],
+      ['Conservation froid positif','Prolifération bactérienne','0 à +4°C','Relevé T° 2 fois/jour','Transfert produits – appel dépanneur'],
+      ['Décongélation','Prolifération bactérienne','En enceinte réfrigérée (+3°C max)','Vérification méthode','Ne jamais décongeler à T° ambiante'],
+    ];}else if(secteur==='BOUCHERIE'){ccpRows=[
+      ['Réception viandes','Prolifération bactérienne','Bovins ≤4°C – Congelés ≤-18°C','Contrôle T° à chaque réception','Refus livraison non conforme'],
+      ['T° atelier découpe','Prolifération bactérienne','≤ 12°C pendant opérations','Thermomètre mural','Réduire durée exposition'],
+      ['Hachage viande','E.coli, Salmonelle','Consommation le jour même','Étiquetage date/heure','Détruire si non vendu en fin de journée'],
+      ['Conservation froid positif','Prolifération bactérienne','0 à +4°C','Relevé T° 2 fois/jour','Transfert produits – appel dépanneur'],
+    ];}else{ccpRows=[
+      ['Cuisson viandes rouges','E.coli, Salmonelle','≥ 63°C à cœur','Sonde étalonnée','Poursuivre cuisson – détruire si doute'],
+      ['Cuisson volailles','Salmonelle, Campylobacter','≥ 70°C à cœur','Sonde étalonnée','Poursuivre cuisson – détruire si doute'],
+      ['Refroidissement rapide','Prolifération bactérienne','+63°C → +10°C en < 2h','Relevé T° après refroidissement','Détruire si dépassement'],
+      ['Maintien chaud','Prolifération bactérienne','≥ 63°C en permanence','Contrôle T° toutes 2h','Réchauffer immédiatement ou détruire'],
+      ['Conservation froid positif','Prolifération bactérienne','0 à +4°C','Relevé T° 2 fois/jour','Transfert – appel dépanneur'],
+      ['Conservation froid négatif','Prolifération bactérienne','≤ -18°C','Relevé T° 1 fois/jour','Vérifier alarme – appel dépanneur'],
+    ];}
+
+    var w1=1700,w2=1400,w3=1700,w4=2000,w5=2226;
+    function ccpTable() {
+      return new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[w1,w2,w3,w4,w5],
+        rows:[new d.TableRow({children:[hcell('CCP',w1),hcell('Danger',w2),hcell('Limite critique',w3),hcell('Surveillance',w4),hcell('Action corrective',w5)]})].concat(ccpRows.map(function(r){return new d.TableRow({children:r.map(function(t,i){return tcell(t,[w1,w2,w3,w4,w5][i]);})});}))
+      });
+    }
+
+    function emptyRows(n, widths) {
+      return Array.from({length:n},function(){ return new d.TableRow({children:widths.map(function(w){ return tcell('',w); })}); });
+    }
+
+    var children = [
+      // PAGE DE GARDE
+      new d.Paragraph({spacing:{before:1440,after:200},alignment:d.AlignmentType.CENTER,
+        children:[new d.TextRun({text:'PLAN DE MAÎTRISE SANITAIRE (PMS)',bold:true,size:52,font:'Arial',color:'1A2332'})]}),
+      new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:100,after:200},
+        children:[new d.TextRun({text:info.etab,bold:true,size:40,font:'Arial',color:'00A896'})]}),
+      p('Conforme au Règlement CE n°852/2004 et au Guide de Bonnes Pratiques d\'Hygiène',{center:true,italic:true}),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
+        rows:[new d.TableRow({children:[new d.TableCell({
+          borders:{top:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},bottom:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},left:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},right:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'}},
+          shading:{fill:'FFF8F0',type:d.ShadingType.CLEAR},
+          margins:{top:120,bottom:120,left:180,right:180},
+          width:{size:W,type:d.WidthType.DXA},
+          children:[
+            new d.Paragraph({children:[new d.TextRun({text:'⚠️  AVERTISSEMENT — DOCUMENT DÉLIVRÉ À TITRE INDICATIF',bold:true,size:20,font:'Arial',color:'C0392B'})]}),
+            new d.Paragraph({spacing:{before:80},children:[new d.TextRun({text:'Ce document est fourni à titre indicatif sur la base des réglementations en vigueur et des pratiques recommandées pour le secteur concerné. Il doit impérativement être adapté aux spécificités propres de l\'établissement : nature des activités exercées, configuration et état des locaux, effectif et qualification du personnel, volume de production, équipements disponibles, et tout autre élément propre à l\'entreprise. Il appartient au responsable de l\'établissement de le compléter, de le personnaliser et de le mettre à jour régulièrement, notamment à chaque changement significatif d\'activité, de locaux ou de personnel. Ce document ne saurait se substituer à un conseil professionnel ni engager la responsabilité de son émetteur.',size:18,font:'Arial',color:'5D4037'})]}),
+          ]
+        })]})]}),
+      empty(),
+      infoTable([
+        ['N° SIRET', info.siret||'—'],
+        ['Nombre de repas / jour en moyenne', info.repas||'—'],
+        ['Responsable de l\'hygiène', info.resp||'—'],
+        ['Nom de l\'exploitant', info.resp||'—'],
+        ['Adresse', info.adresse||'—'],
+        ['Téléphone', info.tel||'—'],
+        ['Email', info.email||'—'],
+        ['Secteur d\'activité', secteur.replace('_',' ')],
+        ['Eau potable réseau public', info.eau==='oui'?'Oui':'Non – ressource privée'],
+        ['Date d\'établissement', today],
+      ]),
+      p('☐ Joindre la copie du Cerfa de déclaration envoyée à votre DD(CS)PP',{italic:true}),
+      pb(),
+
+      // SOMMAIRE
+      h1('SOMMAIRE'),
+      p('1. Présentation de l\'établissement et du personnel'),
+      p('2. Hygiène du personnel (4.1)'),
+      p('3. Hygiène des locaux (4.2)'),
+      p('4. Stockage des aliments (4.3)'),
+      p('5. Chaîne du froid (4.4)'),
+      p('6. Préparation des aliments (4.5)'),
+      p('7. Gestion des déchets (4.6)'),
+      p('8. Maintenance des équipements'),
+      p('9. Nettoyage et désinfection — PND (4.2)'),
+      p('10. Réception et contrôle des denrées'),
+      p('11. Maîtrise des Points Critiques — CCP / HACCP'),
+      p('12. Traçabilité et gestion des DLC'),
+      p('13. Gestion des allergènes'),
+      p('14. Gestion des nuisibles'),
+      p('15. Eau potable'),
+      p('16. Gestion des non-conformités'),
+      p('17. Moyens à mobiliser — Obligations légales'),
+      p('18. Formations du personnel'),
+      pb(),
+
+      // 1. PRÉSENTATION
+      h1('1. PRÉSENTATION DE L\'ÉTABLISSEMENT'),
+      p('L\'objectif de notre Plan de Maîtrise Sanitaire (PMS) est de répondre à la réglementation en matière d\'hygiène alimentaire, dans un souci de sécurité pour nos clients. Cet outil décrit les mesures prises dans notre établissement pour assurer l\'hygiène et la sécurité sanitaire de nos productions vis-à-vis des dangers biologiques, chimiques et physiques.'),
+      empty(),
+      p('Ces mesures sont constituées de pré-requis (bonnes pratiques d\'hygiène — BPH), de procédures fondées sur les 7 principes de l\'HACCP et de procédures de traçabilité et de gestion des non-conformités.'),
+      empty(),
+      p('Pour mettre en place les Bonnes Pratiques d\'Hygiène, nous utilisons le Guide de Bonnes Pratiques d\'Hygiène du Restaurateur, document élaboré par des professionnels pour des professionnels, validé par les administrations (DGAL, DGS, DGCCRF).'),
+      empty(),
+      h2('1.1 Déclaration d\'activité'),
+      p('Les activités de restauration doivent obligatoirement faire l\'objet d\'une déclaration avant ouverture de l\'établissement, et après chaque changement d\'exploitant ou d\'activité.'),
+      p('☐ Joindre au PMS la copie du Cerfa de déclaration envoyée à votre DD(CS)PP.',{italic:true}),
+      empty(),
+      h2('1.2 Suivi médical du personnel'),
+      p('Archiver les certificats d\'aptitude médicale du personnel.',{italic:true,bold:true}),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.6),Math.floor(W*0.4)],
+        rows:[new d.TableRow({children:[hcell('Nom et fonction',Math.floor(W*0.6)),hcell('Date de la visite médicale',Math.floor(W*0.4))]})].concat(emptyRows(8,[Math.floor(W*0.6),Math.floor(W*0.4)]))
+      }),
+      empty(),
+      h2('1.3 Attestations de formation'),
+      p('Archiver la copie des attestations de formation.',{italic:true,bold:true}),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.27),Math.floor(W*0.28),Math.floor(W*0.23),Math.floor(W*0.22)],
+        rows:[new d.TableRow({children:[hcell('Nom et fonction',Math.floor(W*0.27)),hcell('Intitulé de la formation',Math.floor(W*0.28)),hcell('Date et durée',Math.floor(W*0.23)),hcell('Organisme',Math.floor(W*0.22))]}),
+          new d.TableRow({children:[tcell(info.resp,Math.floor(W*0.27)),tcell('Hygiène alimentaire – 14h min.',Math.floor(W*0.28)),tcell('',Math.floor(W*0.23)),tcell('',Math.floor(W*0.22))]})].concat(emptyRows(5,[Math.floor(W*0.27),Math.floor(W*0.28),Math.floor(W*0.23),Math.floor(W*0.22)]))
+      }),
+      pb(),
+
+      // 2. HYGIÈNE DU PERSONNEL
+      h1('2. HYGIÈNE DU PERSONNEL (4.1)'),
+      p('Le personnel manipulant les aliments peut être une source de contamination importante. Tous les collaborateurs sont sensibilisés à ces règles d\'hygiène et de sécurité sanitaire.'),
+      empty(),
+      h2('2.1 Lavage des mains'),
+      p('Le personnel doit se laver les mains régulièrement avec eau chaude, savon bactéricide et séchage avec essuie-mains jetable.',{bold:true}),
+      p('Quand se laver les mains :'),
+      p('• Avant de commencer le travail'),
+      p('• Après être allé aux toilettes'),
+      p('• Après avoir touché de la viande crue'),
+      p('• Après avoir manipulé de l\'argent'),
+      p('• Après avoir sorti les poubelles'),
+      p('• Après avoir toussé, éternué ou s\'être mouché'),
+      p('• Après avoir touché un téléphone'),
+      p('• Avant des opérations sensibles (hachage, préparations froides, mayonnaise, tartare, carpaccio…)'),
+      empty(),
+      p('⚠️ Non-respect : risque de contamination croisée (salmonelles, E.coli) — peut entraîner une fermeture administrative immédiate.',{bold:true,color:'C0392B'}),
+      empty(),
+      h2('2.2 Tenues vestimentaires'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.40),Math.floor(W*0.30),Math.floor(W*0.30)],
+        rows:[new d.TableRow({children:[hcell('Règles vestimentaires',Math.floor(W*0.40)),hcell('Tenue en cuisine',Math.floor(W*0.30)),hcell('Fréquence de nettoyage',Math.floor(W*0.30))]}),
+          new d.TableRow({children:[tcell('Le personnel doit porter une tenue dédiée à la cuisine, propre et changée régulièrement. Interdits : vêtements de ville sous les aliments, tablier sale, torchon utilisé comme chiffon.',Math.floor(W*0.40)),tcell('Veste/tablier propre, coiffe enveloppante (charlotte, casquette ou filet), chaussures de sécurité antidérapantes',Math.floor(W*0.30)),tcell('Changement aussi souvent que nécessaire – minimum 1 fois/jour',Math.floor(W*0.30))]})]
+      }),
+      empty(),
+      h2('2.3 Coiffe et protection des cheveux'),
+      p('Les cheveux doivent être couverts pour éviter la chute dans les aliments. Accepté : charlotte, casquette de cuisine, filet à cheveux. Les cheveux longs doivent être attachés et couverts.'),
+      empty(),
+      h2('2.4 Personnel malade'),
+      p('Un employé ne doit pas manipuler d\'aliments s\'il présente : diarrhée, vomissements, infection cutanée, plaie non protégée ou maladie contagieuse.',{bold:true}),
+      p('Mesures à prendre : port d\'un masque bucco-nasal, protection des plaies avec pansement coloré (bleu de préférence), voire éviction temporaire du poste.'),
+      p('⚠️ Non-respect : risque de contamination virale (norovirus) — possible toxi-infection alimentaire collective.',{color:'C0392B'}),
+      empty(),
+      h2('2.5 Bijoux et accessoires interdits'),
+      p('Interdits pendant la manipulation des aliments : bagues, bracelets, montres, faux ongles, vernis à ongles. Raison : accumulation de bactéries et risque de chute dans les aliments. Seule l\'alliance portée sous la tenue est tolérée.'),
+      empty(),
+      h2('2.6 Conséquences en cas de non-respect'),
+      p('Lors d\'un contrôle sanitaire, ces manquements peuvent entraîner : mise en demeure, amende administrative, fermeture administrative de l\'établissement.',{bold:true,color:'C0392B'}),
+      p('Ces points font partie des éléments systématiquement vérifiés par les inspecteurs sanitaires.',{italic:true}),
+      pb(),
+
+      // 3. HYGIÈNE DES LOCAUX
+      h1('3. HYGIÈNE DES LOCAUX (4.2)'),
+      p('Les locaux où sont préparés, stockés ou manipulés les aliments doivent être propres, entretenus et organisés de manière à éviter toute contamination des aliments.'),
+      empty(),
+      h2('3.1 Propreté générale des locaux'),
+      p('Les locaux doivent être : nettoyés quotidiennement, désinfectés régulièrement, maintenus sans accumulation de graisse, saleté ou déchets.'),
+      p('Zones particulièrement contrôlées lors des inspections :'),
+      p('• Sols, murs, plafonds'), p('• Plans de travail'), p('• Hottes et systèmes d\'extraction'), p('• Zones de cuisson'), p('• Chambres froides'), p('• Zone de plonge'),
+      p('⚠️ Hotte saturée de graisse = risque incendie et sanction administrative. Graisse sous friteuse = mise en demeure.',{color:'C0392B'}),
+      empty(),
+      h2('3.2 Plan de nettoyage et désinfection (PND)'),
+      p('L\'établissement doit disposer d\'un plan de nettoyage écrit indiquant : ce qui doit être nettoyé, la fréquence, le produit utilisé, et la personne responsable.'),
+      p('⚠️ Absence de plan de nettoyage lors d\'un contrôle = non-conformité signalée et obligation de mise en place immédiate.',{color:'C0392B'}),
+      empty(),
+      h2('3.3 Protection contre les nuisibles'),
+      p('Les locaux doivent être protégés contre : rats, souris, cafards, mouches. Mesures nécessaires : poubelles fermées, stockage des aliments sur étagères, grilles ou protections aux ouvertures, contrat 3D en cours de validité.'),
+      p('⚠️ Présence de crottes de souris dans la réserve ou cafards en zone de plonge = fermeture administrative immédiate possible.',{bold:true,color:'C0392B'}),
+      empty(),
+      h2('3.4 Organisation des zones de travail'),
+      p('Les locaux doivent permettre une séparation claire des activités : stockage, préparation, cuisson, lavage de la vaisselle. Objectif : éviter la contamination croisée entre aliments crus et aliments prêts à consommer.'),
+      p('⚠️ Même plan de travail pour viande crue et sandwichs = risque de contamination bactérienne, observation sanitaire.',{color:'C0392B'}),
+      empty(),
+      h2('3.5 État du matériel et des surfaces'),
+      p('Les surfaces doivent être : lisses, lavables, non poreuses, en bon état. Les surfaces abîmées (fissurées, carrelage cassé, planches en bois usées) retiennent les bactéries.'),
+      p('⚠️ Plan de travail fissuré ou joints très encrassés = surface non conforme, demande de remplacement du matériel.',{color:'C0392B'}),
+      pb(),
+
+      // 4. STOCKAGE
+      h1('4. STOCKAGE DES ALIMENTS (4.3)'),
+      p('Les aliments doivent être stockés de manière à éviter toute contamination et à garantir leur conservation dans de bonnes conditions sanitaires.'),
+      empty(),
+      h2('4.1 Séparation des aliments'),
+      p('Les aliments doivent être stockés séparément pour éviter la contamination croisée : viande crue, poisson, légumes, produits prêts à consommer, produits cuits.'),
+      p('Règle absolue : le cru ne doit jamais contaminer le cuit ou les aliments prêts à consommer.',{bold:true}),
+      empty(),
+      h2('4.2 Organisation dans les réfrigérateurs'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.18),Math.floor(W*0.82)],
+        rows:[
+          new d.TableRow({children:[hcell('Niveau',Math.floor(W*0.18)),hcell('Produits à stocker',Math.floor(W*0.82))]}),
+          new d.TableRow({children:[tcell('⬆ HAUT',Math.floor(W*0.18),{bold:true,shade:'E8F5E9'}),tcell('Plats cuisinés, desserts, préparations froides prêtes à consommer',Math.floor(W*0.82))]}),
+          new d.TableRow({children:[tcell('MILIEU',Math.floor(W*0.18),{bold:true,shade:'FFF9C4'}),tcell('Légumes lavés et coupés, garnitures. Œufs dans leur emballage d\'origine (en dessous des aliments prêts à consommer, au-dessus des viandes crues)',Math.floor(W*0.82))]}),
+          new d.TableRow({children:[tcell('⬇ BAS',Math.floor(W*0.18),{bold:true,shade:'FFEBEE'}),tcell('Viandes et poissons crus dans des bacs fermés ou contenants hermétiques pour éviter que leurs jus ne coulent sur d\'autres aliments',Math.floor(W*0.82))]}),
+        ]}),
+      empty(),
+      p('⚠️ Bac de viande crue au-dessus de crudités destinées aux sandwichs = contamination bactérienne (salmonelles, E.coli).',{color:'C0392B'}),
+      empty(),
+      h2('4.3 Températures de conservation'),
+      p('• Réfrigération : 0 à +4°C — réfrigérateurs équipés de thermomètres visibles'),
+      p('• Congélation : -18°C'),
+      p('• Le réfrigérateur ne doit pas être surchargé (bonne circulation de l\'air froid)'),
+      p('⚠️ Frigo à +10°C contenant viande et sauces = risque de développement bactérien, observation sanitaire.',{color:'C0392B'}),
+      empty(),
+      h2('4.4 Protection contre la contamination'),
+      p('Les aliments doivent être : filmés, placés dans des bacs fermés, conservés dans des contenants adaptés. Interdits : aliments exposés à la poussière, aux insectes, à l\'air libre.'),
+      empty(),
+      h2('4.5 Identification et datation'),
+      p('Les aliments préparés ou ouverts doivent être étiquetés et datés (date de préparation + durée de conservation). Appliquer la méthode FIFO (Premier Entré, Premier Sorti).'),
+      empty(),
+      h2('4.6 Stockage hors du sol'),
+      p('Les aliments doivent être stockés sur étagères ou sur palettes — jamais directement au sol.'),
+      p('⚠️ Sacs de farine au sol = risque de contamination et d\'infestation par les nuisibles, sacs de farine à stocker obligatoirement sur palettes ou étagères.',{color:'C0392B'}),
+      pb(),
+
+      // 5. CHAÎNE DU FROID
+      h1('5. CHAÎNE DU FROID (4.4)'),
+      p('La chaîne du froid correspond à l\'ensemble des mesures permettant de maintenir les aliments à une température suffisamment basse pour empêcher le développement des bactéries. Sa rupture peut favoriser la multiplication rapide de micro-organismes et rendre les aliments dangereux.'),
+      empty(),
+      h2('5.1 Températures réglementaires'),
+      p('• Produits réfrigérés : entre 0°C et +4°C'), p('• Produits congelés : -18°C'),
+      p('Un écart de +2°C peut être toléré mais uniquement de façon occasionnelle et réduite dans le temps. Tout dépassement doit donner lieu à des actions correctives : prévenir le responsable, augmenter la puissance, contacter la maintenance.',{italic:true}),
+      empty(),
+      h2('5.2 Contrôle régulier des températures'),
+      p('• Relevé quotidien de température (fiches de relevé – Section 11)'),
+      p('• Thermomètre placé dans chaque frigo'),
+      p('• Enregistreur de température dans les chambres froides'),
+      p('⚠️ Absence de relevé de température lors d\'un contrôle sanitaire = non-conformité.',{color:'C0392B'}),
+      empty(),
+      h2('5.3 Limiter les ouvertures'),
+      p('Les réfrigérateurs ne doivent pas rester ouverts longtemps : une ouverture prolongée entraîne une augmentation de la température et une rupture partielle de la chaîne du froid.'),
+      empty(),
+      h2('5.4 Réception des marchandises'),
+      p('Les produits livrés doivent être réceptionnés rapidement et placés immédiatement au froid. Vérifier : température du produit à la livraison, état des emballages, respect de la chaîne du froid pendant le transport.'),
+      p('⚠️ Cartons de viande livrés restant 30 min à température ambiante = rupture de chaîne du froid.',{color:'C0392B'}),
+      empty(),
+      h2('5.5 Décongélation'),
+      p('La décongélation doit se faire au réfrigérateur ou dans un équipement adapté.'),
+      p('Interdit : décongeler à température ambiante ou sous l\'eau chaude.',{bold:true,color:'C0392B'}),
+      pb(),
+
+      // 6. PRÉPARATION
+      h1('6. PRÉPARATION DES ALIMENTS (4.5)'),
+      p('La préparation des aliments doit être réalisée dans des conditions d\'hygiène strictes afin d\'éviter toute contamination microbiologique, chimique ou physique.'),
+      empty(),
+      h2('6.1 Séparation des aliments crus et cuits'),
+      p('Les aliments crus (viandes, volailles, poissons) peuvent contenir des bactéries (salmonelles, campylobacter…). Ils ne doivent jamais entrer en contact avec des aliments déjà cuits ou prêts à consommer. Utiliser des plans de travail distincts ou nettoyer et désinfecter entre deux préparations.',{bold:true}),
+      p('⚠️ Couper de la viande crue puis préparer des sandwichs sur le même plan sans nettoyage = contamination des crudités.',{color:'C0392B'}),
+      empty(),
+      h2('6.2 Nettoyage des plans de travail'),
+      p('Les plans de travail doivent être nettoyés et désinfectés : avant la préparation, entre deux préparations différentes, après la manipulation de produits crus. Utiliser des produits adaptés au contact alimentaire.'),
+      empty(),
+      h2('6.3 Ustensiles propres et code couleur'),
+      p('Couteaux, planches à découper, pinces et ustensiles doivent être propres et nettoyés régulièrement. Recommandé : utiliser des ustensiles distincts pour les produits crus et les produits cuits — planches de découpe différenciées (code couleur).'),
+      p('⚠️ Même couteau pour viande crue puis légumes sans nettoyage = contamination croisée.',{color:'C0392B'}),
+      empty(),
+      h2('6.4 Cuisson suffisante (CCP)'),
+      p('Certains aliments doivent être suffisamment cuits pour éliminer les bactéries :'),
+      p('• Viandes rouges : ≥ 63°C à cœur'), p('• Volailles : ≥ 70°C à cœur'), p('• Steaks hachés (restauration rapide) : ≥ 65°C à cœur'),
+      p('Utiliser une sonde thermique étalonnée pour contrôler la température à cœur.',{bold:true}),
+      p('⚠️ Burger servi avec viande insuffisamment cuite = survie de bactéries pathogènes.',{color:'C0392B'}),
+      empty(),
+      h2('6.5 Protection des aliments préparés'),
+      p('Les aliments préparés doivent être protégés : couverts, conservés dans des bacs fermés ou filmés au réfrigérateur. Interdits : aliments laissés exposés à l\'air libre dans les zones de préparation.'),
+      pb(),
+
+      // 7. DÉCHETS
+      h1('7. GESTION DES DÉCHETS (4.6)'),
+      p('Les déchets alimentaires doivent être gérés de manière à éviter toute contamination des aliments, toute prolifération de nuisibles et toute dégradation de l\'hygiène des locaux.'),
+      empty(),
+      h2('7.1 Évacuation régulière'),
+      p('Les déchets doivent être évacués fréquemment, notamment pendant et après le service. Les poubelles ne doivent pas rester pleines pendant de longues périodes.'),
+      p('⚠️ Poubelle débordant près du plan de préparation = attire les insectes et contamine l\'espace de travail.',{color:'C0392B'}),
+      empty(),
+      h2('7.2 Conteneurs adaptés'),
+      p('Les déchets doivent être placés dans des poubelles fermées avec couvercle, système d\'ouverture sans contact (pédale). Conteneurs : étanches, faciles à nettoyer, résistants.'),
+      empty(),
+      h2('7.3 Nettoyage des poubelles'),
+      p('Les poubelles doivent être nettoyées et désinfectées régulièrement. Les sacs poubelles doivent être changés régulièrement.'),
+      empty(),
+      h2('7.4 Stockage des déchets à l\'extérieur'),
+      p('Les déchets doivent être stockés dans un espace dédié, séparé des zones de préparation et de stockage des aliments. Conteneurs extérieurs : fermés, zone propre.'),
+      p('⚠️ Sacs poubelles près de la zone de stockage des aliments = attire les rongeurs.',{color:'C0392B'}),
+      pb(),
+
+      // 8. MAINTENANCE
+      h1('8. MAINTENANCE DES ÉQUIPEMENTS'),
+      p('L\'entreprise a le choix de prendre en charge la maintenance des équipements ou de la sous-traiter. Se reporter aux notices techniques pour la nature et la fréquence de maintenance.'),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.27),Math.floor(W*0.33),Math.floor(W*0.22),Math.floor(W*0.18)],
+        rows:[new d.TableRow({children:[hcell('Équipement',Math.floor(W*0.27)),hcell('Nature de l\'entretien',Math.floor(W*0.33)),hcell('Réalisé par',Math.floor(W*0.22)),hcell('Fréquence',Math.floor(W*0.18))]}),
+          new d.TableRow({children:[tcell('Chambre froide',Math.floor(W*0.27)),tcell('Dépoussiérage grilles – vérification joints',Math.floor(W*0.33)),tcell('',Math.floor(W*0.22)),tcell('1x/mois – 1x/an',Math.floor(W*0.18))]}),
+          new d.TableRow({children:[tcell('Hotte / extraction',Math.floor(W*0.27)),tcell('Nettoyage grilles + conduit',Math.floor(W*0.33)),tcell('',Math.floor(W*0.22)),tcell('Grilles : 1x/sem – Conduit : 1x/an',Math.floor(W*0.18))]}),
+          new d.TableRow({children:[tcell('Réfrigérateurs',Math.floor(W*0.27)),tcell('Vérification joints, thermomètre',Math.floor(W*0.33)),tcell('',Math.floor(W*0.22)),tcell('1x/semaine',Math.floor(W*0.18))]})].concat(emptyRows(4,[Math.floor(W*0.27),Math.floor(W*0.33),Math.floor(W*0.22),Math.floor(W*0.18)]))
+      }),
+      pb(),
+
+      // 9. NETTOYAGE
+      h1('9. NETTOYAGE ET DÉSINFECTION — PND'),
+      h2('9.1 Principes – Méthode TACT'),
+      p('Le nettoyage et la désinfection ont un triple objectif :'),
+      p('• Nettoyage : éliminer les résidus alimentaires et souillures visibles (détergent) → propreté physique'), p('• Désinfection : détruire les microbes (désinfectant) → propreté microbiologique'), p('• Rinçage : éliminer les résidus produits → propreté chimique'),
+      empty(),
+      p('Méthode TACT : Température / Action mécanique / Concentration / Temps d\'action.',{bold:true}),
+      p('Le PND doit comprendre les locaux et tout le matériel de travail, de rangement et d\'éclairage.',{italic:true}),
+      empty(),
+      h2('9.2 Plan de Nettoyage et Désinfection'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.24),Math.floor(W*0.20),Math.floor(W*0.22),Math.floor(W*0.15),Math.floor(W*0.19)],
+        rows:[new d.TableRow({children:[hcell('Quoi ? (surface/matériel)',Math.floor(W*0.24)),hcell('Quand ? (fréquence)',Math.floor(W*0.20)),hcell('Comment ? (produits)',Math.floor(W*0.22)),hcell('Par qui ?',Math.floor(W*0.15)),hcell('Qui contrôle ?',Math.floor(W*0.19))]})].concat(nData.map(function(r){ return new d.TableRow({children:[tcell(r[0],Math.floor(W*0.24)),tcell(r[1],Math.floor(W*0.20)),tcell(r[2]||'',Math.floor(W*0.22)),tcell(r[3]||'',Math.floor(W*0.15)),tcell('',Math.floor(W*0.19))]}); }))
+      }),
+      pb(),
+
+      // 10. RÉCEPTION
+      h1('10. RÉCEPTION ET CONTRÔLE DES DENRÉES'),
+      p('Lors de la réception, le responsable doit vérifier :'),
+      p('⇒ La température des denrées'), p('⇒ Les conditions de transport (propreté du camion, température adéquate…)'), p('⇒ L\'état des produits (emballage, couleur, odeur…)'), p('⇒ Les dates de péremption des produits (DLC / DDM)'), p('⇒ L\'origine des produits et les marques de salubrité'),
+      empty(),
+      p('Le responsable est responsable des denrées qu\'il a acceptées. En cas d\'anomalie : émettre des réserves sur le bon de livraison ou refuser la marchandise en justifiant le motif.',{bold:true}),
+      empty(),
+      h2('10.1 Températures réglementaires de conservation'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.70),Math.floor(W*0.30)],
+        rows:[new d.TableRow({children:[hcell('Nature des denrées',Math.floor(W*0.70)),hcell('T° de conservation',Math.floor(W*0.30))]})
+        ].concat([['Viandes hachées, viandes séparées mécaniquement','+2°C'],['Abats d\'ongulés domestiques et de gibier','+3°C'],['Préparations de viandes, volailles, lapins, petit gibier','+4°C'],['Viande d\'ongulés (carcasses entières et pièces de gros)','+7°C'],['Viande d\'ongulés (morceaux de découpe)','+4°C'],['Produits de la pêche frais, décongelés, crustacés cuits réfrigérés','+2°C'],['Ovoproduits (sauf UHT), lait cru','+4°C'],['Lait pasteurisé, fromages affinés','T° fabricant'],['Préparations culinaires élaborées à l\'avance (PCEA)','+3°C'],['Glaces, crèmes glacées','-18°C'],['Viandes hachées et préparations congelées','-18°C'],['Produits de la pêche congelés','-18°C'],['Autres denrées congelées','-12°C']].map(function(r){ return new d.TableRow({children:[tcell(r[0],Math.floor(W*0.70)),tcell(r[1],Math.floor(W*0.30),{bold:true,center:true})]}); }))
+      }),
+      empty(),
+      p('Source : Arrêté du 21 décembre 2009 relatif aux règles sanitaires applicables aux activités de commerce de détail.',{italic:true,size:16,color:'888888'}),
+      empty(),
+      h2('10.2 Fiche de contrôle à la réception'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.13),Math.floor(W*0.22),Math.floor(W*0.13),Math.floor(W*0.13),Math.floor(W*0.15),Math.floor(W*0.12),Math.floor(W*0.12)],
+        rows:[new d.TableRow({children:[hcell('Date',Math.floor(W*0.13)),hcell('Fournisseur / Produit',Math.floor(W*0.22)),hcell('T° mesurée',Math.floor(W*0.13)),hcell('DLC/DDM',Math.floor(W*0.13)),hcell('État emballage',Math.floor(W*0.15)),hcell('Conforme',Math.floor(W*0.12)),hcell('Initiales',Math.floor(W*0.12))]})].concat(emptyRows(10,[Math.floor(W*0.13),Math.floor(W*0.22),Math.floor(W*0.13),Math.floor(W*0.13),Math.floor(W*0.15),Math.floor(W*0.12),Math.floor(W*0.12)]))
+      }),
+      pb(),
+
+      // 11. CCP / HACCP
+      h1('11. MAÎTRISE DES POINTS CRITIQUES — CCP / HACCP'),
+      p('L\'HACCP (Hazard Analysis Critical Control Point) repose sur 7 principes : analyse des dangers, identification des CCP, fixation des limites critiques, surveillance, actions correctives, vérification, documentation.'),
+      empty(),
+      h2('11.1 Tableau des CCP'),
+      ccpTable(),
+      empty(),
+      h2('11.2 Enregistrement quotidien — Froid positif (0°C à +8°C)'),
+      p('Mois/Année : _____________    Enceinte : _____________    Responsable : '+info.resp),
+      empty(),
+      tempGrid('Froid+', 0, 8),
+      empty(),
+      h2('11.3 Enregistrement quotidien — Froid négatif (≤-18°C)'),
+      p('Mois/Année : _____________    Enceinte : _____________'),
+      empty(),
+      tempGrid('Froid-', -18, -8),
+      empty(),
+      h2('11.4 Enregistrement de cuisson (CCP)'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.14),Math.floor(W*0.25),Math.floor(W*0.15),Math.floor(W*0.15),Math.floor(W*0.17),Math.floor(W*0.14)],
+        rows:[new d.TableRow({children:[hcell('Date',Math.floor(W*0.14)),hcell('Plat / Préparation',Math.floor(W*0.25)),hcell('T° mesurée',Math.floor(W*0.15)),hcell('Conforme ?',Math.floor(W*0.15)),hcell('Action corrective',Math.floor(W*0.17)),hcell('Initiales',Math.floor(W*0.14))]})].concat(emptyRows(10,[Math.floor(W*0.14),Math.floor(W*0.25),Math.floor(W*0.15),Math.floor(W*0.15),Math.floor(W*0.17),Math.floor(W*0.14)]))
+      }),
+      pb(),
+
+      // 12. TRAÇABILITÉ
+      h1('12. TRAÇABILITÉ ET GESTION DES DLC'),
+      p('Règlement CE n°178/2002 — Archivage minimum 5 ans (produits à DLC < 3 mois : 6 mois). Ces informations permettent de retrouver l\'origine des produits en cas de problème sanitaire.'),
+      empty(),
+      h2('12.1 Informations obligatoires'),
+      p('⇒ Nom et adresse du fournisseur, nature des produits fournis'), p('⇒ Date de transaction/livraison, volume ou quantité, numéro de lot si applicable'),
+      empty(),
+      h2('12.2 Gestion des DLC / DDM'),
+      p('• Vérifier les DLC/DDM à réception et quotidiennement en stockage'), p('• Appliquer la méthode FIFO (Premier Entré, Premier Sorti)'), p('• Étiqueter les préparations maison : date fabrication + DLC (3 jours max réfrigéré)'), p('• Détruire tout produit dont la DLC est dépassée'),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.14),Math.floor(W*0.25),Math.floor(W*0.18),Math.floor(W*0.15),Math.floor(W*0.12),Math.floor(W*0.16)],
+        rows:[new d.TableRow({children:[hcell('Date',Math.floor(W*0.14)),hcell('Fournisseur / Produit',Math.floor(W*0.25)),hcell('N° lot / Étiquette',Math.floor(W*0.18)),hcell('DLC / DDM',Math.floor(W*0.15)),hcell('Qté',Math.floor(W*0.12)),hcell('Initiales',Math.floor(W*0.16))]})].concat(emptyRows(10,[Math.floor(W*0.14),Math.floor(W*0.25),Math.floor(W*0.18),Math.floor(W*0.15),Math.floor(W*0.12),Math.floor(W*0.16)]))
+      }),
+      pb(),
+
+      // 13. ALLERGÈNES
+      h1('13. GESTION DES ALLERGÈNES'),
+      p('Règlement UE n°1169/2011 (INCO) — Les 14 allergènes majeurs doivent être mentionnés et communiqués au consommateur.',{bold:true}),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.05),Math.floor(W*0.40),Math.floor(W*0.05),Math.floor(W*0.50)],
+        rows:[new d.TableRow({children:[hcell('#',Math.floor(W*0.05)),hcell('Allergène',Math.floor(W*0.40)),hcell('#',Math.floor(W*0.05)),hcell('Allergène',Math.floor(W*0.50))]})
+        ].concat([['1','Céréales contenant du gluten (blé, seigle, orge, avoine…)','8','Lait et produits laitiers'],['2','Crustacés','9','Fruits à coque (amandes, noix, noisettes, pistaches…)'],['3','Œufs','10','Céleri'],['4','Poissons','11','Moutarde'],['5','Arachides','12','Graines de sésame'],['6','Soja','13','Anhydride sulfureux et sulfites (> 10 mg/kg)'],['7','Lait','14','Lupin et mollusques']].map(function(r){return new d.TableRow({children:[tcell(r[0],Math.floor(W*0.05),{center:true}),tcell(r[1],Math.floor(W*0.40)),tcell(r[2],Math.floor(W*0.05),{center:true}),tcell(r[3],Math.floor(W*0.50))]});}))
+      }),
+      empty(),
+      p('Modalité d\'affichage dans l\'établissement : ____________________________________'),
+      pb(),
+
+      // 14. NUISIBLES
+      h1('14. GESTION DES NUISIBLES (3D)'),
+      p('Un contrat de dératisation / désinsectisation / dépoussiérage (3D) doit être en cours de validité. Joindre le contrat au présent PMS.',{bold:true}),
+      p('Mesures préventives obligatoires : poubelles fermées, stockage sur étagères, grilles aux ouvertures, joints de portes en bon état.',{italic:true}),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.30),Math.floor(W*0.35),Math.floor(W*0.35)],
+        rows:[new d.TableRow({children:[hcell('Type de nuisible',Math.floor(W*0.30)),hcell('Insectes volants / rampants',Math.floor(W*0.35)),hcell('Rongeurs',Math.floor(W*0.35))]}),
+          new d.TableRow({children:[tcell('Localisation des pièges',Math.floor(W*0.30),{bold:true}),tcell('',Math.floor(W*0.35)),tcell('',Math.floor(W*0.35))]}),
+          new d.TableRow({children:[tcell('Nature des traitements',Math.floor(W*0.30),{bold:true}),tcell('',Math.floor(W*0.35)),tcell('',Math.floor(W*0.35))]}),
+          new d.TableRow({children:[tcell('Société prestataire (3D)',Math.floor(W*0.30),{bold:true}),tcell('',Math.floor(W*0.35)),tcell('',Math.floor(W*0.35))]}),
+          new d.TableRow({children:[tcell('Date dernière intervention',Math.floor(W*0.30),{bold:true}),tcell('',Math.floor(W*0.35)),tcell('',Math.floor(W*0.35))]}),
+        ]}),
+      pb(),
+
+      // 15. EAU
+      h1('15. EAU POTABLE'),
+      p('Raccordé en eau potable par le réseau public de la collectivité ?'),
+      p(info.eau==='oui' ? '☑ Oui    ☐ Non' : '☐ Oui    ☑ Non – ressource privée (joindre arrêté préfectoral + dispositif de contrôle de potabilité)'),
+      empty(),
+      p('L\'eau utilisée pour la préparation des aliments, le nettoyage des ustensiles et le lavage des mains doit être potable (Règlement CE 852/2004 Annexe II Chapitre VII).',{italic:true}),
+      pb(),
+
+      // 16. NON-CONFORMITÉS
+      h1('16. GESTION DES NON-CONFORMITÉS'),
+      h2('16.1 Procédure en cas d\'alerte'),
+      p('1/ Identifier et isoler les produits concernés dans les enceintes de stockage'), p('2/ Étiqueter «Ne pas utiliser – Produits défectueux»'), p('3/ Si déjà utilisés en fabrication : rechercher et isoler tous les produits fabriqués avec la matière première incriminée'), p('4/ Organiser le rappel des produits déjà vendus (information consommateurs, appel/fax/mail clients professionnels)'), p('5/ Retourner au fournisseur ou détruire'),
+      empty(),
+      h2('16.2 Registre des non-conformités'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.13),Math.floor(W*0.27),Math.floor(W*0.27),Math.floor(W*0.17),Math.floor(W*0.16)],
+        rows:[new d.TableRow({children:[hcell('Date',Math.floor(W*0.13)),hcell('Nature de la NC',Math.floor(W*0.27)),hcell('Actions correctives',Math.floor(W*0.27)),hcell('Responsable',Math.floor(W*0.17)),hcell('Clôturé ?',Math.floor(W*0.16))]})].concat(emptyRows(10,[Math.floor(W*0.13),Math.floor(W*0.27),Math.floor(W*0.27),Math.floor(W*0.17),Math.floor(W*0.16)]))
+      }),
+      pb(),
+
+      // 17. OBLIGATIONS
+      h1('17. MOYENS À MOBILISER ET OBLIGATIONS LÉGALES'),
+      h2('17.1 Organisation interne'),
+      p('L\'établissement doit définir clairement l\'organisation du travail :'), p('• Définir les responsabilités en matière d\'hygiène'), p('• Mettre en place des procédures simples et connues du personnel'), p('• Surveiller régulièrement les pratiques de travail'), p('• Désigner un responsable pour la vérification quotidienne des températures et de l\'état de propreté'),
+      empty(),
+      h2('17.2 Équipements nécessaires'),
+      p('• Réfrigérateurs et congélateurs en bon état de fonctionnement'), p('• Thermomètres pour contrôler les températures dans chaque frigo'), p('• Lave-mains avec eau chaude, savon bactéricide et essuie-mains jetables'), p('• Conteneurs adaptés pour les déchets (couvercle + pédale)'), p('• Produits de nettoyage et désinfection adaptés au contact alimentaire'), p('• Sonde thermique étalonnée pour le contrôle des températures à cœur'),
+      empty(),
+      h2('17.3 Obligation de moyens'),
+      p('L\'exploitant doit mettre en œuvre tous les moyens nécessaires : former le personnel, maintenir les locaux en bon état, contrôler les températures, mettre en place le PND, organiser correctement le stockage et la manipulation.'),
+      empty(),
+      h2('17.4 Obligation de résultat'),
+      p('L\'exploitant doit s\'assurer que les aliments servis sont propres à la consommation et ne présentent aucun danger pour la santé. Si un aliment provoque une intoxication alimentaire, la responsabilité professionnelle peut être engagée.',{bold:true}),
+      empty(),
+      h2('17.5 Sanctions en cas de manquement'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.35),Math.floor(W*0.65)],
+        rows:[
+          new d.TableRow({children:[hcell('Sanction',Math.floor(W*0.35)),hcell('Motif',Math.floor(W*0.65))]}),
+          new d.TableRow({children:[tcell('Avertissement / Mise en demeure',Math.floor(W*0.35),{shade:'FFF9C4'}),tcell('Absence de plan de nettoyage, thermomètre manquant, mauvaise organisation des zones',Math.floor(W*0.65))]}),
+          new d.TableRow({children:[tcell('Amende administrative',Math.floor(W*0.35),{shade:'FFE0B2'}),tcell('Manquements répétés, absence de formation du personnel, températures non respectées',Math.floor(W*0.65))]}),
+          new d.TableRow({children:[tcell('Fermeture administrative',Math.floor(W*0.35),{shade:'FFEBEE'}),tcell('Risque sanitaire grave : présence de nuisibles, contamination avérée, manquements graves et répétés',Math.floor(W*0.65))]}),
+        ]}),
+      pb(),
+
+      // 18. FORMATIONS
+      h1('18. FORMATIONS DU PERSONNEL'),
+      p('Obligation légale : au moins une personne par établissement de restauration commerciale doit justifier d\'une formation en hygiène alimentaire (Décret n°2011-731 du 24 juin 2011 – Code rural L.233-4). Durée minimale : 14 heures.'),
+      empty(),
+      p('Le personnel nouvellement recruté doit être informé des règles d\'hygiène applicables, notamment :'),
+      p('• Les règles de lavage des mains'), p('• La prévention des contaminations croisées'), p('• Les températures de conservation des aliments'), p('• Les bonnes pratiques de manipulation et de préparation'), p('• L\'organisation des zones de travail (cru/cuit, marche en avant)'),
+      empty(),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W*0.22),Math.floor(W*0.25),Math.floor(W*0.20),Math.floor(W*0.18),Math.floor(W*0.15)],
+        rows:[new d.TableRow({children:[hcell('Nom / Fonction',Math.floor(W*0.22)),hcell('Type de formation',Math.floor(W*0.25)),hcell('Date & durée',Math.floor(W*0.20)),hcell('Organisme',Math.floor(W*0.18)),hcell('N° attestation',Math.floor(W*0.15))]}),
+          new d.TableRow({children:[tcell(info.resp,Math.floor(W*0.22)),tcell('Hygiène alimentaire – 14h min.',Math.floor(W*0.25)),tcell('',Math.floor(W*0.20)),tcell('',Math.floor(W*0.18)),tcell('',Math.floor(W*0.15))]})].concat(emptyRows(7,[Math.floor(W*0.22),Math.floor(W*0.25),Math.floor(W*0.20),Math.floor(W*0.18),Math.floor(W*0.15)]))
+      }),
+      empty(),
+
+      // SIGNATURES
+      h1('SIGNATURES'),
+      new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[Math.floor(W/2),Math.floor(W/2)],
+        rows:[new d.TableRow({children:[
+          new d.TableCell({ borders, width:{size:Math.floor(W/2),type:d.WidthType.DXA}, margins:{top:80,bottom:200,left:120,right:120},
+            children:[p('Nom de l\'exploitant : '+info.resp,{bold:true}),p(''),p('Signature :'),p(''),p(''),p('Date : '+today)] }),
+          new d.TableCell({ borders, width:{size:Math.floor(W/2),type:d.WidthType.DXA}, margins:{top:80,bottom:200,left:120,right:120},
+            children:[p('Auditeur : '+(info.auditeur||'—'),{bold:true}),p(''),p('Signature :'),p(''),p(''),p('Date : '+today)] }),
+        ]})]
+      }),
+      empty(),
+      p('PMS établi le '+today+' — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
+    ];
+
+    var doc = new d.Document({
+      styles: {
+        'default': { document: { run: { font:'Arial', size:20 } } },
+        paragraphStyles: [
+          { id:'Heading1', name:'Heading 1', basedOn:'Normal', next:'Normal', quickFormat:true,
+            run:{size:32,bold:true,font:'Arial',color:'1A2332'}, paragraph:{spacing:{before:400,after:200},outlineLevel:0} },
+          { id:'Heading2', name:'Heading 2', basedOn:'Normal', next:'Normal', quickFormat:true,
+            run:{size:24,bold:true,font:'Arial',color:'243044'}, paragraph:{spacing:{before:280,after:140},outlineLevel:1} },
+        ]
+      },
+      sections: [{ properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},
+        headers:{ 'default': new d.Header({ children:[new d.Paragraph({
+          border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'00A896'}}, spacing:{after:80},
+          children:[new d.TextRun({text:'PMS — '+info.etab+'   SIRET : '+(info.siret||'—'),font:'Arial',size:18,color:'666666'})]
+        })]})},
+        footers:{ 'default': new d.Footer({ children:[new d.Paragraph({
+          border:{top:{style:d.BorderStyle.SINGLE,size:4,color:'00A896'}}, spacing:{before:80},
+          children:[new d.TextRun({text:'Règlement CE n°852/2004 — Généré le '+today+' par ExpertAudit HACCP — Page ',font:'Arial',size:16,color:'888888'}), new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:16,color:'888888'}), new d.TextRun({text:'/',font:'Arial',size:16,color:'888888'}), new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:16,color:'888888'})]
+        })]})},
+        children: children
+      }]
+    });
+
+    d.Packer.toBlob(doc).then(function(blob) {
+      downloadBlob(blob, 'PMS_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
+      toast('✅ PMS Word téléchargé ! ('+info.etab+')', 'ok');
+    }).catch(function(e){ toast('Erreur génération PMS : '+e.message,'err'); });
+
+  } catch(e) { toast('Erreur : '+e.message,'err'); console.error(e); }
+}
+
+// ─── Plan nettoyage Word ───
+function genDocsNettoyage(code) {
+  if (!isDocAuthorized(code)) {
+    toast('🔒 Non autorisé. L\'administrateur doit débloquer ce document.', 'err');
+    alert('Ce document n\'est pas encore autorisé par l\'administrateur.\nDemandez à votre auditeur de débloquer vos documents.');
+    return;
+  }
+  var info = getInfoByCode(code);
+  if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  var d = window.docx;
+  var today = todayFR();
+  var secteur = info.secteur || 'RESTAURATION';
+  var nData = NETTOYAGE_DATA[secteur] || NETTOYAGE_DATA['RESTAURATION'];
+  var W = 9026;
+  var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+  var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+
+  function hcell(t,w){return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:'1A2332',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:120,right:120},children:[new d.Paragraph({children:[new d.TextRun({text:t,bold:true,size:18,font:'Arial',color:'FFFFFF'})]})]}); }
+  function tcell(t,w,o){o=o||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:o.shade?{fill:o.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:120,right:120},children:[new d.Paragraph({children:[new d.TextRun({text:String(t||''),bold:!!o.bold,size:o.size||20,font:'Arial',color:o.color||'000000'})]})]});}
+  function p(t,o){o=o||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:t||'',size:o.size||20,font:'Arial',bold:!!o.bold,italic:!!o.italic,color:o.color||'000000'})]});}
+  function h1(t){return new d.Paragraph({heading:d.HeadingLevel.HEADING_1,spacing:{before:400,after:200},children:[new d.TextRun({text:t,bold:true,size:32,font:'Arial',color:'1A2332'})]});}
+  function h2(t){return new d.Paragraph({heading:d.HeadingLevel.HEADING_2,spacing:{before:280,after:140},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'00A896'}},children:[new d.TextRun({text:t,bold:true,size:24,font:'Arial',color:'243044'})]});}
+  function empty(){return p('');}
+  function emptyRows(n,ws){return Array.from({length:n},function(){return new d.TableRow({children:ws.map(function(w){return tcell('',w);})});});}
+
+  var children = [
+    new d.Paragraph({spacing:{before:600,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'PLAN DE NETTOYAGE & DÉSINFECTION',bold:true,size:48,font:'Arial',color:'1A2332'})]}),
+    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:100,after:200},children:[new d.TextRun({text:info.etab,bold:true,size:36,font:'Arial',color:'00A896'})]}),
+    p('Conforme au Règlement CE n°852/2004 — Annexe II — Chapitre V',{italic:true}),
+    empty(),
+    new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
+      rows:[new d.TableRow({children:[new d.TableCell({
+        borders:{top:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},bottom:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},left:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},right:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'}},
+        shading:{fill:'FFF8F0',type:d.ShadingType.CLEAR},
+        margins:{top:120,bottom:120,left:180,right:180},
+        width:{size:W,type:d.WidthType.DXA},
+        children:[
+          new d.Paragraph({children:[new d.TextRun({text:'⚠️  AVERTISSEMENT — DOCUMENT DÉLIVRÉ À TITRE INDICATIF',bold:true,size:20,font:'Arial',color:'C0392B'})]}),
+          new d.Paragraph({spacing:{before:80},children:[new d.TextRun({text:'Ce document est fourni à titre indicatif sur la base des réglementations en vigueur et des pratiques recommandées pour le secteur concerné. Il doit impérativement être adapté aux spécificités propres de l\'établissement : nature des activités exercées, configuration et état des locaux, effectif et qualification du personnel, volume de production, équipements disponibles, et tout autre élément propre à l\'entreprise. Il appartient au responsable de l\'établissement de le compléter, de le personnaliser et de le mettre à jour régulièrement, notamment à chaque changement significatif d\'activité, de locaux ou de personnel. Ce document ne saurait se substituer à un conseil professionnel ni engager la responsabilité de son émetteur.',size:18,font:'Arial',color:'5D4037'})]}),
+        ]
+      })]})]}),
+    empty(),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W/2),Math.floor(W/2)],rows:[
+      new d.TableRow({children:[tcell('Établissement',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.etab,Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Responsable',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.resp,Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Adresse',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.adresse||'—',Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Secteur',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(secteur.replace('_',' '),Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Date d\'établissement',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(today,Math.floor(W/2))]}),
+    ]}),
+    empty(),
+    h1('INSTRUCTIONS GÉNÉRALES'),
+    p('• Toujours NETTOYER (éliminer les salissures) avant de DÉSINFECTER'),
+    p('• Respecter les dilutions et temps de contact indiqués sur les produits'),
+    p('• Conserver les Fiches de Données de Sécurité (FDS) de chaque produit'),
+    p('• Ne jamais mélanger les produits de nettoyage et de désinfection'),
+    p('• Stocker les produits chimiques séparément des denrées alimentaires'),
+    p('• Porter les EPI adaptés (gants, lunettes si nécessaire)'),
+    empty(),
+    h1('PLAN DE NETTOYAGE ET DÉSINFECTION — '+secteur.replace('_',' ')),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W*0.05),Math.floor(W*0.23),Math.floor(W*0.20),Math.floor(W*0.22),Math.floor(W*0.15),Math.floor(W*0.15)],
+      rows:[new d.TableRow({children:[hcell('#',Math.floor(W*0.05)),hcell('Zone / Équipement',Math.floor(W*0.23)),hcell('Fréquence',Math.floor(W*0.20)),hcell('Produit utilisé',Math.floor(W*0.22)),hcell('Responsable',Math.floor(W*0.15)),hcell('✓ Réalisé',Math.floor(W*0.15))]}),
+        ...nData.map(function(r,i){return new d.TableRow({children:[tcell(String(i+1),Math.floor(W*0.05),{center:true,bold:true}),tcell(r[0],Math.floor(W*0.23),{bold:true}),tcell(r[1],Math.floor(W*0.20)),tcell(r[2]||'',Math.floor(W*0.22)),tcell(r[3]||'',Math.floor(W*0.15)),tcell('',Math.floor(W*0.15))]});})
+      ]}),
+    empty(),
+    h2('Enregistrement hebdomadaire — 4 semaines'),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W*0.18),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.12)],
+      rows:[new d.TableRow({children:[hcell('Semaine du',Math.floor(W*0.18)),hcell('Lun.',Math.floor(W*0.10)),hcell('Mar.',Math.floor(W*0.10)),hcell('Mer.',Math.floor(W*0.10)),hcell('Jeu.',Math.floor(W*0.10)),hcell('Ven.',Math.floor(W*0.10)),hcell('Sam.',Math.floor(W*0.10)),hcell('Dim.',Math.floor(W*0.10)),hcell('Visa Resp.',Math.floor(W*0.12))]}),
+        ...emptyRows(4,[Math.floor(W*0.18),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.10),Math.floor(W*0.12)])
+      ]}),
+    empty(),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W/2),Math.floor(W/2)],rows:[
+      new d.TableRow({children:[
+        new d.TableCell({borders,width:{size:Math.floor(W/2),type:d.WidthType.DXA},margins:{top:80,bottom:160,left:120,right:120},children:[p('Validé par : '+info.resp,{bold:true}),p(''),p('Signature :'),p(''),p('')]}),
+        new d.TableCell({borders,width:{size:Math.floor(W/2),type:d.WidthType.DXA},margins:{top:80,bottom:160,left:120,right:120},children:[p('Date de mise en application :',{bold:true}),p(today)]})
+      ]})
+    ]}),
+    empty(),
+    new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
+      rows:[new d.TableRow({children:[new d.TableCell({
+        borders:{top:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},bottom:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},left:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},right:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'}},
+        shading:{fill:'FDECEA',type:d.ShadingType.CLEAR}, margins:{top:100,bottom:100,left:160,right:160}, width:{size:W,type:d.WidthType.DXA},
+        children:[
+          new d.Paragraph({children:[new d.TextRun({text:'⚖️  SANCTIONS EN CAS DE NON-RESPECT (Art. L218-1 Code de la consommation — Art. 223-1 Code pénal)',bold:true,size:19,font:'Arial',color:'C0392B'})]}),
+          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'Le non-respect des règles d\'hygiène et l\'absence de plan de nettoyage sont sanctionnés par : mise en demeure immédiate (Art. L218-1 Code de la consommation) • fermeture administrative par le Préfet en cas de danger grave (Art. L218-2) • non-respect d\'une mesure administrative : amende jusqu\'à 15 000 € et/ou 1 an d\'emprisonnement • mise en danger délibérée de la vie d\'autrui : 1 an d\'emprisonnement + 15 000 € (Art. 223-1 Code pénal). Les inspecteurs DDPP vérifient systématiquement l\'existence et l\'application effective du PND lors de chaque contrôle.',size:18,font:'Arial',color:'7B241C'})]}),
+        ]
+      })]})]}),
+    empty(),
+    p('Plan de Nettoyage & Désinfection — '+info.etab+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
+  ];
+
+  var doc = new d.Document({
+    styles:{'default':{document:{run:{font:'Arial',size:20}}}},
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
+  });
+  d.Packer.toBlob(doc).then(function(blob){
+    downloadBlob(blob,'PlanNettoyage_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
+    toast('✅ Plan de nettoyage Word téléchargé !','ok');
+  }).catch(function(e){toast('Erreur : '+e.message,'err');});
+}
+
+// ─── DUERP Word ───
+function genDocsDUERP(code) {
+  if (!isDocAuthorized(code)) {
+    toast('🔒 Non autorisé. L\'administrateur doit débloquer ce document.', 'err');
+    alert('Ce document n\'est pas encore autorisé par l\'administrateur.\nDemandez à votre auditeur de débloquer vos documents.');
+    return;
+  }
+  var info = getInfoByCode(code);
+  if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+
+  var d = window.docx;
+  var today = todayFR();
+  var secteur = info.secteur || 'RESTAURATION';
+  var risks = DUERP_DATA[secteur] || DUERP_DATA['RESTAURATION'];
+  var W = 9026;
+  var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+  var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+
+  function hcell(t,w){return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:'1A2332',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:120,right:120},children:[new d.Paragraph({children:[new d.TextRun({text:t,bold:true,size:18,font:'Arial',color:'FFFFFF'})]})]}); }
+  function tcell(t,w,o){o=o||{};var shade={};if(o.shade)shade={fill:o.shade,type:d.ShadingType.CLEAR};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:o.shade?shade:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:120,right:120},children:[new d.Paragraph({children:[new d.TextRun({text:String(t||''),bold:!!o.bold,size:o.size||20,font:'Arial',color:o.color||'000000'})]})]});}
+  function p(t,o){o=o||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:t||'',size:o.size||20,font:'Arial',bold:!!o.bold,italic:!!o.italic,color:o.color||'000000'})]});}
+  function h1(t){return new d.Paragraph({heading:d.HeadingLevel.HEADING_1,spacing:{before:400,after:200},children:[new d.TextRun({text:t,bold:true,size:32,font:'Arial',color:'1A2332'})]});}
+  function h2(t){return new d.Paragraph({heading:d.HeadingLevel.HEADING_2,spacing:{before:280,after:140},children:[new d.TextRun({text:t,bold:true,size:24,font:'Arial',color:'243044'})]});}
+  function empty(){return p('');}
+
+  var w1=1500,w2=2000,w3=700,w4=2500,w5=2326;
+  function riskRow(r) {
+    var col = r.niveau==='Élevé'?'C0392B':r.niveau==='Moyen'?'856404':'2E7D32';
+    return new d.TableRow({children:[
+      tcell(r.unite,w1),
+      tcell(r.risque,w2,{bold:true}),
+      new d.TableCell({borders,width:{size:w3,type:d.WidthType.DXA},shading:{fill:r.niveau==='Élevé'?'FDECEA':r.niveau==='Moyen'?'FFF3CD':'E8F5E9',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:60,right:60},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:r.niveau,bold:true,size:16,font:'Arial',color:col})]})]}),
+      tcell(r.mesures,w4),
+      tcell(r.actions,w5),
+    ]});
+  }
+
+  var unites = [];
+  risks.forEach(function(r){if(unites.indexOf(r.unite)<0)unites.push(r.unite);});
+
+  var children = [
+    new d.Paragraph({spacing:{before:400,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'DOCUMENT UNIQUE D\'ÉVALUATION',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
+    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:100},children:[new d.TextRun({text:'DES RISQUES PROFESSIONNELS (DUERP)',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
+    p('Conformément aux articles L.4121-3 et R.4121-1 du Code du travail (Décret n°2001-1016 du 5 novembre 2001 — obligation d\'évaluation des risques professionnels). Le DUERP doit être mis à jour annuellement et après tout accident du travail ou modification significative des conditions de travail.',{italic:true}),
+    empty(),
+    new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
+      rows:[new d.TableRow({children:[new d.TableCell({
+        borders:{top:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},bottom:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},left:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'},right:{style:d.BorderStyle.SINGLE,size:4,color:'E8913A'}},
+        shading:{fill:'FFF8F0',type:d.ShadingType.CLEAR},
+        margins:{top:120,bottom:120,left:180,right:180},
+        width:{size:W,type:d.WidthType.DXA},
+        children:[
+          new d.Paragraph({children:[new d.TextRun({text:'⚠️  AVERTISSEMENT — DOCUMENT DÉLIVRÉ À TITRE INDICATIF',bold:true,size:20,font:'Arial',color:'C0392B'})]}),
+          new d.Paragraph({spacing:{before:80},children:[new d.TextRun({text:'Ce document est fourni à titre indicatif sur la base des réglementations en vigueur et des pratiques recommandées pour le secteur concerné. Il doit impérativement être adapté aux spécificités propres de l\'établissement : nature des activités exercées, configuration et état des locaux, effectif et qualification du personnel, volume de production, équipements disponibles, et tout autre élément propre à l\'entreprise. Il appartient au responsable de l\'établissement de le compléter, de le personnaliser et de le mettre à jour régulièrement, notamment à chaque changement significatif d\'activité, de locaux ou de personnel. Ce document ne saurait se substituer à un conseil professionnel ni engager la responsabilité de son émetteur.',size:18,font:'Arial',color:'5D4037'})]}),
+        ]
+      })]})]}),
+    empty(),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W/2),Math.floor(W/2)],rows:[
+      new d.TableRow({children:[tcell('Nom de l\'entreprise',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.etab,Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Adresse',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.adresse||'—',Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('SIREN',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.siren||'—',Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('SIRET',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.siret||'—',Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Secteur d\'activité',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(secteur.replace('_',' '),Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Effectif concerné',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.effectif||'—',Math.floor(W/2))]}),
+      new d.TableRow({children:[tcell('Représentant légal',Math.floor(W/2),{bold:true,shade:'EEF2F7'}),tcell(info.legal||info.resp||'—',Math.floor(W/2))]}),
+    ]}),
+    empty(),
+    h1('1) MÉTHODOLOGIE'),
+    p('• Découpage en unités de travail homogènes'), p('• Inventaire des risques par unité'),
+    p('• Cotation simplifiée : faible, moyen, élevé'), p('• Recensement des mesures existantes et plan d\'actions'),
+    p('• Suivi périodique de l\'avancement'),
+    empty(),
+    p('L\'évaluation repose sur les situations de travail usuelles du secteur «'+secteur.replace('_',' ')+'».',{italic:true}),
+    empty(),
+    h1('2) OBLIGATIONS & TRAÇABILITÉ'),
+    p('Mise à jour : annuelle (et à chaque changement significatif).',{bold:true}),
+    p('Conservation : 40 ans (papier et/ou numérique).',{bold:true}),
+    empty(),
+    h1('3) PÉRIMÈTRE & UNITÉS DE TRAVAIL'),
+    ...unites.map(function(u){return p('• '+u);}),
+    empty(),
+    h1('4) SYNTHÈSE DES RISQUES PRIORITAIRES'),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[w1,w2,w3,w4,w5],rows:[
+      new d.TableRow({children:[hcell('Unité',w1),hcell('Risque',w2),hcell('Niveau',w3),hcell('Mesures existantes',w4),hcell('Actions à prévoir',w5)]}),
+      ...risks.filter(function(r){return r.niveau==='Élevé';}).map(riskRow)
+    ]}),
+    empty(),
+    h1('5) INVENTAIRE & ÉVALUATION DES RISQUES'),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[w1,w2,w3,w4,w5],rows:[
+      new d.TableRow({children:[hcell('Unité',w1),hcell('Risque',w2),hcell('Niveau',w3),hcell('Mesures existantes',w4),hcell('Actions à prévoir',w5)]}),
+      ...risks.map(riskRow)
+    ]}),
+    empty(),
+    h1('7) PLAN D\'ACTIONS CONSOLIDÉ'),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W*0.30),Math.floor(W*0.20),Math.floor(W*0.25),Math.floor(W*0.12),Math.floor(W*0.13)],rows:[
+      new d.TableRow({children:[hcell('Action',Math.floor(W*0.30)),hcell('Unité',Math.floor(W*0.20)),hcell('Risque lié',Math.floor(W*0.25)),hcell('Échéance',Math.floor(W*0.12)),hcell('Statut',Math.floor(W*0.13))]}),
+      ...risks.filter(function(r){return r.niveau!=='Non exposé';}).reduce(function(acc,r){
+        r.actions.split(',').forEach(function(a){
+          acc.push(new d.TableRow({children:[tcell(a.trim(),Math.floor(W*0.30)),tcell(r.unite,Math.floor(W*0.20)),tcell(r.risque,Math.floor(W*0.25),{bold:true}),tcell('',Math.floor(W*0.12)),tcell('À faire',Math.floor(W*0.13))]}));
+        });
+        return acc;
+      },[])
+    ]}),
+    empty(),
+    h1('8) ACCESSIBILITÉ'),
+    p('Le DUERP sera à disposition de toute personne qui en fera la demande.'),
+    empty(),
+    h1('HISTORIQUE DES VERSIONS'),
+    p('• V1 — Établi le '+today),
+    empty(),
+    h1('SIGNATURE'),
+    new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[Math.floor(W*0.40),Math.floor(W*0.60)],rows:[
+      new d.TableRow({children:[tcell('Représentant légal :',Math.floor(W*0.40),{bold:true,shade:'EEF2F7'}),tcell(info.legal||info.resp||'—',Math.floor(W*0.60))]}),
+      new d.TableRow({children:[tcell('Signature :',Math.floor(W*0.40),{bold:true,shade:'EEF2F7'}),tcell('',Math.floor(W*0.60))]}),
+      new d.TableRow({children:[tcell('Date :',Math.floor(W*0.40),{bold:true,shade:'EEF2F7'}),tcell(today,Math.floor(W*0.60))]}),
+    ]}),
+    empty(),
+    new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
+      rows:[new d.TableRow({children:[new d.TableCell({
+        borders:{top:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},bottom:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},left:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'},right:{style:d.BorderStyle.SINGLE,size:4,color:'C0392B'}},
+        shading:{fill:'FDECEA',type:d.ShadingType.CLEAR}, margins:{top:100,bottom:100,left:160,right:160}, width:{size:W,type:d.WidthType.DXA},
+        children:[
+          new d.Paragraph({children:[new d.TextRun({text:'⚖️  SANCTIONS EN CAS DE NON-RESPECT (Art. L.4121-3 Code du Travail — Art. 223-1 Code pénal)',bold:true,size:19,font:'Arial',color:'C0392B'})]}),
+          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'L\'absence de Document Unique d\'Évaluation des Risques Professionnels (DUERP) est une infraction pénale. Sanctions (Art. L.4121-3 Code du Travail) : amende de 3 750 € • en cas de récidive : 1 an d\'emprisonnement + 9 000 €. En cas d\'accident du travail sur un risque non évalué, la responsabilité pénale de l\'employeur peut être engagée (Art. 223-1 Code pénal — mise en danger délibérée). Mise à jour obligatoire au minimum 1 fois par an et à chaque changement significatif (Art. R.4121-2 CT). Conservation : 40 ans.',size:18,font:'Arial',color:'7B241C'})]}),
+        ]
+      })]})]}),
+    empty(),
+    p('DUERP — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
+  ];
+
+  var doc = new d.Document({
+    styles:{'default':{document:{run:{font:'Arial',size:20}}}},
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
+  });
+  d.Packer.toBlob(doc).then(function(blob){
+    downloadBlob(blob,'DUERP_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
+    toast('✅ DUERP Word téléchargé !','ok');
+  }).catch(function(e){toast('Erreur : '+e.message,'err');});
+}
+
+// ─── Fiche Relevé Températures ───
+function genDocsTemperatures(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé. Demandez à votre auditeur.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Relevé Températures...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+    var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(text,opts){opts=opts||{};return new d.Paragraph({spacing:{before:60,after:60},alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]});}
+    function h1(text){return new d.Paragraph({spacing:{before:300,after:160},children:[new d.TextRun({text,bold:true,size:28,font:'Arial',color:'153e35'})]});}
+    function h2(text){return new d.Paragraph({spacing:{before:200,after:100},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},children:[new d.TextRun({text,bold:true,size:22,font:'Arial',color:'1f5649'})]});}
+    function hcell(text,w,bg){bg=bg||'153e35';return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:bg,type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tcell(text,w,opts){opts=opts||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:opts.shade?{fill:opts.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||18,font:'Arial',color:opts.color||'000000'})]})]});}
+    function pb(){return new d.Paragraph({children:[new d.PageBreak()]});}
+    function empty(){return p('');}
+    var secteur = info.secteur || 'RESTAURATION';
+    var secteurLabel = {RESTAURATION:'Restauration Traditionnelle',RESTAURATION_RAPIDE:'Restauration Rapide',BOULANGERIE:'Boulangerie / Pâtisserie',BOUCHERIE:'Boucherie / Charcuterie'}[secteur]||secteur;
+
+    // Équipements par secteur
+    var equipements = {
+      RESTAURATION: [['Chambre froide positive viandes','0°C à +3°C'],['Chambre froide positive produits laitiers/charcuterie','0°C à +4°C'],['Réfrigérateur légumes / fruits','0°C à +8°C'],['Congélateur / cellule négative','≤ -18°C'],['Bain-marie chaud / maintien en température','≥ +63°C'],['Cuisson viandes (T° à cœur)','≥ +75°C']],
+      RESTAURATION_RAPIDE: [['Vitrine réfrigérée sandwichs','0°C à +4°C'],['Réfrigérateur matières premières','0°C à +4°C'],['Congélateur produits surgelés','≤ -18°C'],['Bain-marie / lampe chauffante','≥ +63°C'],['Cuisson à cœur (burgers, poulets...)','≥ +75°C'],['Chambre froide boissons','0°C à +8°C']],
+      BOULANGERIE: [['Réfrigérateur crèmes et œufs','0°C à +4°C'],['Chambre de fermentation','+4°C à +25°C selon programme'],['Congélateur pâtons','≤ -18°C'],['Four : T° de cuisson pain blanc','220°C à 240°C'],['Four : T° de cuisson viennoiseries','170°C à 190°C'],['Cellule de refroidissement rapide','< +10°C en < 2h']],
+      BOUCHERIE: [['Chambre froide viandes fraîches','0°C à +3°C'],['Chambre froide produits transformés','0°C à +4°C'],['Vitrine réfrigérée libre-service','0°C à +4°C'],['Congélateur surgélation','≤ -18°C'],['Chambre froide abats','0°C à +3°C'],['Zone de découpe (T° ambiante)','≤ +12°C']]
+    }[secteur] || [];
+
+    var mois = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    var moisActuel = mois[new Date().getMonth()];
+    var annee = new Date().getFullYear();
+
+    // Construire tableaux mensuels par équipement
+    var children = [
+      new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'FICHE DE RELEVÉ DES TEMPÉRATURES',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||info.auditeur||'—')+' | Secteur : '+secteurLabel),
+      p('Base légale : Règlement CE n°852/2004, Arrêté 21/12/2009, Note DGAL 2023-756',{italic:true,size:16,color:'888888'}),
+      empty(),
+      p('📋 INSTRUCTIONS D\'UTILISATION',{bold:true,color:'153e35'}),
+      p('• Relever les températures quotidiennement (matin avant ouverture recommandé)'),
+      p('• En cas de dépassement de la limite critique : déclencher immédiatement la procédure corrective (voir fiche non-conformités)'),
+      p('• Conserver ces fiches 3 ans minimum pour tout contrôle DDPP'),
+      p('• Un thermomètre calibré doit être utilisé — vérification semestrielle obligatoire'),
+      empty(),
+    ];
+
+    equipements.forEach(function(eq) {
+      var equip = eq[0]; var limite = eq[1];
+      children.push(h2('📊 ' + equip + '  |  Limite : ' + limite));
+      children.push(p('Mois : '+moisActuel+' '+annee+'   —   Équipement / Emplacement : '+equip,{bold:true}));
+      // Tableau 31 jours avec AM / PM
+      var dayW = Math.floor((W-1200)/31);
+      var headerCells = [hcell('Jour',600), hcell('Relevé',600)];
+      for(var j=1;j<=31;j++) headerCells.push(hcell(String(j),dayW));
+      var rowAM = [tcell('T°C Matin',600,{bold:true,shade:'E8F5E9'}), tcell('AM',600,{center:true,shade:'E8F5E9'})];
+      var rowPM = [tcell('T°C Soir',600,{bold:true,shade:'FFF9E6'}), tcell('PM',600,{center:true,shade:'FFF9E6'})];
+      var rowObs = [tcell('Observations',600,{bold:true}), tcell('',600)];
+      for(var k=0;k<31;k++){rowAM.push(tcell('',dayW));rowPM.push(tcell('',dayW));rowObs.push(tcell('',dayW));}
+      children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[600,600,...Array(31).fill(dayW)],rows:[new d.TableRow({children:headerCells}),new d.TableRow({children:rowAM}),new d.TableRow({children:rowPM}),new d.TableRow({children:rowObs})]}));
+      // Signature
+      children.push(empty());
+      children.push(p('Action corrective en cas de dépassement : __________________________________________________ Date : ____________ Signature : ______________'));
+      children.push(empty());
+    });
+
+    // ── FICHE QUOTIDIENNE ──
+    children.push(pb());
+    children.push(new d.Paragraph({spacing:{before:0,after:160},children:[new d.TextRun({text:'FICHE QUOTIDIENNE DE RELEVÉ DES TEMPÉRATURES',bold:true,size:30,font:'Arial',color:'153e35'})]}));
+    children.push(p('À compléter chaque jour avant l\'ouverture de l\'établissement',{italic:true,color:'65716b'}));
+    children.push(p('Établissement : '+info.etab+'   —   SIRET : '+(info.siret||'—')+'   —   Responsable : '+(info.resp||'—'),{bold:true}));
+    children.push(empty());
+
+    // Tableau quotidien
+    var joursHebdo = ['Lundi','Mardi','Mercredi','Jeudi','Vendredi','Samedi','Dimanche'];
+    var colsQ = [1200, 1000, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700, 700];
+    var wTot = colsQ.reduce(function(a,b){return a+b;},0);
+    var headerQ = [
+      hcell('Équipement',colsQ[0],'153e35'),
+      hcell('Limite °C',colsQ[1],'1f5649')
+    ];
+    joursHebdo.forEach(function(j){ headerQ.push(hcell(j,colsQ[2],'2d6f60')); });
+    var rowsQ = [new d.TableRow({children:headerQ})];
+
+    // Sous-en-tête AM/PM
+    var subHeader = [tcell('',colsQ[0],{shade:'F5F2EA',bold:true}), tcell('Matin / Soir',colsQ[1],{shade:'F5F2EA',bold:true,center:true})];
+    joursHebdo.forEach(function(_,i){ subHeader.push(tcell('AM / PM',colsQ[2+i],{shade:'F5F2EA',center:true,size:14})); });
+    rowsQ.push(new d.TableRow({children:subHeader}));
+
+    equipements.forEach(function(eq,i){
+      var shade = i%2===0 ? 'FAFAFA' : undefined;
+      var rowAM = [tcell(eq[0],colsQ[0],{bold:true,shade:shade}), tcell(eq[1],colsQ[1],{shade:shade,size:16,color:'153e35'})];
+      var rowPM = [tcell('',colsQ[0],{shade:shade}), tcell('',colsQ[1],{shade:shade})];
+      joursHebdo.forEach(function(_,j){
+        rowAM.push(tcell('',colsQ[2+j],{shade:shade,center:true}));
+        rowPM.push(tcell('',colsQ[2+j],{shade:shade,center:true}));
+      });
+      rowsQ.push(new d.TableRow({children:rowAM}));
+      rowsQ.push(new d.TableRow({children:rowPM}));
+    });
+
+    // Ligne actions correctives
+    var rowNC = [tcell('⚠️ Action corrective',colsQ[0],{bold:true,shade:'FFF3E0'}), tcell('',colsQ[1],{shade:'FFF3E0'})];
+    joursHebdo.forEach(function(_,i){ rowNC.push(tcell('',colsQ[2+i],{shade:'FFF3E0'})); });
+    rowsQ.push(new d.TableRow({children:rowNC}));
+
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsQ,rows:rowsQ}));
+    children.push(empty());
+    children.push(p('Signature responsable : _______________________________   Date : _______________   Visa : _______________'));
+    children.push(p('En cas de dépassement : isoler le produit, identifier la cause, compléter la fiche non-conformités',{italic:true,size:16,color:'888888'}));
+
+    children.push(pb());
+    children.push(h1('RÉCAPITULATIF ANNUEL — SYNTHÈSE'));
+    children.push(p('Tableau de synthèse des non-conformités détectées sur les relevés de température',{italic:true}));
+    var recapHeaders = [hcell('Date',1500),hcell('Équipement',2500),hcell('T° relevée',1200),hcell('Limite',1200),hcell('Action corrective',2626)];
+    var recapRows = [new d.TableRow({children:recapHeaders})];
+    for(var r=0;r<10;r++) recapRows.push(new d.TableRow({children:[tcell('',1500),tcell('',2500),tcell('',1200),tcell('',1200),tcell('',2626)]}));
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[1500,2500,1200,1200,2626],rows:recapRows}));
+    children.push(empty());
+    children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+
+    var doc = new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},headers:{'default':new d.Header({children:[new d.Paragraph({border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},spacing:{after:80},children:[new d.TextRun({text:'Relevé Températures — '+info.etab+' — SIRET : '+(info.siret||'—'),font:'Arial',size:18,color:'666666'})]})]})} ,children:children}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Temperatures_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Températures téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Fiche Réception Marchandises ───
+function genDocsReception(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Fiche Réception...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+    var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(text,opts){opts=opts||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]});}
+    function h1(text){return new d.Paragraph({spacing:{before:300,after:160},children:[new d.TextRun({text,bold:true,size:28,font:'Arial',color:'153e35'})]});}
+    function h2(text){return new d.Paragraph({spacing:{before:200,after:100},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},children:[new d.TextRun({text,bold:true,size:22,font:'Arial',color:'1f5649'})]});}
+    function hcell(text,w){return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:'153e35',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tcell(text,w,opts){opts=opts||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:opts.shade?{fill:opts.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||18,font:'Arial',color:opts.color||'000000'})]})]});}
+    function empty(){return p('');}
+    var secteur = info.secteur || 'RESTAURATION';
+
+    var children = [
+      new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'FICHE DE RÉCEPTION DES MARCHANDISES',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||info.auditeur||'—')),
+      p('Base légale : Règlement CE n°178/2002 (Traçabilité) — Règlement CE n°852/2004 (Contrôle réception)',{italic:true,size:16,color:'888888'}),
+      empty(),
+      h2('📋 PROCÉDURE DE RÉCEPTION'),
+      p('À chaque livraison, le responsable désigné doit contrôler les points suivants :',{bold:true}),
+      p('1. Contrôle visuel du véhicule de livraison (propreté, isotherme, température)'),
+      p('2. Vérification de l\'intégrité des emballages (pas de gonflements, déchirures, fuites)'),
+      p('3. Contrôle des DLC / DDM — refus de tout produit périmé ou à DLC dépassée'),
+      p('4. Vérification de la température à réception avec thermomètre sonde'),
+      p('5. Contrôle de l\'étiquetage (origine, allergènes, conditions de conservation)'),
+      p('6. Rangement immédiat dans les zones appropriées selon la règle FIFO (premier entré, premier sorti)'),
+      empty(),
+      h2('📊 REGISTRE DE RÉCEPTION — ' + new Date().getFullYear()),
+    ];
+
+    // Tableau de réception
+    var cols = [800,1600,1200,900,900,900,800,1926];
+    var headers = [hcell('Date',cols[0]),hcell('Fournisseur / Produit',cols[1]),hcell('N° Lot / BL',cols[2]),hcell('DLC/DDM',cols[3]),hcell('T° livraison',cols[4]),hcell('T° limite',cols[5]),hcell('Conforme',cols[6]),hcell('Observations / Actions',cols[7])];
+    var tableRows = [new d.TableRow({children:headers})];
+
+    // Limites par secteur
+    var limitesRef = secteur==='BOUCHERIE' ? '≤ +3°C viandes' : secteur==='BOULANGERIE' ? '≤ +4°C produits frais' : '≤ +4°C produits réfrigérés';
+    for(var r=0;r<20;r++){
+      var isEven = r%2===0;
+      var sh = isEven?'F5F5F5':undefined;
+      tableRows.push(new d.TableRow({children:[tcell('',cols[0],{shade:sh}),tcell('',cols[1],{shade:sh}),tcell('',cols[2],{shade:sh}),tcell('',cols[3],{shade:sh}),tcell('',cols[4],{shade:sh}),tcell(r===0?limitesRef:'',cols[5],{shade:sh,size:14}),tcell(r===0?'☐ Oui  ☐ Non':'',cols[6],{shade:sh,center:true}),tcell('',cols[7],{shade:sh})]}));
+    }
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:cols,rows:tableRows}));
+    children.push(empty());
+    children.push(h2('⚠️ TEMPÉRATURES LIMITES DE RÉCEPTION — RÉFÉRENTIEL'));
+    var tempRefRows = [
+      new d.TableRow({children:[hcell('Catégorie de produits',3000),hcell('Température maximale à réception',3000),hcell('Base légale',3026)]}),
+      new d.TableRow({children:[tcell('Viandes fraîches (bœuf, veau, porc)',3000,{shade:'FFF3E0'}),tcell('≤ +3°C',3000,{center:true,bold:true}),tcell('Règl. CE 853/2004',3026)]}),
+      new d.TableRow({children:[tcell('Viande hachée fraîche',3000,{shade:'FFF3E0'}),tcell('≤ +2°C',3000,{center:true,bold:true,color:'CC0000'}),tcell('Règl. CE 853/2004',3026)]}),
+      new d.TableRow({children:[tcell('Volailles fraîches',3000,{shade:'FFF3E0'}),tcell('≤ +4°C',3000,{center:true,bold:true}),tcell('Arrêté 21/12/2009',3026)]}),
+      new d.TableRow({children:[tcell('Produits laitiers (lait pasteurisé, yaourts)',3000),tcell('≤ +4°C',3000,{center:true,bold:true}),tcell('Arrêté 21/12/2009',3026)]}),
+      new d.TableRow({children:[tcell('Poissons, crustacés frais',3000,{shade:'E3F2FD'}),tcell('≤ +2°C',3000,{center:true,bold:true,color:'CC0000'}),tcell('Règl. CE 853/2004',3026)]}),
+      new d.TableRow({children:[tcell('Fruits et légumes frais',3000),tcell('Température ambiante selon produit',3000,{center:true}),tcell('Arrêté 08/10/2013',3026)]}),
+      new d.TableRow({children:[tcell('Produits surgelés',3000,{shade:'E8F5E9'}),tcell('≤ -18°C',3000,{center:true,bold:true,color:'0000CC'}),tcell('Règl. CE 853/2004',3026)]}),
+      new d.TableRow({children:[tcell('Œufs frais',3000),tcell('Température ambiante (< +20°C)',3000,{center:true}),tcell('Règl. CE 853/2004',3026)]}),
+    ];
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[3000,3000,3026],rows:tempRefRows}));
+    children.push(empty());
+    children.push(p('En cas de non-conformité à la réception : REFUS du produit et notification au fournisseur — Compléter la fiche de gestion des non-conformités',{bold:true,color:'CC0000'}));
+    children.push(empty());
+    children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+
+    var doc = new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Reception_Marchandises_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Réception téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Registre Traçabilité ───
+function genDocsTracabilite(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Registre Traçabilité...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+    var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(text,opts){opts=opts||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]});}
+    function h1(text){return new d.Paragraph({spacing:{before:300,after:160},children:[new d.TextRun({text,bold:true,size:28,font:'Arial',color:'153e35'})]});}
+    function h2(text){return new d.Paragraph({spacing:{before:200,after:100},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},children:[new d.TextRun({text,bold:true,size:22,font:'Arial',color:'1f5649'})]});}
+    function hcell(text,w){return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:'153e35',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tcell(text,w,opts){opts=opts||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:opts.shade?{fill:opts.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||18,font:'Arial',color:opts.color||'000000'})]})]});}
+    function empty(){return p('');}
+
+    var children = [
+      new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'REGISTRE DE TRAÇABILITÉ',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||info.auditeur||'—')),
+      p('Base légale : Règlement CE n°178/2002 — Articles 18 et 19 — Obligation de traçabilité amont et aval',{italic:true,size:16,color:'888888'}),
+      empty(),
+      h2('📋 PRINCIPES DE LA TRAÇABILITÉ'),
+      p('Le Règlement CE n°178/2002 impose à tout exploitant du secteur alimentaire d\'être capable d\'identifier :', {bold:true}),
+      p('• Tout fournisseur lui ayant fourni une denrée (traçabilité AMONT — "une étape en arrière")'),
+      p('• Tout client professionnel à qui il a fourni une denrée (traçabilité AVAL — "une étape en avant")'),
+      p('• Les enregistrements doivent être conservés pendant au moins 5 ans pour les produits non périssables, et 2 ans pour les produits très périssables.'),
+      p('• Procédure de retrait/rappel : en cas de danger identifié, l\'exploitant doit être en mesure de retirer les produits du marché dans les 24h.'),
+      empty(),
+      p('Méthode FIFO appliquée : Premier Entré = Premier Sorti (rotation des stocks)',{bold:true,color:'153e35'}),
+      empty(),
+      h2('📊 REGISTRE DES LOTS — ENTRÉES'),
+    ];
+
+    var colsE = [800,800,2000,1200,800,800,1626,1000];
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsE,rows:[
+      new d.TableRow({children:[hcell('Date',colsE[0]),hcell('N° BL',colsE[1]),hcell('Produit / Dénomination',colsE[2]),hcell('Fournisseur',colsE[3]),hcell('N° Lot',colsE[4]),hcell('DLC/DDM',colsE[5]),hcell('Qté reçue',colsE[6]),hcell('Visa',colsE[7])]}),
+      ...[...Array(25)].map(function(_,i){var sh=i%2===0?'F5F5F5':undefined;return new d.TableRow({children:colsE.map(function(w){return tcell('',w,{shade:sh});})});})
+    ]}));
+
+    children.push(empty());
+    children.push(h2('📊 REGISTRE DES LOTS — SORTIES (Clients professionnels)'));
+    var colsS = [800,2000,1800,1200,1200,2026];
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsS,rows:[
+      new d.TableRow({children:[hcell('Date',colsS[0]),hcell('Produit / Préparation',colsS[1]),hcell('Client professionnel',colsS[2]),hcell('N° Lot utilisé',colsS[3]),hcell('Qté',colsS[4]),hcell('Observations',colsS[5])]}),
+      ...[...Array(20)].map(function(_,i){var sh=i%2===0?'F5F5F5':undefined;return new d.TableRow({children:colsS.map(function(w){return tcell('',w,{shade:sh});})});})
+    ]}));
+
+    children.push(empty());
+    children.push(h2('🚨 PROCÉDURE DE RETRAIT / RAPPEL'));
+    children.push(p('En cas d\'identification d\'un produit dangereux pour la santé du consommateur :',{bold:true,color:'CC0000'}));
+    children.push(p('1. IDENTIFICATION immédiate du lot concerné via ce registre'));
+    children.push(p('2. ISOLEMENT physique du produit — étiquette "PRODUIT BLOQUÉ — NE PAS UTILISER"'));
+    children.push(p('3. INFORMATION de la DDPP dans les 24h : https://mesdemarches.agriculture.gouv.fr/'));
+    children.push(p('4. INFORMATION des clients professionnels si livraison déjà effectuée'));
+    children.push(p('5. CONSERVATION des enregistrements pour investigation'));
+    children.push(empty());
+    children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+
+    var doc = new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Tracabilite_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Registre Traçabilité téléchargé !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Fiche Allergènes ───
+function genDocsAllergenes(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Fiche Allergènes...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+    var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(text,opts){opts=opts||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]});}
+    function h2(text){return new d.Paragraph({spacing:{before:200,after:100},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},children:[new d.TextRun({text,bold:true,size:22,font:'Arial',color:'1f5649'})]});}
+    function hcell(text,w,bg){bg=bg||'153e35';return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:bg,type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tcell(text,w,opts){opts=opts||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:opts.shade?{fill:opts.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||18,font:'Arial',color:opts.color||'000000'})]})]});}
+    function empty(){return p('');}
+
+    var allergenes14 = [
+      ['01','🌾 Céréales contenant du gluten','Blé, seigle, orge, avoine, épeautre, kamut...'],
+      ['02','🦐 Crustacés et produits à base de crustacés','Crevettes, homards, crabes, langoustines...'],
+      ['03','🥚 Œufs et produits à base d\'œufs','Œufs de poule, oie, caille, et préparations'],
+      ['04','🐟 Poissons et produits à base de poissons','Tous les poissons et produits dérivés'],
+      ['05','🥜 Arachides et produits à base d\'arachides','Cacahuètes, huile d\'arachide non raffinée'],
+      ['06','🫘 Graines de soja et produits à base de soja','Tofu, lait de soja, sauce soja, edamame...'],
+      ['07','🥛 Lait et produits à base de lait (dont lactose)','Beurre, fromage, crème, yaourt, lactosérum...'],
+      ['08','🌰 Fruits à coque','Amandes, noisettes, noix, noix de cajou, pistaches, noix du Brésil, noix de macadamia, pécan'],
+      ['09','🌿 Céleri et produits à base de céleri','Céleri-rave, branche, graines, sel de céleri'],
+      ['10','🌻 Moutarde et produits à base de moutarde','Graine, poudre, feuilles, sauce moutarde'],
+      ['11','🫘 Graines de sésame et produits à base de sésame','Tahini, pain sésame, huile de sésame...'],
+      ['12','⚠️ Dioxyde de soufre et sulfites (> 10 mg/kg ou L)','Vins, fruits secs, vinaigre, conserves...'],
+      ['13','🐾 Lupin et produits à base de lupin','Farine de lupin, graines de lupin...'],
+      ['14','🦑 Mollusques et produits à base de mollusques','Moules, huîtres, calmars, escargots...'],
+    ];
+
+    var children = [
+      new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'FICHE DE GESTION DES ALLERGÈNES',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||info.auditeur||'—')),
+      p('Base légale : Règlement UE n°1169/2011 — Décret n°2015-447 du 17/04/2015 — 14 allergènes majeurs obligatoires',{italic:true,size:16,color:'888888'}),
+      empty(),
+      p('⚠️ OBLIGATION LÉGALE : Tout établissement servant des repas doit pouvoir informer les clients de la présence des 14 allergènes majeurs dans ses préparations. Cette information peut être fournie sur le menu, sur demande orale, ou via un registre accessible. (Art. L412-3 Code de la consommation)',{bold:true,color:'CC0000'}),
+      empty(),
+      h2('📋 LES 14 ALLERGÈNES MAJEURS (Annexe II — Règlement UE 1169/2011)'),
+    ];
+
+    var colsA = [400,2400,2200,4026];
+    var allergenesRows = [new d.TableRow({children:[hcell('N°',colsA[0]),hcell('Allergène',colsA[1]),hcell('Exemples de sources',colsA[2]),hcell('Présent dans nos préparations — À COMPLÉTER',colsA[3])]})];
+    allergenes14.forEach(function(al,i){
+      var sh = i%2===0?'FFF9E6':undefined;
+      allergenesRows.push(new d.TableRow({children:[tcell(al[0],colsA[0],{center:true,bold:true,shade:sh}),tcell(al[1],colsA[1],{bold:true,shade:sh}),tcell(al[2],colsA[2],{size:16,shade:sh}),tcell('',colsA[3],{shade:sh})]}));
+    });
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsA,rows:allergenesRows}));
+    children.push(empty());
+    children.push(h2('📊 MATRICE ALLERGÈNES PAR PLAT (À compléter par l\'établissement)'));
+    children.push(p('Pour chaque plat de votre carte, indiquer "X" si l\'allergène est présent, "T" si traces possibles',{italic:true}));
+    var colsM = [2026,...Array(14).fill(Math.floor((W-2026)/14))];
+    var matrixRows = [new d.TableRow({children:[hcell('Plat / Préparation',colsM[0]),...allergenes14.map(function(al,i){return hcell(String(i+1),colsM[i+1]);})]})];
+    for(var r=0;r<15;r++){var sh=r%2===0?'F5F5F5':undefined;matrixRows.push(new d.TableRow({children:[tcell('',colsM[0],{shade:sh}),...Array(14).fill(0).map(function(_,i){return tcell('',colsM[i+1],{center:true,shade:sh});})]}))}
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsM,rows:matrixRows}));
+    children.push(empty());
+    children.push(p('Procédure en cas de demande client : Le personnel est formé à orienter les clients allergiques vers le responsable qui consulte ce document. Toute demande doit être prise au sérieux.',{bold:true}));
+    children.push(empty());
+    children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+
+    var doc = new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Allergenes_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Allergènes téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Fiche Non-Conformités ───
+function genDocsNonConformites(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Fiche Non-Conformités...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr = {style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'};
+    var borders = {top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(text,opts){opts=opts||{};return new d.Paragraph({spacing:{before:60,after:60},children:[new d.TextRun({text:text||'',size:opts.size||20,font:'Arial',bold:!!opts.bold,italic:!!opts.italic,color:opts.color||'000000'})]});}
+    function h2(text){return new d.Paragraph({spacing:{before:200,after:100},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:'2d6f60'}},children:[new d.TextRun({text,bold:true,size:22,font:'Arial',color:'1f5649'})]});}
+    function hcell(text,w,bg){bg=bg||'153e35';return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:{fill:bg,type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tcell(text,w,opts){opts=opts||{};return new d.TableCell({borders,width:{size:w,type:d.WidthType.DXA},shading:opts.shade?{fill:opts.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:opts.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(text||''),bold:!!opts.bold,size:opts.size||18,font:'Arial',color:opts.color||'000000'})]})]});}
+    function empty(){return p('');}
+
+    var children = [
+      new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'FICHE DE GESTION DES NON-CONFORMITÉS',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||info.auditeur||'—')),
+      p('Base légale : Règlement CE n°852/2004 — Principe 5 HACCP (Actions correctives) — Règl. CE n°178/2002 (Retrait/Rappel)',{italic:true,size:16,color:'888888'}),
+      empty(),
+      h2('📋 TYPES DE NON-CONFORMITÉS ET ACTIONS IMMÉDIATES'),
+      p('Toute non-conformité détectée doit être consignée dans ce registre. La traçabilité des actions correctives est obligatoire.',{bold:true}),
+      empty(),
+    ];
+
+    // Types NC avec actions
+    var typesNC = [
+      ['🌡️ Température hors limite (froid)','BLOQUER le produit — évaluer la durée de dépassement — si > 2h : DÉTRUIRE — identifier lot concerné'],
+      ['🌡️ Température hors limite (chaud)','PROLONGER la cuisson ou DÉTRUIRE si dépassement > 2h à T° < 63°C — tracer l\'action'],
+      ['📦 Produit reçu non conforme','REFUS à la réception — retourner au fournisseur — compléter registre réception'],
+      ['📅 DLC/DDM dépassée','RETRAIT immédiat du circuit — destruction — tracer dans registre'],
+      ['🐛 Présence de nuisibles','ISOLER la zone — bloquer les produits exposés — appeler le prestataire anti-nuisibles'],
+      ['🧹 Non-conformité nettoyage','NETTOYAGE immédiat avant reprise activité — identifier cause — action corrective préventive'],
+      ['👤 Comportement personnel non conforme','Rappel des règles — formation si nécessaire — consigner dans registre RH'],
+      ['⚠️ Plainte consommateur','ÉCOUTER — identifier le produit et le lot — lancer procédure retrait si risque sanitaire — répondre dans 48h'],
+    ];
+    var colsT = [2500,6526];
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsT,rows:[
+      new d.TableRow({children:[hcell('Type de non-conformité',colsT[0]),hcell('Action corrective immédiate',colsT[1])]}),
+      ...typesNC.map(function(nc,i){var sh=i%2===0?'FFF9E6':undefined;return new d.TableRow({children:[tcell(nc[0],colsT[0],{bold:true,shade:sh}),tcell(nc[1],colsT[1],{shade:sh})]});})
+    ]}));
+    children.push(empty());
+    children.push(h2('📊 REGISTRE DES NON-CONFORMITÉS — ' + new Date().getFullYear()));
+    var colsR = [700,800,1800,2000,1800,1926];
+    children.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:colsR,rows:[
+      new d.TableRow({children:[hcell('Date',colsR[0]),hcell('Heure',colsR[1]),hcell('Nature NC',colsR[2]),hcell('Produit / Zone concerné',colsR[3]),hcell('Action corrective',colsR[4]),hcell('Visa responsable',colsR[5])]}),
+      ...[...Array(20)].map(function(_,i){var sh=i%2===0?'F5F5F5':undefined;return new d.TableRow({children:colsR.map(function(w){return tcell('',w,{shade:sh});})});})
+    ]}));
+    children.push(empty());
+    children.push(p('Conservation des fiches : 3 ans minimum — Ces documents constituent votre preuve de maîtrise en cas de contrôle DDPP ou de litige',{bold:true,color:'CC0000'}));
+    children.push(empty());
+    children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+
+    var doc = new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'NonConformites_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Non-Conformités téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Étiquettes de traçabilité interne ───
+function genDocsEtiquette(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Étiquettes...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var EW = 3969;
+    var bdr = {style:d.BorderStyle.SINGLE,size:4,color:'153e35'};
+    function ep(t,o){o=o||{};return new d.Paragraph({spacing:{before:o.before||20,after:o.after||20},alignment:o.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:t||'',size:o.size||16,font:'Arial',bold:!!o.bold,color:o.color||'000000'})]});}
+    function lb(t){return ep(t,{size:13,color:'888888'});}
+    function fd(){return ep('_____________________________',{size:14,color:'CCCCCC'});}
+    function etiq(){
+      return new d.Table({width:{size:EW,type:d.WidthType.DXA},columnWidths:[EW],rows:[
+        new d.TableRow({height:{value:2551,rule:d.HeightRule.EXACT},children:[
+          new d.TableCell({borders:{top:bdr,bottom:bdr,left:bdr,right:bdr},width:{size:EW,type:d.WidthType.DXA},margins:{top:60,bottom:60,left:120,right:120},shading:{fill:'F0FAF8',type:d.ShadingType.CLEAR},children:[
+            ep(info.etab,{size:18,bold:true,center:true,color:'153e35',before:40,after:20}),
+            lb('Produit :'),fd(),lb('N° de lot :'),fd(),lb('DLC / DDM :'),fd(),
+            lb("Date d'ouverture :"),fd(),lb('DLC secondaire après ouverture :'),fd(),
+            lb('Estampille sanitaire (si appl.) :'),fd(),
+            ep('ExpertAudit HACCP — '+today,{size:11,color:'AAAAAA',center:true,before:20,after:10})
+          ]})
+        ]})
+      ]});
+    }
+    var GAP=200; var ch=[];
+    ch.push(new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:'ETIQUETTES DE TRACABILITE INTERNE — A DECOUPER',bold:true,size:28,font:'Arial',color:'153e35'})]}));
+    ch.push(new d.Paragraph({spacing:{before:0,after:200},children:[new d.TextRun({text:info.etab+' — Généré le '+today,size:18,font:'Arial',color:'888888',italic:true})]}));
+    ch.push(new d.Paragraph({spacing:{before:0,after:160},children:[new d.TextRun({text:'Base légale : Règlement UE n°1169/2011 (information consommateurs) — Art. R112-9 du Code de la consommation',size:16,font:'Arial',color:'888888',italic:true})]}));
+    for(var r=0;r<5;r++){
+      ch.push(new d.Table({width:{size:EW*2+GAP,type:d.WidthType.DXA},columnWidths:[EW,GAP,EW],rows:[new d.TableRow({children:[
+        new d.TableCell({borders:{top:{style:'none'},bottom:{style:'none'},left:{style:'none'},right:{style:'none'}},width:{size:EW,type:d.WidthType.DXA},children:[etiq()]}),
+        new d.TableCell({borders:{top:{style:'none'},bottom:{style:'none'},left:{style:'none'},right:{style:'none'}},width:{size:GAP,type:d.WidthType.DXA},children:[new d.Paragraph({children:[new d.TextRun({text:''})]})]}),
+        new d.TableCell({borders:{top:{style:'none'},bottom:{style:'none'},left:{style:'none'},right:{style:'none'}},width:{size:EW,type:d.WidthType.DXA},children:[etiq()]})
+      ]})]}));
+      ch.push(new d.Paragraph({spacing:{before:80,after:80},children:[new d.TextRun({text:''})]}));
+    }
+    ch.push(new d.Paragraph({spacing:{before:160,after:60},children:[new d.TextRun({text:'Regl. CE n°178/2002 Art.18 — amende jusqu\'à 1 500 EUR par produit non tracé.',size:16,font:'Arial',color:'CC0000',italic:true})]}));
+    var doc=new d.Document({styles:{'default':{document:{run:{font:'Arial',size:18}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:720,right:720,bottom:720,left:720}}},children:ch}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Etiquettes_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('Etiquettes téléchargées !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  }catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Affiche Lavage des mains ───
+function genDocsLavageMains(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Affiche Lavage des mains...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    function p(t,o){o=o||{};return new d.Paragraph({spacing:{before:o.before||80,after:o.after||80},alignment:o.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:t||'',size:o.size||22,font:'Arial',bold:!!o.bold,italic:!!o.italic,color:o.color||'000000'})]});}
+    function step(n,ic,ti,de){return new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:[800,800,7426],rows:[new d.TableRow({height:{value:680,rule:d.HeightRule.AT_LEAST},children:[
+      new d.TableCell({shading:{fill:'153e35',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:120,right:120},width:{size:800,type:d.WidthType.DXA},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:String(n),bold:true,size:40,font:'Arial',color:'FFFFFF'})]})]}),
+      new d.TableCell({shading:{fill:'E8F5F3',type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},width:{size:800,type:d.WidthType.DXA},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:ic,size:36,font:'Arial'})]})]}),
+      new d.TableCell({verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:200,right:120},width:{size:7426,type:d.WidthType.DXA},children:[new d.Paragraph({spacing:{before:40,after:20},children:[new d.TextRun({text:ti,bold:true,size:26,font:'Arial',color:'153e35'})]}),new d.Paragraph({spacing:{before:0,after:40},children:[new d.TextRun({text:de,size:20,font:'Arial',color:'444444'})]})]})]})
+    ]});}
+    var ch=[
+      new d.Paragraph({spacing:{before:0,after:100},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'LAVAGE DES MAINS',bold:true,size:52,font:'Arial',color:'153e35'})]}),
+      new d.Paragraph({spacing:{before:0,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Affiche obligatoire — zones de préparation et lavabos',size:20,font:'Arial',color:'65716b',italic:true})]}),
+      new d.Paragraph({spacing:{before:0,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:info.etab,bold:true,size:24,font:'Arial',color:'2d6f60'})]}),
+      new d.Paragraph({spacing:{before:0,after:180},children:[new d.TextRun({text:'DUREE MINIMALE : 30 SECONDES — 7 ETAPES',bold:true,size:28,font:'Arial',color:'CC0000'})]}),
+      step(1,'*','Mouillez vos mains','Eau tiède courante.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(2,'*','Appliquez du savon','Savon liquide bactéricide.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(3,'*','Frottez paume contre paume','Mouvements circulaires — 5 secondes minimum.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(4,'*','Dos des mains et espaces interdigitaux','Frottez le dos de chaque main et entre les doigts.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(5,'*','Ongles et pouces','Frottez les ongles dans la paume opposée.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(6,'*','Rincez abondamment','Eau courante — minimum 10 secondes.'),
+      new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
+      step(7,'*','Séchez et fermez le robinet','Essuie-mains usage unique — fermez avec le papier.'),
+      p('SANCTIONS : fermeture administrative possible — amende jusqu\'à 1 500 EUR par infraction.',{bold:true,size:20,color:'CC0000',before:180,after:80}),
+      new d.Paragraph({spacing:{before:100,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Généré le '+today+' pour '+info.etab+' — ExpertAudit HACCP',size:16,font:'Arial',color:'AAAAAA',italic:true})]}),
+    ];
+    var doc=new d.Document({styles:{'default':{document:{run:{font:'Arial',size:22}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:720,right:720,bottom:720,left:720}}},children:ch}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Affiche_Lavage_Mains_'+info.etab.replace(/\s+/g,'_')+'.docx');toast('Affiche téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  }catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Fiche contrôle huiles de friture ───
+function genDocsHuiles(code) {
+  if (!isDocAuthorized(code)) { alert('Non autorisé.'); return; }
+  var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  toast('⏳ Génération Fiche Huiles...', 'inf');
+  try {
+    var d = window.docx; var today = todayFR(); var W = 9026;
+    var bdr={style:d.BorderStyle.SINGLE,size:1,color:'AAAAAA'}; var bds={top:bdr,bottom:bdr,left:bdr,right:bdr};
+    function p(t,o){o=o||{};return new d.Paragraph({spacing:{before:o.before||60,after:o.after||60},alignment:o.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:t||'',size:o.size||20,font:'Arial',bold:!!o.bold,italic:!!o.italic,color:o.color||'000000'})]});}
+    function h2(t,c){return new d.Paragraph({spacing:{before:180,after:80},border:{bottom:{style:d.BorderStyle.SINGLE,size:4,color:c||'2d6f60'}},children:[new d.TextRun({text:t,bold:true,size:24,font:'Arial',color:c||'1f5649'})]});}
+    function hc(t,w,bg){bg=bg||'153e35';return new d.TableCell({borders:bds,width:{size:w,type:d.WidthType.DXA},shading:{fill:bg,type:d.ShadingType.CLEAR},verticalAlign:d.VerticalAlign.CENTER,margins:{top:80,bottom:80,left:100,right:100},children:[new d.Paragraph({alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:t,bold:true,size:16,font:'Arial',color:'FFFFFF'})]})]});}
+    function tc(t,w,o){o=o||{};return new d.TableCell({borders:bds,width:{size:w,type:d.WidthType.DXA},shading:o.shade?{fill:o.shade,type:d.ShadingType.CLEAR}:undefined,verticalAlign:d.VerticalAlign.CENTER,margins:{top:60,bottom:60,left:100,right:100},children:[new d.Paragraph({alignment:o.center?d.AlignmentType.CENTER:d.AlignmentType.LEFT,children:[new d.TextRun({text:String(t||''),bold:!!o.bold,size:o.size||18,font:'Arial',color:o.color||'000000'})]})]});}
+    var ch=[
+      new d.Paragraph({spacing:{before:0,after:180},children:[new d.TextRun({text:'FICHE DE CONTROLE DES HUILES DE FRITURE',bold:true,size:36,font:'Arial',color:'153e35'})]}),
+      p(info.etab+(info.adresse?' — '+info.adresse:''),{bold:true}),
+      p('SIRET : '+(info.siret||'—')+' | Responsable : '+(info.resp||'—')),
+      p('Base légale : Arrêté du 28 mai 1997 modifié relatif aux règles d\'hygiène applicables dans les établissements de restauration — Note de service DGAL/SDSSA/2017-149 — CPT max 25% — T° max 180°C',{italic:true,size:16,color:'888888'}),
+      p(''),h2('REGLES ET SEUILS REGLEMENTAIRES'),
+      p('La teneur en composés polaires totaux (CPT) NE DOIT PAS dépasser 25%.',{bold:true,color:'CC0000',size:22}),
+    ];
+    var reg=[
+      ['T° max','180°C — Au-delà, production de composés toxiques.'],
+      ['Fréquence','Changer dès CPT > 25%, ou minimum toutes les 2 semaines.'],
+      ['Test bandelette','Bandelettes CPT à chaque contrôle. Conserver comme preuve.'],
+      ['Signes dégradation','Couleur sombre, mousse, odeur âcre, fumée < 180°C => CHANGER.'],
+      ['Entretien','Filtrer chaque jour. Ne pas mélanger huile neuve et usagée.'],
+      ['Elimination','Déchet spécial — collecte agréée obligatoire.'],
+    ];
+    var cR=[2200,6826];
+    var regRows=[new d.TableRow({children:[hc('Règle',cR[0]),hc('Explication',cR[1])]})];
+    for(var i=0;i<reg.length;i++){var sh=i%2===0?'FFF9E6':undefined;regRows.push(new d.TableRow({children:[tc(reg[i][0],cR[0],{bold:true,shade:sh}),tc(reg[i][1],cR[1],{shade:sh})]}));}
+    ch.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:cR,rows:regRows}));
+    ch.push(p(''));ch.push(h2('REGISTRE DE CONTROLE — '+new Date().getFullYear()));
+    var cols=[700,700,800,900,900,900,800,1200,1126];
+    var dRows=[new d.TableRow({children:[hc('Date',cols[0]),hc('Friteuse',cols[1]),hc('T° (°C)',cols[2]),hc('Couleur',cols[3]),hc('Odeur',cols[4]),hc('CPT (%)',cols[5]),hc('Action',cols[6]),hc('Observations',cols[7]),hc('Visa',cols[8])]})];
+    for(var i=0;i<30;i++){var sh=i%2===0?'F5F5F5':undefined;dRows.push(new d.TableRow({children:cols.map(function(w){return tc('',w,{shade:sh});})}));}
+    ch.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:cols,rows:dRows}));
+    ch.push(p(''));ch.push(h2('SANCTIONS','CC0000'));
+    var san=[['CPT > 25%','Arrêté 28/05/1997 modifié — amende jusqu\'à 1 500 EUR'],['Absence registre','Règl. CE n°178/2002 — amende jusqu\'à 750 EUR'],['T° > 180°C','Règl. CE n°852/2004 — mise en demeure + amende'],['Huile non renouvelée','Amende jusqu\'à 3 750 EUR — fermeture possible'],['Elimination incorrecte','Code environnement L.216-6 — amende jusqu\'à 75 000 EUR']];
+    var cS=[2500,6526];
+    var sRows=[new d.TableRow({children:[hc('Infraction',cS[0],'CC0000'),hc('Sanction',cS[1],'CC0000')]})];
+    for(var i=0;i<san.length;i++){var sh=i%2===0?'FFF0F0':undefined;sRows.push(new d.TableRow({children:[tc(san[i][0],cS[0],{bold:true,shade:sh,color:'CC0000'}),tc(san[i][1],cS[1],{shade:sh})]}));}
+    ch.push(new d.Table({width:{size:W,type:d.WidthType.DXA},columnWidths:cS,rows:sRows}));
+    ch.push(p(''));
+    ch.push(p('Conservation : 2 ans minimum — à présenter lors de tout contrôle DDPP',{bold:true,color:'CC0000'}));
+    ch.push(p('Document établi le '+today+' — '+info.etab+' — ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
+    var doc=new d.Document({styles:{'default':{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},children:ch}]});
+    d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Controle_Huiles_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('Fiche Huiles téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
+  }catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
+}
+
+// ─── Email ───
+function prepEmail(code) {
+  var info = getInfoByCode(code);
+  if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
+  var today = todayFR();
+  var subject = encodeURIComponent('Vos documents HACCP — ' + info.etab + ' — ' + today);
+  var body = encodeURIComponent(
+    'Bonjour ' + info.resp + ',\n\n' +
+    'Suite à l\'audit HACCP réalisé au sein de votre établissement « ' + info.etab + ' », veuillez trouver ci-joint vos documents réglementaires :\n\n' +
+    '📄 1. Plan de Maîtrise Sanitaire (PMS) — fichier .docx\n' +
+    '🧹 2. Plan de Nettoyage & Désinfection — fichier .docx\n' +
+    '⚠️ 3. Document Unique d\'Évaluation des Risques Professionnels (DUERP) — fichier .docx\n\n' +
+    'Ces documents ont été générés spécifiquement pour votre établissement et sont conformes à la réglementation en vigueur (Règlements CE 852/2004, Code du travail L.4121-3, Code de la consommation L218-1).\n\n' +
+    'Pour toute question, n\'hésitez pas à me contacter.\n\n' +
+    'Cordialement,\n' + (info.auditeur || 'L\'auditeur') + '\n\n---\nExpertAudit HACCP — Audit réalisé le ' + today
+  );
+  window.location.href = 'mailto:' + (info.email||'') + '?subject=' + subject + '&body=' + body;
+  toast('📧 Email préparé — joignez les fichiers .docx téléchargés !', 'inf');
+}
+
+// ─── Bouton Documents côté client ───
+function showClientDocs() {
+  var sess = getSession();
+  if (!sess || !sess.info) return;
+  var code = sess.code;
+  var authorized = isDocAuthorized(code);
+  var panel = document.getElementById('clientDocsPanel');
+  if (panel) { panel.style.display = panel.style.display==='none'?'block':'none'; return; }
+  var el = document.createElement('div');
+  el.id = 'clientDocsPanel';
+  el.style.cssText = 'background:#fff;border-radius:12px;padding:20px 24px;margin:0 0 16px 0;box-shadow:0 4px 24px rgba(26,35,50,.1);border:1px solid #dfe6e0';
+  if (!authorized) {
+    el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:10px">📦 Mes Documents Réglementaires</h3>' +
+      '<div style="background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);border-radius:8px;padding:14px 18px;font-size:.85rem;color:#c0392b">' +
+      '🔒 Vos documents ne sont pas encore débloqués par votre auditeur.<br>Contactez votre auditeur pour qu\'il autorise le téléchargement.</div>';
+  } else {
+    el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:14px">📦 Mes Documents Réglementaires</h3>' +
+      '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' +
+      '<button onclick="genDocsPMS(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#153e35,#1f5649);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📄 PMS<br><small style="font-weight:400;opacity:.8">Plan de Maîtrise Sanitaire</small></button>' +
+      '<button onclick="genDocsNettoyage(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🧹 Nettoyage<br><small style="font-weight:400;opacity:.8">Plan de Nettoyage</small></button>' +
+      '<button onclick="genDocsDUERP(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ DUERP<br><small style="font-weight:400;opacity:.8">Document Unique Risques</small></button>' +
+      '<button onclick="genDocsTemperatures(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#0277bd,#0288d1);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🌡️ Températures<br><small style="font-weight:400;opacity:.8">Relevé mensuel</small></button>' +
+      '<button onclick="genDocsReception(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#e65100,#f57c00);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📦 Réception<br><small style="font-weight:400;opacity:.8">Marchandises</small></button>' +
+      '<button onclick="genDocsTracabilite(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🔗 Traçabilité<br><small style="font-weight:400;opacity:.8">Registre lots</small></button>' +
+      '<button onclick="genDocsAllergenes(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#c62828,#e53935);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ Allergènes<br><small style="font-weight:400;opacity:.8">14 allergènes</small></button>' +
+      '<button onclick="genDocsNonConformites(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#4a148c,#7b1fa2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📋 Non-Conformités<br><small style="font-weight:400;opacity:.8">Registre NC</small></button>' +
+      '<button onclick="genDocsEtiquette(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#00695c,#00897b);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🏷️ Étiquettes<br><small style="font-weight:400;opacity:.8">Traçabilité interne</small></button>' +
+      '<button onclick="genDocsLavageMains(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#1565c0,#42a5f5);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🖐️ Lavage mains<br><small style="font-weight:400;opacity:.8">Affiche obligatoire</small></button>' +
+      '<button onclick="genDocsHuiles(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#e65100,#ff8f00);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🍟 Huiles friture<br><small style="font-weight:400;opacity:.8">Fiche de contrôle</small></button>' +
+      '</div><p style="margin-top:12px;font-size:.76rem;color:#8a9e95">📄 Documents générés au format Word (.docx) — ouvrir avec Word, LibreOffice ou Google Docs.</p>';
+  }
+  var wrap = document.querySelector('.wrap');
+  if (wrap) wrap.insertBefore(el, wrap.firstChild);
+}
+
+// getInfoByCode défini plus haut
+
+function todayFR() {
+  return new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
+}
+
+// Données par département (estimations proportionnelles aux données nationales DGAL 2024)
+var DEPT_DATA = {
+    '75': { nom: 'Paris (75)', inspections: 9200, fermetures: 152, mises_en_demeure: 1140, duree_moy: '18 jours', motifs: 'Présence de nuisibles, non-respect DLC, absence traçabilité, locaux dégradés' },
+    '77': { nom: 'Seine-et-Marne (77)', inspections: 1045, fermetures: 29, mises_en_demeure: 124, duree_moy: '14 jours', motifs: 'Absence traçabilité, non-respect DLC, manquements BPH' },
+    '78': { nom: 'Yvelines (78)', inspections: 1820, fermetures: 31, mises_en_demeure: 218, duree_moy: '12 jours', motifs: 'Températures non conformes, absence PMS, nuisibles' },
+    '91': { nom: 'Essonne (91)', inspections: 1540, fermetures: 26, mises_en_demeure: 185, duree_moy: '13 jours', motifs: 'Manquements BPH, absence traçabilité, DLC dépassées' },
+    '92': { nom: 'Hauts-de-Seine (92)', inspections: 2100, fermetures: 38, mises_en_demeure: 252, duree_moy: '15 jours', motifs: 'Nuisibles, locaux dégradés, absence PMS' },
+    '93': { nom: 'Seine-Saint-Denis (93)', inspections: 866, fermetures: 42, mises_en_demeure: 104, duree_moy: '21 jours', motifs: 'Présence de nuisibles/rongeurs, absence traçabilité, non-respect DLC, locaux dégradés, absence PMS' },
+    '94': { nom: 'Val-de-Marne (94)', inspections: 1680, fermetures: 29, mises_en_demeure: 202, duree_moy: '14 jours', motifs: 'Températures non conformes, absence documents, nuisibles' },
+    '95': { nom: "Val-d'Oise (95)", inspections: 1420, fermetures: 24, mises_en_demeure: 170, duree_moy: '12 jours', motifs: 'Manquements BPH, absence traçabilité, DLC dépassées' },
+    '13': { nom: 'Bouches-du-Rhône (13)', inspections: 3200, fermetures: 58, mises_en_demeure: 384, duree_moy: '16 jours', motifs: 'Nuisibles, températures non conformes, absence PMS, locaux dégradés' },
+    '69': { nom: 'Rhône (69)', inspections: 2800, fermetures: 49, mises_en_demeure: 336, duree_moy: '15 jours', motifs: 'Absence traçabilité, nuisibles, non-respect DLC' },
+    '33': { nom: 'Gironde (33)', inspections: 2400, fermetures: 42, mises_en_demeure: 288, duree_moy: '14 jours', motifs: 'Manquements BPH, absence PMS, températures non conformes' },
+    '31': { nom: 'Haute-Garonne (31)', inspections: 2100, fermetures: 37, mises_en_demeure: 252, duree_moy: '13 jours', motifs: 'Absence traçabilité, nuisibles, DLC dépassées' },
+    '59': { nom: 'Nord (59)', inspections: 3100, fermetures: 54, mises_en_demeure: 372, duree_moy: '16 jours', motifs: 'Locaux dégradés, nuisibles, absence PMS et DUERP' },
+    '67': { nom: 'Bas-Rhin (67)', inspections: 1900, fermetures: 33, mises_en_demeure: 228, duree_moy: '12 jours', motifs: 'Températures non conformes, absence traçabilité' },
+    '06': { nom: 'Alpes-Maritimes (06)', inspections: 2600, fermetures: 46, mises_en_demeure: 312, duree_moy: '17 jours', motifs: 'Nuisibles, absence PMS, non-respect DLC, locaux dégradés' },
+    '44': { nom: 'Loire-Atlantique (44)', inspections: 1750, fermetures: 30, mises_en_demeure: 210, duree_moy: '13 jours', motifs: 'Manquements BPH, absence traçabilité' },
+    '34': { nom: 'Hérault (34)', inspections: 1980, fermetures: 35, mises_en_demeure: 238, duree_moy: '14 jours', motifs: 'Nuisibles, températures non conformes, absence PMS' },
+    '76': { nom: 'Seine-Maritime (76)', inspections: 1850, fermetures: 32, mises_en_demeure: 222, duree_moy: '13 jours', motifs: 'Absence traçabilité, DLC dépassées, locaux dégradés' },
+    '38': { nom: 'Isère (38)', inspections: 1650, fermetures: 29, mises_en_demeure: 198, duree_moy: '12 jours', motifs: 'Manquements BPH, absence PMS, nuisibles' },
+    '57': { nom: 'Moselle (57)', inspections: 1560, fermetures: 27, mises_en_demeure: 187, duree_moy: '12 jours', motifs: 'Absence traçabilité, températures non conformes' }
+  };
+
+window.afficherStatsDept = function afficherStatsDept(code) {
+    var panel = document.getElementById('statsPanel');
+    var titre = document.getElementById('statsDeptTitre');
+    var contenu = document.getElementById('statsDeptContenu');
+    if (!code || !DEPT_DATA[code]) { panel.style.display = 'none'; return; }
+    var d = DEPT_DATA[code];
+    titre.textContent = '📊 ' + d.nom;
+    contenu.innerHTML =
+      '<div style="background:#f5f2ea;border-radius:8px;padding:12px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#153e35">' + d.inspections.toLocaleString('fr-FR') + '</div><div style="font-size:.72rem;color:#65716b;margin-top:2px">Inspections</div></div>' +
+      '<div style="background:#fde8e8;border-radius:8px;padding:12px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#c0392b">' + d.fermetures + '</div><div style="font-size:.72rem;color:#65716b;margin-top:2px">Fermetures prononcées</div></div>' +
+      '<div style="background:#fff3cd;border-radius:8px;padding:12px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#856404">' + d.mises_en_demeure + '</div><div style="font-size:.72rem;color:#65716b;margin-top:2px">Mises en demeure</div></div>' +
+      '<div style="background:#e8f5e9;border-radius:8px;padding:12px;text-align:center"><div style="font-size:1.4rem;font-weight:700;color:#2d6a4f">' + d.duree_moy + '</div><div style="font-size:.72rem;color:#65716b;margin-top:2px">Durée moy. fermeture</div></div>' +
+      '<div style="grid-column:1/-1;background:#f0f4f8;border-radius:8px;padding:12px"><div style="font-size:.72rem;font-weight:700;color:#4a6080;margin-bottom:4px">Motifs principaux :</div><div style="font-size:.78rem;color:#3a4a5c">' + d.motifs + '</div></div>';
+    panel.style.display = 'block';
+};
+
+// ── Toast ──
+function toast(m, t) {
+  if (t === undefined) t = 'inf';
+  var c = document.getElementById('toasts');
+  if (!c) return;
+  var d = document.createElement('div');
+  d.className = 'toast ' + t;
+  d.textContent = m;
+  c.appendChild(d);
+  setTimeout(function() { if (d.parentNode) d.parentNode.removeChild(d); }, 3000);
+}
+
+function scrollToClientDocs() {
+  var el = document.getElementById('clientDocsSection');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── Init : vérifier session et afficher section client si droit ──
+window.addEventListener('DOMContentLoaded', function() {
+  injectNavbar('documents');
+
+  var sess = getSession();
+  if (sess && (sess.docsUnlocked || sess.docsOnly)) {
+    var code = sess.code;
+    var info = sess.info || {};
+
+    // Afficher bandeau top
+    var bar = document.getElementById('clientDocsBar');
+    if (bar) bar.style.display = 'block';
+    var etabEl = document.getElementById('clientDocsEtab');
+    if (etabEl && info.etab) etabEl.textContent = info.etab;
+
+    // Afficher section téléchargement
+    var section = document.getElementById('clientDocsSection');
+    if (section) section.style.display = 'block';
+
+    // Nom établissement
+    var nameEl = document.getElementById('clientDocsEtabName');
+    if (nameEl) nameEl.textContent = info.etab || '';
+
+    // Info box
+    var infoBox = document.getElementById('clientDocsInfoBox');
+    if (infoBox) {
+      var html = '<div style="color:#00796b;font-weight:700;font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px">📋 Établissement</div>';
+      if (info.etab)    html += '<div><b>Établissement :</b> ' + info.etab + '</div>';
+      if (info.resp)    html += '<div><b>Responsable :</b> ' + info.resp + '</div>';
+      if (info.adresse) html += '<div><b>Adresse :</b> ' + info.adresse + '</div>';
+      if (info.siret)   html += '<div><b>SIRET :</b> ' + info.siret + '</div>';
+      infoBox.innerHTML = html;
+    }
+
+    // Boutons téléchargement
+    var btns = document.getElementById('clientDocsBtns');
+    if (btns) {
+      btns.innerHTML =
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#153e35,#1f5649)" onclick="genDocsPMS(\'' + code + '\')">' +
+        '<span class="icon">📄</span><div class="label"><div>Plan de Maîtrise Sanitaire (PMS)</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>' +
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#2d6a4f,#52b788)" onclick="genDocsNettoyage(\'' + code + '\')">' +
+        '<span class="icon">🧹</span><div class="label"><div>Plan de Nettoyage & Désinfection</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>' +
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#6b3fa0,#9b59b6)" onclick="genDocsDUERP(\'' + code + '\')">' +
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#00695c,#00897b)" onclick="genDocsEtiquette(\'' + code + '\')">' +
+        '<span class="icon">🏷️</span><div class="label"><div>Étiquettes de Traçabilité Interne</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>' +
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#1565c0,#42a5f5)" onclick="genDocsLavageMains(\'' + code + '\')">' +
+        '<span class="icon">🖐️</span><div class="label"><div>Affiche Lavage des Mains</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>' +
+        '<button class="doc-btn" style="background:linear-gradient(135deg,#e65100,#ff8f00)" onclick="genDocsHuiles(\'' + code + '\')">' +
+        '<span class="icon">🍟</span><div class="label"><div>Fiche Contrôle Huiles de Friture</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>';
+        '<span class="icon">⚠️</span><div class="label"><div>Document Unique des Risques (DUERP)</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>';
+    }
+  }
+});
+</script>
+</body>
+</html>

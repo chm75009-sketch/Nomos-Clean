@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Clean Food | Cas Réels & Sanctions</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#153e35;--navy2:#1f5649;--teal:#2d6f60;--teal2:#3b8a77;
+  --ok:#2a9a57;--warn:#b79029;--danger:#d84f43;
+  --bg:#f5f2ea;--card:#fff;--border:#dfe6e0;
+  --text:#17211d;--muted:#65716b;
+  color-scheme:light only;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);font-family:'Source Sans 3',Arial,sans-serif;color:var(--text)}
+
+/* ── NAVBAR ── */
+.cf-nav-header{position:sticky;top:0;z-index:1000;background:rgba(248,246,239,.97);backdrop-filter:blur(14px);border-bottom:1px solid rgba(21,62,53,.08);box-shadow:0 2px 16px rgba(21,62,53,.06)}
+.cf-nav-inner{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;min-height:64px;gap:12px}
+.cf-nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;flex-shrink:0}
+.cf-nav-logo-icon{width:42px;height:42px;border-radius:12px;background:#1f5649;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:.06em;flex-shrink:0}
+.cf-nav-logo-name{font-weight:900;font-size:.95rem;letter-spacing:.08em;color:#153e35}
+.cf-nav-links{display:flex;gap:18px;align-items:center;flex:1;justify-content:center}
+.cf-nav-links a{color:#65716b;font-weight:700;font-size:.88rem;text-decoration:none;white-space:nowrap}
+.cf-nav-links a.active{color:#153e35;background:rgba(21,62,53,.07);padding:4px 11px;border-radius:999px}
+.cf-nav-btn{padding:8px 18px;background:#fff;color:#153e35;border:2.5px solid #153e35;border-radius:999px;cursor:pointer;font-weight:900;font-size:.88rem;white-space:nowrap;flex-shrink:0;font-family:'Source Sans 3',sans-serif}
+.cf-nav-burger{display:none;flex-direction:column;justify-content:center;gap:5px;width:40px;height:40px;background:none;border:none;cursor:pointer;padding:6px;border-radius:8px;flex-shrink:0}
+.cf-nav-burger span{display:block;height:2px;background:#153e35;border-radius:2px;transition:all .25s}
+.cf-nav-burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.cf-nav-burger.open span:nth-child(2){opacity:0}
+.cf-nav-burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.cf-nav-mobile{display:none;flex-direction:column;background:rgba(248,246,239,.99);border-top:1px solid rgba(21,62,53,.08);padding:6px 0 14px;width:100%;overflow:hidden}
+.cf-nav-mobile a{display:block;padding:12px 20px;color:#153e35;font-weight:700;font-size:.93rem;text-decoration:none;border-bottom:1px solid rgba(21,62,53,.05)}
+.cf-nav-mobile .cf-nav-mobile-btn{display:block;margin:10px 16px 0;padding:12px 20px;background:#153e35;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:900;font-size:.93rem;font-family:'Source Sans 3',sans-serif;width:calc(100% - 32px);text-align:center}
+@media(max-width:768px){
+  .cf-nav-links,.cf-nav-btn{display:none}
+  .cf-nav-burger{display:flex}
+  .cf-nav-mobile.open{display:flex}
+}
+
+/* ── HERO BANNER ── */
+.hero{background:linear-gradient(135deg,#0d2b24 0%,#153e35 60%,#1f5649 100%);padding:40px 20px 32px;text-align:center}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:999px;padding:5px 14px;font-size:.72rem;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px}
+.hero h1{font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.5rem,4vw,2.2rem);color:#fff;line-height:1.15;margin-bottom:10px}
+.hero p{font-size:.9rem;color:rgba(255,255,255,.65);max-width:560px;margin:0 auto 20px;line-height:1.6}
+.hero-tabs{display:inline-flex;gap:0;background:rgba(255,255,255,.1);border-radius:999px;padding:3px;border:1px solid rgba(255,255,255,.15)}
+.hero-tab{padding:8px 20px;border:none;background:none;border-radius:999px;font-family:'Source Sans 3',sans-serif;font-size:.82rem;font-weight:700;color:rgba(255,255,255,.6);cursor:pointer;transition:all .2s;white-space:nowrap}
+.hero-tab.active{background:#fff;color:#153e35}
+
+/* ── LAYOUT ── */
+.wrap{max-width:960px;margin:0 auto;padding:28px 16px 60px}
+
+/* ── LIVE TICKER ── */
+.ticker-bar{background:#153e35;color:#fff;padding:9px 0;overflow:hidden;position:relative}
+.ticker-inner{display:flex;gap:40px;animation:ticker 28s linear infinite;white-space:nowrap}
+.ticker-inner:hover{animation-play-state:paused}
+.ticker-item{display:flex;align-items:center;gap:8px;font-size:.78rem;font-weight:700;flex-shrink:0}
+.ticker-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.ticker-dot.red{background:#f28a8a}
+.ticker-dot.orange{background:#f4b96e}
+.ticker-dot.green{background:#5dd4a0}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── STAT GLOBALE ── */
+.global-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px}
+.gstat{background:#fff;border-radius:14px;padding:18px 14px;text-align:center;border:1px solid var(--border);box-shadow:0 4px 16px rgba(21,62,53,.06)}
+.gstat .num{font-size:1.7rem;font-weight:900;color:#153e35;line-height:1}
+.gstat .unit{font-size:.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-top:4px}
+.gstat.danger .num{color:#d84f43}
+.gstat.warn .num{color:#b79029}
+.gstat.ok .num{color:#2a9a57}
+@media(max-width:600px){.global-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ── SECTION TITLES ── */
+.section-header{margin-bottom:20px}
+.section-eyebrow{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--teal);margin-bottom:6px}
+.section-title{font-family:'Playfair Display',Georgia,serif;font-size:1.5rem;color:#153e35;line-height:1.2;margin-bottom:6px}
+.section-sub{font-size:.85rem;color:var(--muted);line-height:1.5}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filter-select{padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:'Source Sans 3',sans-serif;font-size:.83rem;color:#153e35;background:#fff;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23153e35' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:30px}
+.filter-select:focus{outline:none;border-color:#2d6f60}
+.filter-badge{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:999px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid transparent;transition:all .2s}
+.filter-badge.all{background:#153e35;color:#fff;border-color:#153e35}
+.filter-badge.inactive{background:#fff;color:var(--muted);border-color:var(--border)}
+.filter-badge.inactive:hover{border-color:#153e35;color:#153e35}
+
+/* ── DÉPARTEMENT CARDS ── */
+.dept-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:36px}
+.dept-card{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 4px 16px rgba(21,62,53,.05);transition:all .2s;cursor:default}
+.dept-card:hover{box-shadow:0 8px 28px rgba(21,62,53,.1);transform:translateY(-2px)}
+.dept-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
+.dept-name{font-weight:800;font-size:.95rem;color:#153e35}
+.dept-num{font-size:.72rem;font-weight:700;color:var(--muted);background:#f5f2ea;padding:3px 8px;border-radius:6px}
+.dept-badge{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge-danger{background:rgba(216,79,67,.1);color:#d84f43}
+.badge-warn{background:rgba(183,144,41,.1);color:#b79029}
+.badge-ok{background:rgba(42,154,87,.1);color:#2a9a57}
+.dept-bar-wrap{margin-bottom:10px}
+.dept-bar-label{display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:4px}
+.dept-bar-track{height:6px;background:#f0f2f5;border-radius:999px;overflow:hidden}
+.dept-bar-fill{height:100%;border-radius:999px;transition:width .6s ease}
+.fill-danger{background:linear-gradient(90deg,#d84f43,#f28a8a)}
+.fill-warn{background:linear-gradient(90deg,#b79029,#f4b96e)}
+.fill-ok{background:linear-gradient(90deg,#2a9a57,#5dd4a0)}
+.dept-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px;padding-top:12px;border-top:1px solid #f0f2f5}
+.dept-stat{text-align:center}
+.dept-stat .v{font-size:1.1rem;font-weight:800;color:#153e35}
+.dept-stat .l{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+/* ── SANCTIONS JOURNAL ── */
+.sanctions-list{display:flex;flex-direction:column;gap:12px}
+.sanction-card{background:#fff;border-radius:14px;padding:18px;border:1px solid var(--border);box-shadow:0 4px 16px rgba(21,62,53,.05);border-left:4px solid #dfe6e0;transition:all .2s}
+.sanction-card:hover{box-shadow:0 8px 28px rgba(21,62,53,.1)}
+.sanction-card.sev-critique{border-left-color:#d84f43}
+.sanction-card.sev-important{border-left-color:#b79029}
+.sanction-card.sev-standard{border-left-color:#2a9a57}
+.sanction-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.sanction-motif{font-weight:800;font-size:.92rem;color:#153e35;line-height:1.3;flex:1}
+.sanction-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.sanction-dept{font-size:.72rem;font-weight:700;background:#f5f2ea;color:#153e35;padding:3px 9px;border-radius:6px}
+.sanction-type{font-size:.72rem;font-weight:700;padding:3px 9px;border-radius:6px}
+.type-fermeture{background:rgba(216,79,67,.1);color:#d84f43}
+.type-amende{background:rgba(183,144,41,.1);color:#b79029}
+.type-mise-en-demeure{background:rgba(45,111,96,.1);color:#2d6f60}
+.type-saisie{background:rgba(107,63,160,.1);color:#6b3fa0}
+.sanction-detail{font-size:.82rem;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.sanction-footer{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+.sanction-ref{font-size:.7rem;font-weight:600;color:var(--muted);font-style:italic}
+.sanction-date{font-size:.7rem;color:var(--muted)}
+.sanction-cta{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;font-weight:700;color:#2d6f60;text-decoration:none;cursor:pointer;background:rgba(45,111,96,.08);padding:4px 10px;border-radius:6px;border:none;font-family:'Source Sans 3',sans-serif}
+.sanction-cta:hover{background:rgba(45,111,96,.15)}
+
+/* ── MODULE TABS ── */
+.module-tabs{display:flex;gap:0;background:#fff;border-radius:12px;padding:4px;border:1px solid var(--border);margin-bottom:24px;box-shadow:0 2px 8px rgba(21,62,53,.04)}
+.module-tab{flex:1;padding:10px 14px;border:none;background:none;border-radius:9px;font-family:'Source Sans 3',sans-serif;font-size:.83rem;font-weight:700;color:var(--muted);cursor:pointer;transition:all .2s;text-align:center}
+.module-tab.active{background:#153e35;color:#fff;box-shadow:0 2px 8px rgba(21,62,53,.2)}
+
+/* ── CTA BOTTOM ── */
+.cta-band{background:linear-gradient(135deg,#153e35,#1f5649);border-radius:16px;padding:28px 24px;text-align:center;margin-top:36px}
+.cta-band h3{font-family:'Playfair Display',serif;font-size:1.3rem;color:#fff;margin-bottom:8px}
+.cta-band p{font-size:.85rem;color:rgba(255,255,255,.7);margin-bottom:18px;line-height:1.5}
+.cta-band button{padding:12px 28px;background:#fff;color:#153e35;border:none;border-radius:999px;cursor:pointer;font-weight:900;font-size:.92rem;font-family:'Source Sans 3',sans-serif}
+
+/* ── MISE À JOUR BADGE ── */
+.update-badge{display:inline-flex;align-items:center;gap:6px;font-size:.7rem;color:var(--muted);background:#fff;border:1px solid var(--border);border-radius:999px;padding:4px 12px;margin-bottom:20px}
+.update-dot{width:6px;height:6px;border-radius:50%;background:#2a9a57;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);font-size:.88rem}
+
+@media(max-width:600px){
+  .hero{padding:28px 16px 24px}
+  .wrap{padding:20px 12px 50px}
+  .dept-stats{grid-template-columns:1fr 1fr}
+  .sanction-top{flex-direction:column;gap:8px}
+  .hero-tabs{flex-direction:column;border-radius:12px}
+  .hero-tab{border-radius:9px;width:100%}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="cf-nav-header">
+  <div class="cf-nav-inner">
+    <a href="index.html" class="cf-nav-logo">
+      <div class="cf-nav-logo-icon">CF</div>
+      <span class="cf-nav-logo-name">CLEAN FOOD</span>
+    </a>
+    <nav class="cf-nav-links">
+      <a href="index.html">Accueil</a>
+      <a href="index.html#guide-haccp">📖 Guide HACCP</a>
+      <a href="documents.html">📋 Vos Documents</a>
+      <a href="tarifs.html">Prestations</a>
+      <a href="controles.html">📊 Contrôles dans votre département</a>
+      <a href="sanctions.html" class="active">⚖️ Cas Réels &amp; Sanctions</a>
+      <a href="tarifs.html#contact-tarifs">Contact</a>
+    </nav>
+    <button class="cf-nav-btn" onclick="window.location.href='audit.html'">🔑 Accès / Inscription</button>
+    <button class="cf-nav-burger" id="cfBurger" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <nav class="cf-nav-mobile" id="cfMobileNav">
+    <a href="index.html" onclick="closeMobileNav()">Accueil</a>
+    <a href="index.html#guide-haccp" onclick="closeMobileNav()">📖 Guide HACCP</a>
+    <a href="documents.html">📋 Vos Documents</a>
+    <a href="tarifs.html">Prestations</a>
+    <a href="controles.html">📊 Contrôles dans votre département</a>
+    <a href="sanctions.html" class="active">⚖️ Cas Réels &amp; Sanctions</a>
+    <a href="tarifs.html#contact-tarifs">Contact</a>
+    <button class="cf-nav-mobile-btn" onclick="window.location.href='audit.html'">🔑 Accès / Inscription</button>
+  </nav>
+</header>
+
+<!-- LIVE TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-inner" id="tickerInner"></div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">
+    <span style="width:7px;height:7px;border-radius:50%;background:#f28a8a;display:inline-block;animation:pulse 2s infinite"></span>
+    Jurisprudence & Veille réglementaire — 2024
+  </div>
+  <h1>Cas Réels & Sanctions</h1>
+  <p style="font-size:1.05rem;color:#fff;font-weight:700;margin:0 auto 6px;max-width:600px">Ce qui a coûté cher à vos confrères — pour que vous ne répétiez pas les mêmes erreurs.</p>
+  <p>Cas réels de sanctions prononcées en France. Chaque fiche indique le motif exact, la sanction et le document manquant.</p>
+</div>
+
+<!-- WRAP -->
+<div class="wrap">
+
+  <!-- STATS GLOBALES -->
+  <div class="global-stats">
+    <div class="gstat danger">
+      <div class="num">73 240</div>
+      <div class="unit">établissements contrôlés / an</div>
+    </div>
+    <div class="gstat warn">
+      <div class="num">38%</div>
+      <div class="unit">avec au moins 1 non-conformité</div>
+    </div>
+    <div class="gstat danger">
+      <div class="num">4 180</div>
+      <div class="unit">fermetures admin. prononcées</div>
+    </div>
+    <div class="gstat ok">
+      <div class="num">62%</div>
+      <div class="unit">conformes dès la 1ʳᵉ visite</div>
+    </div>
+  </div>
+
+  <div class="update-badge">
+    <span class="update-dot"></span>
+    Données compilées — Source DGAL, rapports annuels DDPP 2022-2024
+  </div>
+
+  <!-- MODULE TABS masqués sur cette page dédiée -->
+  <div id="moduleTabs" style="display:none"></div>
+
+  <!-- ══ MODULE 1 : BAROMÈTRE ══ -->
+  <div id="moduleBarometer">
+    <div class="section-header">
+      <div class="section-eyebrow">Observatoire local</div>
+      <h2 class="section-title">Radar de Conformité par Département</h2>
+      <p class="section-sub">Mesurez la pression des contrôles dans votre zone géographique. Plus le taux de contrôle est élevé, plus votre établissement est susceptible d'être inspecté cette année.</p>
+    </div>
+
+    <div class="filter-bar">
+      <select class="filter-select" id="regionFilter" onchange="filterDepts()">
+        <option value="">Toutes les régions</option>
+        <option value="IDF">Île-de-France</option>
+        <option value="AURA">Auvergne-Rhône-Alpes</option>
+        <option value="PACA">PACA</option>
+        <option value="OCC">Occitanie</option>
+        <option value="NA">Nouvelle-Aquitaine</option>
+        <option value="BFC">Bourgogne-Franche-Comté</option>
+        <option value="BRE">Bretagne</option>
+        <option value="GE">Grand Est</option>
+        <option value="HDF">Hauts-de-France</option>
+        <option value="NOR">Normandie</option>
+        <option value="PDL">Pays de la Loire</option>
+        <option value="CVL">Centre-Val de Loire</option>
+      </select>
+      <select class="filter-select" id="riskFilter" onchange="filterDepts()">
+        <option value="">Tous niveaux de risque</option>
+        <option value="critique">🔴 Risque élevé</option>
+        <option value="warn">🟡 Risque modéré</option>
+        <option value="ok">🟢 Risque faible</option>
+      </select>
+      <button class="filter-badge all" onclick="resetFilters()">Réinitialiser</button>
+    </div>
+
+    <div class="dept-grid" id="deptGrid"></div>
+  </div>
+
+  <!-- ══ MODULE 2 : SANCTIONS ══ -->
+  <div id="moduleSanctions" style="display:none">
+    <div class="section-header">
+      <div class="section-eyebrow">Veille juridique & préventive</div>
+      <h2 class="section-title">Journal des Sanctions & Défauts Documentaires</h2>
+      <p class="section-sub">Cas réels de sanctions prononcées en France. Chaque fiche indique le motif exact, la sanction appliquée et le document manquant — pour que vous puissiez vérifier le vôtre immédiatement.</p>
+    </div>
+
+    <!-- CAS RÉEL JURISPRUDENCE -->
+    <div style="background:#fdecea;border:1px solid rgba(216,79,67,.25);border-radius:16px;padding:24px;margin-bottom:24px;border-left:5px solid #d84f43">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <span style="font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#c0392b;background:rgba(216,79,67,.1);padding:4px 10px;border-radius:999px">⚖️ Jurisprudence — Condamnation pénale</span>
+        <span style="font-size:.7rem;color:#8a9e95">La Roche-sur-Yon — 19 février 2024</span>
+      </div>
+      <div style="font-weight:800;font-size:1rem;color:#c0392b;margin-bottom:10px">Homicide involontaire — Allergènes non affichés — Décès d'une cliente</div>
+      <p style="font-size:.86rem;color:#17211d;line-height:1.8;margin-bottom:12px">Le <strong>Tribunal Correctionnel de La Roche-sur-Yon</strong> a condamné le gérant d'un restaurant pour homicide involontaire. En août 2019, une jeune cliente de 21 ans décède après avoir consommé un plat contenant des cacahuètes non signalées, alors qu'elle était allergique. Le restaurant n'avait pas respecté ses obligations d'affichage des allergènes.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:14px">
+        <div style="background:#fff;border:1px solid rgba(216,79,67,.25);border-radius:10px;padding:12px">
+          <div style="font-size:.72rem;font-weight:700;color:#c0392b;margin-bottom:4px">🔒 Gérant</div>
+          <div style="font-size:.83rem;color:#17211d">18 mois de prison avec sursis + interdiction <strong>définitive</strong> d'exercer</div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(216,79,67,.25);border-radius:10px;padding:12px">
+          <div style="font-size:.72rem;font-weight:700;color:#c0392b;margin-bottom:4px">💶 Société</div>
+          <div style="font-size:.83rem;color:#17211d">20 000 € d'amende pour homicide involontaire</div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(216,79,67,.25);border-radius:10px;padding:12px">
+          <div style="font-size:.72rem;font-weight:700;color:#c0392b;margin-bottom:4px">💸 Famille</div>
+          <div style="font-size:.83rem;color:#17211d">Plusieurs dizaines de milliers d'euros de dommages et intérêts</div>
+        </div>
+      </div>
+      <div style="background:#fff;border-left:3px solid #c0392b;border-radius:0 8px 8px 0;padding:12px 16px;margin-bottom:12px">
+        <div style="font-size:.83rem;color:#17211d;font-style:italic">"En tant que professionnel, le gérant ne pouvait ignorer les risques liés aux allergènes et ses obligations légales de traçabilité."</div>
+        <div style="font-size:.72rem;color:#8a9e95;margin-top:4px">— Motif du jugement, Tribunal Correctionnel de La Roche-sur-Yon, 19/02/2024</div>
+      </div>
+      <div style="background:#e8f5e9;border:1px solid rgba(45,111,96,.3);border-radius:10px;padding:12px 16px;font-size:.85rem;color:#1f5649;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <span>✅ <strong>Document concerné : Fiche gestion allergènes</strong></span>
+        <button class="sanction-cta" onclick="window.location.href='audit.html'">Vérifier le mien →</button>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-badge all" id="sfAll" onclick="filterSanctions('all')">Tous</button>
+      <button class="filter-badge inactive" id="sfFermeture" onclick="filterSanctions('fermeture')">🔴 Fermeture</button>
+      <button class="filter-badge inactive" id="sfAmende" onclick="filterSanctions('amende')">🟡 Amende</button>
+      <button class="filter-badge inactive" id="sfMed" onclick="filterSanctions('mise-en-demeure')">🔵 Mise en demeure</button>
+      <button class="filter-badge inactive" id="sfSaisie" onclick="filterSanctions('saisie')">🟣 Saisie</button>
+    </div>
+
+    <div class="sanctions-list" id="sanctionsList"></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-band">
+    <h3>Votre établissement est-il à risque ?</h3>
+    <p>Obtenez votre score de conformité en moins de 20 minutes avec notre outil d'audit HACCP professionnel.</p>
+    <button onclick="window.location.href='audit.html'">🔍 Lancer mon audit de conformité</button>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ══ NAVBAR MOBILE ══
+function toggleMobileNav(){
+  document.getElementById('cfMobileNav').classList.toggle('open');
+  document.getElementById('cfBurger').classList.toggle('open');
+}
+function closeMobileNav(){
+  document.getElementById('cfMobileNav').classList.remove('open');
+  document.getElementById('cfBurger').classList.remove('open');
+}
+
+// ══ SWITCH MODULES ══
+function switchModule(m){
+  var isBaro = m === 'barometer';
+  document.getElementById('moduleBarometer').style.display = isBaro ? 'block' : 'none';
+  document.getElementById('moduleSanctions').style.display = isBaro ? 'none' : 'block';
+  document.getElementById('tabBaro').classList.toggle('active', isBaro);
+  document.getElementById('tabSanc').classList.toggle('active', !isBaro);
+  // Sync hero tabs
+  var heroTabs = document.querySelectorAll('.hero-tab');
+  heroTabs[0].classList.toggle('active', isBaro);
+  heroTabs[1].classList.toggle('active', !isBaro);
+}
+
+// ══ DONNÉES DÉPARTEMENTS ══
+var DEPTS = [
+  {num:'75',name:'Paris',region:'IDF',controles:6240,nc:42,fermetures:312,risk:'critique',tauxCtrl:18.4},
+  {num:'69',name:'Rhône',region:'AURA',controles:4180,nc:39,fermetures:198,risk:'critique',tauxCtrl:16.2},
+  {num:'13',name:'Bouches-du-Rhône',region:'PACA',controles:3960,nc:41,fermetures:187,risk:'critique',tauxCtrl:15.8},
+  {num:'92',name:'Hauts-de-Seine',region:'IDF',controles:2840,nc:35,fermetures:122,risk:'warn',tauxCtrl:13.4},
+  {num:'93',name:'Seine-Saint-Denis',region:'IDF',controles:2610,nc:44,fermetures:148,risk:'critique',tauxCtrl:14.9},
+  {num:'94',name:'Val-de-Marne',region:'IDF',controles:2190,nc:33,fermetures:98,risk:'warn',tauxCtrl:12.6},
+  {num:'78',name:'Yvelines',region:'IDF',controles:1980,nc:28,fermetures:76,risk:'warn',tauxCtrl:11.2},
+  {num:'91',name:'Essonne',region:'IDF',controles:1740,nc:26,fermetures:64,risk:'ok',tauxCtrl:10.1},
+  {num:'95',name:'Val-d\'Oise',region:'IDF',controles:1560,nc:29,fermetures:58,risk:'warn',tauxCtrl:10.8},
+  {num:'77',name:'Seine-et-Marne',region:'IDF',controles:1420,nc:24,fermetures:46,risk:'ok',tauxCtrl:9.4},
+  {num:'06',name:'Alpes-Maritimes',region:'PACA',controles:2980,nc:38,fermetures:142,risk:'critique',tauxCtrl:14.6},
+  {num:'83',name:'Var',region:'PACA',controles:2240,nc:34,fermetures:108,risk:'warn',tauxCtrl:12.8},
+  {num:'84',name:'Vaucluse',region:'PACA',controles:1380,nc:31,fermetures:74,risk:'warn',tauxCtrl:11.6},
+  {num:'34',name:'Hérault',region:'OCC',controles:2640,nc:36,fermetures:128,risk:'warn',tauxCtrl:13.2},
+  {num:'31',name:'Haute-Garonne',region:'OCC',controles:2280,nc:33,fermetures:112,risk:'warn',tauxCtrl:12.4},
+  {num:'33',name:'Gironde',region:'NA',controles:2860,nc:31,fermetures:118,risk:'warn',tauxCtrl:11.8},
+  {num:'67',name:'Bas-Rhin',region:'GE',controles:2140,nc:27,fermetures:84,risk:'ok',tauxCtrl:10.4},
+  {num:'59',name:'Nord',region:'HDF',controles:3480,nc:38,fermetures:162,risk:'critique',tauxCtrl:14.2},
+  {num:'62',name:'Pas-de-Calais',region:'HDF',controles:2180,nc:35,fermetures:108,risk:'warn',tauxCtrl:12.8},
+  {num:'57',name:'Moselle',region:'GE',controles:1840,nc:29,fermetures:82,risk:'warn',tauxCtrl:11.4},
+  {num:'35',name:'Ille-et-Vilaine',region:'BRE',controles:1980,nc:24,fermetures:68,risk:'ok',tauxCtrl:9.8},
+  {num:'44',name:'Loire-Atlantique',region:'PDL',controles:2120,nc:26,fermetures:72,risk:'ok',tauxCtrl:10.2},
+  {num:'76',name:'Seine-Maritime',region:'NOR',controles:2240,nc:32,fermetures:96,risk:'warn',tauxCtrl:12.2},
+  {num:'21',name:'Côte-d\'Or',region:'BFC',controles:1240,nc:22,fermetures:44,risk:'ok',tauxCtrl:8.8},
+  {num:'38',name:'Isère',region:'AURA',controles:2080,nc:28,fermetures:86,risk:'warn',tauxCtrl:11.0},
+  {num:'74',name:'Haute-Savoie',region:'AURA',controles:1740,nc:25,fermetures:62,risk:'ok',tauxCtrl:9.6},
+  {num:'63',name:'Puy-de-Dôme',region:'AURA',controles:1340,nc:22,fermetures:48,risk:'ok',tauxCtrl:8.6},
+  {num:'45',name:'Loiret',region:'CVL',controles:1180,nc:21,fermetures:40,risk:'ok',tauxCtrl:8.2},
+];
+
+var filteredDepts = DEPTS.slice();
+
+function riskLabel(r){
+  if(r==='critique') return '<span class="dept-badge badge-danger">🔴 Risque élevé</span>';
+  if(r==='warn')     return '<span class="dept-badge badge-warn">🟡 Risque modéré</span>';
+  return '<span class="dept-badge badge-ok">🟢 Risque faible</span>';
+}
+function fillClass(r){
+  return r==='critique'?'fill-danger':r==='warn'?'fill-warn':'fill-ok';
+}
+
+function renderDepts(list){
+  var grid = document.getElementById('deptGrid');
+  if(!list.length){ grid.innerHTML='<div class="empty-state">Aucun département trouvé pour ces filtres.</div>'; return; }
+  grid.innerHTML = list.map(function(d){
+    var pct = Math.min(100, Math.round(d.tauxCtrl * 5));
+    return '<div class="dept-card">'+
+      '<div class="dept-card-header">'+
+        '<div><div class="dept-name">'+d.name+'</div>'+
+        '<div style="font-size:.7rem;color:var(--muted);margin-top:2px">Dept. '+d.num+' — '+regionName(d.region)+'</div></div>'+
+        riskLabel(d.risk)+
+      '</div>'+
+      '<div class="dept-bar-wrap">'+
+        '<div class="dept-bar-label"><span>Pression de contrôle</span><span style="font-weight:800;color:#153e35">'+d.tauxCtrl+'%</span></div>'+
+        '<div class="dept-bar-track"><div class="dept-bar-fill '+fillClass(d.risk)+'" style="width:'+pct+'%"></div></div>'+
+      '</div>'+
+      '<div class="dept-stats">'+
+        '<div class="dept-stat"><div class="v">'+d.controles.toLocaleString('fr-FR')+'</div><div class="l">Contrôles/an</div></div>'+
+        '<div class="dept-stat"><div class="v" style="color:#b79029">'+d.nc+'%</div><div class="l">Non-conformes</div></div>'+
+        '<div class="dept-stat"><div class="v" style="color:#d84f43">'+d.fermetures+'</div><div class="l">Fermetures</div></div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function regionName(r){
+  var m={IDF:'Île-de-France',AURA:'Auv.-Rhône-Alpes',PACA:'PACA',OCC:'Occitanie',NA:'Nouvelle-Aquitaine',BFC:'Bourgogne-FC',BRE:'Bretagne',GE:'Grand Est',HDF:'Hauts-de-France',NOR:'Normandie',PDL:'Pays de la Loire',CVL:'Centre-Val de Loire'};
+  return m[r]||r;
+}
+
+function filterDepts(){
+  var reg = document.getElementById('regionFilter').value;
+  var rsk = document.getElementById('riskFilter').value;
+  filteredDepts = DEPTS.filter(function(d){
+    return (!reg || d.region===reg) && (!rsk || d.risk===rsk);
+  });
+  renderDepts(filteredDepts);
+}
+
+function resetFilters(){
+  document.getElementById('regionFilter').value='';
+  document.getElementById('riskFilter').value='';
+  filteredDepts = DEPTS.slice();
+  renderDepts(filteredDepts);
+}
+
+// ══ DONNÉES SANCTIONS ══
+var SANCTIONS = [
+  {
+    motif:'Absence de Plan de Maîtrise Sanitaire (PMS)',
+    type:'fermeture',typeLabel:'Fermeture administrative',
+    dept:'Paris (75)',detail:'Établissement de restauration traditionnelle fermé suite à contrôle DDPP. Aucun PMS formalisé, ni procédures HACCP documentées. Réouverture conditionnée à la remise d\'un plan complet validé par l\'inspecteur.',
+    severity:'critique',ref:'Règl. CE 852/2004 — Art. 5',date:'Janv. 2024',
+    doc:'Plan de Maîtrise Sanitaire'
+  },
+  {
+    motif:'Températures de conservation non conformes — relevés absents',
+    type:'fermeture',typeLabel:'Fermeture administrative',
+    dept:'Rhône (69)',detail:'Viandes et produits laitiers stockés entre 8°C et 12°C (norme : 0°C–4°C). Aucun relevé de température conservé sur les 3 derniers mois. CCP majeur non maîtrisé.',
+    severity:'critique',ref:'CCP — Arrêté 21/12/2009',date:'Févr. 2024',
+    doc:'Fiche de relevé des températures'
+  },
+  {
+    motif:'Absence d\'affichage allergènes obligatoire',
+    type:'amende',typeLabel:'Amende 1 500 €',
+    dept:'Bouches-du-Rhône (13)',detail:'Carte et ardoise ne mentionnent aucun allergène. Aucune fiche de gestion des 14 allergènes obligatoires tenue en cuisine. Amende immédiate + délai de 30 jours pour mise en conformité.',
+    severity:'important',ref:'Règl. UE 1169/2011 — Art. 21',date:'Mars 2024',
+    doc:'Fiche gestion allergènes'
+  },
+  {
+    motif:'Défaut de traçabilité — bons de livraison introuvables',
+    type:'mise-en-demeure',typeLabel:'Mise en demeure',
+    dept:'Hauts-de-Seine (92)',detail:'Lors du contrôle, impossibilité de présenter les bons de livraison et fiches fournisseurs pour 6 produits en stock. Aucun registre de réception tenu. Mise en demeure avec délai de 15 jours.',
+    severity:'important',ref:'Règl. CE 178/2002 — Art. 18-19',date:'Janv. 2024',
+    doc:'Fiche réception marchandises'
+  },
+  {
+    motif:'Personnel sans formation HACCP — attestation absente',
+    type:'amende',typeLabel:'Amende 750 €',
+    dept:'Nord (59)',detail:'4 employés en cuisine dont aucun ne dispose d\'une attestation de formation HACCP valide. L\'employeur ne peut produire aucun justificatif de formation au moment du contrôle.',
+    severity:'important',ref:'Décret n°2011-731 du 24/06/2011',date:'Avr. 2024',
+    doc:'Attestations de formation HACCP'
+  },
+  {
+    motif:'DLC dépassées — produits non retirés de la vente',
+    type:'saisie',typeLabel:'Saisie produits',
+    dept:'Seine-Saint-Denis (93)',detail:'18 références avec DLC dépassées de 2 à 9 jours retrouvées en chambre froide. Produits saisis et détruits sur place. Procès-verbal dressé. Amende complémentaire en cours.',
+    severity:'critique',ref:'Art. L231-1 Code rural / Règl. CE 852/2004',date:'Mars 2024',
+    doc:'Registre DLC / DDM'
+  },
+  {
+    motif:'Absence de Document Unique des Risques (DUERP)',
+    type:'amende',typeLabel:'Amende 1 500 €',
+    dept:'Gironde (33)',detail:'Contrôle de l\'inspection du travail simultané à la DDPP. Aucun DUERP rédigé depuis l\'ouverture (3 ans). Amende pour absence de document obligatoire + obligation de régularisation sous 30 jours.',
+    severity:'important',ref:'Art. R.4121-1 Code du Travail',date:'Févr. 2024',
+    doc:'Document Unique des Risques (DUERP)'
+  },
+  {
+    motif:'Plan de nettoyage et désinfection non tenu',
+    type:'mise-en-demeure',typeLabel:'Mise en demeure',
+    dept:'Hérault (34)',detail:'Plan de nettoyage inexistant. Pas de fiches de validation des opérations de nettoyage. Traces de résidus alimentaires sur les plans de travail et les équipements froids. Délai 21 jours.',
+    severity:'important',ref:'Arrêté 21/12/2009 — GBPH Restaurateur',date:'Avr. 2024',
+    doc:'Plan de nettoyage & désinfection'
+  },
+  {
+    motif:'Absence de séparation marche en avant — contamination croisée',
+    type:'fermeture',typeLabel:'Fermeture administrative',
+    dept:'Alpes-Maritimes (06)',detail:'Circuit de contamination directe : zone légumes non traitée traversée par les produits cuits. Absence totale de plan de nettoyage et de procédure de décontamination. Fermeture immédiate.',
+    severity:'critique',ref:'GBPH Restaurateur 2015 — Marche en avant',date:'Mai 2024',
+    doc:'Plan HACCP / PMS'
+  },
+  {
+    motif:'Étiquetage non-conforme — mentions obligatoires absentes',
+    type:'amende',typeLabel:'Amende 500 €',
+    dept:'Ille-et-Vilaine (35)',detail:'Plats vendus à emporter sans mention du poids, de la DLC, ni de l\'adresse du fabricant. 3 références sur 5 non conformes au règlement INCO. Amende + rappel de produit.',
+    severity:'standard',ref:'Règl. UE 1169/2011 — INCO',date:'Mars 2024',
+    doc:'Fiche étiquetage produits finis'
+  },
+  {
+    motif:'Registre de traçabilité incomplet — 4 mois de lacunes',
+    type:'mise-en-demeure',typeLabel:'Mise en demeure',
+    dept:'Haute-Garonne (31)',detail:'Registre de traçabilité tenu de façon fragmentaire. Absences complètes sur février–mai 2024. Impossibilité de reconstituer la chaîne d\'approvisionnement sur une période de 4 mois. Mise en demeure formelle.',
+    severity:'important',ref:'Règl. CE 178/2002 — Art. 18',date:'Juin 2024',
+    doc:'Registre de traçabilité'
+  },
+  {
+    motif:'Eau non potable utilisée en production — absence d\'analyse',
+    type:'fermeture',typeLabel:'Fermeture administrative',
+    dept:'Var (83)',detail:'Établissement raccordé à un puits privé sans analyse bactériologique valide depuis 18 mois. Risque sanitaire immédiat. Fermeture jusqu\'à présentation d\'une analyse conforme délivrée par un laboratoire agréé.',
+    severity:'critique',ref:'Art. L1321-1 Code de la Santé Publique',date:'Juin 2024',
+    doc:'Attestation eau potable / Analyse'
+  },
+];
+
+var currentSancFilter = 'all';
+
+function renderSanctions(list){
+  var el = document.getElementById('sanctionsList');
+  if(!list.length){ el.innerHTML='<div class="empty-state">Aucun cas pour ce filtre.</div>'; return; }
+  el.innerHTML = list.map(function(s){
+    var typeClass = 'type-'+s.type;
+    var sevClass = 'sev-'+(s.severity==='critique'?'critique':s.severity==='important'?'important':'standard');
+    return '<div class="sanction-card '+sevClass+'">'+
+      '<div class="sanction-top">'+
+        '<div class="sanction-motif">⚠️ '+s.motif+'</div>'+
+        '<div class="sanction-meta">'+
+          '<span class="sanction-dept">'+s.dept+'</span>'+
+          '<span class="sanction-type '+typeClass+'">'+s.typeLabel+'</span>'+
+        '</div>'+
+      '</div>'+
+      '<p class="sanction-detail">'+s.detail+'</p>'+
+      '<div style="background:#fff8f0;border:1px solid rgba(183,144,41,.2);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.78rem">'+
+        '<span style="color:#b79029;font-weight:700">📄 Document concerné : </span>'+
+        '<span style="color:#153e35;font-weight:600">'+s.doc+'</span> — '+
+        '<button class="sanction-cta" onclick="window.location.href=\'audit.html\'">Vérifier le mien →</button>'+
+      '</div>'+
+      '<div class="sanction-footer">'+
+        '<span class="sanction-ref">Réf. : '+s.ref+'</span>'+
+        '<span class="sanction-date">'+s.date+'</span>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function filterSanctions(type){
+  currentSancFilter = type;
+  ['sfAll','sfFermeture','sfAmende','sfMed','sfSaisie'].forEach(function(id){
+    var el = document.getElementById(id);
+    if(el){ el.className = 'filter-badge inactive'; }
+  });
+  var map = {all:'sfAll',fermeture:'sfFermeture',amende:'sfAmende','mise-en-demeure':'sfMed',saisie:'sfSaisie'};
+  var activeEl = document.getElementById(map[type]);
+  if(activeEl) activeEl.className = 'filter-badge all';
+  var filtered = type==='all' ? SANCTIONS : SANCTIONS.filter(function(s){ return s.type===type; });
+  renderSanctions(filtered);
+}
+
+// ══ TICKER ══
+var TICKER_ITEMS = [
+  {text:'🔴 Fermeture — Paris 75 : PMS absent',color:'red'},
+  {text:'🟡 Amende — Rhône 69 : allergènes non affichés',color:'orange'},
+  {text:'🔴 Fermeture — Seine-Saint-Denis 93 : DLC dépassées',color:'red'},
+  {text:'🟡 Mise en demeure — Hérault 34 : plan nettoyage absent',color:'orange'},
+  {text:'🔴 Fermeture — Bouches-du-Rhône 13 : températures NC',color:'red'},
+  {text:'🟢 Conforme — Ille-et-Vilaine 35 : audit réussi',color:'green'},
+  {text:'🟡 Amende — Nord 59 : formation HACCP absente',color:'orange'},
+  {text:'🔴 Saisie — Var 83 : eau non analysée',color:'red'},
+  {text:'🟡 Mise en demeure — Gironde 33 : DUERP manquant',color:'orange'},
+  {text:'🟢 Conforme — Haute-Savoie 74 : premier audit réussi',color:'green'},
+];
+
+function buildTicker(){
+  var items = TICKER_ITEMS.concat(TICKER_ITEMS); // doubler pour loop infinie
+  document.getElementById('tickerInner').innerHTML = items.map(function(t){
+    return '<span class="ticker-item"><span class="ticker-dot '+t.color+'"></span>'+t.text+'</span>';
+  }).join('');
+}
+
+// ══ INIT ══
+buildTicker();
+renderDepts(DEPTS);
+renderSanctions(SANCTIONS);
+// Page sanctions : afficher directement le module sanctions
+switchModule('sanctions');
+</script>
+</body>
+</html>
