@@ -23988,32 +23988,63 @@ function pullSondesCloud(cb) {
   } catch (e) { if (cb) cb(); }
 }
 
-// Lit les dernières températures depuis l'API plateforme UbiBot (clé de compte).
+// Lit les dernières températures UbiBot.
+// CHANGEMENT IMPORTANT (juin 2026) : on lit DÉSORMAIS chaque capteur via SA PROPRE
+// clé de lecture (channel api_key), et non plus via la « clé de compte ». La clé de
+// compte est invalidée par UbiBot dès qu'on se connecte au compte ailleurs (erreur
+// « permission_denied_force_log_off ») → les relevés se coupaient sans prévenir. La
+// clé par capteur, elle, est stable et dédiée à la lecture. Repli sur la clé de
+// compte UNIQUEMENT si un capteur n'a pas de clé de lecture renseignée.
 // Renvoie une map { channel_id: { temp, date, nom } }.
-function _lireTemperaturesUbiBot() {
-  var key = getUbibotKey();
-  if (!key) return Promise.resolve({});
-  var url = 'https://api.ubibot.com/channels?account_key=' + encodeURIComponent(key);
+function _ubibotTempField(ch, champVoulu) {
+  // Choisit le champ température d'après son NOM défini sur le capteur (field1 =
+  // « Temperature », etc.) → robuste quel que soit le modèle. Si la sonde est
+  // « externe », on privilégie un champ dont le nom évoque une sonde déportée.
+  var premier = null, externe = null;
+  for (var n = 1; n <= 10; n++) {
+    var f = 'field' + n;
+    var label = String((ch && ch[f]) || '').toLowerCase();
+    if (/temp/.test(label) && !/humid/.test(label)) {
+      if (premier === null) premier = f;
+      if (!externe && /(ext|probe|sonde|d[eé]port|rs485|ds18)/.test(label)) externe = f;
+    }
+  }
+  if (champVoulu === 'externe' && externe) return externe;
+  return premier || 'field1';
+}
+function _lireUnCanalUbiBot(sonde, accountKey) {
+  var chan = (sonde && sonde.channel) ? String(sonde.channel).trim() : '';
+  if (!chan) return Promise.resolve(null);
+  var cle = (sonde && sonde.cle) ? String(sonde.cle).trim() : '';
+  var url;
+  if (cle) url = 'https://api.ubibot.com/channels/' + encodeURIComponent(chan) + '?api_key=' + encodeURIComponent(cle);
+  else if (accountKey) url = 'https://api.ubibot.com/channels/' + encodeURIComponent(chan) + '?account_key=' + encodeURIComponent(accountKey);
+  else return Promise.resolve(null);
   return fetch(url, { cache: 'no-store' })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (j) {
+      var ch = (j && j.channel) ? j.channel : null;
+      if (!ch) return null;
+      var lv = ch.last_values; if (typeof lv === 'string') { try { lv = JSON.parse(lv); } catch (e) { lv = null; } }
+      var temp = null, date = ch.last_entry_date || '';
+      if (lv) {
+        var f = _ubibotTempField(ch, sonde && sonde.champ);
+        if (lv[f] && typeof lv[f].value !== 'undefined' && lv[f].value !== null) {
+          temp = lv[f].value; if (lv[f].created_at) date = lv[f].created_at;
+        }
+      }
+      return { channel: chan, temp: temp, date: date, nom: ch.name || '' };
+    })
+    .catch(function () { return null; });
+}
+function _lireTemperaturesUbiBot() {
+  var sondes = getSondesConfig();
+  if (!sondes.length) return Promise.resolve({});
+  var accountKey = getUbibotKey();
+  return Promise.all(sondes.map(function (s) { return _lireUnCanalUbiBot(s, accountKey); }))
+    .then(function (results) {
       var map = {};
-      try {
-        var chans = (j && (j.channels || j.data)) || [];
-        chans.forEach(function (ch) {
-          var id = String(ch.channel_id || ch.id || '');
-          var lv = ch.last_values; if (typeof lv === 'string') { try { lv = JSON.parse(lv); } catch (e) { lv = null; } }
-          var temp = null, date = ch.last_entry_date || '';
-          if (lv) {
-            // WS1 : la température est généralement field1 (on tente plusieurs noms par robustesse).
-            ['field1', 'temperature', 'temp'].some(function (f) {
-              if (lv[f] && typeof lv[f].value !== 'undefined') { temp = lv[f].value; if (lv[f].created_at) date = lv[f].created_at; return true; }
-              return false;
-            });
-          }
-          if (id) map[id] = { temp: temp, date: date, nom: ch.name || '' };
-        });
-      } catch (e) {}
+      results.forEach(function (res) { if (res && res.channel) map[res.channel] = { temp: res.temp, date: res.date, nom: res.nom }; });
       return map;
     }).catch(function () { return {}; });
 }
@@ -24898,7 +24929,8 @@ function telechargerTableauMois() {
 function rafraichirTemperaturesBeta() {
   var box = document.getElementById('cap_resultats');
   if (box) box.innerHTML = '<div style="text-align:center;color:#64748b;font-size:13px;padding:8px">⏳ Lecture en cours…</div>';
-  if (!getUbibotKey()) { if (box) box.innerHTML = '<div style="color:#b91c1c;font-size:13px">Renseignez d\'abord la clé UbiBot (étape 1).</div>'; return; }
+  var _aUneCle = getUbibotKey() || (getSondesConfig() || []).some(function (s) { return s && s.cle; });
+  if (!_aUneCle) { if (box) box.innerHTML = '<div style="color:#b91c1c;font-size:13px">Renseignez la clé de lecture du capteur (étape 2) ou la clé de compte UbiBot (étape 1).</div>'; return; }
   _lireTemperaturesUbiBot().then(function (map) {
     var sondes = getSondesConfig();
     if (!sondes.length) { if (box) box.innerHTML = '<div style="color:#64748b;font-size:13px">Associez au moins une sonde (étape 2).</div>'; return; }
