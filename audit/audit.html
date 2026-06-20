@@ -6420,16 +6420,16 @@ function genRapport() {
     var rBody = '<div style="background-color:#153e35;border-radius:12px;padding:25px;margin-bottom:25px">';
     rBody += '<h1 style="font-size:1.5rem;margin-bottom:14px;color:#fff">Rapport de Maîtrise Sanitaire HACCP</h1>';
     rBody += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;font-size:0.83rem;color:#aac4d0;margin-bottom:14px">';
-    rBody += '<div><b style="color:#fff">Établissement :</b> ' + etab + '</div>';
-    rBody += '<div><b style="color:#fff">Responsable :</b> ' + responsable + '</div>';
-    if (adresse)  rBody += '<div style="grid-column:1/-1"><b style="color:#fff">Adresse :</b> ' + adresse + '</div>';
-    if (tel)      rBody += '<div><b style="color:#fff">Téléphone :</b> ' + tel + '</div>';
-    if (email)    rBody += '<div><b style="color:#fff">Email :</b> ' + email + '</div>';
-    if (siret)    rBody += '<div><b style="color:#fff">SIRET :</b> ' + siret + '</div>';
-    rBody += '<div><b style="color:#fff">Secteur :</b> ' + secteur + '</div>';
-    rBody += '<div><b style="color:#fff">Auditeur :</b> ' + auditeur + '</div>';
-    rBody += '<div><b style="color:#fff">Date d\'audit :</b> ' + date + '</div>';
-    if (visite)   rBody += '<div><b style="color:#fff">Type de visite :</b> ' + visite + '</div>';
+    rBody += '<div><b style="color:#fff">Établissement :</b> ' + escHtml(etab) + '</div>';
+    rBody += '<div><b style="color:#fff">Responsable :</b> ' + escHtml(responsable) + '</div>';
+    if (adresse)  rBody += '<div style="grid-column:1/-1"><b style="color:#fff">Adresse :</b> ' + escHtml(adresse) + '</div>';
+    if (tel)      rBody += '<div><b style="color:#fff">Téléphone :</b> ' + escHtml(tel) + '</div>';
+    if (email)    rBody += '<div><b style="color:#fff">Email :</b> ' + escHtml(email) + '</div>';
+    if (siret)    rBody += '<div><b style="color:#fff">SIRET :</b> ' + escHtml(siret) + '</div>';
+    rBody += '<div><b style="color:#fff">Secteur :</b> ' + escHtml(secteur) + '</div>';
+    rBody += '<div><b style="color:#fff">Auditeur :</b> ' + escHtml(auditeur) + '</div>';
+    rBody += '<div><b style="color:#fff">Date d\'audit :</b> ' + escHtml(date) + '</div>';
+    if (visite)   rBody += '<div><b style="color:#fff">Type de visite :</b> ' + escHtml(visite) + '</div>';
     rBody += '</div>';
     rBody += '<div style="margin-top:18px;text-align:center">';
     rBody += '<span style="font-size:2.5rem;font-weight:700;color:' + scoreCol + '">' + scoreAff + '</span>';
@@ -6524,7 +6524,7 @@ function genRapport() {
         var _x = _roadmap[_k];
         rBody += '<tr>'
           + '<td style="white-space:nowrap;font-weight:700;color:' + _x.col + '">' + _x.prio + '</td>'
-          + '<td><strong>' + _x.l + '</strong>' + (_x.note ? '<br><em style="color:#65716b;font-size:.78rem">Obs. : ' + _x.note + '</em>' : '') + '</td>'
+          + '<td><strong>' + escHtml(_x.l) + '</strong>' + (_x.note ? '<br><em style="color:#65716b;font-size:.78rem">Obs. : ' + escHtml(_x.note) + '</em>' : '') + '</td>'
           + '<td>' + _x.action + '</td>'
           + '<td style="white-space:nowrap">' + _x.delai + '</td>'
           + '<td style="white-space:nowrap">' + _x.resp + '</td>'
@@ -6605,7 +6605,7 @@ function genRapport() {
 
     rBody += '<div class="rpt-sec-ttl">SYNTHÈSE NARRATIVE DE L\'AUDIT</div>';
     rBody += '<div style="background:#f8fbff;border-left:4px solid #2d6f60;border-radius:8px;padding:20px 24px;margin-bottom:20px;font-size:.875rem;line-height:1.9;color:#153e35">';
-    rBody += '<p style="margin-bottom:12px">L\'audit HACCP réalisé le <strong>' + dateFormatted + '</strong> au sein de l\'établissement <strong>' + etab + '</strong> (secteur : ' + secteur.toLowerCase() + ') par <strong>' + auditeur + '</strong> en présence de <strong>' + responsable + '</strong> a permis d\'évaluer <strong>' + totalPoints + ' points réglementaires</strong>.</p>';
+    rBody += '<p style="margin-bottom:12px">L\'audit HACCP réalisé le <strong>' + dateFormatted + '</strong> au sein de l\'établissement <strong>' + escHtml(etab) + '</strong> (secteur : ' + escHtml(secteur).toLowerCase() + ') par <strong>' + escHtml(auditeur) + '</strong> en présence de <strong>' + escHtml(responsable) + '</strong> a permis d\'évaluer <strong>' + totalPoints + ' points réglementaires</strong>.</p>';
 
     if (score !== null) {
       rBody += '<p style="margin-bottom:12px">Le <strong>score global de conformité est de ' + score + '%</strong>. ' + phraseNiveau + '</p>';
@@ -6625,7 +6625,7 @@ function genRapport() {
     }
 
     if (obs1Val) {
-      rBody += '<p style="margin-top:10px;padding-top:10px;border-top:1px solid #dfe6e0"><strong>📋 Observations complémentaires :</strong> ' + obs1Val + '</p>';
+      rBody += '<p style="margin-top:10px;padding-top:10px;border-top:1px solid #dfe6e0"><strong>📋 Observations complémentaires :</strong> ' + escHtml(obs1Val) + '</p>';
     }
 
     rBody += '</div>';
@@ -6676,12 +6676,12 @@ function genRapport() {
 
     rBody += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:28px">';
     rBody += '<div style="border:1px solid #dfe6e0;padding:14px;border-radius:10px">';
-    rBody += '<div style="font-size:0.7rem;color:#65716b;margin-bottom:6px">Signature Auditeur - ' + auditeur + '</div>';
+    rBody += '<div style="font-size:0.7rem;color:#65716b;margin-bottom:6px">Signature Auditeur - ' + escHtml(auditeur) + '</div>';
     if (sigA) { rBody += '<img src="' + sigA + '" style="max-height:80px;max-width:100%">'; }
     else { rBody += '<div style="height:60px;border-bottom:1px solid #dfe6e0"></div>'; }
     rBody += '</div>';
     rBody += '<div style="border:1px solid #dfe6e0;padding:14px;border-radius:10px">';
-    rBody += '<div style="font-size:0.7rem;color:#65716b;margin-bottom:6px">Signature Responsable - ' + responsable + '</div>';
+    rBody += '<div style="font-size:0.7rem;color:#65716b;margin-bottom:6px">Signature Responsable - ' + escHtml(responsable) + '</div>';
     if (sigR) { rBody += '<img src="' + sigR + '" style="max-height:80px;max-width:100%">'; }
     else { rBody += '<div style="height:60px;border-bottom:1px solid #dfe6e0"></div>'; }
     rBody += '</div></div>';
