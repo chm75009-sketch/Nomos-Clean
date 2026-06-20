@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v283';
+var APP_BUILD = 'v284';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12883,11 +12883,58 @@ async function _packInjecterCourbes(from, to) {
   ct.appendChild(sec);
 }
 
+// V283 — Écran d'attente immédiat pendant la génération du Pack DDPP.
+// Affiché dès le clic pour que le bouton « réponde » visiblement, même quand la
+// phase réseau (sous-sol) prend quelques secondes. Retiré dès que le Pack s'affiche.
+function _packShowLoading() {
+  try {
+    if (document.getElementById('packLoadingOverlay')) return;
+    var ov = document.createElement('div');
+    ov.id = 'packLoadingOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:rgba(30,27,75,.96);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-family:Outfit,sans-serif;padding:24px;text-align:center';
+    ov.innerHTML =
+      '<div style="width:46px;height:46px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:packSpin .8s linear infinite"></div>'
+      + '<div style="margin-top:18px;font-size:16px;font-weight:800">Génération du Pack DDPP…</div>'
+      + '<div style="margin-top:6px;font-size:12.5px;opacity:.8;max-width:280px;line-height:1.5">Préparation de vos preuves de contrôle. Cela peut prendre quelques secondes selon le réseau.</div>';
+    if (!document.getElementById('packSpinStyle')) {
+      var st = document.createElement('style');
+      st.id = 'packSpinStyle';
+      st.textContent = '@keyframes packSpin{to{transform:rotate(360deg)}}';
+      document.head.appendChild(st);
+    }
+    document.body.appendChild(ov);
+  } catch (e) {}
+}
+function _packHideLoading() {
+  try { var el = document.getElementById('packLoadingOverlay'); if (el) el.remove(); } catch (e) {}
+}
+// V283 — Borne une promesse réseau dans le temps : si elle dépasse `ms`, on
+// continue sans attendre (offline-first). Ne rejette jamais : renvoie null au timeout.
+function _packAvecDelaiMax(promesse, ms) {
+  return Promise.race([
+    Promise.resolve(promesse).catch(function(){ return null; }),
+    new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, ms || 5000); })
+  ]);
+}
+
 // V116 — Livraison 3 : wrapper qui récupère les photos de la période avant de lancer le Pack DDPP,
 // puis les injecte directement dans chaque bloc de contrôle après le rendu.
 async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
-  // V118 — D'abord, récupérer tous les contrôles depuis Supabase (tous appareils)
-  try { if (typeof chargerControlesCloudCache === 'function') await chargerControlesCloudCache(); } catch(ePc) {}
+  // V283 — Réactivité + hors-ligne (cuisines en sous-sol) :
+  //  1) On affiche IMMÉDIATEMENT un écran « génération en cours » dès le clic, pour
+  //     que le bouton réponde visiblement (avant, aucun retour pendant la phase réseau
+  //     → l'utilisateur croyait que ça ne répondait pas).
+  //  2) Les appels réseau (contrôles cloud + photos) sont BORNÉS dans le temps : sur
+  //     mauvais réseau / hors-ligne, on n'attend plus indéfiniment, on génère le Pack
+  //     à partir des données locales déjà en cache.
+  _packShowLoading();
+  // V118 — D'abord, récupérer tous les contrôles depuis Supabase (tous appareils),
+  // mais SANS BLOQUER plus de 5 s : au-delà, on garde le cache local (offline-first).
+  try {
+    if (typeof chargerControlesCloudCache === 'function') {
+      await _packAvecDelaiMax(chargerControlesCloudCache(), 5000);
+    }
+  } catch(ePc) {}
   // 1) Récupérer les contrôles de la période qui ont des photos
   var photosParModule = {}; // { codeModule: [ {ts: ISO, photos: [url,...]}, ... ] }
 
@@ -12902,10 +12949,16 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
         + '&photos=not.is.null'
         + '&select=id,module,date_controle,photos'
         + '&order=date_controle.asc';
+      // V283 — fetch borné à 6 s (offline-first) : on n'attend pas le réseau du
+      // sous-sol indéfiniment, on continue sans les photos si ça traîne.
+      var _ctlPh = new AbortController();
+      var _tPh = setTimeout(function(){ _ctlPh.abort(); }, 6000);
       var resp = await fetch(url, {
         method: 'GET',
+        signal: _ctlPh.signal,
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + _sbBearer() }
       });
+      clearTimeout(_tPh);
       if (resp.ok) {
         var rows = await resp.json();
         rows.forEach(function(r) {
@@ -12934,8 +12987,10 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
     console.warn('[Pack DDPP] Erreur récupération photos :', e);
   }
 
-  // 2) Lancer le Pack DDPP classique (rendu synchrone)
-  lancerPackDDPP(dateFrom, dateTo, selectionIds);
+  // 2) Lancer le Pack DDPP classique (rendu synchrone). On retire l'écran d'attente
+  //    juste après : le Pack (printOverlay) prend le relais à l'écran.
+  try { lancerPackDDPP(dateFrom, dateTo, selectionIds); }
+  finally { _packHideLoading(); }
 
   // 2bis) Injecter les COURBES de température (image) à la fin du Pack (protégé).
   try { await _packInjecterCourbes(dateFrom, dateTo); } catch (eCb) { console.warn('[Pack DDPP] courbes:', eCb && eCb.message); }
