@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v284';
+var APP_BUILD = 'v285';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -22456,7 +22456,14 @@ function ouvrirMesRapports() {
   overlay.scrollTop = 0;
 
   (async function() {
-    try { if (typeof chargerControlesCloudCache === 'function') await chargerControlesCloudCache(); } catch(e) {}
+    // V284 — offline-first (sous-sol) : on ne bloque pas plus de 5 s sur le cloud.
+    // Au-delà, on affiche les contrôles déjà en cache + ceux du localStorage (la
+    // fusion locale ci-dessous garantit que rien n'est perdu sans réseau).
+    try {
+      if (typeof chargerControlesCloudCache === 'function') {
+        await _packAvecDelaiMax(chargerControlesCloudCache(), 5000);
+      }
+    } catch(e) {}
     var rows = window._histoCloudRows || {};
     // FUSION local + cloud : « Mes rapports » lisait UNIQUEMENT le cloud, donc
     // un contrôle validé mais pas encore synchronisé (réseau / watcher 3 s /
