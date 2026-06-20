@@ -3060,56 +3060,63 @@ function getCodes() {
 function saveCodes(c) {
   localStorage.setItem(CODES_KEY, JSON.stringify(c));
 }
-function saveCode_remote(codeObj) {
-  return fetch(SUPABASE_URL + '/rest/v1/codes', {
+// ── Appel d'une fonction serveur (RPC) Supabase ──
+function _rpc(name, body) {
+  return fetch(SUPABASE_URL + '/rest/v1/rpc/' + name, {
     method: 'POST',
-    headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
-    body: JSON.stringify({
-      code: codeObj.code,
-      client: codeObj.client,
-      info: JSON.stringify(codeObj.info || {}),
-      type: codeObj.type || null,
-      service_type: codeObj.serviceType || null,
-      docs_unlocked: codeObj.docsUnlocked || false,
-      exp: codeObj.exp || null,
-      used: codeObj.used || false
-    })
-  }).then(function(r){ return r.json(); });
+    headers: Object.assign({}, sbHeaders(), { 'Content-Type': 'application/json' }),
+    body: JSON.stringify(body || {})
+  }).then(function (r) { return r.ok ? r.json() : Promise.reject(new Error('http ' + r.status)); });
+}
+// Mot de passe admin de la session (mémorisé à la connexion admin). Repli getAdminPwd().
+function _admPwd() {
+  try { return sessionStorage.getItem('_adm_pwd') || getAdminPwd(); } catch (e) { return getAdminPwd(); }
+}
+function _mapCodeRow(r) {
+  var info = {};
+  try { info = typeof r.info === 'string' ? JSON.parse(r.info) : (r.info || {}); } catch (e) {}
+  return {
+    code: r.code, client: r.client, info: info,
+    type: r.type, serviceType: r.service_type,
+    docsUnlocked: r.docs_unlocked, exp: r.exp,
+    used: r.used, created: r.created_at ? new Date(r.created_at).getTime() : Date.now()
+  };
+}
+// ── CODES via fonctions serveur sécurisées (plus d'accès direct à la table) ──
+function saveCode_remote(codeObj) {
+  return _rpc('admin_save_code', { p_pwd: _admPwd(), p_code: {
+    code: codeObj.code, client: codeObj.client,
+    info: JSON.stringify(codeObj.info || {}),
+    type: codeObj.type || null, service_type: codeObj.serviceType || null,
+    docs_unlocked: codeObj.docsUnlocked || false,
+    exp: codeObj.exp || null, used: codeObj.used || false
+  } }).catch(function (e) { console.warn('save code:', e); return null; });
 }
 function fetchCodes_remote() {
-  return fetch(SUPABASE_URL + '/rest/v1/codes?order=created_at.desc', {
-    headers: sbHeaders()
-  }).then(function(r){ return r.json(); }).then(function(rows) {
-    if (!Array.isArray(rows)) return [];
-    return rows.map(function(r) {
-      var info = {};
-      try { info = typeof r.info === 'string' ? JSON.parse(r.info) : (r.info || {}); } catch(e){}
-      return {
-        code: r.code, client: r.client, info: info,
-        type: r.type, serviceType: r.service_type,
-        docsUnlocked: r.docs_unlocked, exp: r.exp,
-        used: r.used, created: new Date(r.created_at).getTime()
-      };
-    });
+  return _rpc('admin_list_codes', { p_pwd: _admPwd() }).then(function (rows) {
+    return Array.isArray(rows) ? rows.map(_mapCodeRow) : [];
   });
 }
 function updateCode_remote(code, fields) {
-  var body = {};
-  if (fields.used   !== undefined) body.used   = fields.used;
-  if (fields.exp    !== undefined) body.exp    = fields.exp;
-  if (fields.client !== undefined) body.client = fields.client;
-  if (fields.info   !== undefined) body.info   = fields.info;
-  return fetch(SUPABASE_URL + '/rest/v1/codes?code=eq.' + code, {
-    method: 'PATCH',
-    headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
-    body: JSON.stringify(body)
-  }).then(function(r){ return r.json(); });
+  var patch = { code: code };
+  if (fields.used   !== undefined) patch.used   = fields.used;
+  if (fields.exp    !== undefined) patch.exp    = fields.exp;
+  if (fields.client !== undefined) patch.client = fields.client;
+  if (fields.info   !== undefined) patch.info   = (typeof fields.info === 'string') ? fields.info : JSON.stringify(fields.info);
+  return _rpc('admin_save_code', { p_pwd: _admPwd(), p_code: patch }).catch(function () { return null; });
 }
 function deleteCode_remote(code) {
-  return fetch(SUPABASE_URL + '/rest/v1/codes?code=eq.' + code, {
-    method: 'DELETE',
-    headers: sbHeaders()
-  });
+  return _rpc('admin_delete_code', { p_pwd: _admPwd(), p_code: code }).catch(function () { return null; });
+}
+// Client : valide UN code (le sien) sans télécharger toute la liste.
+function fetchOneCode_remote(code) {
+  return _rpc('valider_code', { p_code: code }).then(function (row) {
+    return row ? [_mapCodeRow(row)] : [];
+  }).catch(function () { return []; });
+}
+// Client : marque son code comme utilisé.
+function consommer_code_remote(code) {
+  return _rpc('consommer_code', { p_code: code }).catch(function () { return null; });
 }
 
 // ══════════════════════════════════════════
@@ -3145,24 +3152,14 @@ function markCodeSynced(code) {
 // Envoie UN code vers Supabase et CONFIRME l'insertion (lecture du statut HTTP).
 // Résout { ok:true } ou { ok:false, error:'...' } — ne rejette jamais.
 function syncCodeToSupabase(codeObj) {
-  return fetch(SUPABASE_URL + '/rest/v1/codes', {
-    method: 'POST',
-    headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
-    body: JSON.stringify({
-      code: codeObj.code,
-      client: codeObj.client,
-      info: JSON.stringify(codeObj.info || {}),
-      type: codeObj.type || null,
-      service_type: codeObj.serviceType || null,
-      docs_unlocked: codeObj.docsUnlocked || false,
-      exp: codeObj.exp || null,
-      used: codeObj.used || false
-    })
-  }).then(function(r){
-    if (r.ok) { markCodeSynced(codeObj.code); return { ok:true }; }
-    // 409 = code déjà présent dans Supabase → considéré comme synchronisé
-    if (r.status === 409) { markCodeSynced(codeObj.code); return { ok:true }; }
-    return r.text().then(function(t){ return { ok:false, error:'HTTP '+r.status+' '+(t||'') }; });
+  return _rpc('admin_save_code', { p_pwd: _admPwd(), p_code: {
+    code: codeObj.code, client: codeObj.client,
+    info: JSON.stringify(codeObj.info || {}),
+    type: codeObj.type || null, service_type: codeObj.serviceType || null,
+    docs_unlocked: codeObj.docsUnlocked || false,
+    exp: codeObj.exp || null, used: codeObj.used || false
+  } }).then(function(){
+    markCodeSynced(codeObj.code); return { ok:true };
   }).catch(function(e){
     return { ok:false, error:(e&&e.message)?e.message:'Réseau indisponible' };
   });
@@ -4085,6 +4082,7 @@ function loginAdmin() {
   err.classList.remove('on');
   _adminCheck(pwd, function (ok) {
     if (!ok) { err.textContent='Mot de passe incorrect.'; err.classList.add('on'); document.getElementById('adminPwd').value=''; return; }
+    try { sessionStorage.setItem('_adm_pwd', pwd); } catch (e) {}
     setSession({ role:'admin' });
     showAdmin();
   });
@@ -4100,8 +4098,8 @@ function loginClient() {
   var err = document.getElementById('clientErr');
   if (err) { err.textContent = ''; err.classList.remove('on'); err.style.display = 'none'; }
   if (!code) { if (err) { err.textContent = 'Veuillez saisir votre code d\'accès.'; err.style.display = 'block'; } return; }
-  // Sync codes depuis Supabase avant vérification
-  fetchCodes_remote().then(function(remoteCodes) {
+  // Valide UNIQUEMENT le code saisi via le serveur (plus de téléchargement de toute la liste)
+  fetchOneCode_remote(code).then(function(remoteCodes) {
     mergeRemoteCodes(remoteCodes);
   }).catch(function(){
     // Supabase inaccessible - on continue avec les codes en cache local
@@ -4122,7 +4120,7 @@ function loginClient() {
   found.usedAt = found.usedAt || Date.now();
   saveCodes(codes);
   // Marquer dans Supabase pour tous les types
-  updateCode_remote(code, { used: true }).catch(function(e){ console.error('Supabase used:', e); });
+  consommer_code_remote(code).catch(function(e){ console.error('Supabase used:', e); });
 
   // Code Documents uniquement (préfixe DOCS-)
   if (found.type === 'docs') {
@@ -5589,11 +5587,11 @@ function deleteAllCodes() {
   if (!confirm('⚠️ Supprimer TOUS les ' + codes.length + ' codes d\'accès,\nsur le cloud ET sur cet appareil ?\n\nAction irréversible.')) return;
   saveCodes([]);
   refreshAdminTable();
-  if (typeof SUPABASE_URL !== 'undefined' && typeof sbHeaders === 'function') {
+  if (typeof deleteCode_remote === 'function') {
     toast('Suppression des codes en cours…', 'inf');
-    fetch(SUPABASE_URL + '/rest/v1/codes?code=not.is.null', { method:'DELETE', headers: Object.assign({}, sbHeaders(), {'Prefer':'return=minimal'}) })
-      .then(function(r){ if (r.ok) { toast('✓ Tous les codes ont été supprimés.', 'ok'); } else { return r.text().then(function(t){ console.warn('[Codes] suppression refusée', r.status, t); toast('Local vidé. Suppression cloud refusée (' + r.status + ') — supprimez depuis Supabase.', 'err'); }); } })
-      .catch(function(e){ console.warn('[Codes] réseau', e && e.message); toast('Local vidé. Erreur réseau côté cloud.', 'err'); })
+    Promise.all(codes.map(function(c){ return deleteCode_remote(c.code); }))
+      .then(function(){ toast('✓ Tous les codes ont été supprimés.', 'ok'); })
+      .catch(function(e){ console.warn('[Codes] suppression', e && e.message); toast('Local vidé. Erreur côté cloud.', 'err'); })
       .then(function(){ refreshAdminTable(); });
   } else {
     toast('Codes locaux vidés (cloud indisponible).', 'ok');

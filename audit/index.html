@@ -1503,6 +1503,7 @@ function loginAdmin() {
   err.classList.remove('on');
   _adminCheck(pwd, function (ok) {
     if (!ok) { err.textContent='Mot de passe incorrect.'; err.classList.add('on'); document.getElementById('adminPwd').value=''; return; }
+    try { sessionStorage.setItem('_adm_pwd', pwd); } catch (e) {}
     setSession({ role:'admin' });
     window.location.href = 'audit.html';
   });
@@ -1514,8 +1515,13 @@ function loginClient() {
   var err  = document.getElementById('clientErr');
   err.classList.remove('on');
   if (!code) { err.textContent='Veuillez saisir votre code d\'accès.'; err.classList.add('on'); return; }
-  fetchCodes_remote().then(function(remoteCodes) {
-    if (remoteCodes && remoteCodes.length > 0) saveCodes(remoteCodes);
+  fetchOneCode_remote(code).then(function(remoteCodes) {
+    if (remoteCodes && remoteCodes.length > 0) {
+      var local = getCodes();
+      var i = local.findIndex(function(c){ return c.code === remoteCodes[0].code; });
+      if (i >= 0) local[i] = remoteCodes[0]; else local.push(remoteCodes[0]);
+      saveCodes(local);
+    }
   }).catch(function(){}).finally(function() {
     var codes = getCodes();
     var found = codes.find(function(c){ return c.code === code; });
@@ -1525,7 +1531,7 @@ function loginClient() {
     found.used = true;
     found.usedAt = Date.now();
     saveCodes(codes);
-    updateCode_remote(code, { used: true }).catch(function(){});
+    consommer_code_remote(code).catch(function(){});
     setSession({ role:'client', code: code, client: found.client, info: found.info || {},
       docsUnlocked: found.docsUnlocked || found.type === 'full' || found.type === 'docs',
       docsOnly: found.type === 'docs', codeType: found.type || 'audit' });
