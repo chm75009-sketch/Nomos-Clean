@@ -77,9 +77,7 @@ function saveDemande_remote(demande) {
   }).then(function(r){ return r.json(); });
 }
 function fetchDemandes_remote() {
-  return fetch(SUPABASE_URL + '/rest/v1/demandes?order=id.desc', {
-    headers: sbHeaders()
-  }).then(function(r){ return r.json(); }).then(function(rows) {
+  return _rpc('admin_list_demandes', { p_pwd: _admPwd() }).then(function(rows) {
     if (!Array.isArray(rows)) return [];
     return rows.map(function(r) {
       return {
@@ -93,27 +91,12 @@ function fetchDemandes_remote() {
   });
 }
 function updateDemande_remote(id, statut, codeGenere) {
-  var body = { statut: statut };
-  if (codeGenere) body.code_genere = codeGenere;
-  return fetch(SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id, {
-    method: 'PATCH',
-    headers: Object.assign({}, sbHeaders(), { 'Prefer': 'return=representation' }),
-    body: JSON.stringify(body)
-  }).then(function(r){ 
-    if (!r.ok) {
-      console.warn('Supabase update demande HTTP error:', r.status, r.statusText);
-      return null;
-    }
-    return r.json(); 
-  }).catch(function(e) {
-    console.warn('Supabase update demande network error:', e);
-    return null;
-  });
+  return _rpc('admin_update_demande', { p_pwd: _admPwd(), p_id: id, p_statut: statut, p_code: codeGenere || null })
+    .catch(function(e){ console.warn('update demande:', e); return null; });
 }
 function deleteDemande_remote(id) {
-  return fetch(SUPABASE_URL + '/rest/v1/demandes?id=eq.' + id, {
-    method: 'DELETE', headers: sbHeaders()
-  });
+  return _rpc('admin_delete_demande', { p_pwd: _admPwd(), p_id: id })
+    .catch(function(){ return null; });
 }
 
 // ══════════════════════════════════════════
