@@ -4054,14 +4054,40 @@ function switchAuthTab(t) {
   var ce = document.getElementById('clientErr'); if(ce) ce.classList.remove('on');
 }
 
+// ── Vérification du mot de passe admin CÔTÉ SERVEUR (RPC admin_check) ──
+// Le mot de passe n'est plus la référence écrite dans le code : le serveur répond
+// vrai/faux. Filet de sécurité : si le serveur est injoignable (HORS LIGNE), on
+// retombe sur la vérification locale → l'accès admin n'est JAMAIS bloqué.
+function _adminCheck(pwd, cb) {
+  try {
+    fetch(SUPABASE_URL + '/rest/v1/rpc/admin_check', {
+      method: 'POST',
+      headers: Object.assign({}, sbHeaders(), { 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ p_pwd: pwd })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('http ' + r.status);
+      return r.json();
+    }).then(function (res) {
+      cb(res === true, false);
+    }).catch(function () {
+      cb(pwd === getAdminPwd(), true);   // repli local (anti-blocage hors ligne)
+    });
+  } catch (e) {
+    cb(pwd === getAdminPwd(), true);
+  }
+}
+
 // ── Login admin ──
 function loginAdmin() {
   var pwd = document.getElementById('adminPwd').value;
   var err = document.getElementById('adminErr');
   if (!pwd) { err.textContent='Veuillez saisir le mot de passe.'; err.classList.add('on'); return; }
-  if (pwd !== getAdminPwd()) { err.textContent='Mot de passe incorrect.'; err.classList.add('on'); document.getElementById('adminPwd').value=''; return; }
-  setSession({ role:'admin' });
-  showAdmin();
+  err.classList.remove('on');
+  _adminCheck(pwd, function (ok) {
+    if (!ok) { err.textContent='Mot de passe incorrect.'; err.classList.add('on'); document.getElementById('adminPwd').value=''; return; }
+    setSession({ role:'admin' });
+    showAdmin();
+  });
 }
 
 function doLoginAdmin() { loginAdmin(); }
