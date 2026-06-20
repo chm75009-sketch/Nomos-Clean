@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v285';
+var APP_BUILD = 'v286';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12928,14 +12928,33 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
   //     mauvais réseau / hors-ligne, on n'attend plus indéfiniment, on génère le Pack
   //     à partir des données locales déjà en cache.
   _packShowLoading();
-  // V118 — D'abord, récupérer tous les contrôles depuis Supabase (tous appareils),
-  // mais SANS BLOQUER plus de 5 s : au-delà, on garde le cache local (offline-first).
+  // V285 — RENDU IMMÉDIAT depuis les données LOCALES (offline-first, instantané).
+  //  getDonneesPeriode() lit d'abord le localStorage : sur un seul appareil, le Pack est
+  //  donc complet SANS réseau. On affiche le document tout de suite, puis on complète en
+  //  arrière-plan (contrôles d'autres appareils + photos) sans jamais bloquer l'écran.
+  try { lancerPackDDPP(dateFrom, dateTo, selectionIds); }
+  catch (eRender) { console.warn('[Pack DDPP] rendu local:', eRender && eRender.message); }
+  finally { _packHideLoading(); }
+
+  // Arrière-plan #1 — compléter avec les contrôles du cloud (multi-appareils). Si cela
+  //  apporte des contrôles absents en local, on re-rend UNE seule fois (sinon flash inutile).
+  var _packEmpreinteCloud = function(){
+    try {
+      if (!window._cloudCache) return '';
+      return Object.keys(window._cloudCache).map(function(k){ return k + ':' + ((window._cloudCache[k]||[]).length); }).join(',');
+    } catch (e) { return ''; }
+  };
   try {
+    var _empAvant = _packEmpreinteCloud();
     if (typeof chargerControlesCloudCache === 'function') {
-      await _packAvecDelaiMax(chargerControlesCloudCache(), 5000);
+      await _packAvecDelaiMax(chargerControlesCloudCache(), 8000);
+    }
+    if (_packEmpreinteCloud() !== _empAvant && document.getElementById('printOverlay')) {
+      lancerPackDDPP(dateFrom, dateTo, selectionIds);
     }
   } catch(ePc) {}
-  // 1) Récupérer les contrôles de la période qui ont des photos
+
+  // Arrière-plan #2 — récupérer les contrôles de la période qui ont des photos
   var photosParModule = {}; // { codeModule: [ {ts: ISO, photos: [url,...]}, ... ] }
 
   try {
@@ -12987,12 +13006,7 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
     console.warn('[Pack DDPP] Erreur récupération photos :', e);
   }
 
-  // 2) Lancer le Pack DDPP classique (rendu synchrone). On retire l'écran d'attente
-  //    juste après : le Pack (printOverlay) prend le relais à l'écran.
-  try { lancerPackDDPP(dateFrom, dateTo, selectionIds); }
-  finally { _packHideLoading(); }
-
-  // 2bis) Injecter les COURBES de température (image) à la fin du Pack (protégé).
+  // Arrière-plan #3 — courbes de température (image) à la fin du Pack (protégé).
   try { await _packInjecterCourbes(dateFrom, dateTo); } catch (eCb) { console.warn('[Pack DDPP] courbes:', eCb && eCb.message); }
 
   // 3) Injecter les photos dans les bons blocs (après que le DOM soit prêt)
@@ -22455,86 +22469,100 @@ function ouvrirMesRapports() {
   document.body.appendChild(overlay);
   overlay.scrollTop = 0;
 
+  // V285 — Affichage INSTANTANÉ : on remplit la liste tout de suite avec les contrôles
+  // déjà présents sur l'appareil (cache mémoire + localStorage), SANS attendre le réseau.
+  // Le cloud ne sert qu'à compléter avec d'éventuels contrôles d'AUTRES appareils : on
+  // le rafraîchit donc en arrière-plan, puis on re-remplit la liste quand il répond.
+  _peuplerListeRapports(content, true);
   (async function() {
-    // V284 — offline-first (sous-sol) : on ne bloque pas plus de 5 s sur le cloud.
-    // Au-delà, on affiche les contrôles déjà en cache + ceux du localStorage (la
-    // fusion locale ci-dessous garantit que rien n'est perdu sans réseau).
     try {
       if (typeof chargerControlesCloudCache === 'function') {
-        await _packAvecDelaiMax(chargerControlesCloudCache(), 5000);
+        await _packAvecDelaiMax(chargerControlesCloudCache(), 8000);
       }
     } catch(e) {}
-    var rows = window._histoCloudRows || {};
-    // FUSION local + cloud : « Mes rapports » lisait UNIQUEMENT le cloud, donc
-    // un contrôle validé mais pas encore synchronisé (réseau / watcher 3 s /
-    // onglet fermé vite) était invisible ici alors qu'il l'est dans le Pack.
-    // On complète avec les contrôles encore en localStorage du compte courant.
-    try {
-      var etabKey = (typeof ETAB_ID !== 'undefined' && ETAB_ID) ? String(ETAB_ID) : 'local';
-      var seenSig = {};
-      Object.keys(rows).forEach(function(t){
-        var rr = rows[t] || {}; var cc = rr.contenu || {};
-        var pp = cc.pageId || rr.module || '';
-        seenSig[pp + '|' + (cc.timestamp || t) + '|' + (cc.signe || cc.signataire || '') + '|' + (cc.uid || '')] = true;
-      });
-      if (typeof localStorage !== 'undefined') {
-        for (var li = 0; li < localStorage.length; li++) {
-          var lk = localStorage.key(li);
-          if (!lk || lk.indexOf('haccp_module_data_page-') !== 0) continue;
-          if (lk.indexOf('_' + etabKey) === -1) continue; // compte courant uniquement
-          var arr = [];
-          try { arr = JSON.parse(localStorage.getItem(lk) || '[]'); } catch(eP) { continue; }
-          if (!Array.isArray(arr)) continue;
-          arr.forEach(function(entry){
-            var c = (entry && entry.data) ? entry.data : entry;
-            if (!c) return;
-            if (typeof _secteurActifMatch === 'function' && !_secteurActifMatch(c)) return; // autre secteur
-            var pid = c.pageId || (entry && entry.pageId) || '';
-            var tsL = (entry && entry.timestamp) || c.timestamp || '';
-            if (!tsL) return;
-            var sig = pid + '|' + (c.timestamp || tsL) + '|' + (c.signe || c.signataire || '') + '|' + (c.uid || '');
-            if (seenSig[sig]) return; // déjà présent (cloud)
-            seenSig[sig] = true;
-            var keyTs = tsL;
-            while (rows[keyTs]) { keyTs = new Date(new Date(keyTs).getTime() + 1).toISOString(); }
-            rows[keyTs] = { module: (c.module || (pid ? pid.replace('page-','') : 'Contrôle')), contenu: c, photos: [] };
-          });
-        }
-      }
-      window._histoCloudRows = rows;
-    } catch(eMerge) { console.warn('fusion local rapports:', eMerge && eMerge.message); }
-    var keys = Object.keys(rows).sort(function(a, b) { return new Date(b) - new Date(a); })
-      .filter(function(t){
-        var rr = rows[t] || {};
-        // Exclure les enregistrements INTERNES (équipe, enceintes, listes mémorisées
-        // « memo », configs…) : leur nom de module est entouré de doubles underscores
-        // (__xxx__). Ce ne sont PAS des contrôles → ils ne doivent pas apparaître dans
-        // « Mes rapports » (et ils ne s'ouvraient pas au clic).
-        var _mod = String(rr.module || (rr.contenu && rr.contenu.module) || '');
-        if (/^__.*__$/.test(_mod)) return false;
-        // isolation par secteur actif (cloud + local)
-        return (typeof _secteurActifMatch !== 'function') || _secteurActifMatch(rr.contenu || {});
-      });
-    if (keys.length === 0) {
-      content.innerHTML = '<div style="text-align:center;color:#6b7280;padding:30px 16px;font-size:14px">Aucun contrôle trouvé pour le moment.<br><span style="font-size:12px">Vos contrôles validés apparaîtront ici automatiquement.</span></div>';
-      return;
-    }
-    var html = '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">' + keys.length + ' contrôle' + (keys.length > 1 ? 's' : '') + ' enregistré' + (keys.length > 1 ? 's' : '') + '. Touchez un contrôle pour ouvrir son rapport complet.</div>';
-    keys.forEach(function(ts) {
-      var r = rows[ts] || {};
-      var contenu = r.contenu || {};
-      var d = new Date(ts);
-      var ok = !isNaN(d.getTime());
-      var dateStr = ok ? (d.toLocaleDateString('fr-FR') + ' à ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0')) : '';
-      var sig = (contenu && (contenu.signe || contenu.signataire)) || '';
-      var tsAttr = String(ts).replace(/'/g, "\\'");
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:10px;background:#fff">' +
-                '<div style="font-size:13px;min-width:0"><strong style="color:#1e293b">' + _titreModuleLisible(r.module) + '</strong><br><span style="color:#64748b;font-size:12px">' + dateStr + (sig ? ' — ' + sig : '') + '</span></div>' +
-                '<button type="button" class="btn-p" style="white-space:nowrap;padding:9px 14px;font-size:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;cursor:pointer" onclick="reimprimerControleCloud(\'' + tsAttr + '\')">Voir / Imprimer</button>' +
-              '</div>';
-    });
-    content.innerHTML = html;
+    var c = document.getElementById('mesRapportsListe');
+    if (c) _peuplerListeRapports(c, false);
   })();
+}
+
+// V285 — Construit (ou reconstruit) la liste « Mes rapports » à partir des données déjà
+// disponibles (cache cloud en mémoire + localStorage du compte courant). N'effectue
+// AUCUN appel réseau → instantané. `attenteCloud`=true affiche « Chargement… » au lieu
+// de « Aucun contrôle » tant que le rafraîchissement cloud en arrière-plan n'est pas fini.
+function _peuplerListeRapports(content, attenteCloud) {
+  if (!content) return;
+  var rows = window._histoCloudRows || {};
+  // FUSION local + cloud : « Mes rapports » lisait UNIQUEMENT le cloud, donc
+  // un contrôle validé mais pas encore synchronisé (réseau / watcher 3 s /
+  // onglet fermé vite) était invisible ici alors qu'il l'est dans le Pack.
+  // On complète avec les contrôles encore en localStorage du compte courant.
+  try {
+    var etabKey = (typeof ETAB_ID !== 'undefined' && ETAB_ID) ? String(ETAB_ID) : 'local';
+    var seenSig = {};
+    Object.keys(rows).forEach(function(t){
+      var rr = rows[t] || {}; var cc = rr.contenu || {};
+      var pp = cc.pageId || rr.module || '';
+      seenSig[pp + '|' + (cc.timestamp || t) + '|' + (cc.signe || cc.signataire || '') + '|' + (cc.uid || '')] = true;
+    });
+    if (typeof localStorage !== 'undefined') {
+      for (var li = 0; li < localStorage.length; li++) {
+        var lk = localStorage.key(li);
+        if (!lk || lk.indexOf('haccp_module_data_page-') !== 0) continue;
+        if (lk.indexOf('_' + etabKey) === -1) continue; // compte courant uniquement
+        var arr = [];
+        try { arr = JSON.parse(localStorage.getItem(lk) || '[]'); } catch(eP) { continue; }
+        if (!Array.isArray(arr)) continue;
+        arr.forEach(function(entry){
+          var c = (entry && entry.data) ? entry.data : entry;
+          if (!c) return;
+          if (typeof _secteurActifMatch === 'function' && !_secteurActifMatch(c)) return; // autre secteur
+          var pid = c.pageId || (entry && entry.pageId) || '';
+          var tsL = (entry && entry.timestamp) || c.timestamp || '';
+          if (!tsL) return;
+          var sig = pid + '|' + (c.timestamp || tsL) + '|' + (c.signe || c.signataire || '') + '|' + (c.uid || '');
+          if (seenSig[sig]) return; // déjà présent (cloud)
+          seenSig[sig] = true;
+          var keyTs = tsL;
+          while (rows[keyTs]) { keyTs = new Date(new Date(keyTs).getTime() + 1).toISOString(); }
+          rows[keyTs] = { module: (c.module || (pid ? pid.replace('page-','') : 'Contrôle')), contenu: c, photos: [] };
+        });
+      }
+    }
+    window._histoCloudRows = rows;
+  } catch(eMerge) { console.warn('fusion local rapports:', eMerge && eMerge.message); }
+  var keys = Object.keys(rows).sort(function(a, b) { return new Date(b) - new Date(a); })
+    .filter(function(t){
+      var rr = rows[t] || {};
+      // Exclure les enregistrements INTERNES (équipe, enceintes, listes mémorisées
+      // « memo », configs…) : leur nom de module est entouré de doubles underscores
+      // (__xxx__). Ce ne sont PAS des contrôles → ils ne doivent pas apparaître dans
+      // « Mes rapports » (et ils ne s'ouvraient pas au clic).
+      var _mod = String(rr.module || (rr.contenu && rr.contenu.module) || '');
+      if (/^__.*__$/.test(_mod)) return false;
+      // isolation par secteur actif (cloud + local)
+      return (typeof _secteurActifMatch !== 'function') || _secteurActifMatch(rr.contenu || {});
+    });
+  if (keys.length === 0) {
+    content.innerHTML = attenteCloud
+      ? '<div style="text-align:center;color:#6b7280;padding:30px 0;font-size:14px">Chargement de vos contrôles…</div>'
+      : '<div style="text-align:center;color:#6b7280;padding:30px 16px;font-size:14px">Aucun contrôle trouvé pour le moment.<br><span style="font-size:12px">Vos contrôles validés apparaîtront ici automatiquement.</span></div>';
+    return;
+  }
+  var html = '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">' + keys.length + ' contrôle' + (keys.length > 1 ? 's' : '') + ' enregistré' + (keys.length > 1 ? 's' : '') + '. Touchez un contrôle pour ouvrir son rapport complet.</div>';
+  keys.forEach(function(ts) {
+    var r = rows[ts] || {};
+    var contenu = r.contenu || {};
+    var d = new Date(ts);
+    var ok = !isNaN(d.getTime());
+    var dateStr = ok ? (d.toLocaleDateString('fr-FR') + ' à ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0')) : '';
+    var sig = (contenu && (contenu.signe || contenu.signataire)) || '';
+    var tsAttr = String(ts).replace(/'/g, "\\'");
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 14px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:10px;background:#fff">' +
+              '<div style="font-size:13px;min-width:0"><strong style="color:#1e293b">' + _titreModuleLisible(r.module) + '</strong><br><span style="color:#64748b;font-size:12px">' + dateStr + (sig ? ' — ' + sig : '') + '</span></div>' +
+              '<button type="button" class="btn-p" style="white-space:nowrap;padding:9px 14px;font-size:13px;border:none;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;cursor:pointer" onclick="reimprimerControleCloud(\'' + tsAttr + '\')">Voir / Imprimer</button>' +
+            '</div>';
+  });
+  content.innerHTML = html;
 }
 
 (function() {
