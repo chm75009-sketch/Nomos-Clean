@@ -1118,10 +1118,31 @@ body{background:#fff}
 <div id="appMain" style="display:none">
 
 <div class="topbar">
-  <div class="brand"><span class="dot" style="background:#3b8a77"></span>Clean Food <em style="font-style:normal;color:rgba(255,255,255,.5) !important;font-size:.78rem;margin-left:4px">ExpertAudit HACCP</em><span style="margin-left:8px;background:#d2ad46;color:#201806;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:999px;letter-spacing:.03em">v3 BIS · BOULANGERIE 101 pts</span></div>
+  <div class="brand"><span class="dot" style="background:#3b8a77"></span>Clean Food <em style="font-style:normal;color:rgba(255,255,255,.5) !important;font-size:.78rem;margin-left:4px">ExpertAudit HACCP</em><span style="margin-left:8px;background:#d2ad46;color:#201806;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:999px;letter-spacing:.03em">v3 BIS · BOULANGERIE 101 pts</span><span id="auditVer" title="Version déployée" style="margin-left:6px;background:rgba(255,255,255,.14);color:#cfe7df;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.03em">Version …</span></div>
   <div class="tbtns" id="topbarBtns">
   </div>
 </div>
+<script>
+/* Affiche la version réellement déployée (lue depuis ver.txt à la racine du
+   bundle Nomos). Permet de vérifier d'un coup d'œil qu'on a bien la dernière
+   version — y compris les mises à jour de sécurité. Hors-ligne : reste « … ». */
+(function(){
+  function show(t){
+    var el = document.getElementById('auditVer');
+    if (el && t) el.textContent = 'Version ' + String(t).trim();
+  }
+  function load(path, next){
+    try {
+      fetch(path + '?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.text() : null; })
+        .then(function(t){ if (t && /\d/.test(t)) { show(t); } else if (next) { next(); } })
+        .catch(function(){ if (next) next(); });
+    } catch (e) { if (next) next(); }
+  }
+  // Nomos : ver.txt est à la racine du bundle (../). Audit autonome : à côté (./).
+  load('../ver.txt', function(){ load('./ver.txt'); });
+})();
+</script>
 
 <div class="wrap" id="auditDoc">
 
