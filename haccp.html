@@ -3844,6 +3844,7 @@
     <!-- ════════════════════════════════════════════════════════════════ -->
     <div class="page" id="page-inscription" style="min-height:100vh;background:linear-gradient(160deg,#0a0e1a,#131929);color:white;font-family:Outfit,sans-serif;padding:60px 20px 40px;position:relative">
       <div style="max-width:680px;margin:0 auto">
+        <button type="button" onclick="showPage('page-presentation')" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.18);padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;margin-bottom:18px">← Retour</button>
         <div style="text-align:center;margin-bottom:28px">
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#4ade80,#22c55e);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;box-shadow:0 8px 24px rgba(74,222,128,0.3)">📝</div>
           <h1 style="font-size:clamp(22px,3vw,28px);font-weight:900;margin:0 0 8px;color:white">Inscription HACCP Pro</h1>
@@ -3859,12 +3860,12 @@
           <div>
             <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Type d'établissement <span style="color:#dc2626">*</span></label>
             <select id="insc_secteur" required style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
-              <option value="" style="background:#0f1729">— Choisir —</option>
-              <option value="resto_trad" style="background:#0f1729">🍽️ Restauration traditionnelle</option>
-              <option value="boulangerie" style="background:#0f1729">🥖 Boulangerie / Pâtisserie</option>
-              <option value="fast_food" style="background:#0f1729">🍔 Restauration rapide</option>
-              <option value="boucherie" style="background:#0f1729">🥩 Boucherie / Charcuterie</option>
-              <option value="collective" style="background:#0f1729">🏫 Restauration collective</option>
+              <option value="" style="background:#ffffff;color:#1a1a2e">— Choisir —</option>
+              <option value="resto_trad" style="background:#ffffff;color:#1a1a2e">🍽️ Restauration traditionnelle</option>
+              <option value="boulangerie" style="background:#ffffff;color:#1a1a2e">🥖 Boulangerie / Pâtisserie</option>
+              <option value="fast_food" style="background:#ffffff;color:#1a1a2e">🍔 Restauration rapide</option>
+              <option value="boucherie" style="background:#ffffff;color:#1a1a2e">🥩 Boucherie / Charcuterie</option>
+              <option value="collective" style="background:#ffffff;color:#1a1a2e">🏫 Restauration collective</option>
             </select>
           </div>
           <div>
@@ -3889,18 +3890,18 @@
             <div>
               <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Formule <span style="color:#dc2626">*</span></label>
               <select id="insc_formule" required onchange="updateRecapTarif()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
-                <option value="" style="background:#0f1729">— Choisir —</option>
-                <option value="essentiel" style="background:#0f1729">🥉 Essentiel — 1 établissement</option>
-                <option value="multisites" style="background:#0f1729">🥇 Multi-sites — Jusqu'à 5 établissements</option>
+                <option value="" style="background:#ffffff;color:#1a1a2e">— Choisir —</option>
+                <option value="essentiel" style="background:#ffffff;color:#1a1a2e">🥉 Essentiel — 1 établissement</option>
+                <option value="multisites" style="background:#ffffff;color:#1a1a2e">🥇 Multi-sites — Jusqu'à 5 établissements</option>
               </select>
               <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;line-height:1.4">Essentiel : à partir de <strong style="color:#4ade80">39€/mois HT</strong> · Multi-sites : à partir de <strong style="color:#4ade80">129€/mois HT</strong></div>
             </div>
             <div>
               <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Engagement <span style="color:#dc2626">*</span></label>
               <select id="insc_engagement" required onchange="updateRecapTarif()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
-                <option value="" style="background:#0f1729">— Choisir —</option>
-                <option value="annuel" style="background:#0f1729">12 mois (DUERP OFFERT 🎁)</option>
-                <option value="mensuel" style="background:#0f1729">Sans engagement</option>
+                <option value="" style="background:#ffffff;color:#1a1a2e">— Choisir —</option>
+                <option value="annuel" style="background:#ffffff;color:#1a1a2e">12 mois (DUERP OFFERT 🎁)</option>
+                <option value="mensuel" style="background:#ffffff;color:#1a1a2e">Sans engagement</option>
               </select>
               <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;line-height:1.4">Engagement 12 mois = <strong style="color:#4ade80">-34%</strong> + <strong style="color:#f59e0b">DUERP offert</strong> 🎁</div>
             </div>
