@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v301';
+var APP_BUILD = 'v302';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20561,7 +20561,10 @@ function testEffacerDonnees() {
           adresse: (document.getElementById('insc_adresse') || {}).value || '',
           siret: (document.getElementById('insc_siret') || {}).value || '',
           message: (document.getElementById('insc_message') || {}).value || '',
-          statut: 'en_attente'
+          statut: 'en_attente',
+          // RGPD — preuve de consentement : à ce stade la case « j'accepte » est
+          // OBLIGATOIREMENT cochée (vérifié plus haut), on horodate l'acceptation.
+          rgpd_accepte_le: new Date().toISOString()
         };
 
         // SW-6 — insertion via REST direct (le SDK supabase-js peut lever un
@@ -20782,6 +20785,9 @@ function testEffacerDonnees() {
             if (r.code_genere) html += '<div style="color:#4ade80;font-weight:700">🔑 ' + escapeHtml(r.code_genere) + '</div>';
             html += '</div>';
             if (r.message) html += '<div style="font-size:11px;color:rgba(255,255,255,0.6);font-style:italic;padding:6px 10px;background:rgba(255,255,255,0.04);border-radius:6px;margin-bottom:10px">💬 ' + escapeHtml(r.message) + '</div>';
+            // RGPD — preuve de consentement (horodatée) ou avertissement si demande antérieure.
+            if (r.rgpd_accepte_le) html += '<div style="font-size:11px;color:#4ade80;margin-bottom:10px">✅ Consentement RGPD accepté le ' + new Date(r.rgpd_accepte_le).toLocaleString('fr-FR') + '</div>';
+            else html += '<div style="font-size:11px;color:#f59e0b;margin-bottom:10px">⚠️ Consentement RGPD non enregistré (demande antérieure à cette fonction)</div>';
             if (r.statut === 'en_attente') {
               html += '<div style="display:flex;gap:8px;flex-wrap:wrap">';
               html += '<button onclick="validerDemande(\'' + r.id + '\')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:8px 16px;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✅ Valider et envoyer code</button>';
