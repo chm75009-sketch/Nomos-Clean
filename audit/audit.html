@@ -4930,11 +4930,11 @@ function afficherSuiviClient(code) {
   var nom = info.etab || (c && c.client) || code;
 
   var html = '<div style="background:#fbfaf7;border-radius:12px;padding:18px;border:1px solid #dfe6e0">';
-  html += '<div style="font-weight:700;color:#153e35;font-size:1rem;margin-bottom:14px">📋 ' + nom + '</div>';
+  html += '<div style="font-weight:700;color:#153e35;font-size:1rem;margin-bottom:14px">📋 ' + escHtml(nom) + '</div>';
 
   // Infos code
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">';
-  html += '<div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #dfe6e0"><div style="font-size:.72rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Code</div><div style="font-weight:700;color:#153e35;font-size:.88rem">' + code + '</div></div>';
+  html += '<div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #dfe6e0"><div style="font-size:.72rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Code</div><div style="font-weight:700;color:#153e35;font-size:.88rem">' + escHtml(code) + '</div></div>';
   html += '<div style="background:#fff;border-radius:10px;padding:12px;border:1px solid #dfe6e0"><div style="font-size:.72rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Statut</div><div style="font-weight:700;font-size:.88rem;color:' + (c && c.used ? '#2d6f60' : '#b79029') + '">' + (c && c.used ? '✅ Utilisé' : '⏳ En attente') + '</div></div>';
 
   if (c && c.created) {
@@ -4959,7 +4959,7 @@ function afficherSuiviClient(code) {
     if (stats.audits && stats.audits.length) {
       html += '<div style="margin-bottom:10px"><div style="font-weight:700;color:#153e35;font-size:.85rem;margin-bottom:8px">📝 Audits réalisés</div>';
       stats.audits.forEach(function(a) {
-        html += '<div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #dfe6e0;margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between"><span style="color:#153e35;font-weight:600">' + (a.date||'') + '</span><span style="color:' + (a.score >= 85 ? '#2a9a57' : a.score >= 60 ? '#b79029' : '#d84f43') + ';font-weight:700">Score : ' + (a.score||'-') + '/100</span><span style="color:#65716b">' + (a.parQui === 'admin' ? '🧪 Par nos experts' : '👤 Par le client') + '</span></div>';
+        html += '<div style="background:#fff;border-radius:8px;padding:10px 12px;border:1px solid #dfe6e0;margin-bottom:6px;font-size:.82rem;display:flex;justify-content:space-between"><span style="color:#153e35;font-weight:600">' + escHtml(a.date||'') + '</span><span style="color:' + (a.score >= 85 ? '#2a9a57' : a.score >= 60 ? '#b79029' : '#d84f43') + ';font-weight:700">Score : ' + escHtml(String(a.score||'-')) + '/100</span><span style="color:#65716b">' + (a.parQui === 'admin' ? '🧪 Par nos experts' : '👤 Par le client') + '</span></div>';
       });
       html += '</div>';
     } else {
@@ -4970,7 +4970,7 @@ function afficherSuiviClient(code) {
     if (stats.documents && stats.documents.length) {
       html += '<div><div style="font-weight:700;color:#153e35;font-size:.85rem;margin-bottom:8px">📄 Documents générés</div>';
       stats.documents.forEach(function(d) {
-        html += '<div style="font-size:.82rem;color:#65716b;padding:4px 0">✅ ' + d.nom + ' — ' + d.date + '</div>';
+        html += '<div style="font-size:.82rem;color:#65716b;padding:4px 0">✅ ' + escHtml(d.nom) + ' — ' + escHtml(d.date) + '</div>';
       });
       html += '</div>';
     }
@@ -7735,8 +7735,8 @@ function loadAuditsExistant() {
       var date = a.date_audit || (a.created_at ? new Date(a.created_at).toLocaleDateString('fr-FR') : '--');
       html += '<div style="background:#fff;border:1px solid #dfe6e0;border-radius:10px;padding:11px 14px">';
       html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px">';
-      html += '<div><div style="font-weight:700;color:#153e35;font-size:.85rem">📅 ' + date + (a.visite ? ' — ' + a.visite : '') + '</div>';
-      if (a.auditeur) html += '<div style="font-size:.75rem;color:#65716b;margin-top:2px">🔍 ' + a.auditeur + '</div>';
+      html += '<div><div style="font-weight:700;color:#153e35;font-size:.85rem">📅 ' + escHtml(date) + (a.visite ? ' — ' + escHtml(a.visite) : '') + '</div>';
+      if (a.auditeur) html += '<div style="font-size:.75rem;color:#65716b;margin-top:2px">🔍 ' + escHtml(a.auditeur) + '</div>';
       html += '</div><span style="font-size:1rem;font-weight:800;color:' + scoreCol + ';flex-shrink:0">' + score + '</span></div>';
       html += '<div style="display:flex;flex-wrap:wrap;gap:6px">';
       html += '<button data-dl-coords="'+i+'" style="padding:5px 10px;background:#f0faf8;border:1px solid rgba(21,62,53,.2);border-radius:6px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.72rem;color:#153e35;font-weight:600">⬇️ Coordonnées .csv</button>';
@@ -7849,16 +7849,16 @@ function showDocPreview(a, type, info) {
   html += '<div style="background:#f0faf8;padding:14px 16px;border-radius:10px;margin-bottom:14px;font-size:.82rem;line-height:1.7;color:#2d4a3e">';
   html += '<div style="font-weight:700;color:#153e35;font-size:.75rem;text-transform:uppercase;margin-bottom:6px">📋 Informations</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px">';
-  if (a.etab)     html += '<div><b>Établissement :</b> ' + a.etab + '</div>';
-  if (a.resp)     html += '<div><b>Responsable :</b> ' + a.resp + '</div>';
-  if (a.adresse)  html += '<div style="grid-column:1/-1"><b>Adresse :</b> ' + a.adresse + '</div>';
-  if (a.tel)      html += '<div><b>Tél :</b> ' + a.tel + '</div>';
-  if (a.email)    html += '<div><b>Email :</b> ' + a.email + '</div>';
-  if (a.siret)    html += '<div><b>SIRET :</b> ' + a.siret + '</div>';
-  if (a.secteur)  html += '<div><b>Secteur :</b> ' + a.secteur.replace('_',' ') + '</div>';
-  if (a.auditeur) html += '<div><b>Auditeur :</b> ' + a.auditeur + '</div>';
-  html += '<div><b>Date :</b> ' + date + '</div>';
-  if (a.visite)   html += '<div><b>Visite :</b> ' + a.visite + '</div>';
+  if (a.etab)     html += '<div><b>Établissement :</b> ' + escHtml(a.etab) + '</div>';
+  if (a.resp)     html += '<div><b>Responsable :</b> ' + escHtml(a.resp) + '</div>';
+  if (a.adresse)  html += '<div style="grid-column:1/-1"><b>Adresse :</b> ' + escHtml(a.adresse) + '</div>';
+  if (a.tel)      html += '<div><b>Tél :</b> ' + escHtml(a.tel) + '</div>';
+  if (a.email)    html += '<div><b>Email :</b> ' + escHtml(a.email) + '</div>';
+  if (a.siret)    html += '<div><b>SIRET :</b> ' + escHtml(a.siret) + '</div>';
+  if (a.secteur)  html += '<div><b>Secteur :</b> ' + escHtml(a.secteur.replace('_',' ')) + '</div>';
+  if (a.auditeur) html += '<div><b>Auditeur :</b> ' + escHtml(a.auditeur) + '</div>';
+  html += '<div><b>Date :</b> ' + escHtml(date) + '</div>';
+  if (a.visite)   html += '<div><b>Visite :</b> ' + escHtml(a.visite) + '</div>';
   html += '</div></div>';
   // Score
   html += '<div style="text-align:center;background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:20px;margin-bottom:14px">';
@@ -7870,12 +7870,12 @@ function showDocPreview(a, type, info) {
   if (a.obs1) {
     html += '<div style="background:#fff5f5;border-left:4px solid #c0392b;padding:12px 14px;border-radius:6px;margin-bottom:10px;font-size:.85rem">';
     html += '<div style="font-weight:700;color:#c0392b;margin-bottom:4px">Observations</div>';
-    html += '<div style="color:#333;white-space:pre-wrap">' + a.obs1 + '</div></div>';
+    html += '<div style="color:#333;white-space:pre-wrap">' + escHtml(a.obs1) + '</div></div>';
   }
   if (a.obs2) {
     html += '<div style="background:#f0faf8;border-left:4px solid #2d6f60;padding:12px 14px;border-radius:6px;margin-bottom:10px;font-size:.85rem">';
     html += '<div style="font-weight:700;color:#2d6f60;margin-bottom:4px">Recommandations</div>';
-    html += '<div style="color:#333;white-space:pre-wrap">' + a.obs2 + '</div></div>';
+    html += '<div style="color:#333;white-space:pre-wrap">' + escHtml(a.obs2) + '</div></div>';
   }
   // Rapport complet (seulement pour type 'rapport' OU si rapport_html disponible)
   if (type === 'rapport' && a.rapport_html) {
@@ -8401,7 +8401,7 @@ function loadAudits_remote() {
       html += '<span style="font-size:1rem;font-weight:800;color:' + scoreCol + '">' + score + '</span>';
       html += '<button data-audit-idx="' + i + '" style="padding:5px 10px;background:#f0faf8;border:1px solid rgba(21,62,53,.15);border-radius:6px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.72rem;color:#153e35;font-weight:600">📋 Détail</button>';
       html += '</div></div>';
-      if (a.secteur) html += '<div style="font-size:.72rem;background:#f5f2ea;padding:3px 8px;border-radius:4px;display:inline-block;color:#65716b">' + a.secteur.replace('_',' ') + '</div>';
+      if (a.secteur) html += '<div style="font-size:.72rem;background:#f5f2ea;padding:3px 8px;border-radius:4px;display:inline-block;color:#65716b">' + escHtml(a.secteur.replace('_',' ')) + '</div>';
       html += '</div>';
     });
     html += '</div>';
@@ -8760,21 +8760,21 @@ function showAuditDetail(idx) {
   html += '<button onclick="document.getElementById(\'auditDetailModal\').style.display=\'none\'" style="background:#f5f2ea;border:1px solid #dfe6e0;color:#153e35;font-size:.85rem;font-weight:700;padding:8px 16px;border-radius:8px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif">← Retour</button>';
   html += '<button onclick="document.getElementById(\'auditDetailModal\').style.display=\'none\'" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#65716b;padding:4px 8px" title="Fermer">✕</button>';
   html += '</div>';
-  html += '<h2 style="font-family:\'Playfair Display\',serif;font-size:1.2rem;color:#153e35;margin:0 0 16px">' + (a.etab || 'Audit') + '</h2>';
+  html += '<h2 style="font-family:\'Playfair Display\',serif;font-size:1.2rem;color:#153e35;margin:0 0 16px">' + escHtml(a.etab || 'Audit') + '</h2>';
   // Coordonnées
   html += '<div style="background:#f0faf8;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:.82rem;color:#2d4a3e;line-height:1.8;border:1px solid rgba(21,62,53,.12)">';
   html += '<div style="font-weight:700;color:#00796b;font-size:.72rem;text-transform:uppercase;margin-bottom:6px">📋 Coordonnées</div>';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:2px 16px">';
-  if (a.etab)     html += '<div><b>Établissement :</b> ' + a.etab + '</div>';
-  if (a.resp)     html += '<div><b>Responsable :</b> ' + a.resp + '</div>';
-  if (a.adresse)  html += '<div style="grid-column:1/-1"><b>Adresse :</b> ' + a.adresse + '</div>';
-  if (a.tel)      html += '<div><b>Tél :</b> ' + a.tel + '</div>';
-  if (a.email)    html += '<div><b>Email :</b> ' + a.email + '</div>';
-  if (a.siret)    html += '<div><b>SIRET :</b> ' + a.siret + '</div>';
-  if (a.secteur)  html += '<div><b>Secteur :</b> ' + a.secteur.replace('_',' ') + '</div>';
-  if (a.auditeur) html += '<div><b>Auditeur :</b> ' + a.auditeur + '</div>';
-  html += '<div><b>Date :</b> ' + date + '</div>';
-  if (a.visite)   html += '<div><b>Visite :</b> ' + a.visite + '</div>';
+  if (a.etab)     html += '<div><b>Établissement :</b> ' + escHtml(a.etab) + '</div>';
+  if (a.resp)     html += '<div><b>Responsable :</b> ' + escHtml(a.resp) + '</div>';
+  if (a.adresse)  html += '<div style="grid-column:1/-1"><b>Adresse :</b> ' + escHtml(a.adresse) + '</div>';
+  if (a.tel)      html += '<div><b>Tél :</b> ' + escHtml(a.tel) + '</div>';
+  if (a.email)    html += '<div><b>Email :</b> ' + escHtml(a.email) + '</div>';
+  if (a.siret)    html += '<div><b>SIRET :</b> ' + escHtml(a.siret) + '</div>';
+  if (a.secteur)  html += '<div><b>Secteur :</b> ' + escHtml(a.secteur.replace('_',' ')) + '</div>';
+  if (a.auditeur) html += '<div><b>Auditeur :</b> ' + escHtml(a.auditeur) + '</div>';
+  html += '<div><b>Date :</b> ' + escHtml(date) + '</div>';
+  if (a.visite)   html += '<div><b>Visite :</b> ' + escHtml(a.visite) + '</div>';
   html += '</div></div>';
   // Score
   html += '<div style="text-align:center;margin-bottom:16px">';
@@ -8782,8 +8782,8 @@ function showAuditDetail(idx) {
   html += '<div style="font-size:.78rem;color:#65716b">Score de conformité</div>';
   html += '</div>';
   // Observations
-  if (a.obs1) html += '<div style="background:#f5f2ea;border-radius:8px;padding:12px;margin-bottom:10px;font-size:.82rem"><b>Observations :</b><br>' + a.obs1 + '</div>';
-  if (a.obs2) html += '<div style="background:#f5f2ea;border-radius:8px;padding:12px;margin-bottom:10px;font-size:.82rem"><b>Recommandations :</b><br>' + a.obs2 + '</div>';
+  if (a.obs1) html += '<div style="background:#f5f2ea;border-radius:8px;padding:12px;margin-bottom:10px;font-size:.82rem"><b>Observations :</b><br>' + escHtml(a.obs1) + '</div>';
+  if (a.obs2) html += '<div style="background:#f5f2ea;border-radius:8px;padding:12px;margin-bottom:10px;font-size:.82rem"><b>Recommandations :</b><br>' + escHtml(a.obs2) + '</div>';
   // Rapport HTML si disponible
   if (a.rapport_html) {
     html += '<div style="margin-top:14px"><div style="font-weight:700;color:#153e35;font-size:.8rem;text-transform:uppercase;margin-bottom:8px">📄 Rapport complet</div>';
@@ -8852,7 +8852,7 @@ function openHist() {
       const col = sc === null ? '#65716b' : sc >= 85 ? '#3aaa7a' : sc >= 60 ? '#e8913a' : '#e05252';
       const dt = new Date(x.saved).toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
       return '<div class="hitem" data-hist-idx="' + i + '">' +
-        '<div><h4>' + (x.m.etab || 'Sans nom') + '</h4><p>' + dt + ' - ' + (x.m.aud || '--') + '</p></div>' +
+        '<div><h4>' + escHtml(x.m.etab || 'Sans nom') + '</h4><p>' + dt + ' - ' + escHtml(x.m.aud || '--') + '</p></div>' +
         '<div style="display:flex;align-items:center;gap:7px">' +
         '<span class="hbadge" style="background:' + col + '22;color:' + col + '">' + (sc !== null ? sc + '%' : '--') + '</span>' +
         '<button class="hdel" data-del-idx="' + i + '">&#128465;</button>' +
