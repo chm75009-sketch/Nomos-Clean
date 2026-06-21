@@ -407,16 +407,12 @@ if ('serviceWorker' in navigator) {
       <div id="rdvForm">
         <span class="pre">Démo gratuite · 10 min</span>
         <h3 id="rdvTitle">Et si on en <span>parlait ?</span></h3>
-        <p class="lead">On vous présente Nomos en direct — relevés, audit et Pack DDPP — et on répond à toutes vos questions. <b>Sur place ou en visio</b>, on s'organise selon vous.</p>
+        <p class="lead">On vous présente Nomos en direct — relevés, audit et Pack DDPP — et on répond à toutes vos questions. On s'organise selon vous.</p>
         <div class="f">
           <input type="text" id="rdvNom" placeholder="Votre nom / établissement" autocomplete="name">
           <input type="email" id="rdvEmail" placeholder="Email" autocomplete="email">
           <input type="tel" id="rdvTel" placeholder="Téléphone" autocomplete="tel">
           <input type="text" id="rdvCp" placeholder="Code postal" inputmode="numeric" autocomplete="postal-code">
-          <div class="pref">
-            <label><input type="radio" name="rdvPref" value="Sur place" checked><span>📍 Sur place</span></label>
-            <label><input type="radio" name="rdvPref" value="À distance"><span>💻 À distance</span></label>
-          </div>
           <textarea id="rdvMsg" rows="2" placeholder="Un message ? (facultatif)"></textarea>
           <button class="send" id="rdvSend" onclick="sendRdv()">Réserver ma démo →</button>
           <div class="note">Vos coordonnées servent uniquement à vous recontacter. Aucune donnée revendue.</div>
@@ -477,8 +473,6 @@ if ('serviceWorker' in navigator) {
       var tel = (document.getElementById('rdvTel').value||'').trim();
       var cp = (document.getElementById('rdvCp').value||'').trim();
       var msg = (document.getElementById('rdvMsg').value||'').trim();
-      var prefEl = document.querySelector('input[name="rdvPref"]:checked');
-      var pref = prefEl ? prefEl.value : '';
       // Validation minimale : un moyen de recontact (tél ou email) + un nom.
       if(!nom || (!tel && !email)){
         alert('Merci d\'indiquer au moins votre nom et un téléphone ou un email pour qu\'on puisse vous recontacter.');
@@ -486,14 +480,13 @@ if ('serviceWorker' in navigator) {
       }
       var btn = document.getElementById('rdvSend');
       btn.disabled = true; btn.textContent = 'Envoi…';
-      var corps = 'Préférence : ' + pref + '\nCode postal : ' + (cp||'—') + (msg ? ('\nMessage : ' + msg) : '') + '\nDepuis : page d\'accueil Nomos (' + _rdvSource + ')';
+      var corps = 'Code postal : ' + (cp||'—') + (msg ? ('\nMessage : ' + msg) : '') + '\nDepuis : page d\'accueil Nomos (' + _rdvSource + ')';
       // Dépannage : le modèle d'email actuel n'affiche que le champ {{code}}. On y met
       // donc TOUTES les coordonnées sur une ligne, pour que l'admin puisse rappeler.
       var blocInfos = '📅 DÉMO/RDV  |  Nom : ' + nom
         + '  |  Tél : ' + (tel || '—')
         + '  |  Email : ' + (email || '—')
         + '  |  CP : ' + (cp || '—')
-        + '  |  ' + pref
         + (msg ? ('  |  Message : ' + msg) : '');
       function done(ok){
         if(ok){
