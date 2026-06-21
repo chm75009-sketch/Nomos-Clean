@@ -49,23 +49,53 @@ if ('serviceWorker' in navigator) {
   .nav-brand{flex:1;text-align:center;font-weight:800;font-size:14.5px;letter-spacing:.3px}
   .nav-brand small{display:block;font-weight:600;font-size:10.5px;color:rgba(255,255,255,.55);letter-spacing:1px;text-transform:uppercase}
 
-  /* ── MENU (drawer) ── */
-  .menu-overlay{position:fixed;inset:0;background:rgba(4,6,12,.55);opacity:0;visibility:hidden;transition:.25s;z-index:70}
+  /* ── MENU (drawer moderne, groupé) ── */
+  .menu-overlay{position:fixed;inset:0;background:rgba(4,6,12,.62);backdrop-filter:blur(2px);opacity:0;visibility:hidden;transition:.25s;z-index:70}
   .menu-overlay.open{opacity:1;visibility:visible}
-  .menu{position:fixed;top:0;right:0;height:100%;width:min(330px,86vw);background:#0b0f1a;color:#fff;transform:translateX(102%);
-    transition:transform .28s ease;z-index:80;display:flex;flex-direction:column;padding:18px;box-shadow:-20px 0 60px rgba(0,0,0,.4);
-    overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .menu{position:fixed;top:0;right:0;height:100%;width:min(366px,90vw);
+    background:linear-gradient(180deg,#0e1424 0%,#0a0e1a 100%);color:#fff;transform:translateX(103%);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:80;display:flex;flex-direction:column;
+    box-shadow:-24px 0 70px rgba(0,0,0,.5);overflow-y:auto;-webkit-overflow-scrolling:touch}
   .menu.open{transform:none}
-  .menu .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
-  .menu .mh b{font-weight:800;font-size:15px}
-  .menu .close{background:rgba(255,255,255,.1);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
-  .menu a{display:flex;align-items:center;gap:12px;color:#e5e7eb;text-decoration:none;font-weight:600;font-size:15px;padding:14px 12px;border-radius:12px}
-  .menu a:hover{background:rgba(255,255,255,.07)}
-  .menu a .mi{font-size:20px}
-  .menu .sep{height:1px;background:rgba(255,255,255,.08);margin:10px 4px}
-  .menu .m-audit:hover{background:rgba(16,118,110,.22)}
-  .menu .m-pro:hover{background:rgba(79,70,229,.22)}
-  .menu .mfoot{margin-top:14px;font-size:11px;color:rgba(255,255,255,.4);padding:10px 6px;line-height:1.5}
+  /* En-tête collant */
+  .menu .mh{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:17px 18px 15px;
+    border-bottom:1px solid rgba(255,255,255,.08);position:sticky;top:0;z-index:2;
+    background:rgba(14,20,36,.97);backdrop-filter:blur(8px)}
+  .menu .mh .mbrand{font-weight:800;font-size:16px;line-height:1.05}
+  .menu .mh .mbrand small{display:block;font-weight:700;font-size:9.5px;letter-spacing:1.6px;text-transform:uppercase;color:var(--gold);margin-top:4px}
+  .menu .close{flex-shrink:0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;
+    width:38px;height:38px;border-radius:11px;font-size:17px;cursor:pointer;transition:.15s}
+  .menu .close:hover{background:rgba(255,255,255,.16)}
+  .menu .close:active{transform:scale(.95)}
+  /* Corps */
+  .menu .mbody{padding:16px 16px 20px;display:flex;flex-direction:column;gap:5px}
+  /* CTA démo */
+  .menu .m-cta{display:flex;align-items:center;justify-content:center;gap:9px;text-decoration:none;
+    background:linear-gradient(135deg,#e6c163,#d2ad46);color:#231a06;font-weight:800;font-size:15px;
+    padding:15px;border-radius:14px;box-shadow:0 10px 24px rgba(210,173,70,.30);margin-bottom:4px;transition:.15s}
+  .menu .m-cta:active{transform:scale(.98)}
+  /* Intitulé de groupe */
+  .menu .mlabel{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;
+    color:rgba(255,255,255,.36);padding:15px 8px 7px}
+  /* Lien simple */
+  .menu a.mlink{display:flex;align-items:center;gap:13px;color:#e7e9ee;text-decoration:none;font-weight:600;
+    font-size:14.5px;padding:12px;border-radius:12px;transition:.15s}
+  .menu a.mlink:hover{background:rgba(255,255,255,.07)}
+  .menu a.mlink:active{transform:scale(.99)}
+  .menu a.mlink .mi{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+  /* Cartes applications */
+  .menu a.mcard{display:flex;align-items:center;gap:13px;text-decoration:none;padding:12px;border-radius:14px;
+    border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.035);transition:.18s}
+  .menu a.mcard:active{transform:scale(.99)}
+  .menu a.mcard .ico{flex-shrink:0;width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:21px}
+  .menu a.mcard .tx b{display:block;color:#fff;font-weight:700;font-size:14px;line-height:1.2}
+  .menu a.mcard .tx em{display:block;color:rgba(255,255,255,.55);font-size:11.5px;font-style:normal;margin-top:2px}
+  .menu a.mcard.m-audit .ico{background:rgba(16,118,110,.24);color:#5eead4}
+  .menu a.mcard.m-audit:hover{border-color:rgba(16,118,110,.55);background:rgba(16,118,110,.13)}
+  .menu a.mcard.m-pro .ico{background:rgba(79,70,229,.26);color:#a5b4fc}
+  .menu a.mcard.m-pro:hover{border-color:rgba(79,70,229,.55);background:rgba(79,70,229,.13)}
+  .menu .mfoot{margin-top:10px;padding:15px 10px 0;border-top:1px solid rgba(255,255,255,.07);
+    font-size:11px;color:rgba(255,255,255,.4);line-height:1.5}
 
   /* ── ALERTE ── */
   .topbar{background:var(--danger-dk);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:9px 16px}
@@ -255,19 +285,36 @@ if ('serviceWorker' in navigator) {
   <!-- ══ MENU (drawer) ══ -->
   <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
   <nav class="menu" id="menu" aria-hidden="true">
-    <div class="mh"><b>Menu</b><button class="close" onclick="closeMenu()" aria-label="Fermer">✕</button></div>
-    <a href="#top" onclick="closeMenu()"><span class="mi">🏠</span> Accueil</a>
-    <a href="#" onclick="closeMenu();openRdv('Menu');return false;"><span class="mi">📅</span> Demander une démo / un RDV</a>
-    <a href="#" onclick="closeMenu();installNomos();return false;"><span class="mi">⬇️</span> Installer Nomos sur mon PC / mobile</a>
-    <a href="#" onclick="closeMenu();openRdv('Menu-contact');return false;"><span class="mi">✉️</span> Être recontacté</a>
-    <div class="sep"></div>
-    <a class="m-audit" href="audit/index.html"><span class="mi">🔍</span> Auditer & préparer le contrôle</a>
-    <a class="m-pro" href="haccp.html"><span class="mi">⚡</span> HACCP Pro — gérer au quotidien</a>
-    <a href="#ensemble" onclick="closeMenu()"><span class="mi">🛡️</span> Les deux ensemble</a>
-    <div class="sep"></div>
-    <a href="#risques" onclick="closeMenu()"><span class="mi">⚠️</span> Risques & sanctions</a>
-    <a href="#solutions" onclick="closeMenu()"><span class="mi">🧭</span> Les 2 solutions</a>
-    <div class="mfoot">Outils d'aide à la gestion et à la mise en conformité HACCP.</div>
+    <div class="mh">
+      <div class="mbrand">Nomos Clean<small>Hygiène alimentaire</small></div>
+      <button class="close" onclick="closeMenu()" aria-label="Fermer le menu">✕</button>
+    </div>
+    <div class="mbody">
+
+      <a class="m-cta" href="#" onclick="closeMenu();openRdv('Menu');return false;">📅 Demander une démo gratuite</a>
+
+      <div class="mlabel">Les 2 applications</div>
+      <a class="mcard m-audit" href="audit/index.html">
+        <span class="ico">🔍</span>
+        <span class="tx"><b>Auditer &amp; préparer le contrôle</b><em>Faire le point et repérer les risques</em></span>
+      </a>
+      <a class="mcard m-pro" href="haccp.html">
+        <span class="ico">⚡</span>
+        <span class="tx"><b>HACCP Pro</b><em>Gérer &amp; prouver la conformité au quotidien</em></span>
+      </a>
+      <a class="mlink" href="#ensemble" onclick="closeMenu()"><span class="mi">🛡️</span> Les deux ensemble</a>
+
+      <div class="mlabel">Découvrir</div>
+      <a class="mlink" href="#top" onclick="closeMenu()"><span class="mi">🏠</span> Accueil</a>
+      <a class="mlink" href="#risques" onclick="closeMenu()"><span class="mi">⚠️</span> Risques &amp; sanctions</a>
+      <a class="mlink" href="#solutions" onclick="closeMenu()"><span class="mi">🧭</span> Les 2 solutions</a>
+
+      <div class="mlabel">Installer &amp; contact</div>
+      <a class="mlink" href="#" onclick="closeMenu();installNomos();return false;"><span class="mi">⬇️</span> Installer Nomos (PC / mobile)</a>
+      <a class="mlink" href="#" onclick="closeMenu();openRdv('Menu-contact');return false;"><span class="mi">✉️</span> Être recontacté</a>
+
+      <div class="mfoot">Outils d'aide à la gestion et à la mise en conformité HACCP.</div>
+    </div>
   </nav>
 
   <!-- ══ HERO ══ -->
