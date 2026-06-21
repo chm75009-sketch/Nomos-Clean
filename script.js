@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v305';
+var APP_BUILD = 'v306';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1819,11 +1819,10 @@ async function getEssaiConfig() {
   var def = { active: true, max: ESSAI_UNIVERSEL_MAX };
   if (!window._supabase) return def;
   try {
-    var r = await window._supabase.from('historique_admin')
-      .select('motif').eq('action', 'CONFIG_ESSAI')
-      .order('date_action', { ascending: false }).limit(1);
-    if (r.error || !r.data || !r.data.length) return def;
-    var cfg = JSON.parse(r.data[0].motif || '{}');
+    // SEC — lecture via RPC serveur (historique_admin n'est plus lisible en anonyme).
+    var r = await window._supabase.rpc('get_essai_config');
+    if (r.error || !r.data) return def;
+    var cfg = (typeof r.data === 'string') ? JSON.parse(r.data) : r.data;
     return {
       active: (typeof cfg.active === 'boolean') ? cfg.active : true,
       max: (cfg.max > 0) ? cfg.max : ESSAI_UNIVERSEL_MAX
@@ -1903,21 +1902,19 @@ window.validerEssaiUniversel = async function() {
       show('L\'offre d\'essai gratuite est actuellement fermée. Contactez-nous pour un accès.');
       reset(); return;
     }
-    // Tous les essais universels existants (préfixe EU3J-)
-    var ex = await window._supabase.from('etablissements').select('code_acces,adresse').like('code_acces', 'EU3J-%');
-    if (ex.error) { show('Erreur : ' + ex.error.message); reset(); return; }
-    var rows = ex.data || [];
+    // SEC — stats EU3J via RPC serveur (plafond + email déjà utilisé).
+    // etablissements n'est plus lisible avec la clé anonyme.
+    var stRes = await window._supabase.rpc('eu3j_stats', { p_email: mail });
+    if (stRes.error) { show('Erreur : ' + stRes.error.message); reset(); return; }
+    var stats = stRes.data || { count: 0, email_exists: false };
+    var euCount = stats.count || 0;
     // Plafond d'activations (valeur pilotée depuis l'admin)
-    if (rows.length >= cfg.max) {
+    if (euCount >= cfg.max) {
       show('L\'offre d\'essai gratuite est terminée (limite atteinte). Contactez-nous pour un accès.');
       reset(); return;
     }
-    // 1 essai par e-mail (l'e-mail est rangé dans adresse : "... | mail")
-    // L'e-mail est rangé entre des séparateurs « | » AVEC espaces (« ... | mail | ... »).
-    // On normalise les espaces autour des « | » avant la recherche, sinon le contrôle
-    // « 1 essai par e-mail » ne matchait jamais (il cherchait « |mail » sans espace).
-    var dejaVu = rows.some(function(r){ return (r.adresse||'').toLowerCase().replace(/\s*\|\s*/g, '|').indexOf('|' + mail) > -1; });
-    if (dejaVu) {
+    // 1 essai par e-mail
+    if (stats.email_exists) {
       show('Un essai a déjà été activé avec cet e-mail.');
       reset(); return;
     }
@@ -1944,7 +1941,7 @@ window.validerEssaiUniversel = async function() {
 
     try {
       await window._supabase.from('historique_admin').insert([{
-        action: 'Essai universel ' + ESSAI_UNIVERSEL_JOURS + ' j (' + (rows.length+1) + '/' + cfg.max + ')',
+        action: 'Essai universel ' + ESSAI_UNIVERSEL_JOURS + ' j (' + (euCount+1) + '/' + cfg.max + ')',
         code_concerne: code,
         motif: etab + ' — ' + resp + ' — ' + tel + ' — ' + mail + ' — exp. ' + dateExp
       }]);
@@ -1976,27 +1973,15 @@ window.motDePasseOublie = async function() {
   if (!window._supabase) { alert('Connexion à la base impossible. Réessayez avec une connexion internet.'); return; }
 
   try {
-    var res = await window._supabase.from('etablissements')
-      .select('*').eq('code_acces', code).limit(1);
-    if (res.error) { alert('Erreur : ' + res.error.message); return; }
-    if (!res.data || !res.data.length) { alert('Code d\'accès non reconnu. Vérifiez votre code.'); return; }
-    var etab = res.data[0];
-
-    // Retrouver l'e-mail ENREGISTRÉ selon le type de compte
-    var email = '';
-    if (code.indexOf('EU3J-') === 0) {
-      // Essai flyer : e-mail rangé dans adresse "adresse | email | tel | resp"
-      var parts = (etab.adresse || '').split('|');
-      if (parts[1]) email = parts[1].trim();
-    }
-    if (!email && etab.email) email = etab.email;
-    if (!email) {
-      // Clients payants : e-mail dans comptes_clients
-      try {
-        var cc = await window._supabase.from('comptes_clients').select('email').eq('code_acces', code).limit(1);
-        if (cc.data && cc.data.length && cc.data[0].email) email = cc.data[0].email;
-      } catch(e) {}
-    }
+    // SEC — recherche via RPC serveur : etablissements/comptes_clients ne sont plus
+    // lisibles avec la clé anonyme. La RPC résout déjà l'e-mail enregistré du compte.
+    var look = await window._supabase.rpc('recover_lookup', { p_code: code });
+    if (look.error) { alert('Erreur : ' + look.error.message); return; }
+    var info = look.data;
+    if (!info || !info.found) { alert('Code d\'accès non reconnu. Vérifiez votre code.'); return; }
+    var etab = { nom: info.nom, code_acces: info.code_acces, mot_de_passe: info.mot_de_passe,
+                 date_expiration: info.date_expiration, email: info.email };
+    var email = info.email || '';
     if (!email) {
       try { window._supabase.from('historique_admin').insert([{ action: 'Mot de passe oublié (sans e-mail)', code_concerne: code }]).then(function(){}); } catch(e){}
       alert('Aucune adresse e-mail n\'est associée à ce compte. Contactez HACCP Pro pour récupérer votre accès.');
@@ -21170,9 +21155,9 @@ function testEffacerDonnees() {
       // — MODIFICATION d'un compte (nom, secteur, mot de passe, expiration, verrouillage) —
       window.modifierEtab = function(id, code) {
         if (!window._supabase) return;
-        window._supabase.from('etablissements').select('id,code_acces,nom,secteur,multi_secteur,date_expiration,actif').eq('id', id).limit(1).then(function(res){
-          if (res.error || !res.data || !res.data[0]) { alert('Impossible de charger le compte.'); return; }
-          var r = res.data[0];
+        window._supabase.rpc('admin_get_etab', { p_pwd: _adminPwd, p_id: String(id), p_code: null }).then(function(res){
+          if (res.error || !res.data || !res.data.found) { alert('Impossible de charger le compte.'); return; }
+          var r = res.data.data;
           var ex = document.getElementById('modifEtabOverlay'); if (ex) ex.remove();
           var ov = document.createElement('div');
           ov.id = 'modifEtabOverlay';
@@ -21221,8 +21206,8 @@ function testEffacerDonnees() {
         var cfg = await getEssaiConfig();
         var cnt = 0;
         try {
-          var r = await window._supabase.from('etablissements').select('code_acces').like('code_acces', 'EU3J-%');
-          cnt = (r.data || []).length;
+          var r = await window._supabase.rpc('eu3j_stats', { p_email: '' });
+          cnt = (r.data && r.data.count) || 0;
         } catch(e) {}
         var pct = cfg.max > 0 ? Math.min(100, Math.round(cnt / cfg.max * 100)) : 0;
         var etat = cfg.active ? '<span style="color:#4ade80">🟢 Active</span>' : '<span style="color:#f59e0b">🟡 Suspendue</span>';
@@ -21456,9 +21441,9 @@ function testEffacerDonnees() {
       // existant n'est relu), et on synchronise le nom dans comptes_clients.
       window.modifierClient = function(code) {
         if (!window._supabase) return;
-        window._supabase.from('etablissements').select('id,code_acces,nom,secteur,multi_secteur,date_expiration,actif').eq('code_acces', code).limit(1).then(function(res){
-          if (res.error || !res.data || !res.data.length) { alert('Fiche d\'acc\u00e8s introuvable pour ' + code + (res.error ? ' (' + res.error.message + ')' : '')); return; }
-          var r = res.data[0];
+        window._supabase.rpc('admin_get_etab', { p_pwd: _adminPwd, p_id: null, p_code: code }).then(function(res){
+          if (res.error || !res.data || !res.data.found) { alert('Fiche d\'acc\u00e8s introuvable pour ' + code + (res.error ? ' (' + res.error.message + ')' : '')); return; }
+          var r = res.data.data;
           var nom = prompt('Nom de l\'\u00e9tablissement :', r.nom || '');
           if (nom === null) return;
           nom = nom.trim();
