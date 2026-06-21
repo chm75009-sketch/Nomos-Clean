@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v300';
+var APP_BUILD = 'v301';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21268,97 +21268,38 @@ function testEffacerDonnees() {
       window.validerDemande = function(id) {
         if (!window._supabase) return;
         if (!confirm('Valider cette demande ?\n\nUn code d\'accès sera généré et un email envoyé au client.')) return;
-
-        // Récupérer la demande
-        window._supabase.from('demandes_inscription').select('*').eq('id', id).single().then(function(res) {
-          if (res.error || !res.data) { alert('Erreur: ' + (res.error && res.error.message)); return; }
+        // SEC — toute la validation (création compte + établissement + maj demande +
+        // historique) se fait CÔTÉ SERVEUR via la RPC admin_validate_demande :
+        // écritures atomiques, mot de passe HACHÉ, aucune écriture avec la clé anonyme.
+        var codeAcces = genererCodeAcces();
+        var motDePasse = genererMotDePasse();
+        window._supabase.rpc('admin_validate_demande', {
+          p_pwd: _adminPwd, p_id: id, p_code: codeAcces, p_password: motDePasse
+        }).then(function(res) {
+          if (res.error || !res.data || res.data.ok !== true) {
+            alert('Erreur validation : ' + ((res.error && res.error.message) || 'opération refusée'));
+            return;
+          }
           var d = res.data;
-          var codeAcces = genererCodeAcces();
-          var motDePasse = genererMotDePasse();
-          var dateDebut = new Date().toISOString().slice(0, 10);
-
-          // Créer compte client
-          var compte = {
-            code_acces: codeAcces,
-            mot_de_passe: motDePasse,
-            etablissement: d.etablissement,
-            email: d.email,
-            formule: d.formule,
-            engagement: d.engagement,
-            date_debut: dateDebut,
-            actif: true,
-            demande_id: d.id
-          };
-
-          window._supabase.from('comptes_clients').insert([compte]).then(function(ins) {
-            if (ins.error) { alert('Erreur création compte: ' + ins.error.message); return; }
-
-            // V100 : Créer aussi une ligne dans etablissements pour permettre la connexion
-            // FIX — boucherie et collective tombaient par erreur sur 'resto' →
-            // les clients de ces secteurs étaient enregistrés avec le mauvais
-            // secteur (et, avec le verrouillage, enfermés dans le mauvais métier).
-            var secteurMap = {
-              'resto_trad': 'resto',
-              'boulangerie': 'bp',
-              'fast_food': 'rapide',
-              'boucherie': 'boucherie',
-              'collective': 'collective'
-            };
-            var secteurInterne = secteurMap[d.secteur] || 'resto';
-            var etabRow = {
-              code_acces: codeAcces,
-              mot_de_passe: motDePasse,
-              nom: d.etablissement,
-              secteur: secteurInterne,
-              adresse: d.adresse || '',
-              siret: d.siret || '',
-              // Coordonnées de la fiche d'inscription, reprises dans le PMS du client
-              responsable: d.responsable || '',
-              telephone: d.telephone || '',
-              email: d.email || '',
-              actif: true
-            };
-            window._supabase.from('etablissements').insert([etabRow]).then(function(ie) {
-              if (ie.error) { console.warn('[V100] Erreur insert etablissements (login impossible):', ie.error.message); }
-              else { console.log('[V100] Etablissement créé pour connexion :', codeAcces); }
-            });
-
-            // Mettre à jour la demande
-            window._supabase.from('demandes_inscription').update({
-              statut: 'validee',
-              code_genere: codeAcces,
-              date_traitement: new Date().toISOString()
-            }).eq('id', id).then(function() {
-
-              // Historique
-              window._supabase.from('historique_admin').insert([{
-                action: 'Validation demande',
-                code_concerne: codeAcces,
-                motif: 'Validation pour ' + d.etablissement
-              }]).then(function(){});
-
-              // Email au client
-              if (window.emailjs && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT) {
-                try {
-                  window.emailjs.send(
-                    window.HACCP_CONFIG.EMAILJS_SERVICE,
-                    window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
-                    {
-                      to_email: d.email,
-                      etablissement: d.etablissement,
-                      responsable: d.responsable,
-                      code_acces: codeAcces,
-                      mot_de_passe: motDePasse,
-                      formule: d.formule
-                    }
-                  );
-                } catch(e) { console.warn('Email client échec:', e); }
-              }
-
-              alert('✅ Validation réussie !\n\nCode généré : ' + codeAcces + '\nMot de passe : ' + motDePasse + '\n\nUn email est envoyé au client.');
-              loadAdminDemandes();
-            });
-          });
+          // Email au client (EmailJS, côté client — le mot de passe vient d'être généré)
+          if (window.emailjs && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT) {
+            try {
+              window.emailjs.send(
+                window.HACCP_CONFIG.EMAILJS_SERVICE,
+                window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
+                {
+                  to_email: d.email,
+                  etablissement: d.etablissement,
+                  responsable: d.responsable,
+                  code_acces: codeAcces,
+                  mot_de_passe: motDePasse,
+                  formule: d.formule
+                }
+              );
+            } catch(e) { console.warn('Email client échec:', e); }
+          }
+          alert('✅ Validation réussie !\n\nCode généré : ' + codeAcces + '\nMot de passe : ' + motDePasse + '\n\nUn email est envoyé au client.');
+          loadAdminDemandes();
         });
       };
 
@@ -21366,15 +21307,8 @@ function testEffacerDonnees() {
         if (!window._supabase) return;
         var motif = prompt('Motif du refus (sera enregistré) :');
         if (motif === null) return;
-        window._supabase.from('demandes_inscription').update({
-          statut: 'refusee',
-          date_traitement: new Date().toISOString()
-        }).eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_refuse_demande', { p_pwd: _adminPwd, p_id: id, p_motif: motif }).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
-          window._supabase.from('historique_admin').insert([{
-            action: 'Refus demande',
-            motif: motif || '(aucun motif)'
-          }]).then(function(){});
           loadAdminDemandes();
         });
       };
