@@ -53,7 +53,8 @@ if ('serviceWorker' in navigator) {
   .menu-overlay{position:fixed;inset:0;background:rgba(4,6,12,.55);opacity:0;visibility:hidden;transition:.25s;z-index:70}
   .menu-overlay.open{opacity:1;visibility:visible}
   .menu{position:fixed;top:0;right:0;height:100%;width:min(330px,86vw);background:#0b0f1a;color:#fff;transform:translateX(102%);
-    transition:transform .28s ease;z-index:80;display:flex;flex-direction:column;padding:18px;box-shadow:-20px 0 60px rgba(0,0,0,.4)}
+    transition:transform .28s ease;z-index:80;display:flex;flex-direction:column;padding:18px;box-shadow:-20px 0 60px rgba(0,0,0,.4);
+    overflow-y:auto;-webkit-overflow-scrolling:touch}
   .menu.open{transform:none}
   .menu .mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
   .menu .mh b{font-weight:800;font-size:15px}
@@ -64,7 +65,7 @@ if ('serviceWorker' in navigator) {
   .menu .sep{height:1px;background:rgba(255,255,255,.08);margin:10px 4px}
   .menu .m-audit:hover{background:rgba(16,118,110,.22)}
   .menu .m-pro:hover{background:rgba(79,70,229,.22)}
-  .menu .mfoot{margin-top:auto;font-size:11px;color:rgba(255,255,255,.4);padding:10px 6px;line-height:1.5}
+  .menu .mfoot{margin-top:14px;font-size:11px;color:rgba(255,255,255,.4);padding:10px 6px;line-height:1.5}
 
   /* ── ALERTE ── */
   .topbar{background:var(--danger-dk);color:#fff;font-size:12.5px;font-weight:700;text-align:center;padding:9px 16px}
@@ -247,7 +248,6 @@ if ('serviceWorker' in navigator) {
     <div class="row">
       <button class="nav-btn" onclick="history.length>1?history.back():location.href='accueil.html'">← Retour</button>
       <div class="nav-brand">Nomos Clean<small>Hygiène alimentaire</small></div>
-      <button class="nav-btn demo" onclick="openRdv('Navbar')">📅 Démo</button>
       <button class="nav-btn" onclick="openMenu()">☰ Menu</button>
     </div>
   </div>
@@ -257,17 +257,16 @@ if ('serviceWorker' in navigator) {
   <nav class="menu" id="menu" aria-hidden="true">
     <div class="mh"><b>Menu</b><button class="close" onclick="closeMenu()" aria-label="Fermer">✕</button></div>
     <a href="#top" onclick="closeMenu()"><span class="mi">🏠</span> Accueil</a>
-    <a href="#risques" onclick="closeMenu()"><span class="mi">⚠️</span> Risques & sanctions</a>
-    <a href="#solutions" onclick="closeMenu()"><span class="mi">🧭</span> Les 2 solutions</a>
+    <a href="#" onclick="closeMenu();openRdv('Menu');return false;"><span class="mi">📅</span> Demander une démo / un RDV</a>
+    <a href="#" onclick="closeMenu();installNomos();return false;"><span class="mi">⬇️</span> Installer Nomos sur mon PC / mobile</a>
+    <a href="#" onclick="closeMenu();openRdv('Menu-contact');return false;"><span class="mi">✉️</span> Être recontacté</a>
     <div class="sep"></div>
     <a class="m-audit" href="audit/index.html"><span class="mi">🔍</span> Auditer & préparer le contrôle</a>
     <a class="m-pro" href="haccp.html"><span class="mi">⚡</span> HACCP Pro — gérer au quotidien</a>
-    <div class="sep"></div>
     <a href="audit/index.html"><span class="mi">🛡️</span> Les deux ensemble</a>
     <div class="sep"></div>
-    <a href="#" onclick="closeMenu();openRdv('Menu');return false;"><span class="mi">📅</span> Demander une démo / un RDV</a>
-    <a href="#" onclick="closeMenu();openRdv('Menu-contact');return false;"><span class="mi">✉️</span> Être recontacté</a>
-    <a href="#" onclick="closeMenu();installNomos();return false;"><span class="mi">⬇️</span> Installer Nomos (PC / mobile)</a>
+    <a href="#risques" onclick="closeMenu()"><span class="mi">⚠️</span> Risques & sanctions</a>
+    <a href="#solutions" onclick="closeMenu()"><span class="mi">🧭</span> Les 2 solutions</a>
     <div class="mfoot">Outils d'aide à la gestion et à la mise en conformité HACCP.</div>
   </nav>
 
@@ -280,7 +279,6 @@ if ('serviceWorker' in navigator) {
       <!-- LE SLOGAN -->
       <p class="formula serif">Deux solutions, un seul objectif :<br><span>votre tranquillité face aux contrôles.</span></p>
       <p class="choice-mini">Utilisez <b>l'une</b>, <b>l'autre</b>, ou <b>les deux</b> — c'est vous qui choisissez.</p>
-      <button class="nav-btn demo" style="margin:6px auto 0;padding:13px 22px;font-size:15px" onclick="openRdv('Hero')">📅 Demander une démo gratuite</button>
 
       <!-- LES 2 SOLUTIONS DÉTAILLÉES, TOUT DE SUITE -->
       <div class="sols" id="solutions">
@@ -357,9 +355,6 @@ if ('serviceWorker' in navigator) {
     Nomos Clean — Outils d'aide à la gestion et à la mise en conformité HACCP.<br>
     Ne remplace pas l'obligation légale de formation ni la mise en place d'un Plan de Maîtrise Sanitaire.
   </footer>
-
-  <!-- ══ BOUTON FLOTTANT DÉMO ══ -->
-  <button class="fab-demo" onclick="openRdv('Flottant')" aria-label="Demander une démo">📅 Demander une démo</button>
 
   <!-- ══ MODALE DÉMO / RDV (inspiration libre, design & texte Nomos) ══ -->
   <div class="rdv-overlay" id="rdvOverlay" onclick="if(event.target===this)closeRdv()">
