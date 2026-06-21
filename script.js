@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v307';
+var APP_BUILD = 'v308';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21445,35 +21445,44 @@ function testEffacerDonnees() {
       window.modifierClient = function(code) {
         if (!window._supabase) return;
         window._supabase.rpc('admin_get_etab', { p_pwd: _adminPwd, p_id: null, p_code: code }).then(function(res){
-          if (res.error || !res.data || !res.data.found) { alert('Fiche d\'acc\u00e8s introuvable pour ' + code + (res.error ? ' (' + res.error.message + ')' : '')); return; }
+          if (res.error || !res.data || !res.data.found) { alert('Fiche d\'accès introuvable pour ' + code + (res.error ? ' (' + res.error.message + ')' : '')); return; }
           var r = res.data.data;
-          var nom = prompt('Nom de l\'\u00e9tablissement :', r.nom || '');
-          if (nom === null) return;
-          nom = nom.trim();
-          if (!nom) { alert('Le nom ne peut pas \u00eatre vide.'); return; }
-          var secActuel = r.secteur || '';
-          var sect = prompt('Secteur (resto, bp, rapide, boucherie, collective) :', secActuel);
-          if (sect === null) return;
-          sect = sect.trim().toLowerCase();
-          var ok = ['resto','bp','rapide','boucherie','collective'];
-          if (ok.indexOf(sect) === -1) { alert('Secteur invalide. Valeurs possibles : ' + ok.join(', ')); return; }
-          var npwd = prompt('Nouveau mot de passe ? (laisser vide = inchang\u00e9)', '');
-          if (npwd === null) return;
-          npwd = npwd.trim();
-
-          var patch = { nom: nom, secteur: sect };
-          if (npwd) patch.mot_de_passe = npwd;
-          window._supabase.from('etablissements').update(patch).eq('code_acces', code).then(function(u){
-            if (u.error) { alert('Erreur modification : ' + u.error.message); return; }
-            // Synchroniser le nom affiché dans la fiche
-            window._supabase.from('comptes_clients').update({ etablissement: nom }).eq('code_acces', code).then(function(){});
-            window._supabase.from('historique_admin').insert([{
-              action: 'Modification client', code_concerne: code,
-              motif: 'Nom : ' + nom + ' \u2014 secteur : ' + sect + (npwd ? ' \u2014 mot de passe chang\u00e9' : '')
-            }]).then(function(){});
-            alert('\u2705 Client modifi\u00e9.' + (npwd ? '\n\nNouveau mot de passe : ' + npwd : ''));
-            loadAdminClients();
-          });
+          var ex = document.getElementById('modifClientOverlay'); if (ex) ex.remove();
+          var ov = document.createElement('div');
+          ov.id = 'modifClientOverlay';
+          ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,26,.7);z-index:99999;overflow:auto;padding:16px;box-sizing:border-box';
+          var SEC = [['resto','Restauration traditionnelle'],['bp','Boulangerie / Pâtisserie'],['rapide','Restauration rapide'],['boucherie','Boucherie / Charcuterie'],['collective','Restauration collective']];
+          var opts = SEC.map(function(o){ return '<option value="'+o[0]+'"'+(r.secteur===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
+          var inp = 'width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;margin-bottom:12px;background:#fff;color:#0f172a';
+          ov.innerHTML = '<div style="max-width:460px;margin:28px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4)">'
+            + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
+            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifiez le nom et le secteur, puis enregistrez.</div>'
+            + '<label style="font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px">Nom de l\'établissement</label>'
+            + '<input id="mc_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
+            + '<label style="font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px">Secteur d\'activité</label>'
+            + '<select id="mc_secteur" style="' + inp + '">' + opts + '</select>'
+            + '<div style="font-size:11px;color:#94a3b8;margin:-4px 0 12px">Pour le mot de passe : le client utilise « Mot de passe oublié » (réinitialisation sécurisée).</div>'
+            + '<div style="display:flex;gap:8px"><button onclick="sauverModifClient(\'' + escapeHtml(code) + '\')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif">💾 Enregistrer</button>'
+            + '<button onclick="document.getElementById(\'modifClientOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer;font-family:Outfit,sans-serif">Annuler</button></div>'
+            + '</div>';
+          document.body.appendChild(ov);
+        });
+      };
+      window.sauverModifClient = function(code) {
+        if (!window._supabase) return;
+        var nom = ((document.getElementById('mc_nom') || {}).value || '').trim();
+        var sect = (document.getElementById('mc_secteur') || {}).value || 'resto';
+        if (!nom) { alert('Le nom ne peut pas être vide.'); return; }
+        window._supabase.from('etablissements').update({ nom: nom, secteur: sect }).eq('code_acces', code).then(function(u){
+          if (u.error) { alert('Erreur modification : ' + u.error.message); return; }
+          window._supabase.from('comptes_clients').update({ etablissement: nom }).eq('code_acces', code).then(function(){});
+          window._supabase.from('historique_admin').insert([{
+            action: 'Modification client', code_concerne: code,
+            motif: 'Nom : ' + nom + ' — secteur : ' + sect
+          }]).then(function(){});
+          var ov = document.getElementById('modifClientOverlay'); if (ov) ov.remove();
+          alert('✅ Client modifié.');
+          loadAdminClients();
         });
       };
 
