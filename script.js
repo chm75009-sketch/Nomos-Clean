@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v304';
+var APP_BUILD = 'v305';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2058,14 +2058,14 @@ async function _ouvrirSessionAuth(code, pwd) {
   try {
     if (!window._supabase || !window._supabase.auth) {
       console.warn('[Auth] SDK indisponible');
-      if (typeof showToast === 'function') showToast('🔐 Auth : SDK Supabase non chargé', 'err', 6000);
       return false;
     }
     var email = _codeVersEmailAuth(code);
     var res = await window._supabase.auth.signInWithPassword({ email: email, password: pwd });
     if (res && res.error) {
+      // Session Auth optionnelle (additive) : son échec ne bloque PAS le login.
+      // On reste SILENCIEUX côté client (pas de toast rouge) — log console seulement.
       console.warn('[Auth] Échec session pour ' + email + ' : ' + res.error.message);
-      if (typeof showToast === 'function') showToast('🔐 Auth échec (' + email + ') : ' + res.error.message, 'err', 8000);
       _SB_ACCESS_TOKEN = null; return false;
     }
     var sess = res && res.data && res.data.session;
@@ -2076,14 +2076,9 @@ async function _ouvrirSessionAuth(code, pwd) {
       _SB_AUTH_ETAB = (payload.app_metadata && payload.app_metadata.establishment_id) || null;
     } catch(eJwt) { _SB_AUTH_ETAB = null; }
     console.info('[Auth] ✓ Session sécurisée ouverte. establishment_id (JWT) = ' + (_SB_AUTH_ETAB || '(absent)'));
-    if (typeof showToast === 'function') {
-      if (_SB_AUTH_ETAB) showToast('🔐 Session sécurisée active (cloisonnement prêt)', 'ok', 3500);
-      else showToast('🔐 Session Auth ouverte, mais establishment_id absent du jeton', 'warn', 5000);
-    }
     return true;
   } catch(e) {
     console.warn('[Auth] Exception session :', e && e.message);
-    if (typeof showToast === 'function') showToast('🔐 Auth exception : ' + (e && e.message), 'err', 7000);
     _SB_ACCESS_TOKEN = null; return false;
   }
 }
