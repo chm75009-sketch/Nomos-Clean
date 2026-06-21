@@ -398,8 +398,24 @@ if ('serviceWorker' in navigator) {
   <footer>
     Nomos Clean — Outils d'aide à la gestion et à la mise en conformité HACCP.<br>
     Ne remplace pas l'obligation légale de formation ni la mise en place d'un Plan de Maîtrise Sanitaire.<br>
-    <span style="opacity:.6">Version V297</span>
+    <span id="nomosVer" style="opacity:.6">Version V297</span>
   </footer>
+  <script>
+  /* Badge de version : lit ver.txt à la racine pour afficher la vraie version
+     déployée (ne devient jamais périmé). Hors-ligne : garde la valeur en dur. */
+  (function(){
+    try{
+      fetch('ver.txt?t=' + Date.now(), { cache: 'no-store' })
+        .then(function(r){ return r.ok ? r.text() : null; })
+        .then(function(t){
+          if (t && /\d/.test(t)) {
+            var el = document.getElementById('nomosVer');
+            if (el) el.textContent = 'Version V' + t.trim();
+          }
+        }).catch(function(){});
+    }catch(e){}
+  })();
+  </script>
 
   <!-- ══ MODALE DÉMO / RDV (inspiration libre, design & texte Nomos) ══ -->
   <div class="rdv-overlay" id="rdvOverlay" onclick="if(event.target===this)closeRdv()">
