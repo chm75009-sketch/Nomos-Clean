@@ -9504,5 +9504,67 @@ function viderHistoriqueAudits(){
     .then(function(){ if(typeof loadAudits_remote==='function') loadAudits_remote(); });
 }
 </script>
+
+<!-- ══ BARRE NOMOS FIXE — toujours visible : Retour intelligent + Accueil Nomos ══
+     Règle le problème « pas de retour » : où qu'on soit (historique client, audit,
+     rapport, document…), cette barre reste à l'écran et permet de revenir étape par
+     étape, ou de rentrer directement à l'accueil des 2 applications Nomos. -->
+<style>
+  #nomosBar{position:fixed;left:0;right:0;bottom:0;z-index:2147483600;display:flex;align-items:center;gap:8px;
+    padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));
+    background:rgba(21,62,53,.97);box-shadow:0 -4px 18px rgba(0,0,0,.28);font-family:'Source Sans 3',sans-serif}
+  #nomosBar button{flex-shrink:0;border:none;border-radius:10px;font-family:inherit;font-weight:800;font-size:.82rem;padding:10px 14px;cursor:pointer}
+  #nomosBar .nb-back{background:#fff;color:#153e35}
+  #nomosBar .nb-home{background:#d2ad46;color:#201806}
+  #nomosBar .nb-brand{flex:1;text-align:center;color:rgba(255,255,255,.72);font-size:.7rem;font-weight:700;letter-spacing:.04em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  body{padding-bottom:62px !important}
+  @media print{#nomosBar{display:none !important}}
+</style>
+<div id="nomosBar">
+  <button class="nb-back" onclick="nomosBack()" aria-label="Retour">← Retour</button>
+  <span class="nb-brand">Clean Food · ExpertAudit</span>
+  <button class="nb-home" onclick="nomosHome()" aria-label="Accueil Nomos">🏠 Accueil Nomos</button>
+</div>
+<script>
+(function(){
+  // Couches superposables (modales / overlays) : on ferme la plus « haute » d'abord,
+  // pour reproduire un vrai retour étape par étape (rapport → audit → historique → …).
+  var COUCHES = [
+    {id:'pdfOverlay',       close:function(el){ el.style.display='none'; }},
+    {id:'ovRpt',            close:function(){ if(typeof closeRpt==='function')closeRpt(); }},
+    {id:'ovHist',           close:function(){ if(typeof closeHist==='function')closeHist(); }},
+    {id:'ovAllerg',         close:function(){ if(typeof closeAllerg==='function')closeAllerg(); }},
+    {id:'docPreviewModal',  close:function(){ if(typeof closeDocPreview==='function')closeDocPreview(); }},
+    {id:'auditDetailModal', close:function(el){ el.style.display='none'; }},
+    {id:'modalEditClient',  close:function(){ if(typeof closeEditModal==='function')closeEditModal(); }},
+    {id:'modalAdminProfile',close:function(){ if(typeof closeAdminProfile==='function')closeAdminProfile(); }},
+    {id:'modalRGPD',        close:function(){ if(typeof closeModalRGPD==='function')closeModalRGPD(); }},
+    {id:'modalMentions',    close:function(){ if(typeof closeModalMentions==='function')closeModalMentions(); }},
+    {id:'modalConditions',  close:function(){ if(typeof closeModalConditions==='function')closeModalConditions(); }}
+  ];
+  function visible(el){
+    if(!el) return false;
+    var cs; try{ cs=window.getComputedStyle(el); }catch(e){ return false; }
+    if(cs.display==='none'||cs.visibility==='hidden'||parseFloat(cs.opacity||'1')===0) return false;
+    return el.offsetParent!==null || cs.position==='fixed';
+  }
+  window.nomosBack = function(){
+    // 1) Fermer la couche ouverte la plus haute (rapport, détail, document, historique…)
+    for(var i=0;i<COUCHES.length;i++){
+      var el=document.getElementById(COUCHES[i].id);
+      if(visible(el)){ try{ COUCHES[i].close(el); }catch(e){ try{el.style.display='none';}catch(_){} } return; }
+    }
+    // 2) Remonter d'un cran : un sous-écran admin → l'écran de choix (hub)
+    var subs=['adminClientExistantScreen','adminNouveauClientScreen','adminTeamScreen'];
+    for(var j=0;j<subs.length;j++){
+      var s=document.getElementById(subs[j]);
+      if(visible(s) && typeof showAdminChoix==='function'){ showAdminChoix(); return; }
+    }
+    // 3) Sinon → accueil Nomos (les 2 applications)
+    nomosHome();
+  };
+  window.nomosHome = function(){ location.href='../accueil.html'; };
+})();
+</script>
 </body>
 </html>
