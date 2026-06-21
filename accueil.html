@@ -448,6 +448,14 @@ if ('serviceWorker' in navigator) {
       var btn = document.getElementById('rdvSend');
       btn.disabled = true; btn.textContent = 'Envoi…';
       var corps = 'Préférence : ' + pref + '\nCode postal : ' + (cp||'—') + (msg ? ('\nMessage : ' + msg) : '') + '\nDepuis : page d\'accueil Nomos (' + _rdvSource + ')';
+      // Dépannage : le modèle d'email actuel n'affiche que le champ {{code}}. On y met
+      // donc TOUTES les coordonnées sur une ligne, pour que l'admin puisse rappeler.
+      var blocInfos = '📅 DÉMO/RDV  |  Nom : ' + nom
+        + '  |  Tél : ' + (tel || '—')
+        + '  |  Email : ' + (email || '—')
+        + '  |  CP : ' + (cp || '—')
+        + '  |  ' + pref
+        + (msg ? ('  |  Message : ' + msg) : '');
       function done(ok){
         if(ok){
           document.getElementById('rdvForm').style.display = 'none';
@@ -466,7 +474,7 @@ if ('serviceWorker' in navigator) {
           to_name:'Administrateur Nomos',
           to_email:'r.t.h@orange.fr',
           email:'r.t.h@orange.fr',
-          code:'📅 DEMANDE DE DÉMO / RDV',
+          code:blocInfos,
           service:corps,
           business:nom,
           resp:nom,
