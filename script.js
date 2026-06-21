@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v299';
+var APP_BUILD = 'v300';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20747,7 +20747,7 @@ function testEffacerDonnees() {
         if (!c || !window._supabase) { return; }
         c.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">Chargement…</div>';
 
-        window._supabase.from('demandes_inscription').select('*').order('date_demande', { ascending: false }).then(function(res) {
+        window._supabase.rpc('admin_list_demandes', { p_pwd: _adminPwd }).then(function(res) {
           if (res.error) {
             c.innerHTML = '<div style="color:#fca5a5;padding:20px;text-align:center">Erreur: ' + escapeHtml(res.error.message) + '</div>';
             return;
@@ -20824,7 +20824,7 @@ function testEffacerDonnees() {
         if (!c || !window._supabase) return;
         c.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">Chargement…</div>';
 
-        window._supabase.from('comptes_clients').select('*').order('date_debut', { ascending: false }).then(function(res) {
+        window._supabase.rpc('admin_list_comptes', { p_pwd: _adminPwd }).then(function(res) {
           if (res.error) { c.innerHTML = _formCreerClient() + '<div style="color:#fca5a5;padding:20px">Erreur: ' + escapeHtml(res.error.message) + '</div>'; return; }
           var rows = res.data || [];
           var actifs = rows.filter(function(r) { return r.actif; });
@@ -20881,7 +20881,7 @@ function testEffacerDonnees() {
         if (!c || !window._supabase) return;
         c.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">Chargement…</div>';
 
-        window._supabase.from('historique_admin').select('*').order('date_action', { ascending: false }).limit(100).then(function(res) {
+        window._supabase.rpc('admin_list_historique', { p_pwd: _adminPwd }).then(function(res) {
           if (res.error) { c.innerHTML = '<div style="color:#fca5a5;padding:20px">Erreur: ' + escapeHtml(res.error.message) + '</div>'; return; }
           var rows = res.data || [];
           if (rows.length === 0) {
@@ -21044,11 +21044,11 @@ function testEffacerDonnees() {
           document.getElementById('essaisListe').innerHTML = '<div style="color:#fca5a5;padding:12px">Base indisponible.</div>';
           return;
         }
-        window._supabase.from('etablissements').select('id,code_acces,nom,secteur,multi_secteur,adresse,actif,date_debut,date_expiration,responsable,telephone,email,derniere_connexion').or('code_acces.like.ESSAI-%,code_acces.like.EU3J-%,code_acces.like.CLIENT-%').then(function(res) {
+        window._supabase.rpc('admin_list_etablissements', { p_pwd: _adminPwd }).then(function(res) {
           var liste = document.getElementById('essaisListe');
           if (!liste) return;
           if (res.error) { liste.innerHTML = '<div style="color:#fca5a5;padding:12px">Erreur : ' + escapeHtml(res.error.message) + '</div>'; return; }
-          var rows = (res.data || []).sort(function(a,b){ return (b.date_debut||'').localeCompare(a.date_debut||''); });
+          var rows = (res.data || []).filter(function(r){ var _c=String(r.code_acces||''); return _c.indexOf('ESSAI-')===0||_c.indexOf('EU3J-')===0||_c.indexOf('CLIENT-')===0; }).sort(function(a,b){ return (b.date_debut||'').localeCompare(a.date_debut||''); });
           if (rows.length === 0) {
             liste.innerHTML = (estClients ? '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px">Aucun client pour l\'instant.</div>' : '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px">Aucun essai créé pour l\'instant.</div>');
             return;
