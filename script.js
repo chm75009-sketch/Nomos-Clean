@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v309';
+var APP_BUILD = 'v310';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20765,6 +20765,8 @@ function testEffacerDonnees() {
             html += '<div>🍽️ ' + escapeHtml(({resto:'Restauration traditionnelle',bp:'Boulangerie / Pâtisserie',rapide:'Restauration rapide',boucherie:'Boucherie / Charcuterie',collective:'Restauration collective'})[r.secteur] || r.secteur || '—') + '</div>';
             html += '<div>📞 ' + escapeHtml(r.telephone) + '</div>';
             html += '<div>🍽️ ' + escapeHtml(r.secteur) + (r.nb_repas_jour ? ' — ' + r.nb_repas_jour + ' repas/j' : '') + '</div>';
+            html += '<div>👤 ' + escapeHtml(r.responsable || '—') + '</div>';
+            html += '<div>📞 ' + escapeHtml(r.telephone || '—') + '</div>';
             html += '<div>💰 ' + escapeHtml(r.formule) + ' / ' + escapeHtml(r.engagement) + '</div>';
             if (r.code_genere) html += '<div style="color:#4ade80;font-weight:700">🔑 ' + escapeHtml(r.code_genere) + '</div>';
             html += '</div>';
