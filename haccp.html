@@ -489,7 +489,7 @@
         </div>
       </footer>
       <!-- V92 — Bouton flottant "Haut de page" -->
-      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:24px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(74,222,128,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
+      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:84px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(74,222,128,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
     </div>
     <!-- V92 — Bouton flottant "← Retour" — TOUJOURS visible (icône seule, compact), sauf sur la page-presentation (point d'entrée) -->
     <button id="btnAppBack" onclick="appGoBack()" aria-label="Retour à la page précédente" title="Retour" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:9000;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);color:white;border:1px solid rgba(255,255,255,0.25);width:38px;height:38px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);padding:0;line-height:1">←</button>
@@ -3995,5 +3995,26 @@
     <!-- ════════════════════════════════════════════════════════════════ -->
     <!-- V95 — JS COMMERCIALISATION -->
     <!-- ════════════════════════════════════════════════════════════════ -->
+
+    <!-- ══ BARRE NOMOS FIXE — toujours visible : Retour + Accueil Nomos (même principe que l'app Audit).
+         Règle le « pas de retour » : depuis n'importe où dans HACCP Pro, on revient en arrière
+         ou directement à l'accueil des applications Nomos. z-index 8000 : les modales plein écran
+         (9000+) passent par-dessus, donc aucun bouton de modale n'est recouvert. -->
+    <style>
+      #nomosBarHaccp{position:fixed;left:0;right:0;bottom:0;z-index:8000;display:flex;align-items:center;gap:8px;
+        padding:8px 12px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));
+        background:rgba(10,14,26,.97);box-shadow:0 -4px 18px rgba(0,0,0,.45);font-family:Outfit,sans-serif}
+      #nomosBarHaccp button{flex-shrink:0;border:none;border-radius:10px;font-family:inherit;font-weight:800;font-size:.82rem;padding:10px 14px;cursor:pointer}
+      #nomosBarHaccp .nb-back{background:rgba(255,255,255,.12);color:#fff}
+      #nomosBarHaccp .nb-home{background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a}
+      #nomosBarHaccp .nb-brand{flex:1;text-align:center;color:rgba(255,255,255,.55);font-size:.7rem;font-weight:700;letter-spacing:.04em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      body{padding-bottom:64px !important}
+      @media print{#nomosBarHaccp{display:none !important}}
+    </style>
+    <div id="nomosBarHaccp">
+      <button class="nb-back" onclick="(typeof appGoBack==='function')?appGoBack():history.back()" aria-label="Retour">← Retour</button>
+      <span class="nb-brand">HACCP Pro · Nomos</span>
+      <button class="nb-home" onclick="location.href='accueil.html'" aria-label="Accueil Nomos">🏠 Accueil Nomos</button>
+    </div>
 </body>
 </html>
