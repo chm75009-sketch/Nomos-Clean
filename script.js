@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v306';
+var APP_BUILD = 'v307';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1975,11 +1975,14 @@ window.motDePasseOublie = async function() {
   try {
     // SEC — recherche via RPC serveur : etablissements/comptes_clients ne sont plus
     // lisibles avec la clé anonyme. La RPC résout déjà l'e-mail enregistré du compte.
-    var look = await window._supabase.rpc('recover_lookup', { p_code: code });
+    // SEC — RESET : impossible de renvoyer l'ancien mot de passe (haché = illisible).
+    // reset_password génère un NOUVEAU mot de passe, l'enregistre (haché) et le renvoie
+    // pour l'email. L'ancien cesse de fonctionner.
+    var look = await window._supabase.rpc('reset_password', { p_code: code });
     if (look.error) { alert('Erreur : ' + look.error.message); return; }
     var info = look.data;
     if (!info || !info.found) { alert('Code d\'accès non reconnu. Vérifiez votre code.'); return; }
-    var etab = { nom: info.nom, code_acces: info.code_acces, mot_de_passe: info.mot_de_passe,
+    var etab = { nom: info.nom, code_acces: info.code_acces, mot_de_passe: info.new_password,
                  date_expiration: info.date_expiration, email: info.email };
     var email = info.email || '';
     if (!email) {
@@ -2008,7 +2011,7 @@ window.motDePasseOublie = async function() {
             code_acces: etab.code_acces,
             mot_de_passe: etab.mot_de_passe || '',
             formule: '',
-            message: 'Voici vos identifiants HACCP Pro.' + infoEssai
+            message: 'Voici votre NOUVEAU mot de passe HACCP Pro (l\'ancien ne fonctionne plus).' + infoEssai
           }
         );
         envoye = true;
@@ -2026,7 +2029,7 @@ window.motDePasseOublie = async function() {
     } catch(e) {}
 
     if (envoye) {
-      alert('✅ C\'est envoyé !\n\nVos identifiants ont été adressés par e-mail à : ' + emailMasque + '\n\nPensez à vérifier vos spams.');
+      alert('✅ C\'est envoyé !\n\nUn NOUVEAU mot de passe a été adressé par e-mail à : ' + emailMasque + '\n\n(L\'ancien ne fonctionne plus.) Pensez à vérifier vos spams.');
     } else {
       alert('Votre demande a bien été enregistrée, mais l\'envoi automatique n\'a pas pu aboutir. HACCP Pro va vous recontacter.');
     }
