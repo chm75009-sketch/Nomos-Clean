@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v308';
+var APP_BUILD = 'v309';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20762,6 +20762,7 @@ function testEffacerDonnees() {
             html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;font-size:12px;color:rgba(255,255,255,0.75);margin-bottom:10px">';
             html += '<div>👤 ' + escapeHtml(r.responsable) + '</div>';
             html += '<div>📧 ' + escapeHtml(r.email) + '</div>';
+            html += '<div>🍽️ ' + escapeHtml(({resto:'Restauration traditionnelle',bp:'Boulangerie / Pâtisserie',rapide:'Restauration rapide',boucherie:'Boucherie / Charcuterie',collective:'Restauration collective'})[r.secteur] || r.secteur || '—') + '</div>';
             html += '<div>📞 ' + escapeHtml(r.telephone) + '</div>';
             html += '<div>🍽️ ' + escapeHtml(r.secteur) + (r.nb_repas_jour ? ' — ' + r.nb_repas_jour + ' repas/j' : '') + '</div>';
             html += '<div>💰 ' + escapeHtml(r.formule) + ' / ' + escapeHtml(r.engagement) + '</div>';
@@ -21454,14 +21455,16 @@ function testEffacerDonnees() {
           var SEC = [['resto','Restauration traditionnelle'],['bp','Boulangerie / Pâtisserie'],['rapide','Restauration rapide'],['boucherie','Boucherie / Charcuterie'],['collective','Restauration collective']];
           var opts = SEC.map(function(o){ return '<option value="'+o[0]+'"'+(r.secteur===o[0]?' selected':'')+'>'+o[1]+'</option>'; }).join('');
           var inp = 'width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;margin-bottom:12px;background:#fff;color:#0f172a';
+          var lab = 'font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px';
           ov.innerHTML = '<div style="max-width:460px;margin:28px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4)">'
             + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
-            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifiez le nom et le secteur, puis enregistrez.</div>'
-            + '<label style="font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px">Nom de l\'établissement</label>'
-            + '<input id="mc_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
-            + '<label style="font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px">Secteur d\'activité</label>'
-            + '<select id="mc_secteur" style="' + inp + '">' + opts + '</select>'
-            + '<div style="font-size:11px;color:#94a3b8;margin:-4px 0 12px">Pour le mot de passe : le client utilise « Mot de passe oublié » (réinitialisation sécurisée).</div>'
+            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifiez les informations puis enregistrez.</div>'
+            + '<label style="'+lab+'">Nom de l\'établissement</label><input id="mc_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
+            + '<label style="'+lab+'">Secteur d\'activité</label><select id="mc_secteur" style="' + inp + '">' + opts + '</select>'
+            + '<label style="'+lab+'">Responsable</label><input id="mc_resp" value="' + escapeHtml(r.responsable || '') + '" style="' + inp + '">'
+            + '<label style="'+lab+'">Email</label><input id="mc_email" type="email" value="' + escapeHtml(r.email || '') + '" style="' + inp + '">'
+            + '<label style="'+lab+'">Téléphone</label><input id="mc_tel" type="tel" value="' + escapeHtml(r.telephone || '') + '" style="' + inp + '">'
+            + '<div style="font-size:11px;color:#94a3b8;margin:-4px 0 12px">Mot de passe : le client utilise « Mot de passe oublié » (réinitialisation sécurisée).</div>'
             + '<div style="display:flex;gap:8px"><button onclick="sauverModifClient(\'' + escapeHtml(code) + '\')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif">💾 Enregistrer</button>'
             + '<button onclick="document.getElementById(\'modifClientOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer;font-family:Outfit,sans-serif">Annuler</button></div>'
             + '</div>';
@@ -21472,14 +21475,12 @@ function testEffacerDonnees() {
         if (!window._supabase) return;
         var nom = ((document.getElementById('mc_nom') || {}).value || '').trim();
         var sect = (document.getElementById('mc_secteur') || {}).value || 'resto';
+        var resp = ((document.getElementById('mc_resp') || {}).value || '').trim();
+        var email = ((document.getElementById('mc_email') || {}).value || '').trim();
+        var tel = ((document.getElementById('mc_tel') || {}).value || '').trim();
         if (!nom) { alert('Le nom ne peut pas être vide.'); return; }
-        window._supabase.from('etablissements').update({ nom: nom, secteur: sect }).eq('code_acces', code).then(function(u){
-          if (u.error) { alert('Erreur modification : ' + u.error.message); return; }
-          window._supabase.from('comptes_clients').update({ etablissement: nom }).eq('code_acces', code).then(function(){});
-          window._supabase.from('historique_admin').insert([{
-            action: 'Modification client', code_concerne: code,
-            motif: 'Nom : ' + nom + ' — secteur : ' + sect
-          }]).then(function(){});
+        window._supabase.rpc('admin_update_client', { p_pwd: _adminPwd, p_code: code, p_nom: nom, p_secteur: sect, p_email: email, p_tel: tel, p_resp: resp }).then(function(u){
+          if (u.error || !u.data || u.data.ok !== true) { alert('Erreur modification : ' + ((u.error && u.error.message) || 'opération refusée')); return; }
           var ov = document.getElementById('modifClientOverlay'); if (ov) ov.remove();
           alert('✅ Client modifié.');
           loadAdminClients();
