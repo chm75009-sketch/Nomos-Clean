@@ -18,29 +18,31 @@
 
 → **La fuite de données personnelles des 2 rapports est FERMÉE.**
 
-## 🟡 À FAIRE — `controles_haccp` (session dédiée)
+## ✅ FAIT — `controles_haccp` VERROUILLÉE (RLS actif)
 
-**État actuel : RLS DÉSACTIVÉ** (volontairement). Protégé en attendant par le **scellement SHA-256** (colonne `seal`, trigger `haccp_seal`) → toute falsification est détectable.
+**État : RLS ACTIVÉ et fonctionnel.** Chaque vrai compte ne voit/écrit que SES contrôles.
 
-**Déjà préparé (en place, mais inerte tant que RLS off) :**
-- `sync_auth_login(p_code, p_pwd, p_estid)` : synchronise le compte Supabase Auth (mot de passe + `app_metadata` avec `establishment_id` ET `code`) à chaque connexion. Appelée par `login_etab`.
-- Policies `ch_select/ch_insert/ch_update` réécrites en **cloisonnement par CODE** : `upper(code_client) = upper(jwt.app_metadata.code)` (le code est présent sur les 279 contrôles, contrairement à `establishment_id` qui ne l'est que sur 18).
+**Mécanique en place :**
+- `sync_auth_login(p_code, p_pwd, p_estid, p_etabid)` : à **chaque connexion réussie**, `login_etab` l'appelle pour synchroniser le compte Supabase Auth (mot de passe haché + `app_metadata` avec `establishment_id`, `etab_id` = `etablissements.id`, et `code`). → tout compte (présent ou futur) obtient un JWT valide à sa connexion, **automatiquement**.
+- Le frontend (`_ouvrirSessionAuth`) ouvre la session Auth après `login_etab` → le JWT (porteur de `etab_id`) sert de bearer pour les lectures/écritures de contrôles.
+- Policies RLS (cloisonnement par **ID interne**, qui est ce que contient réellement `code_client` pour les vrais comptes) :
+  ```sql
+  using/with check ( code_client = (auth.jwt() -> 'app_metadata' ->> 'etab_id')
+                     OR code_client like 'local-%' )
+  ```
+  → un vrai client ne voit que ses contrôles ; les contrôles démo `local-…` (non sensibles, ex. RTH75) restent accessibles pour ne pas casser les comptes de test.
 
-**Pourquoi pas activé :**
-1. **L'équipe est stockée DANS `controles_haccp`** (ligne spéciale, colonne `contenu.equipe`). Activer le RLS bloque sa lecture pour tout compte sans JWT → équipe perdue + plus de nom proposé.
-2. **Comptes démo locaux** (ex. `RTH75`, `CODES_LOCAUX`) : MODE_LOCAL, ne passent pas par `login_etab` → jamais de JWT → bloqués par le RLS.
-3. Il faut **reconnecter tous les clients** une fois (pour obtenir leur JWT à jour).
+**Points clés appris :**
+- `code_client` des vrais comptes = `etablissements.id` (UUID), PAS le code_acces ni `establishment_id`.
+- 238/279 contrôles étaient des démos `local-RTH75/RTH3` → laissés ouverts (non sensibles).
+- L'équipe est stockée DANS `controles_haccp` (`module='__equipe_registre__'`, `code_client=ETAB_ID`) → couverte par la même règle, donc OK pour les vrais comptes et les démos.
 
-**Plan pour finir :**
-1. Sortir l'**équipe** dans sa propre table (ou un accès dédié non soumis au RLS controls), pour ne pas la bloquer.
-2. Décider du sort des **comptes démo locaux** (les exclure de la synchro cloud, ou leur donner un accès).
-3. Fenêtre de bascule : faire reconnecter les clients, puis `alter table public.controles_haccp enable row level security;`
-4. Tester : un vrai compte (avec Auth) voit/écrit SES contrôles, pas ceux des autres.
-
-**Rollback de secours** (si réactivé et que ça casse) :
+**Rollback de secours** (si jamais un souci) :
 ```sql
 alter table public.controles_haccp disable row level security;
 ```
+
+→ **Les 5 tables sont désormais verrouillées. Audit entièrement traité côté fuite de données.**
 
 ## ⏭️ Secondaire (rapport audit, plus tard)
 - Retirer les comptes test en clair du code (`RTH75`/`826700` dans `CODES_LOCAUX`).
