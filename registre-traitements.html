@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Registre des traitements (RGPD) — HACCP Pro</title>
+<meta name="description" content="Registre des activités de traitement (article 30 RGPD) — HACCP Pro, édité par RTH NETGOCE.">
+<!-- 3.1 — Anti-clickjacking (GitHub Pages ne permet pas l'en-tête X-Frame-Options : protection par script) -->
+<script>if (self !== top) { try { top.location = self.location; } catch(e) { document.documentElement.style.display='none'; } }</script>
+<style>
+  body{margin:0;background:#f8fafc;color:#1e293b;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.6}
+  .wrap{max-width:900px;margin:0 auto;padding:28px 18px 60px}
+  h2{font-size:19px;color:#0f172a;margin:0 0 10px}
+  h3{font-size:15px;margin:24px 0 8px;color:#0f172a}
+  p,li,td,th{color:#475569;font-size:13px}
+  a{color:#4338ca}
+  .top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px}
+  .nav a{display:inline-block;background:#eef2ff;color:#4338ca;text-decoration:none;padding:7px 12px;border-radius:9px;font-size:12px;font-weight:700;margin-right:6px;margin-bottom:4px}
+  table{border-collapse:collapse;width:100%;margin:8px 0 4px;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  th{background:#eef2ff;color:#3730a3;text-align:left;padding:8px 10px;font-size:12px;width:32%;vertical-align:top}
+  td{padding:8px 10px;border-top:1px solid #eef2f7;vertical-align:top}
+  .maj{font-size:11px;color:#94a3b8;margin-top:28px}
+  .intro{background:#fff;border:1px solid #e2e8f0;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <a href="accueil.html" style="text-decoration:none;color:#4338ca;font-weight:700;font-size:13px">← Retour</a>
+      <div class="nav"><a href="mentions.html">Mentions légales</a><a href="politique-confidentialite.html">Confidentialité</a><a href="cgv.html">CGV</a><a href="cgu.html">CGU</a></div>
+    </div>
+
+    <h2>Registre des activités de traitement</h2>
+    <div class="intro">
+      <p style="margin:0">Établi conformément à l'<strong>article 30 du RGPD</strong>. Dernière mise à jour : 21/06/2026.</p>
+    </div>
+
+    <h3>Responsable de traitement</h3>
+    <table>
+      <tr><th>Organisme</th><td>RTH NETGOCE — SARL, 49 rue de Douai, 75009 Paris</td></tr>
+      <tr><th>Représentant / publication</th><td>Léa Chikhaoui-Auguste</td></tr>
+      <tr><th>Contact (données personnelles)</th><td>r.t.h@orange.fr — 06 61 47 61 65</td></tr>
+      <tr><th>Délégué à la protection des données (DPO)</th><td>Non désigné (non obligatoire au regard de l'activité). Contact RGPD : r.t.h@orange.fr</td></tr>
+    </table>
+
+    <h3>Traitement n°1 — Gestion des comptes et abonnements clients</h3>
+    <table>
+      <tr><th>Finalité</th><td>Créer et gérer les comptes, l'accès au service et le suivi des abonnements.</td></tr>
+      <tr><th>Base légale</th><td>Exécution du contrat (art. 6.1.b RGPD).</td></tr>
+      <tr><th>Personnes concernées</th><td>Clients professionnels (exploitants, responsables d'établissement).</td></tr>
+      <tr><th>Catégories de données</th><td>Nom de l'établissement, SIRET, adresse, e-mail, téléphone, identifiant de compte, code d'accès (haché), consentement RGPD horodaté.</td></tr>
+      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitant d'hébergement (Supabase).</td></tr>
+      <tr><th>Transferts hors UE</th><td>Données hébergées dans l'UE (Supabase / AWS Irlande). Aucun transfert des données de compte hors UE.</td></tr>
+      <tr><th>Durée de conservation</th><td>Durée de la relation contractuelle, puis jusqu'à 3 ans (preuve / obligations légales).</td></tr>
+      <tr><th>Mesures de sécurité</th><td>HTTPS, Row Level Security, mots de passe hachés (bcrypt), accès admin protégé par secret en coffre-fort (Vault).</td></tr>
+    </table>
+
+    <h3>Traitement n°2 — Service d'autocontrôle HACCP</h3>
+    <table>
+      <tr><th>Finalité</th><td>Permettre la saisie, la conservation et l'édition des contrôles d'hygiène et de leurs preuves (PDF DDPP).</td></tr>
+      <tr><th>Base légale</th><td>Exécution du contrat (art. 6.1.b) ; appui à l'obligation légale de traçabilité sanitaire du client (Paquet Hygiène, CE 852/2004, arrêté du 21/12/2009).</td></tr>
+      <tr><th>Personnes concernées</th><td>Salariés et membres d'équipe du client habilités à réaliser/signer les contrôles.</td></tr>
+      <tr><th>Catégories de données</th><td>Relevés de température, non-conformités, actions correctives, nom du signataire, signature manuscrite numérisée, noms et fonctions de l'équipe, photos de traçabilité (bons de livraison, étiquettes, nuisibles…).</td></tr>
+      <tr><th>Destinataires</th><td>Le client (cloisonnement strict par établissement) ; sous-traitant d'hébergement (Supabase). RTH NETGOCE n'exploite pas ces données.</td></tr>
+      <tr><th>Transferts hors UE</th><td>Aucun. Relevés et photos hébergés exclusivement dans l'UE (AWS Irlande).</td></tr>
+      <tr><th>Durée de conservation</th><td>Pendant l'abonnement ; photos supprimées automatiquement au-delà de 18 mois. Le client est responsable de l'export et de la conservation de ses preuves.</td></tr>
+      <tr><th>Mesures de sécurité</th><td>Cloisonnement par établissement (RLS, JWT), HTTPS, stockage local chiffré par le navigateur pour le mode hors-ligne.</td></tr>
+    </table>
+
+    <h3>Traitement n°3 — Demandes d'inscription et relation commerciale</h3>
+    <table>
+      <tr><th>Finalité</th><td>Traiter les demandes d'inscription/d'essai et répondre aux prospects.</td></tr>
+      <tr><th>Base légale</th><td>Mesures précontractuelles à la demande de la personne (art. 6.1.b) ; intérêt légitime (art. 6.1.f) pour le suivi commercial.</td></tr>
+      <tr><th>Personnes concernées</th><td>Prospects professionnels.</td></tr>
+      <tr><th>Catégories de données</th><td>Responsable, établissement, secteur, e-mail, téléphone, adresse, SIRET, effectif, message.</td></tr>
+      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase (stockage) et EmailJS (envoi des e-mails).</td></tr>
+      <tr><th>Transferts hors UE</th><td>EmailJS (États-Unis) pour l'acheminement des e-mails, encadré par garanties appropriées (CCT / Data Privacy Framework).</td></tr>
+      <tr><th>Durée de conservation</th><td>3 ans à compter du dernier contact en l'absence de souscription.</td></tr>
+      <tr><th>Mesures de sécurité</th><td>Table en écriture seule via l'API publique (insertion uniquement), lecture réservée à l'admin via fonctions sécurisées.</td></tr>
+    </table>
+
+    <h3>Traitement n°4 — Support, notifications et sécurité</h3>
+    <table>
+      <tr><th>Finalité</th><td>Assurer le support client, l'envoi des e-mails de service (confirmation, code d'accès, mot de passe oublié) et la sécurité du service.</td></tr>
+      <tr><th>Base légale</th><td>Exécution du contrat (art. 6.1.b) ; intérêt légitime (art. 6.1.f) pour la sécurité.</td></tr>
+      <tr><th>Personnes concernées</th><td>Clients et utilisateurs.</td></tr>
+      <tr><th>Catégories de données</th><td>E-mail, identifiant de session, empreinte de connexion (hachée), journaux techniques d'accès.</td></tr>
+      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase et EmailJS.</td></tr>
+      <tr><th>Transferts hors UE</th><td>EmailJS (États-Unis), garanties appropriées.</td></tr>
+      <tr><th>Durée de conservation</th><td>Empreinte de connexion : 7 jours. Journaux techniques : durée limitée définie par l'hébergeur.</td></tr>
+      <tr><th>Mesures de sécurité</th><td>HTTPS, hachage des empreintes, accès restreint.</td></tr>
+    </table>
+
+    <h3>Droits des personnes</h3>
+    <p>Droits d'accès, de rectification, d'effacement, de limitation, d'opposition et de portabilité. Exercice à <strong>r.t.h@orange.fr</strong> (réponse sous 1 mois). Réclamation possible auprès de la CNIL (<a href="https://www.cnil.fr" target="_blank" rel="noopener">www.cnil.fr</a>).</p>
+
+    <p class="maj">RTH NETGOCE — 49 rue de Douai, 75009 Paris — r.t.h@orange.fr · Document interne RGPD à tenir à jour à chaque nouvelle fonctionnalité touchant des données personnelles.</p>
+  </div>
+</body>
+</html>
