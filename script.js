@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v310';
+var APP_BUILD = 'v311';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12351,11 +12351,11 @@ function uploadDoc(previewId) {
       if (file.type.startsWith('image/')) {
         var reader = new FileReader();
         reader.onload = function(ev) {
-          prev.innerHTML = '<img src="' + ev.target.result + '" alt="' + (file.name||'Document') + '" style="width:100%;border-radius:8px;margin-top:6px;max-height:120px;object-fit:cover"/><div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px">✅ ' + file.name + '</div>';
+          prev.innerHTML = '<img src="' + ev.target.result + '" alt="' + _echap(file.name||'Document') + '" style="width:100%;border-radius:8px;margin-top:6px;max-height:120px;object-fit:cover"/><div style="font-size:11px;color:var(--green);font-weight:600;margin-top:4px">✅ ' + file.name + '</div>';
         };
         reader.readAsDataURL(file);
       } else {
-        prev.innerHTML = '<div style="font-size:11px;color:var(--green);font-weight:600;margin-top:6px;padding:8px;background:#f0fdf4;border-radius:8px">✅ PDF joint : ' + file.name + '</div>';
+        prev.innerHTML = '<div style="font-size:11px;color:var(--green);font-weight:600;margin-top:6px;padding:8px;background:#f0fdf4;border-radius:8px">✅ PDF joint : ' + _echap(file.name) + '</div>';
       }
     }
   };
@@ -19215,9 +19215,9 @@ function amSaveDoc(input) {
         var preview = document.getElementById('am_doc_preview');
         if (preview) {
           if (dataURL.startsWith('data:image')) {
-            preview.innerHTML = '<img src="' + dataURL + '" alt="' + (file.name||'Document rapport') + '" style="max-width:100%;max-height:100px;border-radius:6px;margin-top:4px"/>';
+            preview.innerHTML = '<img src="' + dataURL + '" alt="' + _echap(file.name||'Document rapport') + '" style="max-width:100%;max-height:100px;border-radius:6px;margin-top:4px"/>';
           } else {
-            preview.innerHTML = '<div style="background:#f3f4f6;border-radius:6px;padding:8px;font-size:12px;margin-top:4px">📄 ' + file.name + '</div>';
+            preview.innerHTML = '<div style="background:#f3f4f6;border-radius:6px;padding:8px;font-size:12px;margin-top:4px">📄 ' + _echap(file.name) + '</div>';
           }
         }
         // V116 — Range aussi dans la boîte d'attente (cloud)
