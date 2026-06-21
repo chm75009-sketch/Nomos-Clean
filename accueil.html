@@ -19,6 +19,9 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+<!-- Formulaire de démo / RDV : envoi d'email côté client (même service que l'app Audit). -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>try{ emailjs.init({ publicKey: 'EpsrNibYc0mrPUXnR' }); }catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,800;9..144,900&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -189,6 +192,52 @@ if ('serviceWorker' in navigator) {
   /* Apparition douce uniquement si JS actif ; sinon tout reste visible (pas de vide blanc). */
   .js .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
   .js .reveal.in{opacity:1;transform:none}
+
+  /* ── BOUTON DÉMO (navbar + flottant) ── */
+  .nav-btn.demo{background:linear-gradient(135deg,#0f766e,#4338ca);border-color:transparent}
+  .fab-demo{position:fixed;right:16px;bottom:18px;z-index:65;display:inline-flex;align-items:center;gap:8px;
+    background:linear-gradient(135deg,#0f766e,#4338ca);color:#fff;border:none;border-radius:999px;
+    padding:14px 20px;font-family:inherit;font-weight:800;font-size:14.5px;cursor:pointer;
+    box-shadow:0 10px 30px rgba(67,56,202,.4);}
+  .fab-demo:active{transform:scale(.97)}
+  @media(max-width:560px){.fab-demo{padding:13px 17px;font-size:13.5px}}
+
+  /* ── MODALE DÉMO / RDV ── */
+  .rdv-overlay{position:fixed;inset:0;background:rgba(4,6,12,.66);backdrop-filter:blur(3px);
+    opacity:0;visibility:hidden;transition:.22s;z-index:90;display:flex;align-items:center;justify-content:center;padding:16px}
+  .rdv-overlay.open{opacity:1;visibility:visible}
+  .rdv{width:min(460px,100%);max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(165deg,#0d1322,#0b0f1a);border:1px solid rgba(255,255,255,.12);
+    border-radius:22px;padding:26px 22px 22px;color:#fff;position:relative;
+    transform:translateY(14px) scale(.98);transition:transform .24s ease;box-shadow:0 30px 80px rgba(0,0,0,.5)}
+  .rdv-overlay.open .rdv{transform:none}
+  .rdv .x{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.1);border:none;color:#fff;
+    width:38px;height:38px;border-radius:11px;font-size:18px;cursor:pointer}
+  .rdv .pre{display:inline-block;background:rgba(52,211,153,.16);border:1px solid rgba(52,211,153,.35);
+    color:#6ee7b7;font-weight:800;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:5px 11px;border-radius:999px;margin-bottom:12px}
+  .rdv h3{font-family:'Fraunces',serif;font-size:25px;font-weight:800;line-height:1.1;margin-bottom:8px}
+  .rdv h3 span{background:linear-gradient(90deg,#34d399,#a78bfa);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rdv .lead{color:rgba(255,255,255,.72);font-size:13.5px;line-height:1.55;margin-bottom:16px}
+  .rdv .f{display:flex;flex-direction:column;gap:10px}
+  .rdv input,.rdv textarea,.rdv select{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);
+    color:#fff;font-family:inherit;font-size:15px;padding:13px 14px;border-radius:12px;outline:none}
+  .rdv input::placeholder,.rdv textarea::placeholder{color:rgba(255,255,255,.45)}
+  .rdv input:focus,.rdv textarea:focus,.rdv select:focus{border-color:#34d399;background:rgba(255,255,255,.09)}
+  .rdv select{appearance:none}
+  .rdv .pref{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .rdv .pref label{display:flex;align-items:center;justify-content:center;gap:7px;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:12px;font-size:13.5px;font-weight:700;cursor:pointer}
+  .rdv .pref input{display:none}
+  .rdv .pref input:checked+span{color:#6ee7b7}
+  .rdv .pref label:has(input:checked){border-color:#34d399;background:rgba(52,211,153,.12)}
+  .rdv .send{margin-top:4px;background:linear-gradient(135deg,#0f766e,#4338ca);color:#fff;border:none;
+    border-radius:13px;padding:15px;font-family:inherit;font-weight:800;font-size:15.5px;cursor:pointer}
+  .rdv .send:disabled{opacity:.6;cursor:default}
+  .rdv .note{margin-top:10px;font-size:11px;color:rgba(255,255,255,.45);line-height:1.5;text-align:center}
+  .rdv .ok{text-align:center;padding:18px 6px}
+  .rdv .ok .big{font-size:46px;margin-bottom:6px}
+  .rdv .ok h4{font-family:'Fraunces',serif;font-size:22px;margin-bottom:8px}
+  .rdv .ok p{color:rgba(255,255,255,.74);font-size:14px;line-height:1.55}
 </style>
 </head>
 <body>
@@ -198,6 +247,7 @@ if ('serviceWorker' in navigator) {
     <div class="row">
       <button class="nav-btn" onclick="history.length>1?history.back():location.href='accueil.html'">← Retour</button>
       <div class="nav-brand">Nomos Clean<small>Hygiène alimentaire</small></div>
+      <button class="nav-btn demo" onclick="openRdv('Navbar')">📅 Démo</button>
       <button class="nav-btn" onclick="openMenu()">☰ Menu</button>
     </div>
   </div>
@@ -214,6 +264,10 @@ if ('serviceWorker' in navigator) {
     <a class="m-pro" href="haccp.html"><span class="mi">⚡</span> HACCP Pro — gérer au quotidien</a>
     <div class="sep"></div>
     <a href="audit/index.html"><span class="mi">🛡️</span> Les deux ensemble</a>
+    <div class="sep"></div>
+    <a href="#" onclick="closeMenu();openRdv('Menu');return false;"><span class="mi">📅</span> Demander une démo / un RDV</a>
+    <a href="#" onclick="closeMenu();openRdv('Menu-contact');return false;"><span class="mi">✉️</span> Être recontacté</a>
+    <a href="#" onclick="closeMenu();installNomos();return false;"><span class="mi">⬇️</span> Installer Nomos (PC / mobile)</a>
     <div class="mfoot">Outils d'aide à la gestion et à la mise en conformité HACCP.</div>
   </nav>
 
@@ -226,6 +280,7 @@ if ('serviceWorker' in navigator) {
       <!-- LE SLOGAN -->
       <p class="formula serif">Deux solutions, un seul objectif :<br><span>votre tranquillité face aux contrôles.</span></p>
       <p class="choice-mini">Utilisez <b>l'une</b>, <b>l'autre</b>, ou <b>les deux</b> — c'est vous qui choisissez.</p>
+      <button class="nav-btn demo" style="margin:6px auto 0;padding:13px 22px;font-size:15px" onclick="openRdv('Hero')">📅 Demander une démo gratuite</button>
 
       <!-- LES 2 SOLUTIONS DÉTAILLÉES, TOUT DE SUITE -->
       <div class="sols" id="solutions">
@@ -303,6 +358,40 @@ if ('serviceWorker' in navigator) {
     Ne remplace pas l'obligation légale de formation ni la mise en place d'un Plan de Maîtrise Sanitaire.
   </footer>
 
+  <!-- ══ BOUTON FLOTTANT DÉMO ══ -->
+  <button class="fab-demo" onclick="openRdv('Flottant')" aria-label="Demander une démo">📅 Demander une démo</button>
+
+  <!-- ══ MODALE DÉMO / RDV (inspiration libre, design & texte Nomos) ══ -->
+  <div class="rdv-overlay" id="rdvOverlay" onclick="if(event.target===this)closeRdv()">
+    <div class="rdv" role="dialog" aria-modal="true" aria-labelledby="rdvTitle">
+      <button class="x" onclick="closeRdv()" aria-label="Fermer">✕</button>
+      <div id="rdvForm">
+        <span class="pre">Démo gratuite · 10 min</span>
+        <h3 id="rdvTitle">Et si on en <span>parlait ?</span></h3>
+        <p class="lead">On vous présente Nomos en direct — relevés, audit et Pack DDPP — et on répond à toutes vos questions. <b>Sur place ou en visio</b>, on s'organise selon vous.</p>
+        <div class="f">
+          <input type="text" id="rdvNom" placeholder="Votre nom / établissement" autocomplete="name">
+          <input type="email" id="rdvEmail" placeholder="Email" autocomplete="email">
+          <input type="tel" id="rdvTel" placeholder="Téléphone" autocomplete="tel">
+          <input type="text" id="rdvCp" placeholder="Code postal" inputmode="numeric" autocomplete="postal-code">
+          <div class="pref">
+            <label><input type="radio" name="rdvPref" value="Sur place" checked><span>📍 Sur place</span></label>
+            <label><input type="radio" name="rdvPref" value="À distance"><span>💻 À distance</span></label>
+          </div>
+          <textarea id="rdvMsg" rows="2" placeholder="Un message ? (facultatif)"></textarea>
+          <button class="send" id="rdvSend" onclick="sendRdv()">Réserver ma démo →</button>
+          <div class="note">Vos coordonnées servent uniquement à vous recontacter. Aucune donnée revendue.</div>
+        </div>
+      </div>
+      <div id="rdvOk" class="ok" style="display:none">
+        <div class="big">✅</div>
+        <h4>C'est noté, merci !</h4>
+        <p>On vous recontacte très vite pour convenir d'un créneau. À tout de suite 👋</p>
+        <button class="send" style="margin-top:16px" onclick="closeRdv()">Fermer</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     function openMenu(){document.getElementById('menu').classList.add('open');document.getElementById('menuOverlay').classList.add('open');document.getElementById('menu').setAttribute('aria-hidden','false');}
     function closeMenu(){document.getElementById('menu').classList.remove('open');document.getElementById('menuOverlay').classList.remove('open');document.getElementById('menu').setAttribute('aria-hidden','true');}
@@ -310,6 +399,84 @@ if ('serviceWorker' in navigator) {
     // Apparition douce une seule fois au chargement — tout finit visible (jamais de vide).
     document.documentElement.classList.add('js');
     requestAnimationFrame(function(){document.querySelectorAll('.reveal').forEach(function(el){el.classList.add('in');});});
+
+    // ── Modale Démo / RDV ──
+    var _rdvSource = '';
+    function openRdv(src){
+      _rdvSource = src || '';
+      document.getElementById('rdvForm').style.display = 'block';
+      document.getElementById('rdvOk').style.display = 'none';
+      document.getElementById('rdvOverlay').classList.add('open');
+      closeMenu();
+    }
+    function closeRdv(){ document.getElementById('rdvOverlay').classList.remove('open'); }
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeRdv();});
+
+    // ── Installation de Nomos (PWA, PC et mobile) ──
+    var _deferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function(e){
+      e.preventDefault();        // on garde la main pour déclencher l'install au bon moment
+      _deferredPrompt = e;
+    });
+    function installNomos(){
+      if(_deferredPrompt){       // Chrome / Edge (PC & Android) : vraie boîte d'installation native
+        _deferredPrompt.prompt();
+        if(_deferredPrompt.userChoice){ _deferredPrompt.userChoice.then(function(){ _deferredPrompt=null; }); }
+        return;
+      }
+      var ua = navigator.userAgent || '';
+      if(/iPhone|iPad|iPod/i.test(ua)){
+        alert("Installer Nomos sur iPhone / iPad :\n\n1. Touchez le bouton Partager (le carré avec une flèche ↑) en bas de Safari.\n2. Choisissez « Sur l'écran d'accueil ».\n3. Validez — l'icône Nomos apparaît sur votre écran d'accueil.");
+      } else {
+        alert("Installer Nomos sur votre PC portable :\n\n• Microsoft Edge : menu ··· (en haut à droite) → Applications → « Installer ce site en tant qu'application ».\n• Google Chrome : menu ⋮ → « Installer l'application… », ou l'icône d'installation (⊞) dans la barre d'adresse.\n\nUne icône Nomos sera créée sur le Bureau et dans le menu Démarrer — elle s'ouvre comme un vrai logiciel.");
+      }
+    }
+
+    function sendRdv(){
+      var nom = (document.getElementById('rdvNom').value||'').trim();
+      var email = (document.getElementById('rdvEmail').value||'').trim();
+      var tel = (document.getElementById('rdvTel').value||'').trim();
+      var cp = (document.getElementById('rdvCp').value||'').trim();
+      var msg = (document.getElementById('rdvMsg').value||'').trim();
+      var prefEl = document.querySelector('input[name="rdvPref"]:checked');
+      var pref = prefEl ? prefEl.value : '';
+      // Validation minimale : un moyen de recontact (tél ou email) + un nom.
+      if(!nom || (!tel && !email)){
+        alert('Merci d\'indiquer au moins votre nom et un téléphone ou un email pour qu\'on puisse vous recontacter.');
+        return;
+      }
+      var btn = document.getElementById('rdvSend');
+      btn.disabled = true; btn.textContent = 'Envoi…';
+      var corps = 'Préférence : ' + pref + '\nCode postal : ' + (cp||'—') + (msg ? ('\nMessage : ' + msg) : '') + '\nDepuis : page d\'accueil Nomos (' + _rdvSource + ')';
+      function done(ok){
+        if(ok){
+          document.getElementById('rdvForm').style.display = 'none';
+          document.getElementById('rdvOk').style.display = 'block';
+        } else {
+          // Repli : ouvrir le client mail pré-rempli pour ne jamais perdre la demande.
+          var sujet = encodeURIComponent('Demande de démo Nomos — ' + nom);
+          var body = encodeURIComponent('Nom : ' + nom + '\nEmail : ' + email + '\nTéléphone : ' + tel + '\n' + corps);
+          window.location.href = 'mailto:r.t.h@orange.fr?subject=' + sujet + '&body=' + body;
+        }
+        btn.disabled = false; btn.textContent = 'Réserver ma démo →';
+      }
+      try{
+        if(typeof emailjs === 'undefined' || !emailjs.send){ done(false); return; }
+        emailjs.send('service_84lz31w','template_ti43bkh',{
+          to_name:'Administrateur Nomos',
+          to_email:'r.t.h@orange.fr',
+          email:'r.t.h@orange.fr',
+          code:'📅 DEMANDE DE DÉMO / RDV',
+          service:corps,
+          business:nom,
+          resp:nom,
+          tel:tel,
+          client_email:email,
+          lien_site:location.href,
+          date:new Date().toLocaleDateString('fr-FR')
+        }).then(function(){ done(true); }, function(err){ console.warn('RDV email KO',err); done(false); });
+      }catch(e){ done(false); }
+    }
   </script>
 
 </body>
