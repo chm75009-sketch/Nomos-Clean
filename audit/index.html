@@ -1023,7 +1023,7 @@ var quizQuestions = [
       var valMsg = getEl('email-validation');
       if (valMsg) {
         var p = valMsg.querySelector('p');
-        if (p) p.innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim() + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
+        if (p) p.innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
       }
     }
 
@@ -1489,10 +1489,10 @@ function _adminCheck(pwd, cb) {
     }).then(function (res) {
       cb(res === true, false);
     }).catch(function () {
-      cb(pwd === getAdminPwd(), true);   // repli local (anti-blocage hors ligne)
+      cb(false, true);   // SECURITE : serveur injoignable = acces admin REFUSE (fail-closed, plus de repli 826700)
     });
   } catch (e) {
-    cb(pwd === getAdminPwd(), true);
+    cb(false, true);
   }
 }
 

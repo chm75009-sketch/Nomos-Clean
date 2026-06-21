@@ -2994,7 +2994,7 @@ function todayFR() {
   return new Date().toLocaleDateString('fr-FR', {day:'2-digit',month:'2-digit',year:'numeric'});
 }
 
-var DEFAULT_ADMIN_PWD = '826700';
+var DEFAULT_ADMIN_PWD = '';  // SECURITE : plus de mot de passe public en clair (validation serveur via Vault)
 var SESSION_KEY  = 'haccp_session';
 var CODES_KEY    = 'haccp_codes';
 var PWD_KEY      = 'haccp_adminpwd';
@@ -3576,7 +3576,7 @@ function toggleFaq(btn) {
       // Mettre à jour le message de validation
       var valMsg = getEl('email-validation');
       if (valMsg) {
-        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim() + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
+        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
       }
     }, function(error) {
       // Erreur d'envoi
@@ -4080,10 +4080,10 @@ function _adminCheck(pwd, cb) {
     }).then(function (res) {
       cb(res === true, false);
     }).catch(function () {
-      cb(pwd === getAdminPwd(), true);   // repli local (anti-blocage hors ligne)
+      cb(false, true);   // SECURITE : serveur injoignable = acces admin REFUSE (fail-closed, plus de repli 826700)
     });
   } catch (e) {
-    cb(pwd === getAdminPwd(), true);
+    cb(false, true);
   }
 }
 

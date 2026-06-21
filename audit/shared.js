@@ -7,7 +7,7 @@ var SESSION_KEY  = 'haccp_session';
 var CODES_KEY    = 'haccp_codes';
 var PWD_KEY      = 'haccp_adminpwd';
 var DEMANDES_KEY = 'haccp_demandes';
-var DEFAULT_ADMIN_PWD = '826700';
+var DEFAULT_ADMIN_PWD = '';  // SECURITE : plus de mot de passe public en clair (validation serveur via Vault)
 var DOC_AUTH_KEY = 'haccp_doc_auths';
 var ADMIN_EMAIL_KEY = 'haccp_admin_email';
 
