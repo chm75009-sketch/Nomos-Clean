@@ -25286,27 +25286,7 @@ function _sqEtabKey() {
 var _sqDownloadFait = false;
 function telechargerSauvegardeComplete() {
   try {
-    var data = {};
-    for (var i = 0; i < localStorage.length; i++) {
-      var k = localStorage.key(i);
-      if (!k) continue;
-      if (k.indexOf('haccp_module_data_') === 0
-          || k.indexOf('haccp_brouillon_') === 0
-          || k.indexOf('haccp_nuis_docs_') === 0
-          || k.indexOf('haccp_insp_') === 0
-          || k.indexOf('haccp_equipe') === 0
-          || k.indexOf('haccp_secteur_actif_') === 0) {
-        data[k] = localStorage.getItem(k);
-      }
-    }
-    var paquet = {
-      app: 'HACCP Pro', type: 'sauvegarde-controles',
-      version: (typeof APP_BUILD !== 'undefined' ? APP_BUILD : ''),
-      etab_id: _sqEtabKey(),
-      etab_nom: (typeof ETAB !== 'undefined' && ETAB && ETAB.nom) ? ETAB.nom : '',
-      date: new Date().toISOString(), data: data
-    };
-    var blob = new Blob([JSON.stringify(paquet)], { type: 'application/json' });
+    var blob = new Blob([JSON.stringify(_sqPaquet())], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
     var a = document.createElement('a');
     a.href = url;
@@ -25360,7 +25340,8 @@ function _ouvrirModalSauvegardeQuot() {
     + '<h2 style="font-size:18px;color:#0f172a;text-align:center;margin:8px 0 6px">Sauvegarde quotidienne</h2>'
     + '<p style="font-size:13px;color:#475569;text-align:center;margin:0 0 16px;line-height:1.5">Avant de commencer la journée, enregistrez vos contrôles sur votre appareil. <strong>Vos contrôles sont vos documents réglementaires : leur sauvegarde est votre responsabilité.</strong></p>'
     + '<button onclick="_sqTelechargerPDF()" style="width:100%;background:#4338ca;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">📄 Télécharger le Pack DDPP (PDF) <span id="sq_pdf_ok" style="display:none">✅</span></button>'
-    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">💾 Télécharger ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">💾 Télécharger ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + (_sqFsSupporte() ? '<button onclick="choisirDossierSauvegarde()" style="width:100%;background:#0f766e;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">📁 Sauvegarder automatiquement dans un dossier <span id="sq_dossier_ok" style="display:none">✅</span></button>' : '')
     + '<button id="sqBtnTermine" onclick="_sqFermer(true)" disabled style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:not-allowed;opacity:.5;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
     + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();_sqFermer(true)" style="font-size:11px;color:#94a3b8;text-decoration:underline">Je l\'ai déjà fait / Plus tard</a></div>'
     + '</div>';
@@ -25396,18 +25377,191 @@ function _sqStatuer(eid) {
 }
 function verifierSauvegardeQuotidienne() {
   try {
-    // Coupe-circuit GLOBAL (tous les clients) — piloté par la constante en haut du fichier.
-    if (typeof SAUVEGARDE_QUOT_ACTIVE !== 'undefined' && SAUVEGARDE_QUOT_ACTIVE === false) return;
     var eid = _sqEtabKey();
     if (eid === 'inconnu' || eid === 'local-test') return;            // pas connecté / mode test pur
-    // On rafraîchit d'abord le réglage par client (cloud), puis on statue.
+    // (1) COPIE INTERNE AUTOMATIQUE (tous appareils) — une fois par jour, invisible,
+    //     indépendante du rappel visuel. Filet de sécurité local (survit aux plantages).
+    try {
+      var snapKey = 'haccp_snap_' + eid;
+      if (lsGet(snapKey) !== _sqDateJour()) { _sqSnapshotInterne(); try { lsSet(snapKey, _sqDateJour()); } catch(e2){} }
+    } catch(eSnap){}
+    // (2) ÉCRITURE AUTO dans le dossier choisi (ordinateur Chrome/Edge), si configuré.
+    try { _sqAutoDossierQuotidien(); } catch(eDir){}
+    // (3) RAPPEL VISUEL (fenêtre) — soumis au coupe-circuit global + au réglage par client.
+    if (typeof SAUVEGARDE_QUOT_ACTIVE !== 'undefined' && SAUVEGARDE_QUOT_ACTIVE === false) return;
     _sqChargerFlagClient(function(){ _sqStatuer(eid); });
   } catch(e) { /* silencieux : ne jamais bloquer l'app */ }
 }
+// ── Fabrication du paquet de sauvegarde (partagé : téléchargement, copie interne, dossier) ──
+function _sqCollecterData() {
+  var data = {};
+  try {
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.indexOf('haccp_module_data_') === 0
+          || k.indexOf('haccp_brouillon_') === 0
+          || k.indexOf('haccp_nuis_docs_') === 0
+          || k.indexOf('haccp_insp_') === 0
+          || k.indexOf('haccp_equipe') === 0
+          || k.indexOf('haccp_secteur_actif_') === 0) {
+        data[k] = localStorage.getItem(k);
+      }
+    }
+  } catch(e){}
+  return data;
+}
+function _sqPaquet() {
+  return {
+    app: 'HACCP Pro', type: 'sauvegarde-controles',
+    version: (typeof APP_BUILD !== 'undefined' ? APP_BUILD : ''),
+    etab_id: _sqEtabKey(),
+    etab_nom: (typeof ETAB !== 'undefined' && ETAB && ETAB.nom) ? ETAB.nom : '',
+    date: new Date().toISOString(), data: _sqCollecterData()
+  };
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  COPIE DE SECOURS INTERNE (IndexedDB) — automatique, sur TOUS les appareils.
+//  Conserve les 7 derniers instantanés quotidiens. Invisible pour le client ;
+//  sert de filet en cas de plantage. (Reste local : un effacement des données du
+//  navigateur l'efface aussi → d'où l'intérêt du fichier téléchargé en plus.)
+// ════════════════════════════════════════════════════════════════════════════
+var _SQ_DB_NAME = 'HACCPBackupDB';
+function _sqOpenDB() {
+  return new Promise(function(resolve, reject){
+    try {
+      if (!window.indexedDB) { reject(new Error('indexedDB indisponible')); return; }
+      var req = indexedDB.open(_SQ_DB_NAME, 1);
+      req.onupgradeneeded = function(e){
+        var db = e.target.result;
+        if (!db.objectStoreNames.contains('snapshots')) db.createObjectStore('snapshots', { keyPath: 'jour' });
+        if (!db.objectStoreNames.contains('config')) db.createObjectStore('config', { keyPath: 'cle' });
+      };
+      req.onsuccess = function(e){ resolve(e.target.result); };
+      req.onerror = function(){ reject(req.error); };
+    } catch(e){ reject(e); }
+  });
+}
+function _sqSnapshotInterne() {
+  return _sqOpenDB().then(function(db){
+    return new Promise(function(resolve){
+      try {
+        var paquet = _sqPaquet();
+        paquet.jour = _sqDateJour();
+        var tx = db.transaction('snapshots', 'readwrite');
+        var st = tx.objectStore('snapshots');
+        st.put(paquet);
+        var allKeys = st.getAllKeys();
+        allKeys.onsuccess = function(){
+          try {
+            var keys = (allKeys.result || []).slice().sort();
+            while (keys.length > 7) { st.delete(keys.shift()); }
+          } catch(e){}
+        };
+        tx.oncomplete = function(){ resolve(true); };
+        tx.onerror = function(){ resolve(false); };
+      } catch(e){ resolve(false); }
+    });
+  }).catch(function(){ return false; });
+}
+function restaurerDepuisCopieInterne() {
+  _sqOpenDB().then(function(db){
+    var tx = db.transaction('snapshots', 'readonly');
+    var all = tx.objectStore('snapshots').getAll();
+    all.onsuccess = function(){
+      var snaps = (all.result || []).slice().sort(function(a,b){ return a.jour < b.jour ? 1 : -1; });
+      if (!snaps.length) { alert('Aucune copie de secours interne disponible sur cet appareil.'); return; }
+      var s = snaps[0];
+      if (!confirm('Restaurer la copie de secours interne du ' + s.jour + ' ?\nLes contrôles actuels de cet appareil seront remplacés.')) return;
+      try { Object.keys(s.data || {}).forEach(function(k){ localStorage.setItem(k, s.data[k]); }); } catch(e){}
+      alert('Copie restaurée. L\'application va se recharger.');
+      location.reload();
+    };
+    all.onerror = function(){ alert('Copie de secours illisible.'); };
+  }).catch(function(){ alert('Copie de secours indisponible sur cet appareil.'); });
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SAUVEGARDE AUTO DANS UN DOSSIER (File System Access API) — ordinateur seulement
+//  (Chrome / Edge). Le client choisit un dossier une fois ; l'app y écrit ensuite
+//  le fichier .json automatiquement chaque jour. Non disponible sur iPhone/iPad.
+// ════════════════════════════════════════════════════════════════════════════
+function _sqFsSupporte() { try { return (typeof window !== 'undefined') && typeof window.showDirectoryPicker === 'function'; } catch(e){ return false; } }
+function _sqStoreDirHandle(handle) {
+  return _sqOpenDB().then(function(db){
+    return new Promise(function(resolve){
+      try { var tx = db.transaction('config','readwrite'); tx.objectStore('config').put({ cle: 'dirHandle', handle: handle });
+        tx.oncomplete = function(){ resolve(true); }; tx.onerror = function(){ resolve(false); };
+      } catch(e){ resolve(false); }
+    });
+  }).catch(function(){ return false; });
+}
+function _sqGetDirHandle() {
+  return _sqOpenDB().then(function(db){
+    return new Promise(function(resolve){
+      try { var r = db.transaction('config','readonly').objectStore('config').get('dirHandle');
+        r.onsuccess = function(){ resolve(r.result ? r.result.handle : null); }; r.onerror = function(){ resolve(null); };
+      } catch(e){ resolve(null); }
+    });
+  }).catch(function(){ return null; });
+}
+function _sqEcrireDansDossier(handle) {
+  return new Promise(function(resolve){
+    try {
+      if (!handle) { resolve(false); return; }
+      var q = handle.queryPermission ? handle.queryPermission({ mode: 'readwrite' }) : Promise.resolve('granted');
+      Promise.resolve(q).then(function(p){
+        if (p === 'granted') return 'granted';
+        if (handle.requestPermission) return handle.requestPermission({ mode: 'readwrite' });
+        return 'denied';
+      }).then(function(p){
+        if (p !== 'granted') { resolve(false); return; }
+        var nom = 'sauvegarde-haccp-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour() + '.json';
+        handle.getFileHandle(nom, { create: true }).then(function(fh){
+          return fh.createWritable().then(function(w){
+            return Promise.resolve(w.write(JSON.stringify(_sqPaquet()))).then(function(){ return w.close(); });
+          });
+        }).then(function(){ resolve(true); }, function(){ resolve(false); });
+      }, function(){ resolve(false); });
+    } catch(e){ resolve(false); }
+  });
+}
+function choisirDossierSauvegarde() {
+  if (!_sqFsSupporte()) { alert('Cette fonction n\'est disponible que sur ordinateur (Chrome ou Edge).'); return; }
+  try {
+    window.showDirectoryPicker({ mode: 'readwrite' }).then(function(handle){
+      _sqStoreDirHandle(handle).then(function(){
+        _sqEcrireDansDossier(handle).then(function(ok){
+          try { var t = document.getElementById('sq_dossier_ok'); if (t) t.style.display = 'inline'; } catch(e){}
+          _sqMarquerTelecharge('json');
+          alert(ok
+            ? '✅ Dossier enregistré.\nVos contrôles y seront copiés automatiquement chaque jour, à la première ouverture.'
+            : 'Dossier enregistré, mais l\'écriture du fichier a échoué. Réessayez.');
+        });
+      });
+    }, function(){ /* annulé par l'utilisateur */ });
+  } catch(e){ console.warn('choisirDossierSauvegarde:', e); }
+}
+// Écriture auto quotidienne dans le dossier déjà choisi (silencieuse si la permission
+// est encore accordée ; sinon on attendra le prochain clic du client sur le bouton).
+function _sqAutoDossierQuotidien() {
+  try {
+    if (!_sqFsSupporte()) return;
+    _sqGetDirHandle().then(function(handle){
+      if (!handle) return;
+      var q = handle.queryPermission ? handle.queryPermission({ mode: 'readwrite' }) : Promise.resolve('granted');
+      Promise.resolve(q).then(function(p){ if (p === 'granted') _sqEcrireDansDossier(handle); });
+    });
+  } catch(e){}
+}
+
 try { if (typeof window !== 'undefined') {
   window.verifierSauvegardeQuotidienne = verifierSauvegardeQuotidienne;
   window.telechargerSauvegardeComplete = telechargerSauvegardeComplete;
   window.restaurerSauvegardeFichier = restaurerSauvegardeFichier;
+  window.restaurerDepuisCopieInterne = restaurerDepuisCopieInterne;
+  window.choisirDossierSauvegarde = choisirDossierSauvegarde;
   window._sqTelechargerPDF = _sqTelechargerPDF;
   window._sqTelechargerJSON = _sqTelechargerJSON;
   window._sqFermer = _sqFermer;
