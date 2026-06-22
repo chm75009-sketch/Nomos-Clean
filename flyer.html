@@ -6,62 +6,81 @@
 <title>Nomos — Flyer A5 (HACCP Pro + Clean Food)</title>
 <style>
   :root{
-    --navy:#211d4e; --navy2:#191641; --gold:#c9a84c; --gold2:#e8c97a;
-    --green:#2e9e7d; --green2:#268068; --ink:#1f2533; --muted:#8a8f9c; --line:#ececf3;
+    --navy:#1c1948; --navy2:#15123a; --glow:#2b2566;
+    --gold:#c9a84c; --gold2:#e8c97a; --green:#2e9e7d; --green2:#247a60;
+    --ink:#1c2230; --sub:#5c6273; --muted:#9298a6; --line:#ececf2; --card:#fbfbfd;
   }
   *{box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact;}
-  html,body{margin:0; padding:0; background:#3a3f47;
-    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  html,body{margin:0; padding:0; background:#33373d;
+    font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--ink);}
   .wrap{display:flex; justify-content:center; padding:26px;}
   .page{position:relative; width:148mm; height:210mm; background:#fff; overflow:hidden;
-    box-shadow:0 18px 50px rgba(0,0,0,.45); border-radius:5px; display:flex; flex-direction:column;}
+    box-shadow:0 18px 50px rgba(0,0,0,.45); border-radius:6px; display:flex; flex-direction:column;}
+  .ico{display:inline-block; vertical-align:middle;}
 
   /* ---------- HEADER ---------- */
-  .head{background:radial-gradient(130% 90% at 50% 0%, #2a2560 0%, var(--navy) 55%, var(--navy2) 100%);
-    color:#fff; padding:9mm 12mm 8mm; text-align:center;}
-  .brand{display:flex; align-items:center; justify-content:center; gap:9px; margin-bottom:7px;}
-  .mark{width:26px; height:26px;}
-  .kicker{font-size:11px; letter-spacing:3px; text-transform:uppercase; color:var(--gold2); font-weight:800;}
-  .pretitle{margin:6px 0 0; font-size:14px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:#cfcce6;}
-  .title{margin:3px 0 0; font-size:30px; line-height:1.02; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:#fff;}
-  .subtitle{margin:7px auto 0; font-size:11.5px; line-height:1.4; color:#cfcce6; max-width:92%; font-weight:400;}
+  .head{position:relative; background:radial-gradient(135% 100% at 50% -8%, var(--glow) 0%, var(--navy) 52%, var(--navy2) 100%);
+    color:#fff; padding:8.5mm 11mm 7mm; text-align:center;}
+  .head::after{content:""; position:absolute; left:0; right:0; bottom:0; height:3px;
+    background:linear-gradient(90deg,transparent,var(--gold) 35%,var(--gold2) 50%,var(--gold) 65%,transparent);}
+  .brand{display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:7px;}
+  .brand .wm{font-size:17px; font-weight:800; letter-spacing:3px; color:#fff;}
+  .kick{font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--gold2); font-weight:700;}
+  .pretitle{margin:7px 0 0; font-size:13px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:#c8c6e2;}
+  .title{margin:2px 0 0; font-size:31px; line-height:1.0; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:#fff;}
+  .subtitle{margin:8px auto 0; font-size:11.5px; line-height:1.4; color:#c8c6e2; max-width:90%;}
+  .badges{display:flex; justify-content:center; gap:6px; margin-top:10px; flex-wrap:wrap;}
+  .badge{display:inline-flex; align-items:center; gap:5px; font-size:8.7px; font-weight:700; letter-spacing:.3px;
+    color:var(--gold2); border:1px solid rgba(232,201,122,.45); border-radius:30px; padding:4px 9px;}
+  .badge svg{stroke:var(--gold2);}
+
+  /* ---------- PROOF BAND ---------- */
+  .proof{display:flex; align-items:center; gap:9px; background:#fbf4e2; border-bottom:1px solid #f0e6c9;
+    padding:7px 11mm; color:#6b5618;}
+  .proof svg{stroke:#b9851a; flex:0 0 auto;}
+  .proof p{margin:0; font-size:9.6px; line-height:1.3;}
+  .proof b{color:#3a2e08;}
 
   /* ---------- BODY ---------- */
-  .body{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; padding:7mm 12mm 7mm;}
-  .apps{display:flex; gap:9px; width:100%; margin-bottom:6mm;}
-  .app{flex:1; border:1px solid var(--line); border-radius:11px; padding:9px 10px; display:flex; gap:8px; align-items:flex-start;}
-  .app .ic{font-size:17px; line-height:1;}
-  .app b{display:block; font-size:11px; color:var(--ink); font-weight:800; line-height:1.1;}
-  .app span{display:block; font-size:9.3px; color:var(--muted); margin-top:2px; line-height:1.25;}
+  .body{flex:1 1 auto; display:flex; flex-direction:column; align-items:center; padding:6.5mm 11mm 5mm;}
+  .apps{display:flex; gap:8px; width:100%; margin-bottom:5.5mm;}
+  .app{flex:1; background:var(--card); border:1px solid var(--line); border-radius:11px; padding:9px 9px;}
+  .app .top{display:flex; align-items:center; gap:7px;}
+  .app .bubble{width:26px; height:26px; border-radius:8px; flex:0 0 auto; display:flex; align-items:center; justify-content:center;}
+  .app.h .bubble{background:#eef3ff;} .app.h .bubble svg{stroke:#3a63c4;}
+  .app.c .bubble{background:#e9f7f1;} .app.c .bubble svg{stroke:var(--green2);}
+  .app b{font-size:11.5px; color:var(--ink); font-weight:800;}
+  .app span{display:block; font-size:9px; color:var(--sub); margin-top:5px; line-height:1.32;}
 
-  .qrbox{border:1px solid var(--line); border-radius:16px; padding:12px; text-align:center; box-shadow:0 6px 18px rgba(33,29,78,.06);}
-  .qr{width:130px; height:130px; margin:0 auto;}
+  .qrbox{display:flex; align-items:center; gap:12px; border:1px solid var(--line); background:var(--card);
+    border-radius:14px; padding:11px 13px; width:100%; box-shadow:0 6px 16px rgba(28,25,72,.05);}
+  .qr{width:104px; height:104px; flex:0 0 auto;}
   .qr img{width:100%; height:100%; display:block;}
-  .qrcap{font-size:10px; color:var(--muted); margin-top:9px;}
-
-  .code{display:inline-flex; align-items:center; gap:9px; background:var(--green); color:#fff;
-    font-weight:800; font-size:16px; padding:11px 20px; border-radius:30px; margin:5mm 0 5px;
-    box-shadow:0 8px 18px rgba(46,158,125,.28);}
-  .code .lab{font-weight:600; opacity:.9; font-size:13px;}
+  .qr-x{flex:1;}
+  .qr-x .s{font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); font-weight:700;}
+  .qr-x .b{font-size:13px; font-weight:800; color:var(--ink); line-height:1.2; margin:3px 0 8px;}
+  .code{display:inline-flex; align-items:center; gap:8px; background:var(--green); color:#fff;
+    font-weight:800; font-size:14.5px; padding:9px 15px; border-radius:30px; box-shadow:0 7px 15px rgba(46,158,125,.28);}
+  .code .lab{font-weight:600; opacity:.92; font-size:11.5px;}
   .code .val{letter-spacing:2px;}
-  .hint{font-size:10.5px; color:var(--muted); text-align:center; line-height:1.4;}
-  .hint b{color:var(--ink); font-weight:700;}
+  .qr-x .hint{font-size:8.7px; color:var(--muted); margin-top:7px; line-height:1.35; display:flex; align-items:center; gap:5px;}
+  .qr-x .hint svg{stroke:var(--muted); flex:0 0 auto;}
 
   /* ---------- CONTACTS ---------- */
-  .sep{display:flex; align-items:center; gap:10px; width:100%; margin:auto 0 7px;}
+  .sep{display:flex; align-items:center; gap:10px; width:100%; margin:auto 0 8px;}
   .sep::before,.sep::after{content:""; flex:1; height:1px; background:var(--line);}
-  .sep span{font-size:10px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); font-weight:800;}
-  .contacts{display:flex; width:100%;}
-  .ct{flex:1; text-align:center;}
-  .ct .n{font-size:15px; font-weight:800; color:var(--ink);}
-  .ct .p{font-size:15px; font-weight:800; color:var(--green2); margin-top:2px; letter-spacing:.5px;}
-  .ct .e{font-size:9.5px; color:var(--muted); margin-top:3px; word-break:break-word; line-height:1.2;}
-  .contacts .div{width:1px; background:var(--line); margin:2px 0;}
+  .sep span{font-size:9.5px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); font-weight:800;}
+  .contacts{display:flex; width:100%; align-items:stretch;}
+  .ct{flex:1; text-align:center; padding:0 6px;}
+  .ct .n{font-size:13.5px; font-weight:800; color:var(--ink);}
+  .ct .p{font-size:13.5px; font-weight:800; color:var(--green2); margin-top:2px; letter-spacing:.4px;}
+  .ct .e{font-size:9px; color:var(--muted); margin-top:3px; word-break:break-word; line-height:1.2;}
+  .contacts .div{width:1px; background:var(--line);}
 
-  .foot{background:#fafafb; border-top:1px solid var(--line); padding:6px 12mm; text-align:center;}
-  .foot .d{font-size:7.6px; color:#a6abb6; line-height:1.35;}
+  .foot{background:#fafafb; border-top:1px solid var(--line); padding:5px 11mm; text-align:center;}
+  .foot .d{font-size:7.2px; color:#aab0bb; line-height:1.32;}
 
-  .label{position:absolute; top:6px; left:8px; font-size:9px; color:#cfcfcf; letter-spacing:1px;}
+  .label{position:absolute; top:6px; left:8px; font-size:9px; color:#d6d6d6; letter-spacing:1px;}
   @media print{ html,body{background:#fff;} .wrap{padding:0;} .page{box-shadow:none; border-radius:0;} .label{display:none;} }
   @page{ size:A5; margin:0; }
 </style>
@@ -74,31 +93,57 @@
     <!-- HEADER -->
     <div class="head">
       <div class="brand">
-        <svg class="mark" viewBox="0 0 100 100" fill="none">
-          <circle cx="50" cy="50" r="45" stroke="#e8c97a" stroke-width="4"/>
-          <path d="M31 67 V37 l38 30 V37" stroke="#e8c97a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <svg class="ico" width="22" height="22" viewBox="0 0 100 100" fill="none">
+          <circle cx="50" cy="50" r="45" stroke="#e8c97a" stroke-width="5"/>
+          <path d="M31 67 V37 l38 30 V37" stroke="#e8c97a" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span class="kicker">HACCP Pro · Clean Food — Nomos</span>
+        <span class="wm">NOMOS</span>
       </div>
+      <div class="kick">HACCP Pro · Clean Food</div>
       <div class="pretitle">Hygiène alimentaire — évitez la</div>
       <h1 class="title">Fermeture<br>administrative</h1>
       <p class="subtitle">Prouvez votre conformité à chaque contrôle.</p>
+      <div class="badges">
+        <span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Conforme DDPP</span>
+        <span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6z"/></svg>Hébergé en France</span>
+        <span class="badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Sans engagement</span>
+      </div>
+    </div>
+
+    <!-- PROOF -->
+    <div class="proof">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/><path d="M12 9v4M12 17h.01"/></svg>
+      <p><b>~300 fermetures administratives en 2024</b> (Seine-Saint-Denis, ~3 000 contrôles, +80 vs 2023). Un relevé manquant suffit. <b>Soyez prêt avant l'inspecteur.</b></p>
     </div>
 
     <!-- BODY -->
     <div class="body">
       <div class="apps">
-        <div class="app"><span class="ic">📋</span><div><b>HACCP Pro</b><span>Relevés, traçabilité &amp; Pack DDPP prêt en quelques secondes.</span></div></div>
-        <div class="app"><span class="ic">🛡️</span><div><b>Clean Food</b><span>Audit : passez l'inspection avant l'inspecteur.</span></div></div>
+        <div class="app h">
+          <div class="top">
+            <span class="bubble"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4V3h6v1M9 12l2 2 4-4"/></svg></span>
+            <b>HACCP Pro</b>
+          </div>
+          <span>Relevés &amp; traçabilité au quotidien — <b>Pack DDPP prêt en 30 s</b>, même hors-ligne.</span>
+        </div>
+        <div class="app c">
+          <div class="top">
+            <span class="bubble"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 5.5V11c0 4.4 3 7 7 8.5 4-1.5 7-4.1 7-8.5V5.5z"/><path d="m9 11.5 2 2 4-4"/></svg></span>
+            <b>Clean Food</b>
+          </div>
+          <span>Audit guidé : <b>passez l'inspection avant l'inspecteur</b> et corrigez à temps.</span>
+        </div>
       </div>
 
       <div class="qrbox">
         <div class="qr"><img src="data:image/png;base64,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" alt="QR code application Nomos"></div>
-        <div class="qrcap">Scannez pour accéder à l'application</div>
+        <div class="qr-x">
+          <div class="s">Essai gratuit · 3 jours</div>
+          <div class="b">Scannez &amp; testez sans engagement</div>
+          <div class="code"><span class="lab">Code d'accès :</span><span class="val">HACCP3J</span></div>
+          <div class="hint"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.2"/><path d="M8 6l1.5-2h5L16 6"/></svg> Appareil photo → visez le QR code</div>
+        </div>
       </div>
-
-      <div class="code"><span class="lab">Code d'accès :</span><span class="val">HACCP3J</span></div>
-      <div class="hint">Avec votre téléphone : <b>appareil photo → visez le QR code</b><br>Essai gratuit 3 jours, sans engagement.</div>
 
       <div class="sep"><span>Vos contacts</span></div>
       <div class="contacts">
@@ -110,7 +155,7 @@
 
     <!-- FOOTER -->
     <div class="foot">
-      <div class="d">Outils d'aide à la gestion et à la mise en conformité HACCP — ne remplacent ni l'obligation de formation, ni la mise en place d'un Plan de Maîtrise Sanitaire.</div>
+      <div class="d">Source fermetures : France Bleu / ICI, 2024. Outils d'aide à la gestion et à la mise en conformité HACCP — ne remplacent ni l'obligation de formation, ni la mise en place d'un Plan de Maîtrise Sanitaire.</div>
     </div>
   </section>
 </div>
