@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v324';
+var APP_BUILD = 'v325';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21483,11 +21483,14 @@ function testEffacerDonnees() {
             + '<label style="'+lab+'">Responsable</label><input id="mc_resp" value="' + escapeHtml(r.responsable || '') + '" style="' + inp + '">'
             + '<label style="'+lab+'">Email</label><input id="mc_email" type="email" value="' + escapeHtml(r.email || '') + '" style="' + inp + '">'
             + '<label style="'+lab+'">Téléphone</label><input id="mc_tel" type="tel" value="' + escapeHtml(r.telephone || '') + '" style="' + inp + '">'
+            + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:2px 0 12px;cursor:pointer"><input type="checkbox" id="mc_sauv" ' + (r.sauvegarde_off ? 'checked' : '') + ' style="width:16px;height:16px"> Désactiver la sauvegarde quotidienne pour ce client</label>'
             + '<div style="font-size:11px;color:#94a3b8;margin:-4px 0 12px">Mot de passe : le client utilise « Mot de passe oublié » (réinitialisation sécurisée).</div>'
             + '<div style="display:flex;gap:8px"><button onclick="sauverModifClient(\'' + escapeHtml(code) + '\')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif">💾 Enregistrer</button>'
             + '<button onclick="document.getElementById(\'modifClientOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer;font-family:Outfit,sans-serif">Annuler</button></div>'
             + '</div>';
           document.body.appendChild(ov);
+          // Cale la case « sauvegarde désactivée » sur l'état réel en base.
+          try { if (window._supabase) window._supabase.rpc('get_sauvegarde_off', { p_code: code }).then(function(rr){ try { var cb = document.getElementById('mc_sauv'); if (cb && rr && rr.data === true) cb.checked = true; } catch(e){} }, function(){}); } catch(e){}
         });
       };
       window.sauverModifClient = function(code) {
@@ -21497,9 +21500,12 @@ function testEffacerDonnees() {
         var resp = ((document.getElementById('mc_resp') || {}).value || '').trim();
         var email = ((document.getElementById('mc_email') || {}).value || '').trim();
         var tel = ((document.getElementById('mc_tel') || {}).value || '').trim();
+        var sauvOff = !!((document.getElementById('mc_sauv') || {}).checked);
         if (!nom) { alert('Le nom ne peut pas être vide.'); return; }
         window._supabase.rpc('admin_update_client', { p_pwd: _adminPwd, p_code: code, p_nom: nom, p_secteur: sect, p_email: email, p_tel: tel, p_resp: resp }).then(function(u){
           if (u.error || !u.data || u.data.ok !== true) { alert('Erreur modification : ' + ((u.error && u.error.message) || 'opération refusée')); return; }
+          // Écriture SÉPARÉE du flag « sauvegarde désactivée » (best-effort, par code d'accès).
+          try { window._supabase.from('etablissements').update({ sauvegarde_off: sauvOff }).eq('code_acces', code).then(function(){}, function(){}); } catch(e){}
           var ov = document.getElementById('modifClientOverlay'); if (ov) ov.remove();
           alert('✅ Client modifié.');
           loadAdminClients();
