@@ -34,12 +34,8 @@
   .app span{display:block; font-size:9.3px; color:var(--muted); margin-top:2px; line-height:1.25;}
 
   .qrbox{border:1px solid var(--line); border-radius:16px; padding:14px; text-align:center; box-shadow:0 6px 18px rgba(33,29,78,.06);}
-  .qr{width:128px; height:128px; margin:0 auto; background:
-      linear-gradient(#fff,#fff) padding-box,
-      repeating-conic-gradient(#211d4e 0 25%, #fff 0 50%) border-box;
-      border:0; border-radius:8px; display:flex; align-items:center; justify-content:center;}
-  .qr div{width:118px; height:118px; background:#fff; border-radius:6px; display:flex; align-items:center; justify-content:center;
-      color:#211d4e; font-size:11px; font-weight:800; text-align:center; line-height:1.3; border:1px dashed #c8c5dd;}
+  .qr{width:140px; height:140px; margin:0 auto;}
+  .qr img{width:100%; height:100%; display:block;}
   .qrcap{font-size:10px; color:var(--muted); margin-top:9px;}
 
   .code{display:inline-flex; align-items:center; gap:9px; background:var(--green); color:#fff;
@@ -90,11 +86,11 @@
     <div class="body">
       <div class="apps">
         <div class="app"><span class="ic">📋</span><div><b>HACCP Pro</b><span>Relevés, traçabilité &amp; Pack DDPP prêt en quelques secondes.</span></div></div>
-        <div class="app"><span class="ic">🛡️</span><div><b>Clean Food</b><span>Auto-audit : passez l'inspection avant l'inspecteur.</span></div></div>
+        <div class="app"><span class="ic">🛡️</span><div><b>Clean Food</b><span>Audit : passez l'inspection avant l'inspecteur.</span></div></div>
       </div>
 
       <div class="qrbox">
-        <div class="qr"><div>QR code<br>à insérer</div></div>
+        <div class="qr"><img src="data:image/png;base64,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" alt="QR code application Nomos"></div>
         <div class="qrcap">Scannez pour accéder à l'application</div>
       </div>
 
