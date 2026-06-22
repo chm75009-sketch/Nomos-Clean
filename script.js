@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v333';
+var APP_BUILD = 'v334';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1813,8 +1813,8 @@ try {
 // Anti-fraude : contact obligatoire + plafond d'activations + 1 essai
 // par e-mail. Réutilise etablissements + date_expiration (blocage natif).
 // ══════════════════════════════════════════════════════════════
-var ESSAI_UNIVERSEL_CODE = 'HACCP3J';   // code à imprimer sur le flyer
-var ESSAI_UNIVERSEL_JOURS = 3;          // durée offerte
+var ESSAI_UNIVERSEL_CODE = 'HACCP7J';   // code à imprimer sur le flyer
+var ESSAI_UNIVERSEL_JOURS = 7;          // durée offerte
 var ESSAI_UNIVERSEL_MAX = 500;          // plafond d'activations par défaut (modifiable depuis l'admin)
 
 // Lit l'état de la campagne (actif/suspendu + plafond) depuis le serveur.
@@ -2083,7 +2083,7 @@ async function connexion() {
   var btn = document.getElementById('login_btn');
   if (!code) { errEl.textContent = 'Saisissez votre code d\'accès.'; errEl.style.display='block'; return; }
   // Code universel d'essai (flyer) : pas de mot de passe, on ouvre le formulaire de contact
-  if (code === ESSAI_UNIVERSEL_CODE) { errEl.style.display = 'none'; activerEssaiUniversel(); return; }
+  if (code === ESSAI_UNIVERSEL_CODE || code === 'HACCP3J') { errEl.style.display = 'none'; activerEssaiUniversel(); return; }
   if (!pwd) { errEl.textContent = 'Saisissez votre mot de passe.'; errEl.style.display='block'; return; }
   errEl.style.display = 'none';
   btn.textContent = '⏳ Connexion en cours...'; btn.disabled = true;
