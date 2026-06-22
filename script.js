@@ -84,6 +84,11 @@ var MODE_LOCAL = false;
 // (version simplifiée 3 contrôles « Contrôle RTH »). Renseignée à la connexion.
 var FORMULE_ACTIVE = 'complet';
 var _RTH_MODULES = { reception: 1, temperatures: 1, huiles: 1 };
+// ── SAUVEGARDE QUOTIDIENNE — coupe-circuit GLOBAL (tous les clients) ──
+// Mettre à false pour DÉSACTIVER instantanément la sauvegarde quotidienne pour
+// TOUT LE MONDE (prend effet au prochain chargement de l'app). Le réglage fin,
+// CLIENT PAR CLIENT, se fait depuis l'espace admin (bouton « Modifier » du compte).
+var SAUVEGARDE_QUOT_ACTIVE = true;
 // SEC — jeton de session Supabase Auth (JWT utilisateur). Tant que le RLS n'est pas
 // activé, c'est ADDITIF : l'app continue de marcher avec la clé anon. Une fois posé,
 // il identifie l'établissement côté serveur (cloisonnement).
@@ -2188,6 +2193,8 @@ async function connexion() {
   // en local (ex. marqué « synchronisé » par erreur) vers le cloud, pour qu'il apparaisse
   // sur tous les appareils. Sans risque de doublon (dédup par signature).
   try { if (typeof synchroniserControlesManquants === 'function') setTimeout(function(){ synchroniserControlesManquants(true); }, 3500); } catch(e){}
+  // Sauvegarde quotidienne : invite le client à enregistrer ses contrôles sur son appareil.
+  try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){}
   // V102 — Mettre à jour le bandeau du haut avec les vraies infos client
   try { if (typeof updateTopbarEtab === 'function') updateTopbarEtab(); } catch(e){}
   // Indicateur mode local — V106 : bandeau retiré côté client (visible uniquement en console)
@@ -3793,6 +3800,7 @@ document.getElementById('heroDate').textContent = ds.charAt(0).toUpperCase()+ds.
         if (typeof MODE_LOCAL !== 'undefined' && String(_eid).indexOf('local-') === 0) MODE_LOCAL = true;
         var _expert = (lsGet('haccp_mode') === 'expert');
         showPage(_expert ? 'page-home' : 'page-guide');
+        try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){}
         // Le RESTE dépend de variables/fonctions définies plus loin dans le fichier
         // (INGREDIENTS_*, renderMods, pulls cloud, topbar) : on diffère pour qu'elles
         // soient bien initialisées au moment de l'appel.
@@ -21178,11 +21186,16 @@ function testEffacerDonnees() {
             + '<label style="font-size:12px;color:#334155;font-weight:600">Secteur</label><select id="mod_secteur" style="' + inp + '">' + opts + '</select>'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Mot de passe</label><input id="mod_pwd" value="" placeholder="(laisser vide = inchangé)" style="' + inp + '">'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Date d\'expiration</label><input id="mod_exp" type="date" value="' + (r.date_expiration || '') + '" style="' + inp + '">'
-            + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0 14px;cursor:pointer"><input type="checkbox" id="mod_multi" ' + (r.multi_secteur ? 'checked' : '') + ' style="width:16px;height:16px"> Accès à TOUS les secteurs (compte test)</label>'
+            + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0 10px;cursor:pointer"><input type="checkbox" id="mod_multi" ' + (r.multi_secteur ? 'checked' : '') + ' style="width:16px;height:16px"> Accès à TOUS les secteurs (compte test)</label>'
+            + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0 14px;cursor:pointer"><input type="checkbox" id="mod_sauv" ' + (r.sauvegarde_off ? 'checked' : '') + ' style="width:16px;height:16px"> Désactiver la sauvegarde quotidienne pour ce client</label>'
             + '<div style="display:flex;gap:8px"><button onclick="sauverModifEtab(\'' + id + '\',\'' + escapeHtml(code) + '\')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer">💾 Enregistrer</button>'
             + '<button onclick="document.getElementById(\'modifEtabOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer">Annuler</button></div>'
             + '</div>';
           document.body.appendChild(ov);
+          // Cale la case « sauvegarde désactivée » sur l'état réel en base (au cas où
+          // admin_get_etab ne renvoie pas encore ce champ). Sans effet si la fonction
+          // get_sauvegarde_off n'est pas encore déployée.
+          try { if (window._supabase) window._supabase.rpc('get_sauvegarde_off', { p_code: code }).then(function(rr){ try { var cb = document.getElementById('mod_sauv'); if (cb && rr && rr.data === true) cb.checked = true; } catch(e){} }, function(){}); } catch(e){}
         });
       };
       window.sauverModifEtab = function(id, code) {
@@ -21192,12 +21205,16 @@ function testEffacerDonnees() {
         var pwd = ((document.getElementById('mod_pwd') || {}).value || '').trim();
         var exp = (document.getElementById('mod_exp') || {}).value || '';
         var multi = !!((document.getElementById('mod_multi') || {}).checked);
+        var sauvOff = !!((document.getElementById('mod_sauv') || {}).checked);
         if (!nom) { alert('Le nom ne peut pas être vide.'); return; }
         var patch = { nom: nom, secteur: secteur, multi_secteur: multi };
         if (pwd) patch.mot_de_passe = pwd; // ne touche au mot de passe que si un nouveau est saisi
         if (exp) patch.date_expiration = exp;
         window._supabase.from('etablissements').update(patch).eq('id', id).then(function(res){
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
+          // Écriture SÉPARÉE du flag « sauvegarde désactivée » : best-effort, pour ne pas
+          // faire échouer la modification si la colonne sauvegarde_off n'existe pas encore.
+          try { window._supabase.from('etablissements').update({ sauvegarde_off: sauvOff }).eq('id', id).then(function(){}, function(){}); } catch(e){}
           try { window._supabase.from('historique_admin').insert([{ action: 'Modification compte', code_concerne: code }]).then(function(){}); } catch(e){}
           var ov = document.getElementById('modifEtabOverlay'); if (ov) ov.remove();
           alert('✅ Compte ' + code + ' modifié.');
@@ -25248,3 +25265,150 @@ function _rthModuleAutorise(id) { return !!(_RTH_MODULES && _RTH_MODULES[id]); }
 // Ex. ESSAI-RTH-AB3KP-2026 / CLIENT-RTH-… → 'rth' ; ESSAI-… / RTH75 → 'complet'.
 function _formuleDepuisCode(code) { return /(^|-)RTH(-|$)/i.test(String(code || '')) ? 'rth' : 'complet'; }
 try { if (typeof window !== 'undefined') { window.demarrerRTH = demarrerRTH; window._rthUpsell = _rthUpsell; window._rthAccueil = _rthAccueil; window._rthOuvrir = _rthOuvrir; window._rthValiderEngagement = _rthValiderEngagement; window._rthDemandeUpgrade = _rthDemandeUpgrade; window._rthFermer = _rthFermer; } } catch (e) {}
+
+// ════════════════════════════════════════════════════════════════════════════
+//  SAUVEGARDE QUOTIDIENNE (responsabilité client — cf. CGV art.11 & Politique)
+//  À la 1re ouverture de chaque journée (sauf le tout premier jour d'utilisation),
+//  on invite fermement le client à enregistrer ses contrôles sur son appareil :
+//    • Pack DDPP (PDF réglementaire, avec photos)
+//    • Fichier de sauvegarde complet (.json restaurable)
+//  Fenêtre bloquante avec une petite « sortie de secours ». Tout est défensif :
+//  en cas de souci, on ne bloque JAMAIS l'app.
+// ════════════════════════════════════════════════════════════════════════════
+function _sqDateJour() {
+  var d = new Date();
+  function p(n){ n = String(n); return n.length < 2 ? '0'+n : n; }
+  return d.getFullYear() + '-' + p(d.getMonth()+1) + '-' + p(d.getDate());
+}
+function _sqEtabKey() {
+  try { return String((typeof ETAB_ID !== 'undefined' && ETAB_ID) ? ETAB_ID : 'inconnu'); } catch(e){ return 'inconnu'; }
+}
+var _sqDownloadFait = false;
+function telechargerSauvegardeComplete() {
+  try {
+    var data = {};
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k) continue;
+      if (k.indexOf('haccp_module_data_') === 0
+          || k.indexOf('haccp_brouillon_') === 0
+          || k.indexOf('haccp_nuis_docs_') === 0
+          || k.indexOf('haccp_insp_') === 0
+          || k.indexOf('haccp_equipe') === 0
+          || k.indexOf('haccp_secteur_actif_') === 0) {
+        data[k] = localStorage.getItem(k);
+      }
+    }
+    var paquet = {
+      app: 'HACCP Pro', type: 'sauvegarde-controles',
+      version: (typeof APP_BUILD !== 'undefined' ? APP_BUILD : ''),
+      etab_id: _sqEtabKey(),
+      etab_nom: (typeof ETAB !== 'undefined' && ETAB && ETAB.nom) ? ETAB.nom : '',
+      date: new Date().toISOString(), data: data
+    };
+    var blob = new Blob([JSON.stringify(paquet)], { type: 'application/json' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'sauvegarde-haccp-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour() + '.json';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch(e){} }, 1500);
+    return true;
+  } catch(e) { console.warn('Sauvegarde complète échouée:', e); try { alert('La sauvegarde complète a échoué. Réessayez.'); } catch(e2){} return false; }
+}
+function restaurerSauvegardeFichier(input) {
+  try {
+    var f = input && input.files && input.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(ev){
+      try {
+        var obj = JSON.parse(ev.target.result);
+        if (!obj || !obj.data) { alert('Fichier de sauvegarde invalide.'); return; }
+        if (!confirm('Restaurer cette sauvegarde ? Les contrôles présents sur cet appareil seront remplacés par ceux du fichier.')) return;
+        Object.keys(obj.data).forEach(function(k){ try { localStorage.setItem(k, obj.data[k]); } catch(e){} });
+        alert('Sauvegarde restaurée. L\'application va se recharger.');
+        location.reload();
+      } catch(e) { alert('Impossible de lire ce fichier de sauvegarde.'); }
+    };
+    r.readAsText(f);
+  } catch(e) { console.warn('Restauration échouée:', e); }
+}
+function _sqMarquerTelecharge(quoi) {
+  _sqDownloadFait = true;
+  var done = document.getElementById('sqBtnTermine');
+  if (done) { done.disabled = false; done.style.opacity = '1'; done.style.cursor = 'pointer'; }
+  var tag = document.getElementById('sq_' + quoi + '_ok');
+  if (tag) tag.style.display = 'inline';
+}
+function _sqTelechargerPDF() {
+  try { if (typeof genererPackDDPP === 'function') { genererPackDDPP(); _sqMarquerTelecharge('pdf'); } else { alert('Export PDF indisponible sur cet écran.'); } } catch(e){ console.warn(e); }
+}
+function _sqTelechargerJSON() { if (telechargerSauvegardeComplete()) _sqMarquerTelecharge('json'); }
+function _sqFermer(valide) {
+  var ov = document.getElementById('sqOverlay');
+  if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+  if (valide) { try { lsSet('haccp_last_backup_' + _sqEtabKey(), _sqDateJour()); } catch(e){} }
+}
+function _ouvrirModalSauvegardeQuot() {
+  if (document.getElementById('sqOverlay')) return;
+  var ov = document.createElement('div');
+  ov.id = 'sqOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,.78);display:flex;align-items:center;justify-content:center;padding:18px';
+  ov.innerHTML = '<div style="background:#fff;max-width:440px;width:100%;border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:inherit;box-sizing:border-box">'
+    + '<div style="font-size:30px;text-align:center">🛡️</div>'
+    + '<h2 style="font-size:18px;color:#0f172a;text-align:center;margin:8px 0 6px">Sauvegarde quotidienne</h2>'
+    + '<p style="font-size:13px;color:#475569;text-align:center;margin:0 0 16px;line-height:1.5">Avant de commencer la journée, enregistrez vos contrôles sur votre appareil. <strong>Vos contrôles sont vos documents réglementaires : leur sauvegarde est votre responsabilité.</strong></p>'
+    + '<button onclick="_sqTelechargerPDF()" style="width:100%;background:#4338ca;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">📄 Télécharger le Pack DDPP (PDF) <span id="sq_pdf_ok" style="display:none">✅</span></button>'
+    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">💾 Télécharger ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + '<button id="sqBtnTermine" onclick="_sqFermer(true)" disabled style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:not-allowed;opacity:.5;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
+    + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();_sqFermer(true)" style="font-size:11px;color:#94a3b8;text-decoration:underline">Je l\'ai déjà fait / Plus tard</a></div>'
+    + '</div>';
+  document.body.appendChild(ov);
+}
+// Rafraîchit (en tâche de fond) le flag « sauvegarde désactivée » du client connecté
+// depuis le cloud, via la mini-fonction serveur get_sauvegarde_off. Tolérant aux
+// pannes : si la fonction n'existe pas encore / réseau coupé, on garde la valeur en
+// cache (par défaut : sauvegarde ACTIVE).
+function _sqChargerFlagClient(cb) {
+  try {
+    var eid = _sqEtabKey();
+    var code = lsGet('haccp_last_code');
+    if (!window._supabase || !code) { if (cb) cb(); return; }
+    window._supabase.rpc('get_sauvegarde_off', { p_code: String(code) }).then(function(r){
+      try { if (r && !r.error && (r.data === true || r.data === false)) lsSet('haccp_sauv_off_' + eid, r.data ? '1' : '0'); } catch(e){}
+      if (cb) cb();
+    }, function(){ if (cb) cb(); });
+  } catch(e) { if (cb) cb(); }
+}
+function _sqStatuer(eid) {
+  try {
+    if (lsGet('haccp_sauv_off_' + eid) === '1') return;              // désactivé pour CE client (réglage admin)
+    var jour = _sqDateJour();
+    var firstKey = 'haccp_first_use_' + eid;
+    var first = lsGet(firstKey);
+    if (!first) { try { lsSet(firstKey, jour); } catch(e){} return; } // 1er jour d'utilisation : on n'embête pas
+    if (first === jour) return;                                       // toujours le 1er jour
+    if (lsGet('haccp_last_backup_' + eid) === jour) return;           // déjà sauvegardé aujourd'hui
+    _sqDownloadFait = false;
+    _ouvrirModalSauvegardeQuot();
+  } catch(e) { /* silencieux */ }
+}
+function verifierSauvegardeQuotidienne() {
+  try {
+    // Coupe-circuit GLOBAL (tous les clients) — piloté par la constante en haut du fichier.
+    if (typeof SAUVEGARDE_QUOT_ACTIVE !== 'undefined' && SAUVEGARDE_QUOT_ACTIVE === false) return;
+    var eid = _sqEtabKey();
+    if (eid === 'inconnu' || eid === 'local-test') return;            // pas connecté / mode test pur
+    // On rafraîchit d'abord le réglage par client (cloud), puis on statue.
+    _sqChargerFlagClient(function(){ _sqStatuer(eid); });
+  } catch(e) { /* silencieux : ne jamais bloquer l'app */ }
+}
+try { if (typeof window !== 'undefined') {
+  window.verifierSauvegardeQuotidienne = verifierSauvegardeQuotidienne;
+  window.telechargerSauvegardeComplete = telechargerSauvegardeComplete;
+  window.restaurerSauvegardeFichier = restaurerSauvegardeFichier;
+  window._sqTelechargerPDF = _sqTelechargerPDF;
+  window._sqTelechargerJSON = _sqTelechargerJSON;
+  window._sqFermer = _sqFermer;
+} } catch(e) {}
