@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v325';
+var APP_BUILD = 'v326';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20622,6 +20622,18 @@ function testEffacerDonnees() {
           if (box) box.style.display = 'none';
           if (dash) dash.style.display = 'block';
           try { var av = document.getElementById('adminVersion'); if (av) av.textContent = (typeof APP_BUILD !== 'undefined' ? APP_BUILD : '?'); } catch(e){}
+          // Bouton d'APERÇU : ouvre la fenêtre de sauvegarde telle que la voit le client
+          // (pour vérifier le message sans attendre le lendemain). Injecté une seule fois.
+          try {
+            if (dash && !document.getElementById('btnApercuSauv')) {
+              var _ba = document.createElement('button');
+              _ba.id = 'btnApercuSauv'; _ba.type = 'button';
+              _ba.textContent = '👁️ Aperçu du message de sauvegarde (vue client)';
+              _ba.style.cssText = 'display:block;width:100%;max-width:460px;margin:10px auto 0;background:#0f766e;color:#fff;border:none;border-radius:9px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer';
+              _ba.onclick = function(){ try { if (typeof window._ouvrirModalSauvegardeQuot === 'function') window._ouvrirModalSauvegardeQuot(); } catch(e){} };
+              dash.insertBefore(_ba, dash.firstChild);
+            }
+          } catch(e){}
           try { sessionStorage.setItem('haccp_admin_ok', '1'); } catch(e){}
           setTimeout(function(){ try { _scrollHaut(document.getElementById('adminDashboard')); } catch(e){} }, 60);
           adminTab('demandes');
@@ -25568,6 +25580,7 @@ try { if (typeof window !== 'undefined') {
   window.restaurerSauvegardeFichier = restaurerSauvegardeFichier;
   window.restaurerDepuisCopieInterne = restaurerDepuisCopieInterne;
   window.choisirDossierSauvegarde = choisirDossierSauvegarde;
+  window._ouvrirModalSauvegardeQuot = _ouvrirModalSauvegardeQuot;
   window._sqTelechargerPDF = _sqTelechargerPDF;
   window._sqTelechargerJSON = _sqTelechargerJSON;
   window._sqFermer = _sqFermer;
