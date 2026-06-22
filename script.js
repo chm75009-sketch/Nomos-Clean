@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v326';
+var APP_BUILD = 'v327';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20856,6 +20856,15 @@ function testEffacerDonnees() {
           html += '<button onclick="supprimerSelectionClients()" style="background:rgba(220,38,38,0.15);color:#fca5a5;border:1px solid rgba(220,38,38,0.35);padding:7px 12px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">\ud83d\uddd1\ufe0f Supprimer la s\u00e9lection</button>';
           html += '<button onclick="supprimerTousClients()" style="background:rgba(220,38,38,0.25);color:#fecaca;border:1px solid rgba(220,38,38,0.5);padding:7px 12px;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">\u26a0\ufe0f Tout supprimer</button>';
           html += '</div></div>';
+          // ── Barre SAUVEGARDE QUOTIDIENNE : sélection (sous-ensemble) + tous ──
+          html += '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;background:rgba(15,118,110,0.10);border:1px solid rgba(15,118,110,0.3);border-radius:10px;padding:10px 12px;margin-bottom:12px">';
+          html += '<span style="font-size:12px;font-weight:700;color:rgba(255,255,255,0.75);margin-right:2px">💾 Sauvegarde quotidienne :</span>';
+          html += '<button onclick="sauvegardeSelectionClients(true)" style="background:rgba(245,158,11,0.15);color:#fcd34d;border:1px solid rgba(245,158,11,0.35);padding:7px 12px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🔕 Désactiver la sélection</button>';
+          html += '<button onclick="sauvegardeSelectionClients(false)" style="background:rgba(16,185,129,0.15);color:#6ee7b7;border:1px solid rgba(16,185,129,0.35);padding:7px 12px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🔔 Réactiver la sélection</button>';
+          html += '<span style="width:1px;height:18px;background:rgba(255,255,255,0.18);margin:0 4px"></span>';
+          html += '<button onclick="sauvegardeTousClients(true)" style="background:rgba(220,38,38,0.18);color:#fca5a5;border:1px solid rgba(220,38,38,0.4);padding:7px 12px;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🔴 Désactiver pour TOUS</button>';
+          html += '<button onclick="sauvegardeTousClients(false)" style="background:rgba(16,185,129,0.2);color:#6ee7b7;border:1px solid rgba(16,185,129,0.45);padding:7px 12px;border-radius:7px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🟢 Réactiver pour TOUS</button>';
+          html += '</div>';
           rows.forEach(function(r) {
             var statutColor = r.actif ? '#4ade80' : '#dc2626';
             var statutLabel = r.actif ? '✅ ACTIF' : '⛔ DÉSACTIVÉ';
@@ -21560,6 +21569,34 @@ function testEffacerDonnees() {
       window.toggleTousClients = function(cb) {
         _chkClients().forEach(function(x){ x.checked = cb.checked; });
         majCompteurSelClients();
+      };
+
+      // ── SAUVEGARDE QUOTIDIENNE : désactiver/réactiver pour la SÉLECTION ──
+      window.sauvegardeSelectionClients = function(off) {
+        if (!window._supabase) return;
+        var sel = _chkClients().filter(function(x){ return x.checked; });
+        if (!sel.length) { alert('Aucun client sélectionné.\n\nCochez les clients concernés dans la liste (ou « Tout sélectionner »).'); return; }
+        var codes = sel.map(function(x){ return x.getAttribute('data-code'); }).filter(Boolean);
+        var verbe = off ? 'DÉSACTIVER' : 'RÉACTIVER';
+        if (!confirm(verbe + ' la sauvegarde quotidienne pour ' + codes.length + ' client(s) sélectionné(s) ?')) return;
+        window._supabase.from('etablissements').update({ sauvegarde_off: !!off }).in('code_acces', codes).then(function(res){
+          if (res.error) { alert('Erreur : ' + res.error.message); return; }
+          try { window._supabase.from('historique_admin').insert([{ action: (off ? 'Sauvegarde désactivée' : 'Sauvegarde réactivée') + ' (sélection)', motif: codes.length + ' client(s)' }]).then(function(){}); } catch(e){}
+          alert('✅ Sauvegarde ' + (off ? 'désactivée' : 'réactivée') + ' pour ' + codes.length + ' client(s).');
+        });
+      };
+      // ── SAUVEGARDE QUOTIDIENNE : désactiver/réactiver pour TOUS les clients ──
+      window.sauvegardeTousClients = function(off) {
+        if (!window._supabase) return;
+        var verbe = off ? 'DÉSACTIVER' : 'RÉACTIVER';
+        if (!confirm(verbe + ' la sauvegarde quotidienne pour TOUS les clients ?\n\nCela s\'applique à l\'ensemble de la base.')) return;
+        if (!confirm('Confirmer une 2ᵉ fois : ' + verbe + ' pour TOUS les clients ?')) return;
+        // .neq sur une valeur impossible = filtre toujours vrai → cible toutes les lignes.
+        window._supabase.from('etablissements').update({ sauvegarde_off: !!off }).neq('code_acces', '___aucun___').then(function(res){
+          if (res.error) { alert('Erreur : ' + res.error.message); return; }
+          try { window._supabase.from('historique_admin').insert([{ action: (off ? 'Sauvegarde désactivée' : 'Sauvegarde réactivée') + ' (TOUS)', motif: 'Tous les clients' }]).then(function(){}); } catch(e){}
+          alert('✅ Sauvegarde ' + (off ? 'désactivée' : 'réactivée') + ' pour TOUS les clients.');
+        });
       };
 
       function _supprimerLotClients(items, libelle) {
