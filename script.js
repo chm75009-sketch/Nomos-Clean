@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v327';
+var APP_BUILD = 'v328';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20889,6 +20889,7 @@ function testEffacerDonnees() {
             }
             html += '<div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">';
             html += '<button onclick="modifierClient(\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✏️ Modifier</button>';
+            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerClient(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(220,38,38,0.12);color:#fca5a5;border:1px solid rgba(220,38,38,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🗑️ Supprimer</button>';
             html += '</div>';
             html += '</div>';
@@ -20896,6 +20897,91 @@ function testEffacerDonnees() {
           c.innerHTML = html;
         });
       }
+
+      // ══════════════════════════════════════════════════════════════════
+      // PACK DDPP CÔTÉ ADMIN — générer, pour N'IMPORTE QUEL client, le MÊME
+      // document que celui qu'il voit dans son app (« Pack Contrôle DDPP »).
+      // Principe : on bascule TEMPORAIREMENT le contexte global (ETAB_ID, nom,
+      // secteur, cache cloud) sur le client cible, on charge ses contrôles
+      // depuis le cloud, on réutilise le générateur existant, puis on RESTAURE
+      // intégralement le contexte admin (le finally garantit la restauration
+      // même en cas d'erreur). Lecture seule : aucune écriture côté client.
+      // ══════════════════════════════════════════════════════════════════
+      window._fermerAdminDDPP = function() {
+        var m = document.getElementById('adminDDPPModal');
+        if (m && m.parentNode) m.parentNode.removeChild(m);
+      };
+      window.adminPackDDPP = function(code, nom) {
+        window._fermerAdminDDPP();
+        var _dLoc = function(ms){ var d = new Date(ms); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
+        var today = _dLoc(Date.now());
+        var weekAgo = _dLoc(Date.now() - 7*86400000);
+        var monthAgo = _dLoc(Date.now() - 30*86400000);
+        var yearAgo = _dLoc(Date.now() - 365*86400000);
+        var cj = attrJs(code), nj = attrJs(nom);
+        var btn = function(from, to, label){
+          return '<button class="status-btn" onclick="_adminLancerPackDDPP(\'' + cj + '\',\'' + nj + '\',\'' + from + '\',\'' + to + '\')">' + label + '</button>';
+        };
+        var modal = document.createElement('div');
+        modal.id = 'adminDDPPModal';
+        modal.className = 'modal-overlay visible';
+        modal.style.zIndex = '99998';
+        modal.innerHTML =
+          '<div class="modal-box" style="max-width:400px">' +
+            '<div class="modal-ico">📄</div>' +
+            '<div class="modal-title">Pack DDPP — ' + escapeHtml(nom) + '</div>' +
+            '<div class="modal-desc">Période des contrôles à inclure pour ce client (🔑 ' + escapeHtml(code) + ')</div>' +
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0">' +
+              btn(weekAgo, today, '7 derniers jours') +
+              btn(monthAgo, today, '30 derniers jours') +
+              btn(yearAgo, today, '12 derniers mois') +
+              btn('2020-01-01', today, 'Tout l\'historique') +
+            '</div>' +
+            '<button class="modal-btn-skip" onclick="_fermerAdminDDPP()">Annuler</button>' +
+          '</div>';
+        document.body.appendChild(modal);
+      };
+      window._adminLancerPackDDPP = async function(code, nom, from, to) {
+        window._fermerAdminDDPP();
+        if (typeof chargerControlesCloudCache !== 'function' || typeof lancerPackDDPPAvecPhotos !== 'function') {
+          alert('Le générateur Pack DDPP n\'est pas disponible sur cet écran.'); return;
+        }
+        // Sauvegarde du contexte admin (à restaurer impérativement ensuite).
+        var sv = {
+          etab: window.ETAB_ID,
+          cache: window._cloudCache,
+          histo: window._histoCloudRows,
+          sect: (typeof SECTEUR_ACTIF !== 'undefined') ? SECTEUR_ACTIF : undefined,
+          nom: (window.ETAB && typeof window.ETAB.nom !== 'undefined') ? window.ETAB.nom : undefined
+        };
+        try {
+          // Bascule sur le client cible.
+          window.ETAB_ID = code;
+          if (window.ETAB) window.ETAB.nom = nom;
+          SECTEUR_ACTIF = '';                 // '' = aucun filtre secteur → on montre TOUS ses contrôles
+          window._cloudCache = {};
+          window._histoCloudRows = {};
+          // Charge les contrôles du client cible depuis le cloud.
+          var rows = await chargerControlesCloudCache();
+          if (!Array.isArray(rows) || rows.length === 0) {
+            try { if (typeof _packHideLoading === 'function') _packHideLoading(); } catch(e){}
+            alert('Aucun contrôle trouvé dans le cloud pour « ' + nom + ' ».\n\n' +
+                  'Soit ce client n\'a pas encore enregistré de contrôle, soit la lecture est refusée par la base (RLS).');
+            return;
+          }
+          // Réutilise le générateur officiel → document IDENTIQUE à celui du client.
+          await lancerPackDDPPAvecPhotos(from, to, null);
+        } catch (e) {
+          alert('Erreur lors de la génération du Pack DDPP : ' + (e && e.message ? e.message : e));
+        } finally {
+          // RESTAURATION du contexte admin (impératif, même si erreur).
+          window.ETAB_ID = sv.etab;
+          window._cloudCache = sv.cache;
+          window._histoCloudRows = sv.histo;
+          if (typeof sv.sect !== 'undefined') SECTEUR_ACTIF = sv.sect;
+          if (window.ETAB && typeof sv.nom !== 'undefined') window.ETAB.nom = sv.nom;
+        }
+      };
 
       function loadAdminHistorique() {
         var c = document.getElementById('adminContent');
