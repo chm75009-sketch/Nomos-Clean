@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v329';
+var APP_BUILD = 'v330';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20889,7 +20889,7 @@ function testEffacerDonnees() {
             }
             html += '<div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">';
             html += '<button onclick="modifierClient(\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✏️ Modifier</button>';
-            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📄 Pack DDPP</button>';
+            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerClient(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(220,38,38,0.12);color:#fca5a5;border:1px solid rgba(220,38,38,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🗑️ Supprimer</button>';
             html += '</div>';
             html += '</div>';
@@ -20911,16 +20911,16 @@ function testEffacerDonnees() {
         var m = document.getElementById('adminDDPPModal');
         if (m && m.parentNode) m.parentNode.removeChild(m);
       };
-      window.adminPackDDPP = function(code, nom) {
+      window.adminPackDDPP = function(id, code, nom) {
         window._fermerAdminDDPP();
         var _dLoc = function(ms){ var d = new Date(ms); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); };
         var today = _dLoc(Date.now());
         var weekAgo = _dLoc(Date.now() - 7*86400000);
         var monthAgo = _dLoc(Date.now() - 30*86400000);
         var yearAgo = _dLoc(Date.now() - 365*86400000);
-        var cj = attrJs(code), nj = attrJs(nom);
+        var ij = attrJs(id), cj = attrJs(code), nj = attrJs(nom);
         var btn = function(from, to, label){
-          return '<button class="status-btn" onclick="_adminLancerPackDDPP(\'' + cj + '\',\'' + nj + '\',\'' + from + '\',\'' + to + '\')">' + label + '</button>';
+          return '<button class="status-btn" onclick="_adminLancerPackDDPP(\'' + ij + '\',\'' + cj + '\',\'' + nj + '\',\'' + from + '\',\'' + to + '\')">' + label + '</button>';
         };
         var modal = document.createElement('div');
         modal.id = 'adminDDPPModal';
@@ -20941,7 +20941,7 @@ function testEffacerDonnees() {
           '</div>';
         document.body.appendChild(modal);
       };
-      window._adminLancerPackDDPP = async function(code, nom, from, to) {
+      window._adminLancerPackDDPP = async function(id, code, nom, from, to) {
         window._fermerAdminDDPP();
         if (typeof chargerControlesCloudCache !== 'function' || typeof lancerPackDDPPAvecPhotos !== 'function') {
           alert('Le générateur Pack DDPP n\'est pas disponible sur cet écran.'); return;
@@ -20954,19 +20954,38 @@ function testEffacerDonnees() {
           sect: (typeof SECTEUR_ACTIF !== 'undefined') ? SECTEUR_ACTIF : undefined,
           nom: (window.ETAB && typeof window.ETAB.nom !== 'undefined') ? window.ETAB.nom : undefined
         };
-        try {
-          // Bascule sur le client cible.
-          window.ETAB_ID = code;
-          if (window.ETAB) window.ETAB.nom = nom;
-          SECTEUR_ACTIF = '';                 // '' = aucun filtre secteur → on montre TOUS ses contrôles
+        // IMPORTANT : les contrôles sont stockés sous code_client = ID de
+        // l'établissement (la valeur d'ETAB_ID au login : ETAB_ID = d.id), et NON
+        // le code d'accès. On essaie donc l'id fourni d'abord, puis le code par
+        // sécurité, puis en dernier recours on résout le vrai id de l'établissement
+        // via la RPC admin (qui ignore RLS) à partir du code d'accès.
+        var candidats = [];
+        [id, code].forEach(function(k){ if (k && candidats.indexOf(String(k)) === -1) candidats.push(String(k)); });
+        var _charger = async function(cle){
+          window.ETAB_ID = cle;
           window._cloudCache = {};
           window._histoCloudRows = {};
-          // Charge les contrôles du client cible depuis le cloud.
-          var rows = await chargerControlesCloudCache();
-          if (!Array.isArray(rows) || rows.length === 0) {
+          var r = await chargerControlesCloudCache();
+          return (Array.isArray(r) && r.length > 0) ? r : null;
+        };
+        try {
+          if (window.ETAB) window.ETAB.nom = nom;
+          SECTEUR_ACTIF = '';                 // '' = aucun filtre secteur → on montre TOUS ses contrôles
+          var rows = null;
+          for (var i = 0; i < candidats.length && !rows; i++) { rows = await _charger(candidats[i]); }
+          // Dernier recours : retrouver le vrai id d'établissement via le code d'accès.
+          if (!rows && code && window._supabase && typeof _adminPwd !== 'undefined') {
+            try {
+              var rEt = await window._supabase.rpc('admin_list_etablissements', { p_pwd: _adminPwd });
+              var match = ((rEt && rEt.data) || []).filter(function(x){ return String(x.code_acces) === String(code); })[0];
+              if (match && match.id && candidats.indexOf(String(match.id)) === -1) { rows = await _charger(String(match.id)); }
+            } catch(eRpc) {}
+          }
+          if (!rows) {
             try { if (typeof _packHideLoading === 'function') _packHideLoading(); } catch(e){}
             alert('Aucun contrôle trouvé dans le cloud pour « ' + nom + ' ».\n\n' +
-                  'Soit ce client n\'a pas encore enregistré de contrôle, soit la lecture est refusée par la base (RLS).');
+                  'Ce client n\'a probablement pas encore enregistré de contrôle.\n' +
+                  '(Si vous êtes certain du contraire, la lecture est peut-être bloquée par la base / RLS.)');
             return;
           }
           // Réutilise le générateur officiel → document IDENTIQUE à celui du client.
@@ -21206,7 +21225,7 @@ function testEffacerDonnees() {
             }
             html += '<button onclick="prolongerEssai(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\',\'' + (r.date_expiration || '') + '\')" style="background:rgba(59,130,246,0.15);color:#93c5fd;' + bs + '">➕ Prolonger</button>';
             html += '<button onclick="modifierEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(168,85,247,0.18);color:#d8b4fe;' + bs + '">✏️ Modifier</button>';
-            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(16,185,129,0.15);color:#6ee7b7;' + bs + '">📄 Pack DDPP</button>';
+            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(16,185,129,0.15);color:#6ee7b7;' + bs + '">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(127,29,29,0.3);color:#fca5a5;' + bs + '">🗑️ Supprimer</button>';
             html += '</div>';
             html += '</div>';
