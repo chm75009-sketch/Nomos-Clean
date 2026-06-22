@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v328';
+var APP_BUILD = 'v329';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21206,6 +21206,7 @@ function testEffacerDonnees() {
             }
             html += '<button onclick="prolongerEssai(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\',\'' + (r.date_expiration || '') + '\')" style="background:rgba(59,130,246,0.15);color:#93c5fd;' + bs + '">➕ Prolonger</button>';
             html += '<button onclick="modifierEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(168,85,247,0.18);color:#d8b4fe;' + bs + '">✏️ Modifier</button>';
+            html += '<button onclick="adminPackDDPP(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(16,185,129,0.15);color:#6ee7b7;' + bs + '">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(127,29,29,0.3);color:#fca5a5;' + bs + '">🗑️ Supprimer</button>';
             html += '</div>';
             html += '</div>';
