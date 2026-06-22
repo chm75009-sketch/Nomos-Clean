@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v331';
+var APP_BUILD = 'v332';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12936,12 +12936,15 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
     } catch (e) { return ''; }
   };
   try {
-    var _empAvant = _packEmpreinteCloud();
-    if (typeof chargerControlesCloudCache === 'function') {
-      await _packAvecDelaiMax(chargerControlesCloudCache(), 8000);
-    }
-    if (_packEmpreinteCloud() !== _empAvant && document.getElementById('printOverlay')) {
-      lancerPackDDPP(dateFrom, dateTo, selectionIds);
+    // Mode admin : on NE relit PAS le cloud (RLS → 0 ligne → écraserait le Pack).
+    if (!window._adminPackMode) {
+      var _empAvant = _packEmpreinteCloud();
+      if (typeof chargerControlesCloudCache === 'function') {
+        await _packAvecDelaiMax(chargerControlesCloudCache(), 8000);
+      }
+      if (_packEmpreinteCloud() !== _empAvant && document.getElementById('printOverlay')) {
+        lancerPackDDPP(dateFrom, dateTo, selectionIds);
+      }
     }
   } catch(ePc) {}
 
@@ -12949,7 +12952,7 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
   var photosParModule = {}; // { codeModule: [ {ts: ISO, photos: [url,...]}, ... ] }
 
   try {
-    if (ETAB_ID && dateFrom && dateTo) {
+    if (ETAB_ID && dateFrom && dateTo && !window._adminPackMode) {
       var dMin = new Date(dateFrom + 'T00:00:00').toISOString();
       var dMax = new Date(dateTo   + 'T23:59:59').toISOString();
       var url = SUPABASE_URL + '/rest/v1/controles_haccp'
@@ -12998,7 +13001,10 @@ async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
   }
 
   // Arrière-plan #3 — courbes de température (image) à la fin du Pack (protégé).
-  try { await _packInjecterCourbes(dateFrom, dateTo); } catch (eCb) { console.warn('[Pack DDPP] courbes:', eCb && eCb.message); }
+  // (sauté en mode admin : lecture capteurs sous RLS indisponible pour l'admin)
+  if (!window._adminPackMode) {
+    try { await _packInjecterCourbes(dateFrom, dateTo); } catch (eCb) { console.warn('[Pack DDPP] courbes:', eCb && eCb.message); }
+  }
 
   // 3) Injecter les photos dans les bons blocs (après que le DOM soit prêt)
   var _injPhotosTries = 0;
@@ -21008,10 +21014,15 @@ function testEffacerDonnees() {
             return;
           }
           // Réutilise le générateur officiel → document IDENTIQUE à celui du client.
+          // _adminPackMode : neutralise les complétions « arrière-plan » du générateur
+          // (relectures cloud qui, sous RLS, renverraient 0 ligne pour l'admin et
+          // viendraient VIDER le Pack après coup). Les données sont déjà complètes ici.
+          window._adminPackMode = true;
           await lancerPackDDPPAvecPhotos(from, to, null);
         } catch (e) {
           alert('Erreur lors de la génération du Pack DDPP : ' + (e && e.message ? e.message : e));
         } finally {
+          window._adminPackMode = false;
           // RESTAURATION du contexte admin (impératif, même si erreur).
           window.ETAB_ID = sv.etab;
           window._cloudCache = sv.cache;
