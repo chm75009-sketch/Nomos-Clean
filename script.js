@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v330';
+var APP_BUILD = 'v331';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15163,6 +15163,11 @@ async function chargerControlesCloudCache() {
     // pour les établissements actifs depuis longtemps).
     var PAGE = 1000, MAX_PAGES = 50; // plafond de sécurité (50 000 contrôles)
     var rows = [];
+    if (Array.isArray(window._adminCtrlOverride)) {
+      // Mode ADMIN — contrôles déjà récupérés via la RPC admin_list_controles
+      // (SECURITY DEFINER : contourne RLS pour générer le Pack DDPP d'un client).
+      rows = window._adminCtrlOverride.slice();
+    } else
     for (var _pg = 0; _pg < MAX_PAGES; _pg++) {
       var url = SUPABASE_URL + '/rest/v1/controles_haccp'
         + '?code_client=eq.' + encodeURIComponent(String(ETAB_ID))
@@ -20972,6 +20977,20 @@ function testEffacerDonnees() {
           if (window.ETAB) window.ETAB.nom = nom;
           SECTEUR_ACTIF = '';                 // '' = aucun filtre secteur → on montre TOUS ses contrôles
           var rows = null;
+          // VOIE PRINCIPALE — RPC admin SECURITY DEFINER : contourne RLS (chaque
+          // établissement ne pouvant lire QUE ses propres contrôles via son jeton,
+          // l'admin doit passer par cette fonction serveur protégée par mot de passe).
+          if (window._supabase && typeof _adminPwd !== 'undefined') {
+            try {
+              var rc = await window._supabase.rpc('admin_list_controles', { p_pwd: _adminPwd, p_etab: String(id || code || '') });
+              if (!rc.error && Array.isArray(rc.data) && rc.data.length > 0) {
+                window._adminCtrlOverride = rc.data;
+                rows = await _charger(String(id || code || ''));
+              }
+            } catch(eRpcCtrl) {}
+            finally { window._adminCtrlOverride = null; }
+          }
+          // REPLI — lecture directe (utile si la base n'a pas RLS, ou pas encore la RPC).
           for (var i = 0; i < candidats.length && !rows; i++) { rows = await _charger(candidats[i]); }
           // Dernier recours : retrouver le vrai id d'établissement via le code d'accès.
           if (!rows && code && window._supabase && typeof _adminPwd !== 'undefined') {
