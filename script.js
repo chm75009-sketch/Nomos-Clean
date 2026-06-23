@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v344';
+var APP_BUILD = 'v345';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -19054,7 +19054,26 @@ function _securiserNavigation(targetId) {
   return false; // connecté + page interne → navigation normale
 }
 
+function _fermerOverlayOuvert(){
+  try {
+    var po = document.getElementById('printOverlay'); if (po && po.parentNode) { po.parentNode.removeChild(po); return true; }
+    var pl = document.getElementById('packLoadingOverlay'); if (pl && pl.parentNode) { pl.parentNode.removeChild(pl); return true; }
+    var ids = ['adminDDPPModal','ddppPeriodeModal','essaiUnivModal','modifEtabOverlay','modifClientOverlay','infosLegalesOverlay','sqOverlay'];
+    for (var i=0;i<ids.length;i++){ var el=document.getElementById(ids[i]); if (el && el.parentNode) { el.parentNode.removeChild(el); return true; } }
+    var ov = document.querySelector('.modal-overlay.visible'); if (ov) { ov.classList.remove('visible'); return true; }
+  } catch(_e){}
+  return false;
+}
 window.addEventListener('popstate', function(e) {
+  // RETOUR UNIVERSEL — si un aperçu de rapport / une fenêtre est ouvert, le retour
+  // (bouton navigateur ou swipe) le FERME D'ABORD, au lieu de laisser l'utilisateur
+  // coincé derrière l'aperçu. On re-pousse un état pour « consommer » ce retour.
+  try {
+    if (_fermerOverlayOuvert()) {
+      try { history.pushState({ page: (typeof _idPageActive==='function' ? (_idPageActive()||'page-guide') : 'page-guide') }, '', ''); } catch(_p){}
+      return;
+    }
+  } catch(_o){}
   try { _trace('popstate state=' + JSON.stringify(e && e.state) + ' active=' + _idPageActive() + ' ETAB=' + (typeof ETAB_ID!=='undefined'?ETAB_ID:'?')); } catch(_t){}
   // Cible RÉELLE de l'entrée d'historique (posée par showPage via pushState).
   var targetId = (e && e.state && e.state.page) ? e.state.page : null;
