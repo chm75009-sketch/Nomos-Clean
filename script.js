@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v343';
+var APP_BUILD = 'v344';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25526,15 +25526,34 @@ function _sqEtabKey() {
   try { return String((typeof ETAB_ID !== 'undefined' && ETAB_ID) ? ETAB_ID : 'inconnu'); } catch(e){ return 'inconnu'; }
 }
 var _sqDownloadFait = false;
-function telechargerSauvegardeComplete() {
+function _sqDownloadBlob(blob, nom){
   try {
-    var blob = new Blob([JSON.stringify(_sqPaquet())], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = 'sauvegarde-haccp-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour() + '.json';
+    var a = document.createElement('a'); a.href = url; a.download = nom;
     document.body.appendChild(a); a.click();
     setTimeout(function(){ try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch(e){} }, 1500);
+  } catch(e){}
+}
+function telechargerSauvegardeComplete() {
+  try {
+    var nom = 'sauvegarde-haccp-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour() + '.json';
+    var blob = new Blob([JSON.stringify(_sqPaquet())], { type: 'application/json' });
+    // Téléphone/tablette : feuille de partage -> « Enregistrer dans Fichiers » (choix de l'emplacement)
+    var file = null; try { file = new File([blob], nom, { type:'application/json' }); } catch(e){}
+    if (file && navigator.canShare && navigator.canShare({ files:[file] }) && navigator.share) {
+      navigator.share({ files:[file], title:'Sauvegarde HACCP' }).catch(function(){});
+      return true;
+    }
+    // Ordinateur compatible : sélecteur d'emplacement
+    if (window.showSaveFilePicker) {
+      window.showSaveFilePicker({ suggestedName: nom, types:[{ description:'Sauvegarde', accept:{ 'application/json':['.json'] } }] })
+        .then(function(h){ return h.createWritable(); })
+        .then(function(w){ return Promise.resolve(w.write(blob)).then(function(){ return w.close(); }); })
+        .catch(function(){ _sqDownloadBlob(blob, nom); });
+      return true;
+    }
+    // Repli (navigateurs sans partage ni sélecteur) : téléchargement classique
+    _sqDownloadBlob(blob, nom);
     return true;
   } catch(e) { console.warn('Sauvegarde complète échouée:', e); try { alert('La sauvegarde complète a échoué. Réessayez.'); } catch(e2){} return false; }
 }
