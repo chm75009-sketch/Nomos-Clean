@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v349';
+var APP_BUILD = 'v350';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -14272,15 +14272,15 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
             return toIso(db).localeCompare(toIso(da));
           });
           standardNCs.forEach(function(nc, ni) {
-            var actionTxt = nc.action || '<span style="color:#c2410c;font-weight:700">À définir</span>';
+            var actionTxt = nc.action ? _echap(nc.action) : '<span style="color:#c2410c;font-weight:700">À définir</span>';
             // Responsable + heure rassemblés sous l'action (ne sont plus coupés hors écran)
             var meta = '';
-            if (nc.responsable) meta += nc.responsable;
-            if (nc.heure) meta += (meta ? ' · ' : '') + nc.heure;
+            if (nc.responsable) meta += _echap(nc.responsable);
+            if (nc.heure) meta += (meta ? ' · ' : '') + _echap(nc.heure);
             var actionCell = actionTxt + (meta ? '<div style="font-size:9px;color:#6b7280;font-weight:500;margin-top:2px">👤 ' + meta + '</div>' : '');
             var dateTxt = nc.date || '—';
             var seuilTxt = nc.seuil || '—';
-            var valeurTxt = nc.valeur || '—';
+            var valeurTxt = _echap(nc.valeur || '—');
             html += '<tr style="background:' + (ni%2===0?'#fff8f8':'white') + '">' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#7f1d1d;text-align:center">' + dateTxt + '</td>' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#dc2626;word-break:break-word">' + _echap(nc.module) + '</td>' +
