@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v341';
+var APP_BUILD = 'v342';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -14602,7 +14602,11 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   var btnSave = document.createElement('button');
   btnSave.textContent = '💾 Sauvegarder';
   btnSave.style.cssText = 'background:#0891b2;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
-  btnSave.onclick = function() { _packSauvegarderFichier(html, dateLabel); };
+  btnSave.onclick = function() {
+    try { if (typeof _sqMarquerTelecharge==='function') _sqMarquerTelecharge('pdf'); } catch(e){}
+    try { if (typeof showToast==='function') showToast('Dans la feuille qui s\'ouvre : choisissez « Enregistrer dans Fichiers » pour ranger le Pack où vous voulez.','ok',4500); } catch(e){}
+    setTimeout(function(){ try { window.print(); } catch(e){} }, 350);
+  };
   var btnFerm = document.createElement('button');
   btnFerm.textContent = 'Fermer';
   btnFerm.style.cssText = 'background:#dc2626;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
