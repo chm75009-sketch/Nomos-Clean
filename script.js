@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v351';
+var APP_BUILD = 'v352';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25848,7 +25848,11 @@ try { if (typeof window !== 'undefined') {
     try { location.href="index.html"; } catch(e){}
   }
   function _gbShouldShow(){
-    try { if (typeof _fermerOverlayOuvert==="function") { return !!(document.getElementById("printOverlay")||document.getElementById("packLoadingOverlay")); } } catch(e){}
+    try {
+      if (document.getElementById("printOverlay")||document.getElementById("packLoadingOverlay")) return true; // aperçu plein écran : bouton utile
+      if (document.getElementById("logoBrand")) return false;   // page avec logo : ne JAMAIS le couvrir
+      if (typeof _fermerOverlayOuvert==="function") return false;
+    } catch(e){}
     return true;
   }
   function _gbSync(){
@@ -25869,4 +25873,25 @@ try { if (typeof window !== 'undefined') {
   if (document.readyState!=="loading") _gbSync(); else document.addEventListener("DOMContentLoaded", _gbSync);
   window.addEventListener("load", _gbSync);
   setInterval(_gbSync, 400);
+})();
+/* ── Accès panneau test : APPUI LONG (1,2 s) sur le logo, en plus des 5 clics — bien plus fiable sur mobile ── */
+(function(){
+  function _attachLogoLongPress(){
+    var lg = document.getElementById("logoBrand");
+    if (!lg || lg._lpAttached) return;
+    lg._lpAttached = true;
+    var t = null;
+    function start(){ if(t) clearTimeout(t); t = setTimeout(function(){ t=null; try{ if(typeof afficherPanneauTest==="function") afficherPanneauTest(); }catch(e){} }, 1200); }
+    function cancel(){ if(t){ clearTimeout(t); t=null; } }
+    lg.addEventListener("touchstart", start, {passive:true});
+    lg.addEventListener("touchend", cancel);
+    lg.addEventListener("touchmove", cancel, {passive:true});
+    lg.addEventListener("touchcancel", cancel);
+    lg.addEventListener("mousedown", start);
+    lg.addEventListener("mouseup", cancel);
+    lg.addEventListener("mouseleave", cancel);
+  }
+  if (document.readyState!=="loading") _attachLogoLongPress(); else document.addEventListener("DOMContentLoaded", _attachLogoLongPress);
+  window.addEventListener("load", _attachLogoLongPress);
+  setInterval(_attachLogoLongPress, 1000);
 })();
