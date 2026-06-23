@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v339';
+var APP_BUILD = 'v340';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12796,7 +12796,7 @@ function genererPackDDPP() {
   var modal = document.createElement('div');
   modal.id = 'ddppPeriodeModal';
   modal.className = 'modal-overlay visible';
-  modal.style.zIndex = '99997';
+  modal.style.zIndex = '100001';
   // Dates LOCALES (pas UTC) : toISOString() décalait d'un jour en soirée/nuit
   // (ex. 01:00 du 2 juin en UTC+2 = encore le 1er juin en UTC) → mauvaise période.
   var _dLoc = function(ms){ var d = new Date(ms); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
