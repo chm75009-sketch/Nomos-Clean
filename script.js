@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v347';
+var APP_BUILD = 'v348';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25847,9 +25847,7 @@ try { if (typeof window !== 'undefined') {
   window._sqTelechargerJSON = _sqTelechargerJSON;
   window._sqFermer = _sqFermer;
 } } catch(e) {}
-
-
-/* ── BOUTON RETOUR UNIVERSEL — toujours visible, jamais cache (haut-gauche, z-index max) ── */
+/* ── BOUTON RETOUR UNIVERSEL — visible quand utile, jamais cache (haut-gauche, z-index max) ── */
 (function(){
   function _gbBack(){
     try { if (typeof _fermerOverlayOuvert==="function" && _fermerOverlayOuvert()) { try{ history.pushState({},"",""); }catch(_){ } return; } } catch(e){}
@@ -25860,17 +25858,26 @@ try { if (typeof window !== 'undefined') {
     try { var a=document.querySelector("a[href*=accueil]"); if(a&&a.getAttribute("href")){ location.href=a.getAttribute("href"); return; } } catch(e){}
     try { location.href="index.html"; } catch(e){}
   }
-  function _gbInject(){
+  function _gbShouldShow(){
+    try { if (typeof _fermerOverlayOuvert==="function") { return !!(document.getElementById("printOverlay")||document.getElementById("packLoadingOverlay")); } } catch(e){}
+    return true;
+  }
+  function _gbSync(){
     try {
-      if (!document.body || document.getElementById("globalBackBtn")) return;
-      var b=document.createElement("button");
-      b.id="globalBackBtn"; b.type="button"; b.setAttribute("aria-label","Retour en arriere");
-      b.textContent="← Retour";
-      b.style.cssText="position:fixed;left:10px;top:10px;z-index:2147483600;background:rgba(15,23,42,.9);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);font-family:inherit;-webkit-tap-highlight-color:transparent";
-      b.onclick=_gbBack;
-      document.body.appendChild(b);
+      if (!document.body) return;
+      var b=document.getElementById("globalBackBtn");
+      if (!b){
+        b=document.createElement("button");
+        b.id="globalBackBtn"; b.type="button"; b.setAttribute("aria-label","Retour en arriere");
+        b.textContent="← Retour";
+        b.style.cssText="position:fixed;left:10px;top:10px;z-index:2147483600;background:rgba(15,23,42,.9);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);font-family:inherit;-webkit-tap-highlight-color:transparent";
+        b.onclick=_gbBack;
+        document.body.appendChild(b);
+      }
+      b.style.display = _gbShouldShow() ? "block" : "none";
     } catch(e){}
   }
-  if (document.readyState!=="loading") _gbInject(); else document.addEventListener("DOMContentLoaded", _gbInject);
-  window.addEventListener("load", _gbInject);
+  if (document.readyState!=="loading") _gbSync(); else document.addEventListener("DOMContentLoaded", _gbSync);
+  window.addEventListener("load", _gbSync);
+  setInterval(_gbSync, 400);
 })();
