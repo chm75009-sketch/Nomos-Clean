@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v348';
+var APP_BUILD = 'v349';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -72,9 +72,6 @@ var CODES_LOCAUX = {};var CODES_LOCAUX = {
   // de mot de passe en clair. Le vrai panneau admin est protégé côté serveur (admin_check).
   'RTH75':     { nom: 'RESTAURANT TEST',   secteur: 'resto',  actif: true, mot_de_passe: '826700' },
   'RTH3':      { nom: 'DÉMO Contrôle RTH',  secteur: 'resto',  actif: true, mot_de_passe: '826700', formule: 'rth' },
-  'DEMO':      { nom: 'Établissement Démo',      secteur: 'resto',  actif: true, mot_de_passe: '' },
-  'TESTBP':    { nom: 'Boulangerie Test',         secteur: 'bp',     actif: true, mot_de_passe: '' },
-  'TESTRAPIDE':{ nom: 'Restauration Rapide Test', secteur: 'rapide', actif: true, mot_de_passe: '' },
 };
 // Variables globales connexion
 var ETAB_ID = null;

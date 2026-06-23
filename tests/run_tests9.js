@@ -22,8 +22,9 @@ const OFFLINE_KEY = 'haccp_offline_cred_v1';
     ok(r.ok === true && r.data.id === 'local-ZTEST' && r.local === true, 'login local: bon mdp -> accepté (id local-)');
     ok(r.data.multi_secteur === true, 'login local: compte de test reste multi-secteur');
   }
-  // compte DEMO mot de passe vide -> accepte n'importe quel mdp (démo, par conception)
-  ok(ctx.sbLoginLocal('DEMO', 'peu importe').ok === true, 'login local: DEMO (mdp vide) accepte tout');
+  // compte à mot de passe vide -> accepte n'importe quel mdp (par conception)
+  ctx.CODES_LOCAUX['ZVIDE'] = { nom: 'Z', secteur: 'resto', actif: true, mot_de_passe: '' };
+  ok(ctx.sbLoginLocal('ZVIDE', 'peu importe').ok === true, 'login local: compte (mdp vide) accepte tout');
 
   // ════════════ B) _sha256Hex disponible (contexte sécurisé) ════════════
   const h = await ctx._sha256Hex('abc');
