@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v335';
+var APP_BUILD = 'v336';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21276,9 +21276,9 @@ function testEffacerDonnees() {
       window.suspendreEssai = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Suspendre l\'essai ' + code + ' ?\nL\'accès sera bloqué (réversible).')) return;
-        window._supabase.from('etablissements').update({ actif: false }).eq('id', id).select('id,actif').then(function(res) {
+        window._supabase.rpc('admin_set_etat_etab', { p_pwd: _adminPwd, p_id: String(id), p_actif: false }).then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          if (!res.data || res.data.length === 0) { alert('\u26a0\ufe0f Aucune ligne modifiée — la base a refusé l\'opération (droits/RLS). Dites-le moi, j\'ajoute la fonction admin.'); return; }
+          if (!res.data || res.data.ok !== true) { alert('Op\u00e9ration refus\u00e9e (compte introuvable).'); return; }
           try { window._supabase.from('historique_admin').insert([{ action: 'Suspension essai', code_concerne: code }]).then(function(){}); } catch(e){}
           alert('\u23f8\ufe0f Essai ' + code + ' suspendu.');
           _refreshAdminListe();
@@ -21288,9 +21288,9 @@ function testEffacerDonnees() {
       window.reactiverEssai = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Réactiver l\'essai ' + code + ' ?')) return;
-        window._supabase.from('etablissements').update({ actif: true }).eq('id', id).select('id,actif').then(function(res) {
+        window._supabase.rpc('admin_set_etat_etab', { p_pwd: _adminPwd, p_id: String(id), p_actif: true }).then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          if (!res.data || res.data.length === 0) { alert('\u26a0\ufe0f Aucune ligne modifiée — la base a refusé l\'opération (droits/RLS). Dites-le moi, j\'ajoute la fonction admin.'); return; }
+          if (!res.data || res.data.ok !== true) { alert('Op\u00e9ration refus\u00e9e (compte introuvable).'); return; }
           try { window._supabase.from('historique_admin').insert([{ action: 'Réactivation essai', code_concerne: code }]).then(function(){}); } catch(e){}
           alert('\u2705 Essai ' + code + ' réactivé.');
           _refreshAdminListe();
@@ -21304,13 +21304,10 @@ function testEffacerDonnees() {
         var n = parseInt(v, 10);
         if (!(n > 0)) { alert('Nombre de jours invalide.'); return; }
         var nouvelleExp = new Date(new Date().getTime() + n * 86400000).toISOString().slice(0, 10);
-        window._supabase.from('etablissements').update({
-          actif: true,
-          date_expiration: nouvelleExp
-        }).eq('id', id).select('id,date_expiration,actif').then(function(res) {
+        window._supabase.rpc('admin_set_etat_etab', { p_pwd: _adminPwd, p_id: String(id), p_actif: true, p_date_expiration: nouvelleExp }).then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          if (!res.data || res.data.length === 0) { alert('⚠️ Prolongation NON enregistrée : la base a refusé la mise à jour (droits/RLS).\n\nDites-le moi, j\'ajoute la fonction admin qui contourne ce blocage.'); return; }
-          var confExp = (res.data[0] && res.data[0].date_expiration) || nouvelleExp;
+          if (!res.data || res.data.ok !== true) { alert('⚠️ Prolongation NON enregistrée (compte introuvable ou refus base).'); return; }
+          var confExp = res.data.date_expiration || nouvelleExp;
           try { window._supabase.from('historique_admin').insert([{
             action: 'Prolongation essai (+' + n + ' j)',
             code_concerne: code,
