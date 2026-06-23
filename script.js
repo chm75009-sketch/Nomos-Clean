@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v336';
+var APP_BUILD = 'v337';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21323,7 +21323,7 @@ function testEffacerDonnees() {
         if (!window._supabase) return;
         if (!confirm('⚠️ SUPPRIMER DÉFINITIVEMENT le compte ' + code + ' ?\n\nAction IRRÉVERSIBLE : le compte et son accès sont effacés.\n(Les contrôles déjà enregistrés ne sont pas supprimés ici.)')) return;
         if (!confirm('Dernière confirmation : supprimer ' + code + ' pour de bon ?')) return;
-        window._supabase.from('etablissements').delete().eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_delete_etab', { p_pwd: _adminPwd, p_id: String(id) }).then(function(res) {
           if (res.error) { alert('Erreur suppression : ' + res.error.message); return; }
           try { window._supabase.from('historique_admin').insert([{ action: 'Suppression compte', code_concerne: code }]).then(function(){}); } catch(e){}
           alert('🗑️ Compte ' + code + ' supprimé.');
@@ -21375,11 +21375,12 @@ function testEffacerDonnees() {
         var patch = { nom: nom, secteur: secteur, multi_secteur: multi };
         if (pwd) patch.mot_de_passe = pwd; // ne touche au mot de passe que si un nouveau est saisi
         if (exp) patch.date_expiration = exp;
-        window._supabase.from('etablissements').update(patch).eq('id', id).then(function(res){
+        window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_id: String(id), p_patch: patch }).then(function(res){
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
+          if (!res.data || res.data.ok !== true) { alert('Modification refusée (' + ((res.data && res.data.reason) || 'aucune ligne modifiée') + ').'); return; }
           // Écriture SÉPARÉE du flag « sauvegarde désactivée » : best-effort, pour ne pas
           // faire échouer la modification si la colonne sauvegarde_off n'existe pas encore.
-          try { window._supabase.from('etablissements').update({ sauvegarde_off: sauvOff }).eq('id', id).then(function(){}, function(){}); } catch(e){}
+          try { window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: [code], p_off: sauvOff, p_all: false }).then(function(){}, function(){}); } catch(e){}
           try { window._supabase.from('historique_admin').insert([{ action: 'Modification compte', code_concerne: code }]).then(function(){}); } catch(e){}
           var ov = document.getElementById('modifEtabOverlay'); if (ov) ov.remove();
           alert('✅ Compte ' + code + ' modifié.');
@@ -21498,7 +21499,7 @@ function testEffacerDonnees() {
         }).eq('id', id).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Désactiver aussi dans etablissements pour bloquer la connexion
-          window._supabase.from('etablissements').update({ actif: false }).eq('code_acces', code).then(function(){});
+          window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: false } }).then(function(){}, function(){});
           window._supabase.from('historique_admin').insert([{
             action: 'Désactivation client',
             code_concerne: code,
@@ -21518,7 +21519,7 @@ function testEffacerDonnees() {
         }).eq('id', id).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Réactiver aussi dans etablissements
-          window._supabase.from('etablissements').update({ actif: true }).eq('code_acces', code).then(function(){});
+          window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: true } }).then(function(){}, function(){});
           window._supabase.from('historique_admin').insert([{
             action: 'Réactivation client',
             code_concerne: code
@@ -21537,11 +21538,9 @@ function testEffacerDonnees() {
         if (!(n > 0)) { alert('Nombre de mois invalide.'); return; }
         var d = new Date(); d.setMonth(d.getMonth() + n);
         var nouvelleExp = d.toISOString().slice(0, 10);
-        window._supabase.from('etablissements').update({
-          actif: true,
-          date_expiration: nouvelleExp
-        }).eq('code_acces', code).then(function(res) {
+        window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: true, date_expiration: nouvelleExp } }).then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
+          if (!res.data || res.data.ok !== true) { alert('Prolongation refusée (compte introuvable ou refus base).'); return; }
           window._supabase.from('historique_admin').insert([{
             action: 'Prolongation abonnement (+' + n + ' mois)',
             code_concerne: code,
@@ -21670,7 +21669,7 @@ function testEffacerDonnees() {
         window._supabase.rpc('admin_update_client', { p_pwd: _adminPwd, p_code: code, p_nom: nom, p_secteur: sect, p_email: email, p_tel: tel, p_resp: resp }).then(function(u){
           if (u.error || !u.data || u.data.ok !== true) { alert('Erreur modification : ' + ((u.error && u.error.message) || 'opération refusée')); return; }
           // Écriture SÉPARÉE du flag « sauvegarde désactivée » (best-effort, par code d'accès).
-          try { window._supabase.from('etablissements').update({ sauvegarde_off: sauvOff }).eq('code_acces', code).then(function(){}, function(){}); } catch(e){}
+          try { window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: [code], p_off: sauvOff, p_all: false }).then(function(){}, function(){}); } catch(e){}
           var ov = document.getElementById('modifClientOverlay'); if (ov) ov.remove();
           alert('✅ Client modifié.');
           loadAdminClients();
@@ -21688,7 +21687,7 @@ function testEffacerDonnees() {
         window._supabase.from('comptes_clients').delete().eq('id', id).then(function(rc){
           if (rc.error) { alert('Erreur suppression fiche : ' + rc.error.message); return; }
           // 2) Accès (connexion)
-          window._supabase.from('etablissements').delete().eq('code_acces', code).then(function(re){
+          window._supabase.rpc('admin_delete_etab', { p_pwd: _adminPwd, p_code: code }).then(function(re){
             if (re.error) { console.warn('Suppression acc\u00e8s :', re.error.message); }
             window._supabase.from('historique_admin').insert([{
               action: 'Suppression client', code_concerne: code, motif: (nom || '') + ' \u2014 fiche + acc\u00e8s supprim\u00e9s'
@@ -21723,7 +21722,7 @@ function testEffacerDonnees() {
         var codes = sel.map(function(x){ return x.getAttribute('data-code'); }).filter(Boolean);
         var verbe = off ? 'DÉSACTIVER' : 'RÉACTIVER';
         if (!confirm(verbe + ' la sauvegarde quotidienne pour ' + codes.length + ' client(s) sélectionné(s) ?')) return;
-        window._supabase.from('etablissements').update({ sauvegarde_off: !!off }).in('code_acces', codes).then(function(res){
+        window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: codes, p_off: !!off, p_all: false }).then(function(res){
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
           try { window._supabase.from('historique_admin').insert([{ action: (off ? 'Sauvegarde désactivée' : 'Sauvegarde réactivée') + ' (sélection)', motif: codes.length + ' client(s)' }]).then(function(){}); } catch(e){}
           alert('✅ Sauvegarde ' + (off ? 'désactivée' : 'réactivée') + ' pour ' + codes.length + ' client(s).');
@@ -21736,7 +21735,7 @@ function testEffacerDonnees() {
         if (!confirm(verbe + ' la sauvegarde quotidienne pour TOUS les clients ?\n\nCela s\'applique à l\'ensemble de la base.')) return;
         if (!confirm('Confirmer une 2ᵉ fois : ' + verbe + ' pour TOUS les clients ?')) return;
         // .neq sur une valeur impossible = filtre toujours vrai → cible toutes les lignes.
-        window._supabase.from('etablissements').update({ sauvegarde_off: !!off }).neq('code_acces', '___aucun___').then(function(res){
+        window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: [], p_off: !!off, p_all: true }).then(function(res){
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
           try { window._supabase.from('historique_admin').insert([{ action: (off ? 'Sauvegarde désactivée' : 'Sauvegarde réactivée') + ' (TOUS)', motif: 'Tous les clients' }]).then(function(){}); } catch(e){}
           alert('✅ Sauvegarde ' + (off ? 'désactivée' : 'réactivée') + ' pour TOUS les clients.');
@@ -21749,7 +21748,7 @@ function testEffacerDonnees() {
         var codes = items.map(function(x){ return x.code; });
         window._supabase.from('comptes_clients').delete().in('id', ids).then(function(rc){
           if (rc.error) { alert('Erreur suppression : ' + rc.error.message); return; }
-          window._supabase.from('etablissements').delete().in('code_acces', codes).then(function(re){
+          window._supabase.rpc('admin_delete_etabs', { p_pwd: _adminPwd, p_codes: codes }).then(function(re){
             if (re.error) { console.warn('Suppression acc\u00e8s (lot) :', re.error.message); }
             window._supabase.from('historique_admin').insert([{
               action: 'Suppression group\u00e9e clients',
