@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v334';
+var APP_BUILD = 'v335';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21276,21 +21276,25 @@ function testEffacerDonnees() {
       window.suspendreEssai = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Suspendre l\'essai ' + code + ' ?\nL\'accès sera bloqué (réversible).')) return;
-        window._supabase.from('etablissements').update({ actif: false }).eq('id', id).then(function(res) {
+        window._supabase.from('etablissements').update({ actif: false }).eq('id', id).select('id,actif').then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          window._supabase.from('historique_admin').insert([{ action: 'Suspension essai', code_concerne: code }]).then(function(){});
+          if (!res.data || res.data.length === 0) { alert('\u26a0\ufe0f Aucune ligne modifiée — la base a refusé l\'opération (droits/RLS). Dites-le moi, j\'ajoute la fonction admin.'); return; }
+          try { window._supabase.from('historique_admin').insert([{ action: 'Suspension essai', code_concerne: code }]).then(function(){}); } catch(e){}
+          alert('\u23f8\ufe0f Essai ' + code + ' suspendu.');
           _refreshAdminListe();
-        });
+        }, function(err) { alert('\u00c9chec réseau/serveur : ' + ((err && err.message) || err)); });
       };
 
       window.reactiverEssai = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Réactiver l\'essai ' + code + ' ?')) return;
-        window._supabase.from('etablissements').update({ actif: true }).eq('id', id).then(function(res) {
+        window._supabase.from('etablissements').update({ actif: true }).eq('id', id).select('id,actif').then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          window._supabase.from('historique_admin').insert([{ action: 'Réactivation essai', code_concerne: code }]).then(function(){});
+          if (!res.data || res.data.length === 0) { alert('\u26a0\ufe0f Aucune ligne modifiée — la base a refusé l\'opération (droits/RLS). Dites-le moi, j\'ajoute la fonction admin.'); return; }
+          try { window._supabase.from('historique_admin').insert([{ action: 'Réactivation essai', code_concerne: code }]).then(function(){}); } catch(e){}
+          alert('\u2705 Essai ' + code + ' réactivé.');
           _refreshAdminListe();
-        });
+        }, function(err) { alert('\u00c9chec réseau/serveur : ' + ((err && err.message) || err)); });
       };
 
       window.prolongerEssai = function(id, code, dateExpActuelle) {
@@ -21303,16 +21307,18 @@ function testEffacerDonnees() {
         window._supabase.from('etablissements').update({
           actif: true,
           date_expiration: nouvelleExp
-        }).eq('id', id).then(function(res) {
+        }).eq('id', id).select('id,date_expiration,actif').then(function(res) {
           if (res.error) { alert('Erreur : ' + res.error.message); return; }
-          window._supabase.from('historique_admin').insert([{
+          if (!res.data || res.data.length === 0) { alert('⚠️ Prolongation NON enregistrée : la base a refusé la mise à jour (droits/RLS).\n\nDites-le moi, j\'ajoute la fonction admin qui contourne ce blocage.'); return; }
+          var confExp = (res.data[0] && res.data[0].date_expiration) || nouvelleExp;
+          try { window._supabase.from('historique_admin').insert([{
             action: 'Prolongation essai (+' + n + ' j)',
             code_concerne: code,
-            motif: 'Nouvelle expiration : ' + nouvelleExp
-          }]).then(function(){});
-          alert('✅ Essai prolongé.\nNouvelle date d\'expiration : ' + new Date(nouvelleExp).toLocaleDateString('fr-FR'));
+            motif: 'Nouvelle expiration : ' + confExp
+          }]).then(function(){}); } catch(e){}
+          alert('✅ Essai prolongé.\nNouvelle date d\'expiration : ' + new Date(confExp).toLocaleDateString('fr-FR'));
           _refreshAdminListe();
-        });
+        }, function(err) { alert('Échec réseau/serveur : ' + ((err && err.message) || err) + '\n\nLa prolongation n\'a pas été enregistrée.'); });
       };
 
       // — SUPPRESSION DÉFINITIVE d'un compte (essai ou client) —
