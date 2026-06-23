@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v350';
+var APP_BUILD = 'v351';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21552,11 +21552,7 @@ function testEffacerDonnees() {
         if (!window._supabase) return;
         var motif = prompt('Motif de la désactivation :');
         if (motif === null) return;
-        window._supabase.from('comptes_clients').update({
-          actif: false,
-          date_desactivation: new Date().toISOString(),
-          motif_desactivation: motif || ''
-        }).eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_set_compte_actif', { p_pwd: _adminPwd, p_id: String(id), p_actif: false, p_motif: motif || '' }).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Désactiver aussi dans etablissements pour bloquer la connexion
           window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: false } }).then(function(){}, function(){});
@@ -21572,11 +21568,7 @@ function testEffacerDonnees() {
       window.reactiverClient = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Réactiver le compte ' + code + ' ?')) return;
-        window._supabase.from('comptes_clients').update({
-          actif: true,
-          date_desactivation: null,
-          motif_desactivation: null
-        }).eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_set_compte_actif', { p_pwd: _adminPwd, p_id: String(id), p_actif: true }).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Réactiver aussi dans etablissements
           window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: true } }).then(function(){}, function(){});
@@ -21664,7 +21656,7 @@ function testEffacerDonnees() {
             if (/column|responsable|telephone|email|schema cache|PGRST/i.test(m)) {
               window._supabase.from('etablissements').insert([etabBase]).then(function(re2){
                 if (re2.error) { alert('Erreur cr\u00e9ation acc\u00e8s : ' + re2.error.message); if (btn){btn.disabled=false;btn.textContent='\ud83d\udc65 Cr\u00e9er le compte client';} return; }
-                window._supabase.from('comptes_clients').insert([compte]).then(function(rc){
+                window._supabase.rpc('admin_creer_compte', { p_pwd: _adminPwd, p_code_acces: compte.code_acces, p_mot_de_passe: compte.mot_de_passe, p_etablissement: compte.etablissement, p_email: compte.email, p_formule: compte.formule, p_engagement: compte.engagement, p_date_debut: compte.date_debut }).then(function(rc){
                   if (rc.error) { alert('Compte cr\u00e9\u00e9 pour la connexion mais erreur fiche : ' + rc.error.message); }
                   finir();
                 });
@@ -21676,7 +21668,7 @@ function testEffacerDonnees() {
             return;
           }
           // 2) Fiche (comptes_clients) — pour l'affichage dans l'onglet Clients
-          window._supabase.from('comptes_clients').insert([compte]).then(function(rc){
+          window._supabase.rpc('admin_creer_compte', { p_pwd: _adminPwd, p_code_acces: compte.code_acces, p_mot_de_passe: compte.mot_de_passe, p_etablissement: compte.etablissement, p_email: compte.email, p_formule: compte.formule, p_engagement: compte.engagement, p_date_debut: compte.date_debut }).then(function(rc){
             if (rc.error) { alert('Compte cr\u00e9\u00e9 pour la connexion mais erreur fiche : ' + rc.error.message); }
             finir();
           });
@@ -21744,7 +21736,7 @@ function testEffacerDonnees() {
         if (!confirm('Supprimer d\u00e9finitivement le client \u00ab ' + (nom || code) + ' \u00bb ?\n\nCela supprime sa fiche et son acc\u00e8s (il ne pourra plus se connecter).\nSes contr\u00f4les d\u00e9j\u00e0 enregistr\u00e9s ne sont PAS supprim\u00e9s.')) return;
         if (!confirm('Confirmez une seconde fois : suppression d\u00e9finitive de ' + code + ' ?')) return;
         // 1) Fiche
-        window._supabase.from('comptes_clients').delete().eq('id', id).then(function(rc){
+        window._supabase.rpc('admin_delete_comptes', { p_pwd: _adminPwd, p_ids: [id] }).then(function(rc){
           if (rc.error) { alert('Erreur suppression fiche : ' + rc.error.message); return; }
           // 2) Accès (connexion)
           window._supabase.rpc('admin_delete_etab', { p_pwd: _adminPwd, p_code: code }).then(function(re){
@@ -21806,7 +21798,7 @@ function testEffacerDonnees() {
         // items : [{id, code, nom}]  — supprime fiche + accès en une seule requête.
         var ids = items.map(function(x){ return x.id; });
         var codes = items.map(function(x){ return x.code; });
-        window._supabase.from('comptes_clients').delete().in('id', ids).then(function(rc){
+        window._supabase.rpc('admin_delete_comptes', { p_pwd: _adminPwd, p_ids: ids }).then(function(rc){
           if (rc.error) { alert('Erreur suppression : ' + rc.error.message); return; }
           window._supabase.rpc('admin_delete_etabs', { p_pwd: _adminPwd, p_codes: codes }).then(function(re){
             if (re.error) { console.warn('Suppression acc\u00e8s (lot) :', re.error.message); }
