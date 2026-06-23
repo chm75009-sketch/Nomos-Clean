@@ -404,7 +404,7 @@ if ('serviceWorker' in navigator) {
     <a href="cgv.html" style="color:inherit">CGV</a> &nbsp;·&nbsp;
     <a href="cgu.html" style="color:inherit">CGU</a> &nbsp;·&nbsp;
     <a href="registre-traitements.html" style="color:inherit">Registre RGPD</a><br>
-    <span id="nomosVer" style="opacity:.6">Version V297</span>
+    <span id="nomosVer" style="opacity:.6">Version V298</span>
   </footer>
   <script>
   /* Badge de version : lit ver.txt à la racine pour afficher la vraie version
@@ -512,6 +512,10 @@ if ('serviceWorker' in navigator) {
         alert('Merci d\'indiquer au moins votre nom et un téléphone ou un email pour qu\'on puisse vous recontacter.');
         return;
       }
+      if(email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){
+        alert('L\'email saisi ne semble pas valide. Corrigez-le, ou laissez-le vide si vous préférez être rappelé par téléphone.');
+        return;
+      }
       var btn = document.getElementById('rdvSend');
       btn.disabled = true; btn.textContent = 'Envoi…';
       var corps = 'Code postal : ' + (cp||'—') + (msg ? ('\nMessage : ' + msg) : '') + '\nDepuis : page d\'accueil Nomos (' + _rdvSource + ')';
@@ -536,6 +540,11 @@ if ('serviceWorker' in navigator) {
       }
       try{
         if(typeof emailjs === 'undefined' || !emailjs.send){ done(false); return; }
+        // Anti-blocage (réseau faible) : si l'envoi ne répond pas en 12 s, on bascule
+        // sur le repli mailto au lieu de rester bloqué sur « Envoi… ».
+        var _fini = false;
+        var _terminer = function(ok){ if(_fini) return; _fini = true; done(ok); };
+        var _to = setTimeout(function(){ _terminer(false); }, 12000);
         emailjs.send('service_84lz31w','template_ti43bkh',{
           to_name:'Administrateur Nomos',
           to_email:'r.t.h@orange.fr',
@@ -548,7 +557,7 @@ if ('serviceWorker' in navigator) {
           client_email:email,
           lien_site:location.href,
           date:new Date().toLocaleDateString('fr-FR')
-        }).then(function(){ done(true); }, function(err){ console.warn('RDV email KO',err); done(false); });
+        }).then(function(){ clearTimeout(_to); _terminer(true); }, function(err){ console.warn('RDV email KO',err); clearTimeout(_to); _terminer(false); });
       }catch(e){ done(false); }
     }
   </script>
