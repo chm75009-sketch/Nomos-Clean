@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v352';
+var APP_BUILD = 'v353';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25880,14 +25880,17 @@ try { if (typeof window !== 'undefined') {
     var lg = document.getElementById("logoBrand");
     if (!lg || lg._lpAttached) return;
     lg._lpAttached = true;
-    var t = null;
-    function start(){ if(t) clearTimeout(t); t = setTimeout(function(){ t=null; try{ if(typeof afficherPanneauTest==="function") afficherPanneauTest(); }catch(e){} }, 1200); }
+    var t = null, sx = 0, sy = 0;
+    function fire(){ t=null; try{ if(typeof afficherPanneauTest==="function") afficherPanneauTest(); }catch(e){} }
+    function start(e){ try{ var p=(e.touches&&e.touches[0])||e; sx=p.clientX||0; sy=p.clientY||0; }catch(_){} if(t) clearTimeout(t); t=setTimeout(fire, 1100); }
+    function move(e){ if(!t) return; try{ var p=(e.touches&&e.touches[0])||e; if(Math.abs((p.clientX||0)-sx)>14||Math.abs((p.clientY||0)-sy)>14){ clearTimeout(t); t=null; } }catch(_){} }
     function cancel(){ if(t){ clearTimeout(t); t=null; } }
     lg.addEventListener("touchstart", start, {passive:true});
+    lg.addEventListener("touchmove", move, {passive:true});
     lg.addEventListener("touchend", cancel);
-    lg.addEventListener("touchmove", cancel, {passive:true});
     lg.addEventListener("touchcancel", cancel);
     lg.addEventListener("mousedown", start);
+    lg.addEventListener("mousemove", move);
     lg.addEventListener("mouseup", cancel);
     lg.addEventListener("mouseleave", cancel);
   }
