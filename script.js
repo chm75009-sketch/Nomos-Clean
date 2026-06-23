@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v345';
+var APP_BUILD = 'v346';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3036,8 +3036,8 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     html += '<div style="border:2px solid ' + borderColor + ';border-radius:10px;margin-bottom:12px;overflow:hidden">';
     html += '<div style="background:' + borderColor + ';color:white;padding:8px 12px;display:flex;justify-content:space-between">';
     var encLabel = 'Enceinte N' + (i+1);
-    if (enc.precision) encLabel += ' — ' + enc.precision;
-    if (enc.refNum) encLabel += ' (Ref: ' + enc.refNum + ')';
+    if (enc.precision) encLabel += ' — ' + _echap(enc.precision);
+    if (enc.refNum) encLabel += ' (Ref: ' + _echap(enc.refNum) + ')';
     html += '<span style="font-weight:800;font-size:13px">' + encLabel + '</span>';
     if (enc.isNC) html += '<span style="font-size:11px;font-weight:700">NC</span>';
     html += '</div>';
@@ -14220,7 +14220,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
             tiacItems.push(nc);
           } else if (nc.label === 'Statut' || lbl.indexOf('statut') === 0) {
             // "Statut" générique → renommer pour clarté
-            nc.label = 'État d\'avancement de l\'alerte (' + nc.module + ')';
+            nc.label = 'État d\'avancement de l\'alerte (' + _echap(nc.module) + ')';
             standardNCs.push(nc);
           } else {
             standardNCs.push(nc);
@@ -14286,8 +14286,8 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
             var valeurTxt = nc.valeur || '—';
             html += '<tr style="background:' + (ni%2===0?'#fff8f8':'white') + '">' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#7f1d1d;text-align:center">' + dateTxt + '</td>' +
-                    '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#dc2626;word-break:break-word">' + nc.module + '</td>' +
-                    '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;word-break:break-word;font-weight:600">' + nc.label + '</td>' +
+                    '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#dc2626;word-break:break-word">' + _echap(nc.module) + '</td>' +
+                    '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;word-break:break-word;font-weight:600">' + _echap(nc.label) + '</td>' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;word-break:break-word;color:#15803d">' + seuilTxt + '</td>' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;word-break:break-word;font-weight:600;color:#dc2626">' + valeurTxt + '</td>' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;word-break:break-word;font-weight:600">' + actionCell + '</td>' +
@@ -15815,9 +15815,9 @@ function initDashboard() {
         ncList.innerHTML = ncsActives.map(function(nc) {
           var col = nc.gravite === 'Critique' ? '#dc2626' : nc.gravite === 'Majeure' ? '#f97316' : '#f59e0b';
           return '<div style="background:#f9fafb;border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid ' + col + '">' +
-            '<div style="font-size:11px;color:#6b7280">' + nc.module + ' — ' + nc.heure + '</div>' +
-            '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-top:2px">' + nc.desc + '</div>' +
-            (nc.action ? '<div style="font-size:11px;color:#374151;margin-top:3px">Action : ' + nc.action + '</div>' : '') +
+            '<div style="font-size:11px;color:#6b7280">' + _echap(nc.module) + ' — ' + nc.heure + '</div>' +
+            '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-top:2px">' + _echap(nc.desc) + '</div>' +
+            (nc.action ? '<div style="font-size:11px;color:#374151;margin-top:3px">Action : ' + _echap(nc.action) + '</div>' : '') +
           '</div>';
         }).join('');
       }
@@ -15871,7 +15871,7 @@ function initDashboard() {
                     filled.forEach(function(enc, ei) {
                       var bc = enc.isNC ? '#dc2626' : '#0891b2';
                       blockHTML += '<div style="margin:6px 0;border:1px solid ' + bc + ';border-radius:6px;overflow:hidden;background:#f8fafc">';
-                      blockHTML += '<div style="background:' + bc + ';color:white;padding:4px 8px;font-weight:700;font-size:10px">Enceinte N' + (ei+1) + (enc.precision?' — '+enc.precision:'') + (enc.refNum?' ('+_echap(enc.refNum)+')':'') + '</div>';
+                      blockHTML += '<div style="background:' + bc + ';color:white;padding:4px 8px;font-weight:700;font-size:10px">Enceinte N' + (ei+1) + (enc.precision?' — '+_echap(enc.precision):'') + (enc.refNum?' ('+_echap(enc.refNum)+')':'') + '</div>';
                       blockHTML += '<div style="padding:4px 8px;font-size:10px">';
                       blockHTML += '<div><strong>Type:</strong> ' + _echap(enc.type) + '</div>';
                       blockHTML += '<div><strong>T°:</strong> ' + (enc.temp?enc.temp+'°C':'—') + ' <span style="color:#0891b2;font-size:9px">(seuil: ' + (_echap(enc.seuil||'—')) + ')</span></div>';
@@ -15953,7 +15953,7 @@ function imprimerDashboard() {
 
   if (ncs.length > 0) {
     html += '<h2>NC actives</h2><table><tr><th>Module</th><th>Description</th><th>Gravite</th></tr>' +
-    ncs.map(function(nc){ return '<tr><td>' + nc.module + '</td><td class="nc">' + nc.desc + '</td><td>' + (nc.gravite||'NC') + '</td></tr>'; }).join('') + '</table>';
+    ncs.map(function(nc){ return '<tr><td>' + _echap(nc.module) + '</td><td class="nc">' + _echap(nc.desc) + '</td><td>' + (nc.gravite||'NC') + '</td></tr>'; }).join('') + '</table>';
   }
 
   if (historique.length > 0) {
@@ -18425,12 +18425,12 @@ function alimenterRegistreNC() {
 
     div.innerHTML =
       '<div class="fblock-title" style="color:' + graviteColor + '">' +
-        '<span>⚠️ NC — ' + nc.module + '</span>' +
+        '<span>⚠️ NC — ' + _echap(nc.module) + '</span>' +
         '<span style="font-size:10px;background:' + graviteColor + ';color:white;padding:2px 8px;border-radius:20px;margin-left:8px">' + nc.gravite + '</span>' +
       '</div>' +
       '<div style="background:' + graviteBg + ';border-radius:8px;padding:8px 12px;margin-bottom:10px">' +
-        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">' + nc.heure + ' — ' + nc.module + '</div>' +
-        '<div style="font-size:13px;font-weight:700;color:' + graviteColor + '">' + nc.desc + '</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">' + nc.heure + ' — ' + _echap(nc.module) + '</div>' +
+        '<div style="font-size:13px;font-weight:700;color:' + graviteColor + '">' + _echap(nc.desc) + '</div>' +
       '</div>' +
       '<div class="frow"><div class="flabel req" style="color:#dc2626">Action corrective</div>' +
         '<input type="text" id="nc_action_' + id + '" class="finput" placeholder="Decrivez action corrective..." value="' + (nc.action||'').replace(/"/g,"'") + '"/>' +
@@ -18439,7 +18439,7 @@ function alimenterRegistreNC() {
         '<div class="frow"><div class="flabel">Responsable</div><input type="text" id="nc_resp_' + id + '" class="finput" placeholder="Nom & prenom"/></div>' +
         '<div class="frow"><div class="flabel">Date cloture</div><input type="date" id="nc_date_' + id + '" class="finput"/></div>' +
       '</div>' +
-      '<div class="frow"><div class="flabel">Statut clôture (' + nc.module + ')</div>' +
+      '<div class="frow"><div class="flabel">Statut clôture (' + _echap(nc.module) + ')</div>' +
         '<div class="status-group">' +
           '<button class="status-btn" data-shtype="ok" onclick="selHygBtn(this)">Cloturee</button>' +
           '<button class="status-btn" data-shtype="warn" onclick="selHygBtn(this)">En cours</button>' +
