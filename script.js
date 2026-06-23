@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v340';
+var APP_BUILD = 'v341';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12907,6 +12907,40 @@ function _packAvecDelaiMax(promesse, ms) {
     new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, ms || 5000); })
   ]);
 }
+function _packTelechargerBlob(blob, nom){
+  try {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a'); a.href = url; a.download = nom;
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){ try{ document.body.removeChild(a); URL.revokeObjectURL(url); }catch(e){} }, 1500);
+    try{ if (typeof showToast==='function') showToast('Pack enregistré ✅','ok'); }catch(e){}
+  } catch(e){ try{ window.print(); }catch(_){} }
+}
+function _packSauvegarderFichier(innerHtml, dateLabel){
+  try {
+    var doc = '<!doctype html><html lang="fr"><head><meta charset="utf-8">'
+      + '<meta name="viewport" content="width=device-width,initial-scale=1">'
+      + '<title>Pack DDPP — ' + (dateLabel||'') + '</title></head><body>'
+      + innerHtml + '</body></html>';
+    var nom = 'Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_') + '.html';
+    var blob = new Blob([doc], { type: 'text/html' });
+    try { if (typeof _sqMarquerTelecharge==='function') _sqMarquerTelecharge('pdf'); } catch(e){}
+    var file = null; try { file = new File([blob], nom, { type:'text/html' }); } catch(e){}
+    if (file && navigator.canShare && navigator.canShare({ files:[file] }) && navigator.share) {
+      navigator.share({ files:[file], title:'Pack DDPP' }).catch(function(){ _packTelechargerBlob(blob, nom); });
+      return;
+    }
+    if (window.showSaveFilePicker) {
+      window.showSaveFilePicker({ suggestedName: nom, types:[{ description:'Document HTML', accept:{ 'text/html':['.html'] } }] })
+        .then(function(h){ return h.createWritable(); })
+        .then(function(w){ return Promise.resolve(w.write(blob)).then(function(){ return w.close(); }); })
+        .then(function(){ try{ if (typeof showToast==='function') showToast('Pack enregistré ✅','ok'); }catch(e){} })
+        .catch(function(){ _packTelechargerBlob(blob, nom); });
+      return;
+    }
+    _packTelechargerBlob(blob, nom);
+  } catch(e){ try{ window.print(); }catch(_){} }
+}
 
 // V116 — Livraison 3 : wrapper qui récupère les photos de la période avant de lancer le Pack DDPP,
 // puis les injecte directement dans chaque bloc de contrôle après le rendu.
@@ -14565,11 +14599,15 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   btnImpr.textContent = 'Imprimer';
   btnImpr.style.cssText = 'background:#10b981;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
   btnImpr.onclick = function() { window.print(); };
+  var btnSave = document.createElement('button');
+  btnSave.textContent = '💾 Sauvegarder';
+  btnSave.style.cssText = 'background:#0891b2;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
+  btnSave.onclick = function() { _packSauvegarderFichier(html, dateLabel); };
   var btnFerm = document.createElement('button');
   btnFerm.textContent = 'Fermer';
   btnFerm.style.cssText = 'background:#dc2626;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
   btnFerm.onclick = function() { var el = document.getElementById('printOverlay'); if (el) el.remove(); };
-  tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnFerm);
+  tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnFerm);
   tb.appendChild(tbTitle); tb.appendChild(tbBtns);
   var ct = document.createElement('div');
   ct.innerHTML = html;
