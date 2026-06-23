@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v347';
+var APP_BUILD = 'v351';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -72,9 +72,6 @@ var CODES_LOCAUX = {};var CODES_LOCAUX = {
   // de mot de passe en clair. Le vrai panneau admin est protégé côté serveur (admin_check).
   'RTH75':     { nom: 'RESTAURANT TEST',   secteur: 'resto',  actif: true, mot_de_passe: '826700' },
   'RTH3':      { nom: 'DÉMO Contrôle RTH',  secteur: 'resto',  actif: true, mot_de_passe: '826700', formule: 'rth' },
-  'DEMO':      { nom: 'Établissement Démo',      secteur: 'resto',  actif: true, mot_de_passe: '' },
-  'TESTBP':    { nom: 'Boulangerie Test',         secteur: 'bp',     actif: true, mot_de_passe: '' },
-  'TESTRAPIDE':{ nom: 'Restauration Rapide Test', secteur: 'rapide', actif: true, mot_de_passe: '' },
 };
 // Variables globales connexion
 var ETAB_ID = null;
@@ -14275,15 +14272,15 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
             return toIso(db).localeCompare(toIso(da));
           });
           standardNCs.forEach(function(nc, ni) {
-            var actionTxt = nc.action || '<span style="color:#c2410c;font-weight:700">À définir</span>';
+            var actionTxt = nc.action ? _echap(nc.action) : '<span style="color:#c2410c;font-weight:700">À définir</span>';
             // Responsable + heure rassemblés sous l'action (ne sont plus coupés hors écran)
             var meta = '';
-            if (nc.responsable) meta += nc.responsable;
-            if (nc.heure) meta += (meta ? ' · ' : '') + nc.heure;
+            if (nc.responsable) meta += _echap(nc.responsable);
+            if (nc.heure) meta += (meta ? ' · ' : '') + _echap(nc.heure);
             var actionCell = actionTxt + (meta ? '<div style="font-size:9px;color:#6b7280;font-weight:500;margin-top:2px">👤 ' + meta + '</div>' : '');
             var dateTxt = nc.date || '—';
             var seuilTxt = nc.seuil || '—';
-            var valeurTxt = nc.valeur || '—';
+            var valeurTxt = _echap(nc.valeur || '—');
             html += '<tr style="background:' + (ni%2===0?'#fff8f8':'white') + '">' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#7f1d1d;text-align:center">' + dateTxt + '</td>' +
                     '<td style="padding:4px 6px;border-bottom:1px solid #fee2e2;font-weight:600;color:#dc2626;word-break:break-word">' + _echap(nc.module) + '</td>' +
@@ -21555,11 +21552,7 @@ function testEffacerDonnees() {
         if (!window._supabase) return;
         var motif = prompt('Motif de la désactivation :');
         if (motif === null) return;
-        window._supabase.from('comptes_clients').update({
-          actif: false,
-          date_desactivation: new Date().toISOString(),
-          motif_desactivation: motif || ''
-        }).eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_set_compte_actif', { p_pwd: _adminPwd, p_id: String(id), p_actif: false, p_motif: motif || '' }).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Désactiver aussi dans etablissements pour bloquer la connexion
           window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: false } }).then(function(){}, function(){});
@@ -21575,11 +21568,7 @@ function testEffacerDonnees() {
       window.reactiverClient = function(id, code) {
         if (!window._supabase) return;
         if (!confirm('Réactiver le compte ' + code + ' ?')) return;
-        window._supabase.from('comptes_clients').update({
-          actif: true,
-          date_desactivation: null,
-          motif_desactivation: null
-        }).eq('id', id).then(function(res) {
+        window._supabase.rpc('admin_set_compte_actif', { p_pwd: _adminPwd, p_id: String(id), p_actif: true }).then(function(res) {
           if (res.error) { alert('Erreur: ' + res.error.message); return; }
           // V100 : Réactiver aussi dans etablissements
           window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: true } }).then(function(){}, function(){});
@@ -21667,7 +21656,7 @@ function testEffacerDonnees() {
             if (/column|responsable|telephone|email|schema cache|PGRST/i.test(m)) {
               window._supabase.from('etablissements').insert([etabBase]).then(function(re2){
                 if (re2.error) { alert('Erreur cr\u00e9ation acc\u00e8s : ' + re2.error.message); if (btn){btn.disabled=false;btn.textContent='\ud83d\udc65 Cr\u00e9er le compte client';} return; }
-                window._supabase.from('comptes_clients').insert([compte]).then(function(rc){
+                window._supabase.rpc('admin_creer_compte', { p_pwd: _adminPwd, p_code_acces: compte.code_acces, p_mot_de_passe: compte.mot_de_passe, p_etablissement: compte.etablissement, p_email: compte.email, p_formule: compte.formule, p_engagement: compte.engagement, p_date_debut: compte.date_debut }).then(function(rc){
                   if (rc.error) { alert('Compte cr\u00e9\u00e9 pour la connexion mais erreur fiche : ' + rc.error.message); }
                   finir();
                 });
@@ -21679,7 +21668,7 @@ function testEffacerDonnees() {
             return;
           }
           // 2) Fiche (comptes_clients) — pour l'affichage dans l'onglet Clients
-          window._supabase.from('comptes_clients').insert([compte]).then(function(rc){
+          window._supabase.rpc('admin_creer_compte', { p_pwd: _adminPwd, p_code_acces: compte.code_acces, p_mot_de_passe: compte.mot_de_passe, p_etablissement: compte.etablissement, p_email: compte.email, p_formule: compte.formule, p_engagement: compte.engagement, p_date_debut: compte.date_debut }).then(function(rc){
             if (rc.error) { alert('Compte cr\u00e9\u00e9 pour la connexion mais erreur fiche : ' + rc.error.message); }
             finir();
           });
@@ -21747,7 +21736,7 @@ function testEffacerDonnees() {
         if (!confirm('Supprimer d\u00e9finitivement le client \u00ab ' + (nom || code) + ' \u00bb ?\n\nCela supprime sa fiche et son acc\u00e8s (il ne pourra plus se connecter).\nSes contr\u00f4les d\u00e9j\u00e0 enregistr\u00e9s ne sont PAS supprim\u00e9s.')) return;
         if (!confirm('Confirmez une seconde fois : suppression d\u00e9finitive de ' + code + ' ?')) return;
         // 1) Fiche
-        window._supabase.from('comptes_clients').delete().eq('id', id).then(function(rc){
+        window._supabase.rpc('admin_delete_comptes', { p_pwd: _adminPwd, p_ids: [id] }).then(function(rc){
           if (rc.error) { alert('Erreur suppression fiche : ' + rc.error.message); return; }
           // 2) Accès (connexion)
           window._supabase.rpc('admin_delete_etab', { p_pwd: _adminPwd, p_code: code }).then(function(re){
@@ -21809,7 +21798,7 @@ function testEffacerDonnees() {
         // items : [{id, code, nom}]  — supprime fiche + accès en une seule requête.
         var ids = items.map(function(x){ return x.id; });
         var codes = items.map(function(x){ return x.code; });
-        window._supabase.from('comptes_clients').delete().in('id', ids).then(function(rc){
+        window._supabase.rpc('admin_delete_comptes', { p_pwd: _adminPwd, p_ids: ids }).then(function(rc){
           if (rc.error) { alert('Erreur suppression : ' + rc.error.message); return; }
           window._supabase.rpc('admin_delete_etabs', { p_pwd: _adminPwd, p_codes: codes }).then(function(re){
             if (re.error) { console.warn('Suppression acc\u00e8s (lot) :', re.error.message); }
@@ -25847,9 +25836,7 @@ try { if (typeof window !== 'undefined') {
   window._sqTelechargerJSON = _sqTelechargerJSON;
   window._sqFermer = _sqFermer;
 } } catch(e) {}
-
-
-/* ── BOUTON RETOUR UNIVERSEL — toujours visible, jamais cache (haut-gauche, z-index max) ── */
+/* ── BOUTON RETOUR UNIVERSEL — visible quand utile, jamais cache (haut-gauche, z-index max) ── */
 (function(){
   function _gbBack(){
     try { if (typeof _fermerOverlayOuvert==="function" && _fermerOverlayOuvert()) { try{ history.pushState({},"",""); }catch(_){ } return; } } catch(e){}
@@ -25860,17 +25847,26 @@ try { if (typeof window !== 'undefined') {
     try { var a=document.querySelector("a[href*=accueil]"); if(a&&a.getAttribute("href")){ location.href=a.getAttribute("href"); return; } } catch(e){}
     try { location.href="index.html"; } catch(e){}
   }
-  function _gbInject(){
+  function _gbShouldShow(){
+    try { if (typeof _fermerOverlayOuvert==="function") { return !!(document.getElementById("printOverlay")||document.getElementById("packLoadingOverlay")); } } catch(e){}
+    return true;
+  }
+  function _gbSync(){
     try {
-      if (!document.body || document.getElementById("globalBackBtn")) return;
-      var b=document.createElement("button");
-      b.id="globalBackBtn"; b.type="button"; b.setAttribute("aria-label","Retour en arriere");
-      b.textContent="← Retour";
-      b.style.cssText="position:fixed;left:10px;top:10px;z-index:2147483600;background:rgba(15,23,42,.9);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);font-family:inherit;-webkit-tap-highlight-color:transparent";
-      b.onclick=_gbBack;
-      document.body.appendChild(b);
+      if (!document.body) return;
+      var b=document.getElementById("globalBackBtn");
+      if (!b){
+        b=document.createElement("button");
+        b.id="globalBackBtn"; b.type="button"; b.setAttribute("aria-label","Retour en arriere");
+        b.textContent="← Retour";
+        b.style.cssText="position:fixed;left:10px;top:10px;z-index:2147483600;background:rgba(15,23,42,.9);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:800;line-height:1;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.4);font-family:inherit;-webkit-tap-highlight-color:transparent";
+        b.onclick=_gbBack;
+        document.body.appendChild(b);
+      }
+      b.style.display = _gbShouldShow() ? "block" : "none";
     } catch(e){}
   }
-  if (document.readyState!=="loading") _gbInject(); else document.addEventListener("DOMContentLoaded", _gbInject);
-  window.addEventListener("load", _gbInject);
+  if (document.readyState!=="loading") _gbSync(); else document.addEventListener("DOMContentLoaded", _gbSync);
+  window.addEventListener("load", _gbSync);
+  setInterval(_gbSync, 400);
 })();
