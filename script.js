@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v353';
+var APP_BUILD = 'v354';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25880,6 +25880,7 @@ try { if (typeof window !== 'undefined') {
     var lg = document.getElementById("logoBrand");
     if (!lg || lg._lpAttached) return;
     lg._lpAttached = true;
+    try { lg.style.touchAction = "manipulation"; lg.style.webkitUserSelect = "none"; lg.style.userSelect = "none"; } catch(_){} // pas de zoom double-tap sur le logo
     var t = null, sx = 0, sy = 0;
     function fire(){ t=null; try{ if(typeof afficherPanneauTest==="function") afficherPanneauTest(); }catch(e){} }
     function start(e){ try{ var p=(e.touches&&e.touches[0])||e; sx=p.clientX||0; sy=p.clientY||0; }catch(_){} if(t) clearTimeout(t); t=setTimeout(fire, 1100); }
