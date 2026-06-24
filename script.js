@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v354';
+var APP_BUILD = 'v355';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -14602,8 +14602,8 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   btnSave.onclick = function() {
     try { if (typeof _sqMarquerTelecharge==='function') _sqMarquerTelecharge('pdf'); } catch(e){}
     var _oldTitre = document.title;
-    try { document.title = 'Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_'); } catch(e){}
-    try { if (typeof showToast==='function') showToast('Touchez Partager ↑ puis « Enregistrer dans Fichiers ». Le nom « Pack-DDPP-… » est modifiable en haut.','ok',5500); } catch(e){}
+    try { document.title = (window._sqNomPerso && String(window._sqNomPerso)) || ('Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_')); } catch(e){}
+    try { if (typeof showToast==='function') showToast('Touchez Partager ↑ puis « Enregistrer dans Fichiers ».','ok',5500); } catch(e){}
     setTimeout(function(){ try { window.print(); } catch(e){} setTimeout(function(){ try { document.title = _oldTitre; } catch(e){} }, 1500); }, 350);
   };
   var btnFerm = document.createElement('button');
@@ -25542,9 +25542,21 @@ function _sqDownloadBlob(blob, nom){
     setTimeout(function(){ try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch(e){} }, 1500);
   } catch(e){}
 }
+function _sqNomDefaut(){
+  return 'Sauvegarde-HACCP-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour();
+}
+function _sqNomChoisi(ext){
+  var def = _sqNomDefaut();
+  var el = null; try { el = document.getElementById('sqNomFichier'); } catch(e){}
+  var v = (el && el.value ? el.value : def);
+  v = String(v).trim().replace(/[^a-zA-Z0-9 _.-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-+|-+$/g,'');
+  if (!v) v = def;
+  if (ext) { v = v.replace(new RegExp('\\.'+ext+'$','i'),''); v += '.'+ext; }
+  return v;
+}
 function telechargerSauvegardeComplete() {
   try {
-    var nom = 'sauvegarde-haccp-' + _sqEtabKey().replace(/[^a-zA-Z0-9_-]/g,'') + '-' + _sqDateJour() + '.json';
+    var nom = _sqNomChoisi('json');
     var blob = new Blob([JSON.stringify(_sqPaquet())], { type: 'application/json' });
     // Téléphone/tablette : feuille de partage -> « Enregistrer dans Fichiers » (choix de l'emplacement)
     var file = null; try { file = new File([blob], nom, { type:'application/json' }); } catch(e){}
@@ -25591,6 +25603,7 @@ function _sqMarquerTelecharge(quoi) {
   if (tag) tag.style.display = 'inline';
 }
 function _sqTelechargerPDF() {
+  try { window._sqNomPerso = _sqNomChoisi(); } catch(e){}
   try { if (typeof genererPackDDPP === 'function') { genererPackDDPP(); _sqMarquerTelecharge('pdf'); } else { alert('Export PDF indisponible sur cet écran.'); } } catch(e){ console.warn(e); }
 }
 function _sqTelechargerJSON() { if (telechargerSauvegardeComplete()) _sqMarquerTelecharge('json'); }
@@ -25607,9 +25620,12 @@ function _ouvrirModalSauvegardeQuot() {
   ov.innerHTML = '<div style="background:#fff;max-width:440px;width:100%;border-radius:18px;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.4);font-family:inherit;box-sizing:border-box">'
     + '<div style="font-size:30px;text-align:center">🛡️</div>'
     + '<h2 style="font-size:18px;color:#0f172a;text-align:center;margin:8px 0 6px">Sauvegarde quotidienne</h2>'
-    + '<p style="font-size:13px;color:#475569;text-align:center;margin:0 0 16px;line-height:1.5">Avant de commencer la journée, enregistrez vos contrôles sur votre appareil. <strong>Vos contrôles sont vos documents réglementaires : leur sauvegarde est votre responsabilité.</strong></p>'
-    + '<button onclick="_sqTelechargerPDF()" style="width:100%;background:#4338ca;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">📄 Télécharger le Pack DDPP (PDF) <span id="sq_pdf_ok" style="display:none">✅</span></button>'
-    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">💾 Télécharger ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + '<p style="font-size:13px;color:#475569;text-align:center;margin:0 0 14px;line-height:1.5">Avant de commencer la journée, enregistrez vos contrôles sur votre appareil. <strong>Vos contrôles sont vos documents réglementaires : leur sauvegarde est votre responsabilité.</strong></p>'
+    + '<label style="display:block;font-size:11px;color:#475569;font-weight:700;margin:0 0 4px">Nom du fichier (modifiable)</label>'
+    + '<input id="sqNomFichier" type="text" value="' + _echap(_sqNomDefaut()) + '" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;margin-bottom:14px;color:#0f172a;background:#fff" />'
+    + '<button onclick="_sqTelechargerPDF()" style="width:100%;background:#4338ca;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:4px">📄 Enregistrer en PDF (Pack DDPP) <span id="sq_pdf_ok" style="display:none">✅</span></button>'
+    + '<div style="font-size:10px;color:#94a3b8;text-align:center;margin-bottom:10px">Sur iPhone/iPad : touchez Partager ↑ puis « Enregistrer dans Fichiers ».</div>'
+    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">💾 Enregistrer ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
     + (_sqFsSupporte() ? '<button onclick="choisirDossierSauvegarde()" style="width:100%;background:#0f766e;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">📁 Sauvegarder automatiquement dans un dossier <span id="sq_dossier_ok" style="display:none">✅</span></button>' : '')
     + '<button id="sqBtnTermine" onclick="_sqFermer(true)" disabled style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:not-allowed;opacity:.5;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
     + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();_sqFermer(true)" style="font-size:11px;color:#94a3b8;text-decoration:underline">Je l\'ai déjà fait / Plus tard</a></div>'
