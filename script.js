@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v355';
+var APP_BUILD = 'v356';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12614,7 +12614,7 @@ async function presenterDocsCoches() {
     if (!blob) continue;
     var url = URL.createObjectURL(blob);
     var mime = String(f.mime || blob.type || '');
-    var titre = (labelParCle[f.cle]||'Document') + (f.nom ? ' — ' + f.nom : '');
+    var titre = _echap((labelParCle[f.cle]||'Document') + (f.nom ? ' — ' + f.nom : ''));
     body += '<section style="page-break-after:always;margin-bottom:24px">';
     body += '<h2 style="font:700 15px/1.3 Arial,sans-serif;color:#1e1b4b;border-bottom:2px solid #4338ca;padding-bottom:6px;margin:0 0 12px">' + titre + '</h2>';
     if (mime.indexOf('pdf') > -1) {
@@ -12622,7 +12622,7 @@ async function presenterDocsCoches() {
     } else if (mime.indexOf('image') > -1) {
       body += '<img src="' + url + '" style="max-width:100%;height:auto;border:1px solid #ccc"/>';
     } else {
-      body += '<p style="font:13px Arial"><a href="' + url + '" target="_blank">Ouvrir le fichier (' + (f.nom||'document') + ')</a></p>';
+      body += '<p style="font:13px Arial"><a href="' + url + '" target="_blank">Ouvrir le fichier (' + _echap(f.nom||'document') + ')</a></p>';
     }
     body += '</section>';
   }
@@ -12631,7 +12631,7 @@ async function presenterDocsCoches() {
   var docHtml = '<!DOCTYPE html><html lang="fr"><head><meta charset="utf-8"><title>Documents — Contrôle DDPP</title>'
     + '<style>@media print{.noprint{display:none!important}}body{margin:0;background:#f3f4f6}</style></head><body>'
     + '<div class="noprint" style="position:sticky;top:0;background:#1e1b4b;color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;gap:12px">'
-    +   '<div style="font:700 14px Arial">📁 Documents à présenter' + (etab?' — '+etab:'') + ' · ' + dateStr + '</div>'
+    +   '<div style="font:700 14px Arial">📁 Documents à présenter' + (etab?' — '+_echap(etab):'') + ' · ' + dateStr + '</div>'
     +   '<button onclick="window.print()" style="background:#fff;color:#1e1b4b;border:none;border-radius:8px;font:700 13px Arial;padding:8px 16px;cursor:pointer">🖨️ Imprimer / PDF</button>'
     + '</div>'
     + '<div style="padding:16px;max-width:900px;margin:0 auto">' + body + '</div>'
