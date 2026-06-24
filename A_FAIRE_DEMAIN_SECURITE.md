@@ -39,8 +39,17 @@ _Date de la note : 24/06/2026. Session précédente : audit + corrections sécur
   (autoriser seulement l'ajout de photos), DELETE déjà interdit.
 - **Risque** : moyen — bien cadrer le trigger pour ne pas bloquer le rattachement de photos.
 
-### 4. (Mineurs) historique_admin INSERT ouvert anon (spam log, illisible) ; mot de passe
-   d'essai en clair dans le localStorage ; pas de throttling sur le mot de passe admin.
+### 4. Verrouiller EmailJS (anti-abus)
+- Les identifiants EmailJS (service/template/clé publique) sont dans le code des 2 apps
+  (`HACCP_CONFIG`). La clé publique EmailJS est faite pour être publique, MAIS sans
+  restriction quelqu'un peut envoyer des e-mails via ton compte (spam, épuisement quota).
+- **Fix (réglage tableau de bord EmailJS, pas de code)** : limiter les domaines autorisés
+  à ton seul site + activer le reCAPTCHA / anti-bot dans EmailJS.
+
+### 5. (Mineurs) historique_admin INSERT ouvert anon (spam log, illisible) ; mot de passe
+   d'essai en clair dans le localStorage ; pas de throttling sur le mot de passe admin ;
+   codes locaux RTH75/RTH3 contiennent encore `826700` en clair (comptes bac-à-sable
+   locaux uniquement — n'ouvre PLUS l'admin, mais à changer/retirer pour faire propre).
 
 ## 🧹 Petit nettoyage
 - Un établissement bidon « Test » a pu rester du 1er essai raté (connexion créée, pas de fiche).
