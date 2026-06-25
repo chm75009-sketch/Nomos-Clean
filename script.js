@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v377';
+var APP_BUILD = 'v378';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16225,6 +16225,20 @@ function _baroArc(cx, cy, r, t0, t1) {
 function renderBarometre() {
   var host = document.getElementById('barometreHaccp');
   if (!host) return;
+  // Si le cache cloud n'est pas encore chargé (ex. on arrive direct sur l'écran
+  // Modules sans passer par le tableau de bord ni « Mes rapports »), on le charge
+  // puis on redessine — sinon le compteur reste à 0 sur un appareil sans données
+  // locales (typiquement le PC alors que les contrôles ont été faits au téléphone).
+  try {
+    var _cc = window._cloudCache || {};
+    var _vide = !Object.keys(_cc).some(function(k){ return (_cc[k] || []).length; });
+    if (_vide && !window._baroCloudEnCours && typeof chargerControlesCloudCache === 'function') {
+      window._baroCloudEnCours = true;
+      chargerControlesCloudCache()
+        .then(function(){ window._baroCloudEnCours = false; try { renderBarometre(); } catch(e){} })
+        .catch(function(){ window._baroCloudEnCours = false; });
+    }
+  } catch(eCC) {}
   try {
     var today = new Date().toISOString().split('T')[0];
     var historique = [];
