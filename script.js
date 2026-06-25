@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v381';
+var APP_BUILD = 'v382';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2229,16 +2229,6 @@ async function connexion() {
   // FORMULE RTH : court-circuiter l'onboarding → accueil simplifié 3 contrôles
   // (avec engagement signé au 1er accès). La version complète passe par l'onboarding.
   if (FORMULE_ACTIVE === 'rth') { try { demarrerRTH(); return; } catch(eRth){ console.warn('RTH:', eRth); } }
-  // UX — Compte VERROUILLÉ sur un seul secteur (essai OU payant) : l'écran « Choisissez
-  // votre secteur » ne sert à rien (un seul secteur autorisé) et donne l'impression que
-  // « aucun secteur n'est activé » (tout est grisé). On active donc directement SON
-  // secteur et on entre dans l'app. Les comptes multi-secteurs (test) gardent l'écran.
-  try {
-    if (CLIENT_MODE && ETAB.secteur && SECTEURS_CONFIG && SECTEURS_CONFIG[ETAB.secteur]) {
-      choisirSecteur(ETAB.secteur);
-      return;
-    }
-  } catch(eAutoSect) {}
   showPage('page-onboarding');
 }
 
