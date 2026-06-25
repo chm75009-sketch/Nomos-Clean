@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v371';
+var APP_BUILD = 'v372';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13927,8 +13927,14 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
 
           // V117 — Températures Enceintes : détail par enceinte (nom, seuil, valeur, action)
           if (pid === 'page-temperatures' && Array.isArray(sd.temperatures)) {
+            var _tsfNC = _getTempSourceFiltre();
+            var _sAutoNC = !!(sd.auto || sd.source === 'ubibot' || /ubibot|automatique/i.test(sd.signe || sd.signataire || ''));
             sd.temperatures.forEach(function(enc) {
               if (!enc || !enc.isNC) return;
+              // Respecter le choix de source (capteur / manuel / les deux) — cohérent avec la section détail.
+              var _aNC = _sAutoNC || _estReleveAuto(enc);
+              if (_tsfNC === 'auto' && !_aNC) return;
+              if (_tsfNC === 'manuel' && _aNC) return;
               // Seuil via la source de vérité unique (catalogue + libellé + mots-clés)
               var seuilE = seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||''));
               var encName = (enc.type || 'Enceinte') + (enc.refNum ? ' N°' + enc.refNum : '') + (enc.precision ? ' — ' + enc.precision : '');
