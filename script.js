@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v373';
+var APP_BUILD = 'v374';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13937,6 +13937,17 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
               if (_tsfNC === 'manuel' && _aNC) return;
               // Seuil via la source de vérité unique (catalogue + libellé + mots-clés)
               var seuilE = seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||''));
+              // Repli capteur : si le nom générique ne donne pas de seuil, on le lit dans la config de la sonde (min/max).
+              if (!seuilE || seuilE === '—') {
+                try {
+                  var _son = (typeof getSondesConfig === 'function') ? getSondesConfig() : [];
+                  var _enN = (typeof _ttNorm === 'function') ? _ttNorm(enc.type || enc.nom || '') : String(enc.type||'').toLowerCase().trim();
+                  for (var _ks = 0; _ks < _son.length; _ks++) {
+                    var _sn = (typeof _ttNorm === 'function') ? _ttNorm(_son[_ks].enceinte || '') : String(_son[_ks].enceinte||'').toLowerCase().trim();
+                    if (_sn && _sn === _enN) { var _mn = _son[_ks].min, _mx = _son[_ks].max; if (_mn != null && _mx != null && _mn !== '' && _mx !== '') seuilE = ((_mn<0?'':'+')+_mn) + ' à ' + ((_mx<0?'':'+')+_mx) + '°C'; break; }
+                  }
+                } catch(e){}
+              }
               var encName = (enc.type || 'Enceinte') + (enc.refNum ? ' N°' + enc.refNum : '') + (enc.precision ? ' — ' + enc.precision : '');
               var valE = fmtTemp(enc.temp);
               totalNCs.push({ module: moduleName, uid: 'd' + (_uidSeq++), label: encName + ' — T° hors seuil', action: enc.action || '', responsable: sd.signataire || '', heure: sessionHeure, date: sessionDate, seuil: seuilE, valeur: valE });
