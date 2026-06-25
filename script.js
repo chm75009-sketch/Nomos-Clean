@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v372';
+var APP_BUILD = 'v373';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -14735,9 +14735,25 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   btnFerm.onclick = function() { var el = document.getElementById('printOverlay'); if (el) el.remove(); };
   tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnFerm);
   tb.appendChild(tbTitle); tb.appendChild(tbBtns);
+  // Barre de choix de source température — TOUJOURS visible, quel que soit le bouton qui a ouvert le Pack
+  var tb2 = document.createElement('div');
+  tb2.className = 'no-print';
+  tb2.style.cssText = 'background:#312e81;padding:8px 16px;display:flex;align-items:center;gap:6px;position:sticky;top:44px;z-index:1;flex-wrap:wrap';
+  var _tsLbl = document.createElement('span');
+  _tsLbl.textContent = 'Relevés température :';
+  _tsLbl.style.cssText = 'color:#c7d2fe;font-size:11px;font-weight:700';
+  tb2.appendChild(_tsLbl);
+  var _curTs = (typeof _getTempSourceFiltre === 'function') ? _getTempSourceFiltre() : 'both';
+  [['both','Les deux'],['auto','🤖 Auto'],['manuel','✍️ Manuel']].forEach(function(o){
+    var b = document.createElement('button');
+    b.textContent = o[1];
+    b.style.cssText = 'border:none;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:11px;' + (_curTs===o[0] ? 'background:#22d3ee;color:#06283d' : 'background:rgba(255,255,255,.15);color:#fff');
+    b.onclick = function(){ try { if (typeof setTempSourceFiltre==='function') setTempSourceFiltre(o[0]); } catch(e){} try { lancerPackDDPP(dateFrom, dateTo, selectionIds); } catch(e){} };
+    tb2.appendChild(b);
+  });
   var ct = document.createElement('div');
   ct.innerHTML = html;
-  overlay.appendChild(tb); overlay.appendChild(ct);
+  overlay.appendChild(tb); overlay.appendChild(tb2); overlay.appendChild(ct);
   document.body.appendChild(overlay);
   overlay.scrollTop = 0;
   showToast('Pack DDPP généré — ' + modules.length + ' modules', 'ok', 3000);
