@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v369';
+var APP_BUILD = 'v370';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3045,6 +3045,7 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     html += '</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:10pt">';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Émargement</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(_estReleveAuto(enc) ? '🤖 Relevé automatique (capteur UbiBot)' : ('✍️ ' + (signataire || 'Manuel'))) + '</td></tr>';
+    if (enc._quand) html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Date / heure</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(String(enc._quand)) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(enc.type) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T relevee</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (enc.temp ? enc.temp + '°C' : '—') + (seuilTxt && seuilTxt !== '—' ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + seuilTxt + ')</span>' : '') + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformite</td><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(enc.conf) + '</td></tr>';
@@ -9584,7 +9585,7 @@ function _enceintesTemperaturePourImpression(source) {
       var today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       (getDonneesPeriode('page-temperatures', today, today) || []).forEach(function(s){
         var arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
-        arr.forEach(function(e){ if (_estReleveAuto(e)) auto.push(Object.assign({}, e)); });
+        arr.forEach(function(e){ if (_estReleveAuto(e)) { var c = Object.assign({}, e); c._quand = (s.data && s.data.timestamp) || s.timestamp || ''; auto.push(c); } });
       });
     } catch(e){}
   }
@@ -15613,13 +15614,13 @@ function reimprimerControleCloud(ts) {
               (getDonneesPeriode('page-temperatures', _jourTC, _jourTC) || []).forEach(function(s){
                 var sAuto = !!(s.data && (s.data.auto || s.data.source === 'ubibot' || /ubibot|automatique/i.test(s.data.signe || s.data.signataire || '')));
                 var arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
-                arr.forEach(function(e){ var a = sAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; data.push(e); });
+                arr.forEach(function(e){ var a = sAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; var c = Object.assign({}, e); c._quand = (s.data && s.data.timestamp) || s.timestamp || ''; data.push(c); });
               });
             }
           } catch(e){}
           if (!data.length) {
             var rAuto = !!(row.contenu && (row.contenu.auto || /ubibot|automatique/i.test(row.contenu.signe || row.contenu.signataire || '')));
-            (row.contenu.temperatures || []).forEach(function(e){ var a = rAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; data.push(e); });
+            (row.contenu.temperatures || []).forEach(function(e){ var a = rAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; var c = Object.assign({}, e); c._quand = (row.contenu && row.contenu.timestamp) || ''; data.push(c); });
           }
           if (!data.length) { if (typeof showToast === 'function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'pour ce contrôle', 'warn', 3500); return; }
           imprimerTemperatures(data, (row.contenu.signe || row.contenu.signataire || ''), row.contenu.timestamp);
@@ -15697,7 +15698,7 @@ function reimprimerControle(code, ts) {
               var a = sAuto || _estReleveAuto(e);
               if (src === 'auto' && !a) return;
               if (src === 'manuel' && a) return;
-              data.push(e);
+              var c = Object.assign({}, e); c._quand = (s.data && s.data.timestamp) || s.timestamp || ''; data.push(c);
             });
           });
         } catch(e){}
