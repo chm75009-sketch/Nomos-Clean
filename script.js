@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v356';
+var APP_BUILD = 'v357';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25625,7 +25625,8 @@ function _ouvrirModalSauvegardeQuot() {
     + '<input id="sqNomFichier" type="text" value="' + _echap(_sqNomDefaut()) + '" style="width:100%;box-sizing:border-box;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;font-size:13px;margin-bottom:14px;color:#0f172a;background:#fff" />'
     + '<button onclick="_sqTelechargerPDF()" style="width:100%;background:#4338ca;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:4px">📄 Enregistrer en PDF (Pack DDPP) <span id="sq_pdf_ok" style="display:none">✅</span></button>'
     + '<div style="font-size:10px;color:#94a3b8;text-align:center;margin-bottom:10px">Sur iPhone/iPad : touchez Partager ↑ puis « Enregistrer dans Fichiers ».</div>'
-    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">💾 Enregistrer ma sauvegarde complète <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:4px">💾 Sauvegarde complète (restauration) <span id="sq_json_ok" style="display:none">✅</span></button>'
+    + '<div style="font-size:10px;color:#94a3b8;text-align:center;margin-bottom:12px">Fichier de secours, à réimporter pour tout récupérer si vous perdez ou changez d\'appareil (ne se lit pas).</div>'
     + (_sqFsSupporte() ? '<button onclick="choisirDossierSauvegarde()" style="width:100%;background:#0f766e;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">📁 Sauvegarder automatiquement dans un dossier <span id="sq_dossier_ok" style="display:none">✅</span></button>' : '')
     + '<button id="sqBtnTermine" onclick="_sqFermer(true)" disabled style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:not-allowed;opacity:.5;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
     + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();_sqFermer(true)" style="font-size:11px;color:#94a3b8;text-decoration:underline">Je l\'ai déjà fait / Plus tard</a></div>'
