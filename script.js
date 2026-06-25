@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v361';
+var APP_BUILD = 'v362';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12819,6 +12819,34 @@ async function validerAudit() {
 }
 
 // EXPORTS
+// ── Filtre source des relevés de température : 'both' | 'auto' | 'manuel' ──
+// Réglage partagé et mémorisé, utilisé par tous les rapports/impressions de température.
+function _getTempSourceFiltre(){
+  try { return localStorage.getItem('haccp_temp_source_filtre') || 'both'; } catch(e){ return window._tempSourceFiltre || 'both'; }
+}
+function setTempSourceFiltre(v){
+  if (v !== 'auto' && v !== 'manuel') v = 'both';
+  window._tempSourceFiltre = v;
+  try { localStorage.setItem('haccp_temp_source_filtre', v); } catch(e){}
+  try {
+    document.querySelectorAll('.tsf-btn').forEach(function(b){
+      b.classList.toggle('active-ok', b.getAttribute('data-tsf') === v);
+    });
+  } catch(e){}
+}
+function _estReleveAuto(e){
+  return !!(e && (e._auto || /ubibot|automatique/i.test(String(e.source||''))));
+}
+function _tempSourceSelectorHTML(titre){
+  var v = _getTempSourceFiltre();
+  function btn(val,label){ return '<button type="button" class="status-btn tsf-btn' + (v===val?' active-ok':'') + '" data-tsf="' + val + '" onclick="setTempSourceFiltre(\'' + val + '\')">' + label + '</button>'; }
+  return '<div style="background:#f0f9ff;border-radius:12px;padding:12px;margin-bottom:12px">'
+    + '<div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">' + (titre || 'Relevés de température à inclure') + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">'
+    + btn('both','Les deux') + btn('auto','🤖 Auto') + btn('manuel','✍️ Manuel')
+    + '</div></div>';
+}
+
 function genererPackDDPP() {
   // Afficher le sélecteur de période
   var existing = document.getElementById('ddppPeriodeModal');
@@ -12855,6 +12883,7 @@ function genererPackDDPP() {
         '</div>' +
         '<button class="btn-p" style="width:100%;margin-top:10px" onclick="lancerPackDDPPCustom()">Generer la periode</button>' +
       '</div>' +
+      _tempSourceSelectorHTML('Relevés de température à inclure (capteur / manuel)') +
       '<button class="modal-btn-skip" onclick="fermerDDPPModal()">Annuler</button>' +
     '</div>';
   document.body.appendChild(modal);
@@ -13415,6 +13444,11 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
         arr.forEach(function(e){ e._sessDate=_dS; e._sessTs=s.timestamp; e._sig=_sig; e._auto=_auto; encs.push(e); });
       });
       var filled = encs.filter(function(e){ return e.temp || e.type !== '—'; });
+      // Filtre source choisi par l'utilisateur : auto (capteur) / manuel / les deux
+      var _tsf = _getTempSourceFiltre();
+      if (_tsf === 'auto' || _tsf === 'manuel') {
+        filled = filled.filter(function(e){ var a = _estReleveAuto(e); return _tsf === 'auto' ? a : !a; });
+      }
       if (filled.length === 0) { html += '<div style="padding:10px;color:#6b7280;font-size:11px">Aucune donnée saisie</div>'; }
       else {
         // V… — REGROUPER PAR ENCEINTE : une seule carte par enceinte (fini les
