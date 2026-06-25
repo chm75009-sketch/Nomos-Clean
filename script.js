@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v366';
+var APP_BUILD = 'v367';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15659,9 +15659,27 @@ function reimprimerControle(code, ts) {
       imprimerHuilesData(entry.data.huiles, (entry.data.signe || entry.data.signataire || ''), entry.data.timestamp);
       return;
     }
-    // Températures : beau rapport par enceinte depuis les données enregistrées
-    if (entry && entry.data && code === 'temperatures' && Array.isArray(entry.data.temperatures) && typeof imprimerTemperatures === 'function') {
-      imprimerTemperatures(entry.data.temperatures, (entry.data.signe || entry.data.signataire || ''), entry.data.timestamp);
+    // Températures : on DEMANDE la source (capteur/manuel/les deux), puis on
+    // reconstruit le rapport du JOUR de ce contrôle selon le choix.
+    if (entry && entry.data && code === 'temperatures' && typeof imprimerTemperatures === 'function') {
+      var _jourT = ts ? String(ts).split('T')[0] : today;
+      _demanderSourceTemp(function(src){
+        var data = [];
+        try {
+          (getDonneesPeriode('page-temperatures', _jourT, _jourT) || []).forEach(function(s){
+            var sAuto = !!(s.data && (s.data.auto || s.data.source === 'ubibot' || /ubibot|automatique/i.test(s.data.signe || s.data.signataire || '')));
+            var arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
+            arr.forEach(function(e){
+              var a = sAuto || _estReleveAuto(e);
+              if (src === 'auto' && !a) return;
+              if (src === 'manuel' && a) return;
+              data.push(e);
+            });
+          });
+        } catch(e){}
+        if (!data.length) { if (typeof showToast === 'function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'ce jour-là', 'warn', 3500); return; }
+        imprimerTemperatures(data, (entry.data.signe || entry.data.signataire || ''), entry.data.timestamp);
+      });
       return;
     }
     // Document COMPLET reconstruit depuis les données enregistrées
