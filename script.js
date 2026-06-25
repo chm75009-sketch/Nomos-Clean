@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v374';
+var APP_BUILD = 'v375';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13945,6 +13945,17 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
                   for (var _ks = 0; _ks < _son.length; _ks++) {
                     var _sn = (typeof _ttNorm === 'function') ? _ttNorm(_son[_ks].enceinte || '') : String(_son[_ks].enceinte||'').toLowerCase().trim();
                     if (_sn && _sn === _enN) { var _mn = _son[_ks].min, _mx = _son[_ks].max; if (_mn != null && _mx != null && _mn !== '' && _mx !== '') seuilE = ((_mn<0?'':'+')+_mn) + ' à ' + ((_mx<0?'':'+')+_mx) + '°C'; break; }
+                  }
+                } catch(e){}
+              }
+              // 3e niveau (enceinte manuelle) : seuil depuis la config des enceintes.
+              if (!seuilE || seuilE === '—') {
+                try {
+                  var _ec = (typeof getEnceintesConfig === 'function') ? getEnceintesConfig() : [];
+                  var _enN2 = (typeof _ttNorm === 'function') ? _ttNorm(enc.type || enc.nom || '') : String(enc.type||'').toLowerCase().trim();
+                  for (var _kc = 0; _kc < _ec.length; _kc++) {
+                    var _cn = (typeof _ttNorm === 'function') ? _ttNorm((_ec[_kc].nom || _ec[_kc].name) || '') : '';
+                    if (_cn && _cn === _enN2) { var _sv = _ec[_kc].seuil; if (_sv != null && isFinite(_sv)) seuilE = '≤ ' + (_sv<0?'':'+') + _sv + '°C'; break; }
                   }
                 } catch(e){}
               }
