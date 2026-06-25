@@ -42,7 +42,38 @@
             } catch (e) {}
             window._majPrete = false;
             window.location.reload();
+          } else {
+            // Pas sur un écran neutre (saisie / lecture en cours) : on n'interrompt
+            // PAS, mais on affiche un bouton « Mettre à jour » discret → 1 clic suffit
+            // pour passer à la dernière version, sans jamais toucher au cache ni au F12.
+            window._afficherBanniereMaj();
           }
+        } catch (e) {}
+      };
+
+      // Bandeau « Nouvelle version disponible » + bouton 1 clic (filet universel :
+      // marche sur tout appareil, même si l'utilisateur ne repasse jamais par l'accueil).
+      window._afficherBanniereMaj = function () {
+        try {
+          if (document.getElementById('majBanner') || !document.body) return;
+          var b = document.createElement('div');
+          b.id = 'majBanner';
+          b.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483646;background:#16a34a;color:#fff;padding:11px 14px 11px 16px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.28);font-family:Outfit,system-ui,sans-serif;font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:12px;max-width:92vw';
+          b.appendChild(document.createTextNode('🔄 Nouvelle version disponible'));
+          var btn = document.createElement('button');
+          btn.textContent = 'Mettre à jour';
+          btn.style.cssText = 'background:#fff;color:#16a34a;border:none;border-radius:8px;padding:8px 14px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;white-space:nowrap';
+          btn.onclick = function () {
+            try {
+              if (typeof ETAB_ID !== 'undefined' && ETAB_ID && localStorage.getItem('haccp_deconnecte') !== '1') {
+                sessionStorage.setItem('haccp_maj_reprise', '1');
+              }
+            } catch (e) {}
+            window._majPrete = false;
+            window.location.reload();
+          };
+          b.appendChild(btn);
+          document.body.appendChild(b);
         } catch (e) {}
       };
 
