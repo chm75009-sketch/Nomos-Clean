@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v376';
+var APP_BUILD = 'v377';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15513,6 +15513,7 @@ async function chargerHistoriqueControlesCloud() {
         var actE = document.querySelector('.page.active');
         if (actE && actE.id === 'page-dashboard' && typeof initDashboard === 'function') initDashboard();
       } catch(eR0) {}
+      try { if (typeof renderBarometre === 'function') renderBarometre(); } catch(eRB0) {}
       return;
     }
 
@@ -15558,6 +15559,9 @@ async function chargerHistoriqueControlesCloud() {
       var act = document.querySelector('.page.active');
       if (act && act.id === 'page-dashboard' && typeof initDashboard === 'function') initDashboard();
     } catch(eR) {}
+    // Rafraîchir le baromètre (page guide) une fois le cloud chargé, pour que le
+    // compteur soit identique sur tous les appareils (téléphone/PC).
+    try { if (typeof renderBarometre === 'function') renderBarometre(); } catch(eRB) {}
   } catch(e) { console.warn('historique cloud err:', e.message || e); }
 }
 
@@ -16231,9 +16235,19 @@ function renderBarometre() {
       historique = historique.filter(function(en){ return _secteurActifMatch(en); });
     }
     var jour = historique.filter(function(en){ return en && en.date === today; });
-    var nb = jour.length;
-    var modulesCouverts = {};
-    jour.forEach(function(en){ if (en && en.module) modulesCouverts[en.module] = true; });
+    // Compteur du jour depuis les données SYNCHRONISÉES (cloud + local) pour que
+    // le baromètre soit IDENTIQUE sur tous les appareils (téléphone 2 / PC 0 avant).
+    // getDonneesPeriode fusionne le cloud et filtre par secteur.
+    var nb = 0, modulesCouverts = {};
+    var _pagesB = ['page-reception','page-temperatures','page-hygiene','page-ouverture','page-cuisson','page-refroidissement','page-huiles','page-etiquetage','page-fermeture','page-pertes','page-dechets','page-nuisibles','page-documents','page-affichage','page-audits'];
+    _pagesB.forEach(function(pid){
+      try { (getDonneesPeriode(pid, today, today) || []).forEach(function(){ nb++; modulesCouverts[pid] = true; }); } catch(e){}
+    });
+    // Repli sur le journal local si le cloud n'a encore rien renvoyé.
+    if (nb === 0 && jour.length) {
+      nb = jour.length;
+      jour.forEach(function(en){ if (en && en.module) modulesCouverts[en.module] = true; });
+    }
     var nbModules = Object.keys(modulesCouverts).length;
 
     var pct = Math.max(0, Math.min(1, nb / BAROMETRE_OBJECTIF));
