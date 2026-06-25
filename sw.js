@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v368';
+const CACHE = 'haccp-pro-v369';
 const CORE = [
   './',
   './accueil.html',
