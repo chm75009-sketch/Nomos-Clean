@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v368';
+var APP_BUILD = 'v369';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3018,11 +3018,16 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   var filled = enceintes.filter(function(e){ return e.temp || e.type !== '—'; });
   if (filled.length === 0) { showToast('Aucune enceinte saisie', 'warn'); return; }
   var ncCount = filled.filter(function(e){ return e.isNC; }).length;
+  // Émargement d'en-tête adapté à la source : tout capteur → « Relevé automatique »,
+  // tout manuel → le nom saisi, mélange → renvoi vers le détail par enceinte.
+  var _nbAutoT = filled.filter(function(e){ return _estReleveAuto(e); }).length;
+  var _enteteEmarg = (filled.length && _nbAutoT === filled.length) ? 'Relevé automatique (capteur UbiBot)'
+                    : (_nbAutoT === 0 ? (signataire || '—') : 'Mixte (capteur + manuel) — voir par enceinte');
   var html = '<div style="padding:0 16px 20px;font-family:Arial,sans-serif">';
   html += '<div style="background:linear-gradient(135deg,#0891b2,#22d3ee);color:white;padding:14px 16px;border-radius:10px;margin-bottom:14px">';
   html += '<div style="font-weight:800;font-size:15px">Temperatures Enceintes Froides</div>';
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + _echap(ETAB.nom||'') + ' — ' + (tsOverride || getNowStr()) + '</div>';
-  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + (signataire || '—') + '</div>';
+  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + _echap(_enteteEmarg) + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
   if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformite(s)</div>';
   html += '</div>';
@@ -3039,6 +3044,7 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     if (enc.isNC) html += '<span style="font-size:11px;font-weight:700">NC</span>';
     html += '</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:10pt">';
+    html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Émargement</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(_estReleveAuto(enc) ? '🤖 Relevé automatique (capteur UbiBot)' : ('✍️ ' + (signataire || 'Manuel'))) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(enc.type) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T relevee</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (enc.temp ? enc.temp + '°C' : '—') + (seuilTxt && seuilTxt !== '—' ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + seuilTxt + ')</span>' : '') + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformite</td><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(enc.conf) + '</td></tr>';
