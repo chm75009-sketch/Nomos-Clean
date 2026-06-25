@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v362';
+var APP_BUILD = 'v363';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -9548,8 +9548,50 @@ async function _finaliserTemperatures(prenom, nom, retirerVides) {
   stopBrouillonAuto(); effacerBrouillon('page-temperatures');
 }
 
+// Demande la source des relevés température (auto/manuel/les deux) puis appelle onChoix(src).
+function _demanderSourceTemp(onChoix) {
+  var ex = document.getElementById('srcTempModal'); if (ex) ex.remove();
+  var ov = document.createElement('div');
+  ov.id = 'srcTempModal';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:rgba(15,23,42,.78);display:flex;align-items:center;justify-content:center;padding:18px';
+  window._choixSourceTemp = function(v){ try{ setTempSourceFiltre(v); }catch(e){} var m=document.getElementById('srcTempModal'); if(m)m.remove(); try{ onChoix(v); }catch(e){} };
+  function b(v,l){ return '<button type="button" onclick="_choixSourceTemp(\'' + v + '\')" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">' + l + '</button>'; }
+  ov.innerHTML = '<div style="background:#fff;max-width:380px;width:100%;border-radius:18px;padding:22px;font-family:inherit;box-sizing:border-box">'
+    + '<div style="font-size:30px;text-align:center">🌡️</div>'
+    + '<h2 style="font-size:17px;color:#0f172a;text-align:center;margin:6px 0 4px">Relevés à inclure</h2>'
+    + '<p style="font-size:12px;color:#475569;text-align:center;margin:0 0 16px">Quels relevés de température mettre dans ce document ?</p>'
+    + b('both','Les deux (capteur + manuel)') + b('auto','🤖 Capteur (auto) seulement') + b('manuel','✍️ Manuel seulement')
+    + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();var m=document.getElementById(\'srcTempModal\');if(m)m.remove()" style="font-size:11px;color:#94a3b8;text-decoration:underline">Annuler</a></div>'
+    + '</div>';
+  document.body.appendChild(ov);
+}
+// Liste d'enceintes à imprimer selon la source : manuel = écran courant ;
+// auto = relevés capteurs du jour (archive) ; both = les deux.
+function _enceintesTemperaturePourImpression(source) {
+  var manuel = [];
+  try { manuel = (typeof collecterDonneesTemperatures === 'function') ? (collecterDonneesTemperatures() || []) : []; } catch(e){}
+  manuel = manuel.filter(function(e){ return e.temp || e.type !== '—'; });
+  var auto = [];
+  if (source !== 'manuel') {
+    try {
+      var d = new Date();
+      var today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      (getDonneesPeriode('page-temperatures', today, today) || []).forEach(function(s){
+        var arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
+        arr.forEach(function(e){ if (_estReleveAuto(e)) auto.push(Object.assign({}, e)); });
+      });
+    } catch(e){}
+  }
+  if (source === 'auto') return auto;
+  if (source === 'manuel') return manuel;
+  return manuel.concat(auto);
+}
 function downloadTempPDF() {
-  imprimerTemperatures();
+  _demanderSourceTemp(function(src){
+    var data = _enceintesTemperaturePourImpression(src);
+    if (!data.length) { if (typeof showToast==='function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'pour aujourd\'hui', 'warn', 3500); return; }
+    imprimerTemperatures(data);
+  });
 }
 
 function confirmerSansTempPDF() {
