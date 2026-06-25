@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v360';
+var APP_BUILD = 'v361';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5238,6 +5238,7 @@ function ajouterProduit(skipScroll, compartId) {
             '❌ PHOTO NON VALIDE — Cochez les 2 cases ci-dessous pour qu\'elle soit acceptée' +
           '</div>' +
           '<img class="photo-preview" id="photo_' + id + '" alt="" style="display:block;width:100%;border:3px solid #dc2626;border-top:none;border-radius:0 0 10px 10px;box-sizing:border-box"/>' +
+          '<button type="button" onclick="supprimerPhotoEtiquette(' + id + ')" style="width:100%;margin-top:6px;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Supprimer la photo / en reprendre une autre</button>' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">' +
           '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;cursor:pointer">' +
@@ -6789,6 +6790,8 @@ function takePhoto(id) {
         if (dlcOk) { dlcOk.checked = false; dlcOk.disabled = false; }
         // Vérifier (overlay rouge affiché car cases non cochées)
         verifierPhotoLotDLC(id);
+        // Reprise de photo : retirer l'ancienne de la file avant d'ajouter la nouvelle
+        try { _supprimerPhotosAttente(id, 'etiquette_reception'); } catch(e){}
         // V116 — Range la photo dans la boîte d'attente (cloud)
         apresLaCapturePhoto(compressed, id, 'etiquette_reception');
         // V116 — Nettoyage : retirer l'input du DOM
@@ -6846,6 +6849,32 @@ function verifierPhotoLotDLC(id) {
       status.innerHTML = '⚠️ Photo NON valide — sera supprimée à la validation si vous ne cochez pas les <strong>2 cases</strong>';
     }
   }
+}
+
+// Retire de la file d'attente (IndexedDB) les photos « en attente » d'un contrôle/source
+// donnés (utilisé pour la suppression manuelle ET la reprise de photo).
+async function _supprimerPhotosAttente(controleId, source) {
+  try {
+    if (!photoQueueDB) return;
+    var cid = String(controleId);
+    var rows = await photoQueueDB.photos.where('controleId').equals(cid).toArray();
+    for (var i = 0; i < rows.length; i++) {
+      if (rows[i].source === source && rows[i].status === 'pending') {
+        try { await photoQueueDB.photos.delete(rows[i].id); } catch(e){}
+      }
+    }
+  } catch(e) { console.warn('[HACCP Photo] suppression file:', e); }
+}
+// Supprime la photo d'étiquette d'un produit (réception) : DOM + file d'attente,
+// décoche/bloque les 2 cases, et permet d'en reprendre une autre.
+function supprimerPhotoEtiquette(id) {
+  var img = document.getElementById('photo_' + id);
+  if (img) img.src = '';
+  var wrapper = document.getElementById('photo_wrapper_' + id);
+  if (wrapper) wrapper.style.display = 'none';
+  try { verifierPhotoLotDLC(id); } catch(e){}   // décoche + bloque les 2 cases (plus de photo)
+  try { _supprimerPhotosAttente(id, 'etiquette_reception'); } catch(e){}
+  if (typeof showToast === 'function') showToast('🗑️ Photo supprimée — vous pouvez en reprendre une.', 'ok', 3500);
 }
 
 // SIGNATURE
