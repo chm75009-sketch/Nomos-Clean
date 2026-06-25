@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v357';
+var APP_BUILD = 'v358';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5241,10 +5241,10 @@ function ajouterProduit(skipScroll, compartId) {
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">' +
           '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;cursor:pointer">' +
-            '<input type="checkbox" id="ph_lot_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" style="width:18px;height:18px"/> N° de lot lisible sur la photo' +
+            '<input type="checkbox" id="ph_lot_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" disabled style="width:18px;height:18px"/> N° de lot lisible sur la photo' +
           '</label>' +
           '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;cursor:pointer">' +
-            '<input type="checkbox" id="ph_dlc_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" style="width:18px;height:18px"/> DLC / DLUO lisible sur la photo' +
+            '<input type="checkbox" id="ph_dlc_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" disabled style="width:18px;height:18px"/> DLC / DLUO lisible sur la photo' +
           '</label>' +
           '<div id="photo_status_' + id + '" style="display:none;font-size:11px;font-weight:700;border-radius:6px;padding:6px 8px;margin-top:6px;line-height:1.4"></div>' +
         '</div>' +
@@ -6782,8 +6782,8 @@ function takePhoto(id) {
         // Réinitialiser les cases (nouvelle photo = à re-vérifier)
         var lotOk = document.getElementById('ph_lot_ok_' + id);
         var dlcOk = document.getElementById('ph_dlc_ok_' + id);
-        if (lotOk) lotOk.checked = false;
-        if (dlcOk) dlcOk.checked = false;
+        if (lotOk) { lotOk.checked = false; lotOk.disabled = false; }
+        if (dlcOk) { dlcOk.checked = false; dlcOk.disabled = false; }
         // Vérifier (overlay rouge affiché car cases non cochées)
         verifierPhotoLotDLC(id);
         // V116 — Range la photo dans la boîte d'attente (cloud)
@@ -6808,8 +6808,10 @@ function verifierPhotoLotDLC(id) {
   var banner = document.getElementById('photo_banner_' + id);
   var status = document.getElementById('photo_status_' + id);
   if (!img) return;
-  // Pas de photo prise → tout masqué
+  // Pas de photo prise → cases bloquées (on ne peut pas attester une photo inexistante)
   if (!img.src) {
+    if (lotOk) { lotOk.checked = false; lotOk.disabled = true; }
+    if (dlcOk) { dlcOk.checked = false; dlcOk.disabled = true; }
     if (wrapper) wrapper.style.display = 'none';
     if (status) status.style.display = 'none';
     return;
