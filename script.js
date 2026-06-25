@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v378';
+var APP_BUILD = 'v379';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16268,30 +16268,29 @@ function renderBarometre() {
     var couleur = nb === 0 ? '#94a3b8' : (pct < 0.34 ? '#dc2626' : pct < 0.67 ? '#f59e0b' : '#16a34a');
     var etat = nb === 0 ? 'Aucun contrôle' : (pct < 0.34 ? 'À compléter' : pct < 0.67 ? 'En bonne voie' : 'Journée à jour');
 
-    // Jauge SVG demi-cercle
-    var cx = 130, cy = 122, r = 104;
-    var needle = _baroPoint(cx, cy, r - 14, pct);
-    // Cadran gradué 1 → 6 : chaque chiffre est posé à l'angle EXACT que vise
-    // l'aiguille pour ce nombre de contrôles → l'aiguille pointe pile le bon numéro.
+    // Jauge SVG demi-cercle — épurée : chiffres du cadran à l'EXTÉRIEUR de l'arc,
+    // grand chiffre central seul (sans sous-texte tassé), aiguille courte qui ne
+    // traverse pas le chiffre. Le détail « X/6 objectif » reste affiché dessous.
+    var cx = 130, cy = 132, r = 96;
+    var needle = _baroPoint(cx, cy, r - 30, pct);
     var grads = '';
     for (var gk = 1; gk <= BAROMETRE_OBJECTIF; gk++) {
       var gt = gk / BAROMETRE_OBJECTIF;
-      var gIn  = _baroPoint(cx, cy, r - 9,  gt);   // bord intérieur de l'arc
-      var gOut = _baroPoint(cx, cy, r + 9,  gt);   // bord extérieur de l'arc
-      var gLbl = _baroPoint(cx, cy, r - 28, gt);   // position du chiffre
+      var gIn  = _baroPoint(cx, cy, r - 8,  gt);   // bord intérieur de l'arc
+      var gOut = _baroPoint(cx, cy, r + 8,  gt);   // bord extérieur de l'arc
+      var gLbl = _baroPoint(cx, cy, r + 19, gt);   // chiffre POSÉ à l'extérieur de l'arc
       var gOn  = gk <= nb;                          // chiffre déjà atteint ?
       grads +=
         '<line x1="' + gIn.x.toFixed(1) + '" y1="' + gIn.y.toFixed(1) + '" x2="' + gOut.x.toFixed(1) + '" y2="' + gOut.y.toFixed(1) + '" stroke="#ffffff" stroke-width="2"/>' +
-        '<text x="' + gLbl.x.toFixed(1) + '" y="' + (gLbl.y + 4).toFixed(1) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="800" font-size="12.5" fill="' + (gOn ? couleur : '#cbd5e1') + '">' + gk + '</text>';
+        '<text x="' + gLbl.x.toFixed(1) + '" y="' + (gLbl.y + 4).toFixed(1) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="800" font-size="11.5" fill="' + (gOn ? couleur : '#cbd5e1') + '">' + gk + '</text>';
     }
-    var svg = '<svg viewBox="0 0 260 142" width="100%" style="max-width:260px;display:block;margin:0 auto">' +
-      '<path d="' + _baroArc(cx, cy, r, 0, 1) + '" fill="none" stroke="#e5e7eb" stroke-width="18" stroke-linecap="round"/>' +
-      '<path d="' + _baroArc(cx, cy, r, 0, pct < 0.02 ? 0.02 : pct) + '" fill="none" stroke="' + couleur + '" stroke-width="18" stroke-linecap="round"/>' +
+    var svg = '<svg viewBox="0 0 260 150" width="100%" style="max-width:248px;display:block;margin:0 auto">' +
+      '<path d="' + _baroArc(cx, cy, r, 0, 1) + '" fill="none" stroke="#e5e7eb" stroke-width="15" stroke-linecap="round"/>' +
+      '<path d="' + _baroArc(cx, cy, r, 0, pct < 0.02 ? 0.02 : pct) + '" fill="none" stroke="' + couleur + '" stroke-width="15" stroke-linecap="round"/>' +
       grads +
-      '<line x1="' + cx + '" y1="' + cy + '" x2="' + needle.x.toFixed(1) + '" y2="' + needle.y.toFixed(1) + '" stroke="#1f2937" stroke-width="3.5" stroke-linecap="round"/>' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#1f2937"/>' +
-      '<text x="' + cx + '" y="100" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="900" font-size="40" fill="' + couleur + '">' + nb + '</text>' +
-      '<text x="' + cx + '" y="118" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="700" font-size="11" fill="#9ca3af">contrôle' + (nb > 1 ? 's' : '') + ' aujourd\'hui</text>' +
+      '<line x1="' + cx + '" y1="' + cy + '" x2="' + needle.x.toFixed(1) + '" y2="' + needle.y.toFixed(1) + '" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="#1f2937"/>' +
+      '<text x="' + cx + '" y="' + (cy - 22) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="900" font-size="46" fill="' + couleur + '">' + nb + '</text>' +
       '</svg>';
 
     // Fil temps réel : 4 derniers contrôles
@@ -16322,6 +16321,7 @@ function renderBarometre() {
           '<div style="font-size:10px;font-weight:800;color:' + couleur + ';background:' + couleur + '1a;padding:3px 9px;border-radius:20px">● ' + etat + '</div>' +
         '</div>' +
         svg +
+        '<div style="text-align:center;font-size:11px;font-weight:700;color:#9ca3af;margin:-6px 0 8px">contrôle' + (nb > 1 ? 's' : '') + ' aujourd\'hui</div>' +
         '<div style="display:flex;justify-content:center;gap:18px;margin:2px 0 10px">' +
           '<div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#1f2937">' + nbModules + '</div><div style="font-size:10px;color:#9ca3af;font-weight:700">modules couverts</div></div>' +
           '<div style="width:1px;background:#e5e7eb"></div>' +
