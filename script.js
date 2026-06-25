@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v365';
+var APP_BUILD = 'v366';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25162,6 +25162,7 @@ function ouvrirTableauTemp() {
     + '<div class="modal-ico">📊</div>'
     + '<div class="modal-title">Tableau des températures (Excel)</div>'
     + '<div class="modal-desc">Construit automatiquement depuis vos enceintes et vos capteurs. Téléchargeable à tout moment.</div>'
+    + _tempSourceSelectorHTML('Relevés à inclure dans le tableau (capteur / manuel)')
     + '<div style="background:#f0f9ff;border-radius:12px;padding:12px;margin:14px 0">'
     + '<div style="font-size:12px;font-weight:700;color:#0369a1;margin-bottom:8px">📅 Par mois (archive de l\'année)</div>'
     + '<div class="frow" style="margin-bottom:8px"><div class="flabel">Année</div><input type="number" id="tt_annee" class="finput" value="' + an + '" min="2024" max="2100"></div>'
@@ -25325,7 +25326,7 @@ function telechargerTableauPeriode() {
     _ttSync(function () {
       var diag = { found: 0, matched: 0, orphans: {} };
       _ttFetchControles(from, to).then(function (rows) {
-        var releves = _ttNormaliser(rows); diag.found = releves.length; if (rows && rows.length >= 100000) diag.tronque = true;
+        var releves = _ttNormaliser(rows); var _tsf = _getTempSourceFiltre(); if (_tsf === 'auto') releves = releves.filter(function(r){ return r.auto; }); else if (_tsf === 'manuel') releves = releves.filter(function(r){ return !r.auto; }); diag.found = releves.length; if (rows && rows.length >= 100000) diag.tronque = true;
         var cols = _ttColonnes(releves);   // colonnes = paramétrage + relevés réels
         var wb = new ExcelJS.Workbook();
         var ws = wb.addWorksheet('Relevés T°');
@@ -25350,7 +25351,7 @@ function telechargerTableauMois() {
     _ttSync(function () {
       var diag = { found: 0, matched: 0, orphans: {} };
       _ttFetchControles(from, to).then(function (rows) {
-        var releves = _ttNormaliser(rows); diag.found = releves.length; if (rows && rows.length >= 100000) diag.tronque = true;
+        var releves = _ttNormaliser(rows); var _tsf = _getTempSourceFiltre(); if (_tsf === 'auto') releves = releves.filter(function(r){ return r.auto; }); else if (_tsf === 'manuel') releves = releves.filter(function(r){ return !r.auto; }); diag.found = releves.length; if (rows && rows.length >= 100000) diag.tronque = true;
         var cols = _ttColonnes(releves);   // mêmes colonnes pour les 12 mois (paramétrage + relevés de l'année)
         var wb = new ExcelJS.Workbook();
         for (var mo = 0; mo < 12; mo++) {
