@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v363';
+var APP_BUILD = 'v364';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -12911,6 +12911,7 @@ function genererPackDDPP() {
       '<div class="modal-ico">🔴</div>' +
       '<div class="modal-title">Pack Contrôle DDPP</div>' +
       '<div class="modal-desc">Sélectionnez la période des contrôles à inclure dans le Pack DDPP</div>' +
+      _tempSourceSelectorHTML('Relevés de température à inclure (capteur / manuel)') +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0">' +
         '<button class="status-btn" data-dfrom="' + today + '" data-dto="' + today + '" onclick="selPeriodeDDPP(this)">Aujourd\u0027hui</button>' +
         '<button class="status-btn" data-dfrom="' + yesterday + '" data-dto="' + yesterday + '" onclick="selPeriodeDDPP(this)">Hier</button>' +
@@ -12925,7 +12926,6 @@ function genererPackDDPP() {
         '</div>' +
         '<button class="btn-p" style="width:100%;margin-top:10px" onclick="lancerPackDDPPCustom()">Generer la periode</button>' +
       '</div>' +
-      _tempSourceSelectorHTML('Relevés de température à inclure (capteur / manuel)') +
       '<button class="modal-btn-skip" onclick="fermerDDPPModal()">Annuler</button>' +
     '</div>';
   document.body.appendChild(modal);
