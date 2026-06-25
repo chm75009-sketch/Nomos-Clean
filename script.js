@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v370';
+var APP_BUILD = 'v371';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15965,7 +15965,7 @@ function initDashboard() {
         ncList.innerHTML = ncsActives.map(function(nc) {
           var col = nc.gravite === 'Critique' ? '#dc2626' : nc.gravite === 'Majeure' ? '#f97316' : '#f59e0b';
           return '<div style="background:#f9fafb;border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid ' + col + '">' +
-            '<div style="font-size:11px;color:#6b7280">' + _echap(nc.module) + ' — ' + nc.heure + '</div>' +
+            '<div style="font-size:11px;color:#6b7280">' + _echap(nc.module) + ' — ' + _echap((nc.date ? nc.date + ' ' : '') + (nc.heure || '')) + '</div>' +
             '<div style="font-size:13px;font-weight:700;color:' + col + ';margin-top:2px">' + _echap(nc.desc) + '</div>' +
             (nc.action ? '<div style="font-size:11px;color:#374151;margin-top:3px">Action : ' + _echap(nc.action) + '</div>' : '') +
           '</div>';
@@ -18579,7 +18579,7 @@ function alimenterRegistreNC() {
         '<span style="font-size:10px;background:' + graviteColor + ';color:white;padding:2px 8px;border-radius:20px;margin-left:8px">' + nc.gravite + '</span>' +
       '</div>' +
       '<div style="background:' + graviteBg + ';border-radius:8px;padding:8px 12px;margin-bottom:10px">' +
-        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">' + nc.heure + ' — ' + _echap(nc.module) + '</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-bottom:2px">' + _echap((nc.date ? nc.date + ' ' : '') + (nc.heure || '')) + ' — ' + _echap(nc.module) + '</div>' +
         '<div style="font-size:13px;font-weight:700;color:' + graviteColor + '">' + _echap(nc.desc) + '</div>' +
       '</div>' +
       '<div class="frow"><div class="flabel req" style="color:#dc2626">Action corrective</div>' +
