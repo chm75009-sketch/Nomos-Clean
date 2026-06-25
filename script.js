@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v364';
+var APP_BUILD = 'v365';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -20886,6 +20886,7 @@ function testEffacerDonnees() {
             return;
           }
           var rows = res.data || [];
+          window._capteursRows = rows;
           if (!rows.length) {
             c.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">Aucun capteur configuré chez vos clients pour l\'instant.</div>';
             return;
@@ -20896,6 +20897,7 @@ function testEffacerDonnees() {
             + '<span style="background:rgba(34,197,94,0.15);color:#22c55e;padding:4px 10px;border-radius:8px;font-weight:700">' + rows.length + ' capteur(s)</span>'
             + (nbNC ? '<span style="background:rgba(239,68,68,0.15);color:#ef4444;padding:4px 10px;border-radius:8px;font-weight:700">' + nbNC + ' hors seuil</span>' : '')
             + (nbHS ? '<span style="background:rgba(245,158,11,0.15);color:#f59e0b;padding:4px 10px;border-radius:8px;font-weight:700">' + nbHS + ' hors service</span>' : '')
+            + '<button onclick="exporterCapteursExcel()" style="background:rgba(59,130,246,0.18);color:#60a5fa;padding:4px 10px;border-radius:8px;font-weight:700;border:none;cursor:pointer;font-size:12px;margin-left:auto">📊 Excel</button>'
             + '</div><div style="display:flex;flex-direction:column;gap:8px">';
           rows.forEach(function(r) {
             var col, etat;
@@ -25106,6 +25108,42 @@ function _ttDownload(wb, nom) {
     document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
   });
 }
+// Export Excel du tableau de SUPERVISION CAPTEURS (admin). Utilise les lignes
+// rendues à l'écran (window._capteursRows) renvoyées par la RPC supervision_capteurs.
+window.exporterCapteursExcel = function() {
+  var rows = (typeof window !== 'undefined' && window._capteursRows) ? window._capteursRows : [];
+  if (!rows.length) { try { alert('Aucun capteur à exporter.'); } catch(e){} return; }
+  _ttEnsureExcel(function(ok){
+    if (!ok || typeof ExcelJS === 'undefined') { try { alert('Export Excel indisponible (connexion requise au premier usage).'); } catch(e){} return; }
+    try {
+      var wb = new ExcelJS.Workbook();
+      var ws = wb.addWorksheet('Capteurs');
+      ws.columns = [
+        { header: 'Établissement', key: 'etab', width: 30 },
+        { header: 'Enceinte', key: 'frigo', width: 24 },
+        { header: 'Température (°C)', key: 'temp', width: 16 },
+        { header: 'État', key: 'etat', width: 18 },
+        { header: 'Dernier relevé', key: 'date', width: 22 }
+      ];
+      ws.getRow(1).font = { bold: true };
+      rows.forEach(function(r){
+        var etat = r.hors_service ? 'Hors service' : (r.conforme ? 'Conforme' : 'Hors seuil');
+        var date = '';
+        try { if (r.derniere) date = new Date(r.derniere).toLocaleString('fr-FR'); } catch(e){}
+        ws.addRow({
+          etab: r.etablissement || r.code_client || '',
+          frigo: r.frigo || '',
+          temp: (r.temperature != null && r.temperature !== '') ? Number(r.temperature) : '',
+          etat: etat,
+          date: date
+        });
+      });
+      var d = new Date();
+      var stamp = d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0');
+      _ttDownload(wb, 'Supervision_capteurs_' + stamp + '.xlsx');
+    } catch(e){ try { alert('Erreur export Excel : ' + ((e && e.message) || e)); } catch(_){} }
+  });
+};
 function _ttJoursEntre(from, to) {
   var jours = []; var d = new Date(from + 'T00:00:00'); var end = new Date(to + 'T00:00:00');
   var guard = 0; while (d <= end && guard < 3660) { jours.push(_ttDateLoc(d)); d.setDate(d.getDate() + 1); guard++; }
