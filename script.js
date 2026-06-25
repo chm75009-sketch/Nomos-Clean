@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v380';
+var APP_BUILD = 'v381';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2249,41 +2249,50 @@ function appliquerClientMode() {
   var secteurClient = ETAB.secteur;
   var btns = document.querySelectorAll('#onb_step1 .onb-secteur-btn');
   btns.forEach(function(btn) {
-    var onclick = btn.getAttribute('onclick') || '';
-    var m = onclick.match(/choisirSecteur\('(\w+)'\)/);
-    if (m) {
-      var secteurBtn = m[1];
-      if (secteurBtn === secteurClient) {
-        // Secteur autorisé : mise en valeur
-        btn.style.opacity = '1';
-        btn.style.border = '2px solid #4ade80';
-        btn.style.boxShadow = '0 0 0 3px rgba(74,222,128,0.15)';
-        // Ajouter badge "MON SECTEUR" si pas déjà
-        if (!btn.querySelector('.badge-mon-secteur')) {
-          var badge = document.createElement('div');
-          badge.className = 'badge-mon-secteur';
-          badge.style.cssText = 'position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;font-size:9px;font-weight:900;padding:3px 8px;border-radius:10px;letter-spacing:0.5px';
-          badge.textContent = '✓ MON SECTEUR';
-          btn.style.position = 'relative';
-          btn.appendChild(badge);
-        }
-      } else {
-        // Secteur non autorisé : grisé + cadenas
-        btn.style.opacity = '0.4';
-        btn.style.cursor = 'not-allowed';
-        btn.style.filter = 'grayscale(80%)';
-        // Remplacer l'onclick par la popup
-        btn.setAttribute('onclick', "secteurVerrouille('" + secteurBtn + "'); return false;");
-        // Ajouter cadenas si pas déjà
-        if (!btn.querySelector('.cadenas-lock')) {
-          var lock = document.createElement('div');
-          lock.className = 'cadenas-lock';
-          lock.style.cssText = 'position:absolute;top:8px;right:8px;font-size:18px';
-          lock.textContent = '🔒';
-          btn.style.position = 'relative';
-          btn.appendChild(lock);
-        }
-      }
+    // IDEMPOTENT — la fonction peut tourner PLUSIEURS fois (reprise de session puis
+    // login cloud) avec un secteur différent à chaque fois. On mémorise donc le
+    // secteur ET l'onclick d'origine UNE fois, puis on RECONSTRUIT l'état à neuf à
+    // chaque passage. Sans ça : un secteur d'abord verrouillé (ex. défaut 'resto')
+    // gardait son cadenas + un onclick `secteurVerrouille(...)` que la regex ne
+    // reconnaissait plus → le PROPRE secteur du client restait bloqué (badge MON
+    // SECTEUR + cadenas en même temps, popup « non inclus » sur son secteur).
+    var secteurBtn = btn.getAttribute('data-secteur-orig');
+    if (!secteurBtn) {
+      var m0 = (btn.getAttribute('onclick') || '').match(/choisirSecteur\('(\w+)'\)/);
+      if (!m0) return;
+      secteurBtn = m0[1];
+      btn.setAttribute('data-secteur-orig', secteurBtn);
+    }
+    // Repartir d'un état propre (retirer badge/cadenas d'un passage précédent).
+    var ob = btn.querySelector('.badge-mon-secteur'); if (ob) ob.remove();
+    var ol = btn.querySelector('.cadenas-lock'); if (ol) ol.remove();
+    btn.style.position = 'relative';
+    if (secteurBtn === secteurClient) {
+      // Secteur autorisé : on RESTAURE l'action d'origine + mise en valeur.
+      btn.setAttribute('onclick', "choisirSecteur('" + secteurBtn + "')");
+      btn.style.opacity = '1';
+      btn.style.cursor = '';
+      btn.style.filter = '';
+      btn.style.border = '2px solid #4ade80';
+      btn.style.boxShadow = '0 0 0 3px rgba(74,222,128,0.15)';
+      var badge = document.createElement('div');
+      badge.className = 'badge-mon-secteur';
+      badge.style.cssText = 'position:absolute;top:8px;right:8px;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;font-size:9px;font-weight:900;padding:3px 8px;border-radius:10px;letter-spacing:0.5px';
+      badge.textContent = '✓ MON SECTEUR';
+      btn.appendChild(badge);
+    } else {
+      // Secteur non autorisé : grisé + cadenas + popup au clic.
+      btn.style.opacity = '0.4';
+      btn.style.cursor = 'not-allowed';
+      btn.style.filter = 'grayscale(80%)';
+      btn.style.border = '';
+      btn.style.boxShadow = '';
+      btn.setAttribute('onclick', "secteurVerrouille('" + secteurBtn + "'); return false;");
+      var lock = document.createElement('div');
+      lock.className = 'cadenas-lock';
+      lock.style.cssText = 'position:absolute;top:8px;right:8px;font-size:18px';
+      lock.textContent = '🔒';
+      btn.appendChild(lock);
     }
   });
   // Masquer le bouton modeTest aussi (réservé au testeur, pas au client)
@@ -2293,6 +2302,11 @@ function appliquerClientMode() {
 
 // V101 — Popup quand le client clique sur un secteur verrouillé
 window.secteurVerrouille = function(secteur) {
+  // FILET DE SÉCURITÉ — un compte ne doit JAMAIS être bloqué sur SON PROPRE secteur.
+  // Si malgré tout le clic arrive ici pour le secteur du compte, on entre normalement.
+  if (secteur && typeof ETAB !== 'undefined' && ETAB && ETAB.secteur === secteur) {
+    try { choisirSecteur(secteur); return; } catch(e) {}
+  }
   var noms = {
     'resto': 'Restauration traditionnelle',
     'bp': 'Boulangerie & Pâtisserie',
