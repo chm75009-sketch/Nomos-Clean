@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v367';
+var APP_BUILD = 'v368';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15599,7 +15599,25 @@ function reimprimerControleCloud(ts) {
       }
       var estTemp = /temp[ée]ratures?/i.test(String(titre)) || (pageId === 'page-temperatures');
       if (estTemp && row.contenu && Array.isArray(row.contenu.temperatures) && typeof imprimerTemperatures === 'function') {
-        imprimerTemperatures(row.contenu.temperatures, (row.contenu.signe || row.contenu.signataire || ''), row.contenu.timestamp);
+        var _jourTC = ts ? String(ts).split('T')[0] : (row.contenu.timestamp ? String(row.contenu.timestamp).split('T')[0] : '');
+        _demanderSourceTemp(function(src){
+          var data = [];
+          try {
+            if (_jourTC && typeof getDonneesPeriode === 'function') {
+              (getDonneesPeriode('page-temperatures', _jourTC, _jourTC) || []).forEach(function(s){
+                var sAuto = !!(s.data && (s.data.auto || s.data.source === 'ubibot' || /ubibot|automatique/i.test(s.data.signe || s.data.signataire || '')));
+                var arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
+                arr.forEach(function(e){ var a = sAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; data.push(e); });
+              });
+            }
+          } catch(e){}
+          if (!data.length) {
+            var rAuto = !!(row.contenu && (row.contenu.auto || /ubibot|automatique/i.test(row.contenu.signe || row.contenu.signataire || '')));
+            (row.contenu.temperatures || []).forEach(function(e){ var a = rAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; data.push(e); });
+          }
+          if (!data.length) { if (typeof showToast === 'function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'pour ce contrôle', 'warn', 3500); return; }
+          imprimerTemperatures(data, (row.contenu.signe || row.contenu.signataire || ''), row.contenu.timestamp);
+        });
         return;
       }
       if (typeof imprimerModuleAplat === 'function') {
