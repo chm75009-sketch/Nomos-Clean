@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v384';
+var APP_BUILD = 'v385';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -6836,8 +6836,10 @@ function verifierPhotoLotDLC(id) {
   var banner = document.getElementById('photo_banner_' + id);
   var status = document.getElementById('photo_status_' + id);
   if (!img) return;
-  // Pas de photo prise → cases bloquées (on ne peut pas attester une photo inexistante)
-  if (!img.src) {
+  // Pas de photo prise → cases bloquées (on ne peut pas attester une photo inexistante).
+  // ⚠️ On teste l'ATTRIBUT src (et NON img.src, qui renvoie l'URL de la page quand il est
+  // vide → toujours « truthy » → la remise à zéro ne se déclenchait jamais après suppression).
+  if (!(img.getAttribute('src') || '').trim()) {
     if (lotOk) { lotOk.checked = false; lotOk.disabled = true; }
     if (dlcOk) { dlcOk.checked = false; dlcOk.disabled = true; }
     if (wrapper) wrapper.style.display = 'none';
@@ -6891,10 +6893,20 @@ async function _supprimerPhotosAttente(controleId, source) {
 // décoche/bloque les 2 cases, et permet d'en reprendre une autre.
 function supprimerPhotoEtiquette(id) {
   var img = document.getElementById('photo_' + id);
-  if (img) img.src = '';
+  if (img) { img.src = ''; img.removeAttribute('src'); }
   var wrapper = document.getElementById('photo_wrapper_' + id);
   if (wrapper) wrapper.style.display = 'none';
-  try { verifierPhotoLotDLC(id); } catch(e){}   // décoche + bloque les 2 cases (plus de photo)
+  // Remise à zéro EXPLICITE : plus de photo → on DÉCOCHE et on RE-BLOQUE les 2 cases,
+  // et on masque le statut « photo acceptée ». (On ne se fie pas au seul verifierPhotoLotDLC.)
+  var lotOk = document.getElementById('ph_lot_ok_' + id);
+  var dlcOk = document.getElementById('ph_dlc_ok_' + id);
+  if (lotOk) { lotOk.checked = false; lotOk.disabled = true; }
+  if (dlcOk) { dlcOk.checked = false; dlcOk.disabled = true; }
+  var status = document.getElementById('photo_status_' + id);
+  if (status) { status.style.display = 'none'; status.innerHTML = ''; }
+  var banner = document.getElementById('photo_banner_' + id);
+  if (banner) banner.style.display = 'none';
+  try { verifierPhotoLotDLC(id); } catch(e){}
   try { _supprimerPhotosAttente(id, 'etiquette_reception'); } catch(e){}
   if (typeof showToast === 'function') showToast('🗑️ Photo supprimée — vous pouvez en reprendre une.', 'ok', 3500);
 }
