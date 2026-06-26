@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v383';
+var APP_BUILD = 'v384';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5211,6 +5211,7 @@ function ajouterProduit(skipScroll, compartId) {
       '<div id="autre_' + id + '" style="display:none">' +
         '<div class="frow"><div class="flabel">Précisez le produit</div><input class="finput" id="autre_nom_' + id + '" placeholder="Nom du produit"/></div>' +
       '</div>' +
+      '<div id="prodrec_chips_' + id + '" class="memo-chips" style="display:none"></div>' +
       '<div class="frow" style="margin-top:12px"><div class="flabel req" style="font-weight:700;color:#dc2626">🌡️ T° relevée sur le produit</div>' +
       '<div class="tinput-wrap"><input type="number" class="finput" id="temp_' + id + '" step="0.1" placeholder="ex: +3" oninput="checkConformite(' + id + ')" style="font-size:18px;font-weight:700"/><div class="tunit">°C</div></div></div>' +
       '<div class="frow"><div class="flabel">Seuil réglementaire</div>' +
@@ -24301,10 +24302,11 @@ function syncProduitsReceptionChips() {
   document.querySelectorAll('[id^="produit_"]').forEach(function (b) {
     if (!/^produit_\d+$/.test(b.id)) return;
     var id = b.id.replace('produit_', '');
-    // Puces tout en haut du bloc, juste sous « 📦 Produit N°… » (même logique que les fournisseurs)
-    var anchor = b.querySelector('.fblock-title') || document.getElementById('cat_' + id);
-    if (!anchor) return;
-    var host = _chipsHostAfter(anchor, 'prodrec_chips_' + id);
+    // Conteneur FIXE placé sous la zone produit (après catégorie + champ produit,
+    // avant la température) — exactement comme les boutons fournisseurs sont sous
+    // leur champ. Plus de confusion « type de produit / produit ».
+    var host = document.getElementById('prodrec_chips_' + id);
+    if (!host) return;
     _renderChipsInto(host, liste, 'Produits déjà reçus — appuyez pour remplir :',
       function (it) { return it.nom; },
       function (it) { _recRemplirProduit(id, it.cat, it.nom); });
