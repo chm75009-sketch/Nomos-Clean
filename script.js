@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v385';
+var APP_BUILD = 'v386';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16244,7 +16244,7 @@ function _baroPoint(cx, cy, r, t) {
 }
 function _baroArc(cx, cy, r, t0, t1) {
   var s = _baroPoint(cx, cy, r, t0), e = _baroPoint(cx, cy, r, t1);
-  var large = Math.abs(t1 - t0) > 0.5 ? 1 : 0;
+  var large = 0; // jauge = demi-cercle (≤180°) → TOUJOURS le petit arc, sinon l'arc « part au loin » au-delà de 3 contrôles
   return 'M ' + s.x.toFixed(1) + ' ' + s.y.toFixed(1) +
          ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + e.x.toFixed(1) + ' ' + e.y.toFixed(1);
 }
