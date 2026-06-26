@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v386';
+var APP_BUILD = 'v387';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3023,6 +3023,26 @@ function collecterDonneesRefroidissement() {
     } catch(eFb) { console.warn('Fallback refroidissement erreur:', eFb.message||eFb); }
   }
   return prods;
+}
+// Le capteur UbiBot écrit DE NOMBREUX relevés de la MÊME enceinte dans la journée.
+// Pour un rapport lisible, on ne garde qu'UN bloc par enceinte (le relevé le plus
+// récent) — sinon 3 relevés de « Enceinte N°1 » s'affichent comme 3 enceintes
+// distinctes (N1, N2, N3). Les enceintes RÉELLEMENT différentes (noms différents)
+// restent toutes affichées.
+function _dedupEnceintesPourRapport(arr) {
+  function _ts(q) {
+    var m = String(q || '').match(/(\d{2})\/(\d{2})\/(\d{4})\D+(\d{1,2})[h:](\d{2})/);
+    if (m) return Number(m[3] + m[2] + m[1] + ('0' + m[4]).slice(-2) + m[5]);
+    var d = Date.parse(String(q || '')); return isNaN(d) ? 0 : d;
+  }
+  var map = {}, ordre = [];
+  (arr || []).forEach(function (e) {
+    var cle = String(e.type || '') + '|' + String(e.precision || '') + '|' + String(e.refNum || '');
+    var t = _ts(e._quand);
+    if (!(cle in map)) { ordre.push(cle); map[cle] = { e: e, t: t }; }
+    else if (t >= map[cle].t) { map[cle] = { e: e, t: t }; }
+  });
+  return ordre.map(function (k) { return map[k].e; });
 }
 function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   var enceintes = (dataOverride && Array.isArray(dataOverride)) ? dataOverride : collecterDonneesTemperatures();
@@ -15698,7 +15718,7 @@ function reimprimerControleCloud(ts) {
             (row.contenu.temperatures || []).forEach(function(e){ var a = rAuto || _estReleveAuto(e); if (src==='auto'&&!a) return; if (src==='manuel'&&a) return; var c = Object.assign({}, e); c._quand = (row.contenu && row.contenu.timestamp) || ''; data.push(c); });
           }
           if (!data.length) { if (typeof showToast === 'function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'pour ce contrôle', 'warn', 3500); return; }
-          imprimerTemperatures(data, (row.contenu.signe || row.contenu.signataire || ''), row.contenu.timestamp);
+          imprimerTemperatures(_dedupEnceintesPourRapport(data), (row.contenu.signe || row.contenu.signataire || ''), row.contenu.timestamp);
         });
         return;
       }
@@ -15778,7 +15798,7 @@ function reimprimerControle(code, ts) {
           });
         } catch(e){}
         if (!data.length) { if (typeof showToast === 'function') showToast('Aucun relevé ' + (src==='auto'?'capteur ':(src==='manuel'?'manuel ':'')) + 'ce jour-là', 'warn', 3500); return; }
-        imprimerTemperatures(data, (entry.data.signe || entry.data.signataire || ''), entry.data.timestamp);
+        imprimerTemperatures(_dedupEnceintesPourRapport(data), (entry.data.signe || entry.data.signataire || ''), entry.data.timestamp);
       });
       return;
     }
@@ -26145,7 +26165,15 @@ try { if (typeof window !== 'undefined') {
   }
   function _gbShouldShow(){
     try {
-      if (document.getElementById("printOverlay")||document.getElementById("packLoadingOverlay")) return true; // aperçu plein écran : bouton utile
+      var po = document.getElementById("printOverlay");
+      if (po) {
+        // Si l'aperçu plein écran a DÉJÀ son propre bouton « Fermer », on n'affiche PAS
+        // le « ← Retour » universel : il ferait doublon ET recouvrirait le titre du rapport.
+        var btns = po.querySelectorAll("button");
+        for (var i=0;i<btns.length;i++){ if (/fermer/i.test(btns[i].textContent||"")) return false; }
+        return true; // aperçu sans bouton de fermeture : le « ← Retour » reste utile
+      }
+      if (document.getElementById("packLoadingOverlay")) return true;
       if (document.getElementById("logoBrand")) return false;   // page avec logo : ne JAMAIS le couvrir
       if (typeof _fermerOverlayOuvert==="function") return false;
     } catch(e){}
