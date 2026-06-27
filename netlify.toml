@@ -1,0 +1,28 @@
+# ============================================================================
+# Configuration Netlify — Nomos HACCP
+# Site 100 % statique (HTML/CSS/JS) + Supabase en back-end : AUCUN build.
+# Netlify publie simplement les fichiers du dépôt.
+# ============================================================================
+
+[build]
+  publish = "."
+  # Pas de commande de build : on sert les fichiers tels quels.
+  command = ""
+
+# ── En-têtes de sécurité (appliqués à toutes les pages) ─────────────────────
+# Ce que GitHub Pages ne permettait PAS de faire. Ici on durcit l'app.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Empêche l'app d'être affichée dans un <iframe> d'un autre site (anti-clickjacking).
+    X-Frame-Options = "SAMEORIGIN"
+    # Empêche le navigateur de "deviner" le type des fichiers (anti-injection).
+    X-Content-Type-Options = "nosniff"
+    # Ne fuite pas l'URL complète vers les sites externes.
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Force HTTPS pendant 1 an (le navigateur refusera le HTTP ensuite).
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    # CSP en mode OBSERVATION (Report-Only) : elle SURVEILLE sans rien bloquer.
+    # Une fois qu'on a vérifié que tout marche, on la passera en mode actif
+    # (renommer "Content-Security-Policy-Report-Only" en "Content-Security-Policy").
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://kiknaxuzpovvivkjqzss.supabase.co wss://kiknaxuzpovvivkjqzss.supabase.co https://zdwdeavcwivvdtrjqwme.supabase.co wss://zdwdeavcwivvdtrjqwme.supabase.co https://api.ubibot.com https://api.emailjs.com https://cdn.jsdelivr.net https://unpkg.com; worker-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'"
