@@ -481,7 +481,12 @@
         window._FORMULES = {
           essentiel: { nom:'Essentiel', sub:'Les 3 contrôles essentiels', eng:'9,90 €', libre:'14,90 €', items:['Relevés de température','Réception & traçabilité','Huiles de friture','Pack DDPP — édition illimitée des 3 contrôles','1 utilisateur','Capteurs connectés en option (sur devis)'] },
           solo: { nom:'Solo', sub:'Tous les contrôles HACCP du quotidien', eng:'29,90 €', libre:'39,90 €', items:['Tout l\'Essentiel, plus :','Planning nettoyage','Cuisson · refroidissement · remise en T°','Étiquetage interne & DLC','Pertes & invendus','Nuisibles & déchets','Documents & affichages obligatoires','Matrice allergènes (14 INCO)','Tableau de bord & non-conformités','Pack DDPP — tous les contrôles','1 utilisateur'] },
-          pro: { nom:'Pro', sub:'Tout Solo + services de conformité', eng:'79,90 €', libre:'99,90 €', items:['Tout le Solo, plus :','🛡️ PMS personnalisé','🛡️ DUERP personnalisé','📌 Affiches obligatoires fournies','1 utilisateur'] }
+          pro: { nom:'Pro', sub:'Tout Solo + services de conformité', eng:'79,90 €', libre:'99,90 €', items:['Tout le Solo, plus :','🛡️ PMS personnalisé','🛡️ DUERP personnalisé','📑 Documents obligatoires (liste ci-dessous)','📌 Affiches obligatoires fournies (liste ci-dessous)','1 utilisateur'] }
+        };
+        window._DOCS_OBL = ['Plan de Maîtrise Sanitaire (PMS) + procédures HACCP','Plan de nettoyage & désinfection','Plan de lutte contre les nuisibles (+ contrat dératisation)','Relevés de températures (frigos / congélateurs)','Traçabilité : étiquettes, bons de livraison, factures','Registre des non-conformités & actions correctives','Attestation de formation hygiène (≥ 1 personne formée)','Déclaration d\'activité auprès de la DDPP (+ agrément si concerné)','Protocole huiles de friture','Plats témoins (restauration collective)','DUERP (document unique des risques)','Contrats d\'entretien (hotte, bac à graisse…) + analyses microbio si applicable'];
+        window._AFF_OBL = ['Information allergènes','Consignes de lavage des mains','Interdiction de fumer / vapoter','Mention « eau potable / eau non potable » sur les points d\'eau','Origine des viandes','Protocole de nettoyage en cuisine','Affichage des prix (clientèle)'];
+        window._detailsList = function(title, arr){
+          return '<details style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0 12px;margin-bottom:8px"><summary style="cursor:pointer;padding:11px 0;font-weight:800;font-size:12.5px;color:white;list-style:none">'+title+'</summary><ul style="margin:0 0 10px;padding:0 0 0 18px;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.8">'+arr.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></details>';
         };
         window.openFormuleDetail = function(key){
           var f = window._FORMULES[key]; if(!f) return;
@@ -492,6 +497,13 @@
             return head ? '<li style="list-style:none;margin:6px 0 4px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:700">'+t+'</li>'
                         : '<li style="margin-bottom:5px">'+t+'</li>';
           }).join('');
+          var extra = '';
+          if(key === 'pro'){
+            extra = '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px">Documents &amp; affiches fournis</div>'
+                  + window._detailsList('📑 Documents obligatoires', window._DOCS_OBL)
+                  + window._detailsList('📌 Affiches obligatoires', window._AFF_OBL)
+                  + '<p style="font-size:10.5px;color:rgba(255,255,255,0.5);font-style:italic;line-height:1.6;margin:8px 2px 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client reste responsable de la conformité de son établissement.</p>';
+          }
           c.innerHTML =
             '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
             '<h3 style="font-size:24px;font-weight:900;color:white;margin:0 0 2px">'+f.nom+'</h3>'+
@@ -501,7 +513,8 @@
               '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:12px"><div style="font-size:9px;color:rgba(255,255,255,0.6);font-weight:800">SANS ENGAGEMENT</div><div style="font-size:22px;font-weight:900;color:rgba(255,255,255,0.85)">'+f.libre+'<span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600"> HT/mois</span></div></div>'+
             '</div>'+
             '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
-            '<ul style="padding:0 0 0 18px;margin:0 0 18px;font-size:13px;color:white;line-height:1.6">'+li+'</ul>'+
+            '<ul style="padding:0 0 0 18px;margin:0 0 14px;font-size:13px;color:white;line-height:1.6">'+li+'</ul>'+
+            extra +
             '<button onclick="closeFormuleDetail();showPage(\'page-inscription\')" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Démarrer l\'essai gratuit</button>';
           m.style.display = 'flex';
           document.body.style.overflow = 'hidden';
