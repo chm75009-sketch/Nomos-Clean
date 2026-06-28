@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v397';
+var APP_BUILD = 'v398';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -7578,6 +7578,20 @@ function renderMods(cat) {
 // des modules non pertinents pour le secteur actif (même source de vérité que renderMods :
 // l'étiquette `secteurs` de MODULES). Ex. la friteuse disparaît de l'export en boucherie.
 function filtrerExportsParSecteur() {
+  // Mode RTH : la page Exports ne propose QUE les 3 contrôles autorisés
+  // (Réception · Températures · Huiles). Les autres modules sont masqués et décochés.
+  if (typeof FORMULE_ACTIVE !== 'undefined' && FORMULE_ACTIVE === 'rth') {
+    MODULES.forEach(function(m) {
+      if (_RTH_MODULES && _RTH_MODULES[m.id]) return; // garder les 3 autorisés
+      ['chk-exp-' + m.id, 'chk-guide-' + m.id].forEach(function(chkId) {
+        var chk = document.getElementById(chkId);
+        if (!chk) return;
+        chk.checked = false;
+        var ligne = chk.parentElement;
+        if (ligne) ligne.style.display = 'none';
+      });
+    });
+  }
   var sect = (typeof SECTEUR_ACTIF !== 'undefined' && SECTEUR_ACTIF) ? SECTEUR_ACTIF : '';
   if (!sect) return;
   MODULES.forEach(function(m) {
@@ -13477,6 +13491,11 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
     });
   }
 
+  // Mode RTH : le Pack est STRICTEMENT limité aux 3 contrôles autorisés
+  // (Réception · Températures · Huiles) — il ne peut jamais inclure d'autres modules.
+  var _rthPack = (typeof FORMULE_ACTIVE !== 'undefined' && FORMULE_ACTIVE === 'rth');
+  if (_rthPack) { selectionIds = ['reception', 'temperatures', 'huiles']; }
+
   // V52 — Filtrage si export personnalisé (sélection partielle)
   var isFiltre = (selectionIds && selectionIds.length > 0);
   if (isFiltre) {
@@ -13489,7 +13508,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
 
   // Page de garde
   html += '<div style="background:linear-gradient(135deg,#1e1b4b,#4338ca);color:white;padding:20px 16px;border-radius:10px;margin-bottom:20px;text-align:center">';
-  html += '<div style="font-size:20px;font-weight:900;margin-bottom:8px">📋 ' + (isFiltre ? 'EXPORT PERSONNALISÉ' : 'PACK DDPP') + '</div>';
+  html += '<div style="font-size:20px;font-weight:900;margin-bottom:8px">📋 ' + ((isFiltre && !_rthPack) ? 'EXPORT PERSONNALISÉ' : 'PACK DDPP') + '</div>';
   html += '<div style="font-size:14px;font-weight:700">' + esc(ETAB.nom||'') + '</div>';
   html += '<div style="font-size:12px;opacity:.9;margin-top:4px">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
   html += '<div style="font-size:12px;opacity:.85;margin-top:4px">Période : ' + dateLabel + '</div>';
