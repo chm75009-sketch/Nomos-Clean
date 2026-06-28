@@ -4,7 +4,7 @@
 <script>/* 3.1 anti-clickjacking */if(self!==top){try{top.location=self.location;}catch(e){document.documentElement.style.display='none';}}</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Clean Food | ExpertAudit HACCP v3 bis — Audit multi-secteurs (tronc commun + spécifique)</title>
+<title>Nomos | ExpertAudit HACCP v3 bis — Audit multi-secteurs (tronc commun + spécifique)</title>
 <meta name="theme-color" content="#153e35">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -587,7 +587,7 @@ body{background:#fff}
     </div>
     <div class="auth-card">
       <div class="auth-logo" style="text-align:center;margin-bottom:22px">
-        <div style="width:52px;height:52px;border-radius:14px;background:#153e35;color:#fff;font-weight:900;font-size:15px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;border:2px solid rgba(45,111,96,.4)">CF</div>
+        <div style="width:52px;height:52px;border-radius:14px;background:#153e35;color:#fff;font-weight:900;font-size:15px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px;border:2px solid rgba(45,111,96,.4)">N</div>
         <h1 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#153e35;margin-bottom:4px">ExpertAudit HACCP</h1>
         <p style="font-size:.8rem;color:#65716b">Accès sécurisé à votre espace</p>
       </div>
@@ -649,7 +649,7 @@ body{background:#fff}
 
       <!-- Infos société -->
       <div style="background:#f5f2ea;border-radius:12px;padding:14px;margin-bottom:18px;border:1px solid rgba(21,62,53,.1)">
-        <div style="font-weight:700;color:#153e35;font-size:.9rem;margin-bottom:8px">🏢 RTH NETGOCE — Clean Food</div>
+        <div style="font-weight:700;color:#153e35;font-size:.9rem;margin-bottom:8px">🏢 RTH NETGOCE — Nomos</div>
         <div style="font-size:.82rem;color:#65716b;line-height:1.8">
           49 Rue de Douai, 75009 Paris<br>
           SIRET : 44424477600019 — TVA : FR27444244776<br>
@@ -1119,7 +1119,7 @@ body{background:#fff}
 <div id="appMain" style="display:none">
 
 <div class="topbar">
-  <div class="brand"><span class="dot" style="background:#3b8a77"></span>Clean Food <em style="font-style:normal;color:rgba(255,255,255,.5) !important;font-size:.78rem;margin-left:4px">ExpertAudit HACCP</em><span style="margin-left:8px;background:#d2ad46;color:#201806;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:999px;letter-spacing:.03em">v3 BIS · BOULANGERIE 101 pts</span><span id="auditVer" title="Version déployée" style="margin-left:6px;background:rgba(255,255,255,.14);color:#cfe7df;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.03em">Version …</span></div>
+  <div class="brand"><span class="dot" style="background:#3b8a77"></span>Nomos <em style="font-style:normal;color:rgba(255,255,255,.5) !important;font-size:.78rem;margin-left:4px">ExpertAudit HACCP</em><span style="margin-left:8px;background:#d2ad46;color:#201806;font-size:.62rem;font-weight:800;padding:2px 7px;border-radius:999px;letter-spacing:.03em">v3 BIS · BOULANGERIE 101 pts</span><span id="auditVer" title="Version déployée" style="margin-left:6px;background:rgba(255,255,255,.14);color:#cfe7df;font-size:.62rem;font-weight:700;padding:2px 7px;border-radius:999px;letter-spacing:.03em">Version …</span></div>
   <div class="tbtns" id="topbarBtns">
   </div>
 </div>
@@ -2267,7 +2267,7 @@ function genDocsNettoyage(code) {
 
   var doc = new d.Document({
     styles:{default:{document:{run:{font:'Arial',size:20}}}},
-    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
   });
   d.Packer.toBlob(doc).then(function(blob){
     downloadBlob(blob,'PlanNettoyage_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
@@ -2407,7 +2407,7 @@ function genDocsDUERP(code) {
 
   var doc = new d.Document({
     styles:{default:{document:{run:{font:'Arial',size:20}}}},
-    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
   });
   d.Packer.toBlob(doc).then(function(blob){
     downloadBlob(blob,'DUERP_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
@@ -2607,7 +2607,7 @@ function genDocsReception(code) {
     children.push(empty());
     children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
 
-    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
     d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Reception_Marchandises_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Réception téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
   } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
 }
@@ -2671,7 +2671,7 @@ function genDocsTracabilite(code) {
     children.push(empty());
     children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
 
-    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
     d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Tracabilite_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Registre Traçabilité téléchargé !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
   } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
 }
@@ -2738,7 +2738,7 @@ function genDocsAllergenes(code) {
     children.push(empty());
     children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
 
-    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:16838,height:11906},margin:{top:720,right:720,bottom:720,left:720}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
     d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'Allergenes_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Allergènes téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
   } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
 }
@@ -2797,7 +2797,7 @@ function genDocsNonConformites(code) {
     children.push(empty());
     children.push(p('Document établi le '+today+' — '+info.etab+' — Généré par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}));
 
-    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Clean Food — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
+    var doc = new d.Document({styles:{default:{document:{run:{font:'Arial',size:20}}}},sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]});
     d.Packer.toBlob(doc).then(function(blob){downloadBlob(blob,'NonConformites_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');toast('✅ Fiche Non-Conformités téléchargée !','ok');}).catch(function(e){toast('Erreur : '+e.message,'err');});
   } catch(e){toast('Erreur : '+e.message,'err');console.error(e);}
 }
@@ -3435,7 +3435,7 @@ function genDocCode() {
 
 // ── Tabs auth ──
 // ── Navigation landing / login ──
-// ── Clean Food : FAQ accordéon ──
+// ── Nomos : FAQ accordéon ──
 function toggleFaq(btn) {
   var faq = btn.closest('.cf-faq');
   var content = faq.querySelector('.cf-faq-content');
@@ -3445,7 +3445,7 @@ function toggleFaq(btn) {
   if (plus) plus.textContent = isOpen ? '+' : '–';
 }
 
-// ── Clean Food : Calculateur de risque ──
+// ── Nomos : Calculateur de risque ──
 (function() {
   var euro = new Intl.NumberFormat('fr-FR', {style:'currency', currency:'EUR', maximumFractionDigits:0});
   function runCalc() {
@@ -3485,7 +3485,7 @@ function toggleFaq(btn) {
   }, 500);
 })();
 
-// ── Clean Food : Quiz interactif ──
+// ── Nomos : Quiz interactif ──
 (function(){
   var quizQuestions = [
     {q:"Quelle est la durée maximale de conservation d'un plat préparé au froid positif ?",options:["1 jour","3 jours","7 jours","Je ne sais pas"],correct:1,label:"Maîtrise insuffisante de la DLC des plats préparés"},
@@ -3862,7 +3862,7 @@ function importBackup(input) {
 function envoyerNotifAdmin(adminEmail, d) {
   if (!adminEmail) return;
   emailjs.send('service_84lz31w', 'template_ti43bkh', {
-    to_name:      'Administrateur Clean Food',
+    to_name:      'Administrateur Nomos',
     to_email:     adminEmail,
     email:        adminEmail,
     code:         '⚠️ NOUVELLE DEMANDE — À TRAITER',
@@ -7171,7 +7171,7 @@ function _hBandeau(D, titre, ref) {
       shading:{fill:'153e35',type:D.ShadingType.CLEAR},
       margins:{top:260,bottom:260,left:360,right:360},
       children:[
-        new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:'Clean Food  |  ExpertAudit HACCP',size:18,color:'3b8a77',font:'Calibri',bold:true})]}),
+        new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:'Nomos  |  ExpertAudit HACCP',size:18,color:'3b8a77',font:'Calibri',bold:true})]}),
         new D.Paragraph({spacing:{before:0,after:80},children:[new D.TextRun({text:titre,size:40,color:'FFFFFF',font:'Calibri',bold:true})]}),
         new D.Paragraph({spacing:{before:0,after:0},children:[new D.TextRun({text:ref||'',size:18,color:'aac4d0',font:'Calibri',italics:true})]})
       ]
@@ -7277,7 +7277,7 @@ function _hPied(D, info, today) {
   return [
     _hSep(D),
     new D.Paragraph({spacing:{before:60,after:40},children:[
-      new D.TextRun({text:'Document établi le '+today+' — '+( info.etab||'')+'  |  Clean Food ExpertAudit HACCP',
+      new D.TextRun({text:'Document établi le '+today+' — '+( info.etab||'')+'  |  Nomos ExpertAudit HACCP',
         size:16,color:'8a9e95',font:'Calibri',italics:true})
     ]}),
     new D.Paragraph({spacing:{before:80,after:40},children:[
@@ -7840,9 +7840,9 @@ function showDocPreview(a, type, info) {
   html += '</div>';
   // Contenu scrollable
   html += '<div style="flex:1;overflow-y:auto;padding:24px;background:#fff">';
-  // Bandeau Clean Food
+  // Bandeau Nomos
   html += '<div style="background:#153e35;color:#fff;padding:18px 20px;border-radius:10px;margin-bottom:18px">';
-  html += '<div style="font-size:.72rem;color:#3b8a77;font-weight:700;margin-bottom:4px">Clean Food | ExpertAudit HACCP</div>';
+  html += '<div style="font-size:.72rem;color:#3b8a77;font-weight:700;margin-bottom:4px">Nomos | ExpertAudit HACCP</div>';
   html += '<div style="font-size:1.4rem;font-weight:800">Rapport d\'Audit HACCP</div>';
   html += '<div style="font-size:.75rem;color:#aac4d0;font-style:italic;margin-top:2px">Méthode HACCP — Règlement CE 852/2004</div>';
   html += '</div>';
@@ -7886,7 +7886,7 @@ function showDocPreview(a, type, info) {
     html += '<div style="background:#fff8f0;border:1px solid #f5d6a0;border-radius:8px;padding:14px;color:#8a6920;font-size:.85rem;margin-top:10px">⚠️ Le rapport complet n\'a pas été sauvegardé pour cet audit. Le téléchargement contiendra uniquement les informations ci-dessus.</div>';
   }
   // Pied
-  html += '<div style="margin-top:18px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:.75rem;color:#8a9e95;font-style:italic">Document établi le ' + date + ' | ' + (a.etab||'') + ' | Clean Food ExpertAudit HACCP</div>';
+  html += '<div style="margin-top:18px;padding-top:14px;border-top:1px solid #e2e8f0;font-size:.75rem;color:#8a9e95;font-style:italic">Document établi le ' + date + ' | ' + (a.etab||'') + ' | Nomos ExpertAudit HACCP</div>';
   html += '</div>'; // fin contenu scrollable
   // Barre du bas : bouton Télécharger
   html += '<div style="padding:14px 18px;border-top:1px solid #e2e8f0;background:#f5f2ea;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-shrink:0">';
@@ -8139,7 +8139,7 @@ function _genRapportWord(a, info) {
         shading:{fill:"153e35", type:D.ShadingType.CLEAR},
         margins:{top:280,bottom:280,left:360,right:360},
         children:[
-          new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:"Clean Food  |  ExpertAudit HACCP",size:18,color:"3b8a77",font:"Calibri",bold:true})]}),
+          new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:"Nomos  |  ExpertAudit HACCP",size:18,color:"3b8a77",font:"Calibri",bold:true})]}),
           new D.Paragraph({spacing:{before:0,after:80},children:[new D.TextRun({text:"Rapport de Maitrise Sanitaire HACCP",size:40,color:"FFFFFF",font:"Calibri",bold:true})]}),
           new D.Paragraph({spacing:{before:0,after:0},children:[new D.TextRun({text:"Methode HACCP - Reglement CE 852/2004",size:18,color:"aac4d0",font:"Calibri",italics:true})]})
         ]
@@ -8340,7 +8340,7 @@ function _genRapportWord(a, info) {
     border:{bottom:{style:D.BorderStyle.SINGLE,size:4,color:"c8d8d0",space:4}},
     children:[]
   }));
-  children.push(parag("Document etabli le " + date + "  |  " + (a.etab||"") + "  |  Clean Food ExpertAudit HACCP", {i:true, c:"8a9e95", sz:16}));
+  children.push(parag("Document etabli le " + date + "  |  " + (a.etab||"") + "  |  Nomos ExpertAudit HACCP", {i:true, c:"8a9e95", sz:16}));
   children.push(new D.Paragraph({spacing:{before:80,after:40},children:[
     new D.TextRun({text:"Signature Auditeur : " + (a.auditeur||"") + "          ", bold:true, size:18, color:"153e35", font:"Calibri"}),
     new D.TextRun({text:"Signature Responsable : " + (a.resp||""), bold:true, size:18, color:"153e35", font:"Calibri"})
@@ -8503,7 +8503,7 @@ function _genDetailWord(a) {
         shading:{fill:'153e35', type:D.ShadingType.CLEAR},
         margins:{top:280,bottom:280,left:360,right:360},
         children:[
-          new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:'Clean Food  |  ExpertAudit HACCP', size:18, color:'3b8a77', font:'Calibri', bold:true})]}),
+          new D.Paragraph({spacing:{before:0,after:60},children:[new D.TextRun({text:'Nomos  |  ExpertAudit HACCP', size:18, color:'3b8a77', font:'Calibri', bold:true})]}),
           new D.Paragraph({spacing:{before:0,after:80},children:[new D.TextRun({text:'Détail de l\'audit', size:40, color:'FFFFFF', font:'Calibri', bold:true})]}),
           new D.Paragraph({spacing:{before:0,after:0},children:[new D.TextRun({text:a.etab || '', size:22, color:'aac4d0', font:'Calibri', italics:true})]})
         ]
@@ -8725,7 +8725,7 @@ function _genDetailWord(a) {
     border:{bottom:{style:D.BorderStyle.SINGLE,size:4,color:'c8d8d0',space:4}},
     children:[]
   }));
-  children.push(P('Document établi le ' + date + '  |  ' + (a.etab||'') + '  |  Clean Food ExpertAudit HACCP', {i:true, c:'8a9e95', sz:16}));
+  children.push(P('Document établi le ' + date + '  |  ' + (a.etab||'') + '  |  Nomos ExpertAudit HACCP', {i:true, c:'8a9e95', sz:16}));
   children.push(new D.Paragraph({ spacing:{before:80,after:40}, children:[
     new D.TextRun({ text:'Signature Auditeur : ' + (a.auditeur||'') + '          ', bold:true, size:18, color:'153e35', font:'Calibri' }),
     new D.TextRun({ text:'Signature Responsable : ' + (a.resp||''), bold:true, size:18, color:'153e35', font:'Calibri' })
@@ -9523,7 +9523,7 @@ function viderHistoriqueAudits(){
 </style>
 <div id="nomosBar">
   <button class="nb-back" onclick="nomosBack()" aria-label="Retour">← Retour</button>
-  <span class="nb-brand">Clean Food · ExpertAudit</span>
+  <span class="nb-brand">Nomos · ExpertAudit</span>
   <button class="nb-home" onclick="nomosHome()" aria-label="Accueil Nomos">🏠 Accueil Nomos</button>
 </div>
 <script>
