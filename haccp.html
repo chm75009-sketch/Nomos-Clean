@@ -403,95 +403,115 @@
           </div>
         </div>
       </section>
-      <!-- TARIFS -->
+      <!-- TARIFS (refonte : comparatif détaillé, prix HT, sans choix de formule par le client) -->
       <section id="section-tarifs" style="padding:40px 20px;max-width:1100px;margin:0 auto">
-        <div style="text-align:center;margin-bottom:22px">
-          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Tarifs transparents</div>
-          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0 0 8px">Choisissez votre formule.</h2>
-          <p style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:18px">Cliquez sur une formule pour voir le détail complet.</p>
-          <!-- V94 Toggle Avec engagement / Sans engagement -->
-          <div style="display:inline-flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;gap:2px">
-            <button id="tarifTab12" onclick="setTarifMode('annuel')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:9px 18px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">
-              Avec engagement 12 mois
-              <span style="display:block;font-size:9px;font-weight:700;margin-top:2px;opacity:0.85">(jusqu'à -34%)</span>
-            </button>
-            <button id="tarifTabFree" onclick="setTarifMode('mensuel')" style="background:transparent;color:rgba(255,255,255,0.7);border:none;padding:9px 18px;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Sans engagement</button>
-          </div>
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Nos formules</div>
+          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0 0 8px">Tarifs clairs, sans surprise.</h2>
+          <p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0">Logiciel HACCP Pro &amp; service Audit sur place. Tous les prix sont indiqués <strong>HT</strong>.</p>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;max-width:1180px;margin:0 auto">
-          <!-- Formule RTH (3 contrôles - petits commerces) -->
-          <div style="background:rgba(56,189,248,0.06);border:1.5px solid rgba(56,189,248,0.35);border-radius:18px;padding:26px">
-            <div style="font-size:11px;color:#7dd3fc;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🌿 Formule RTH</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px">3 contrôles essentiels — petits commerces</div>
-            <div style="background:rgba(56,189,248,0.10);border-radius:11px;padding:14px;margin-bottom:14px">
-              <div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:30px;font-weight:900;color:white">19,99 €</span><span style="font-size:12px;color:rgba(255,255,255,0.6)">HT / mois</span></div>
-              <div style="font-size:10px;color:#7dd3fc;font-weight:700;margin-top:2px">avec engagement 12 mois</div>
-              <div style="height:1px;background:rgba(255,255,255,0.12);margin:9px 0"></div>
-              <div style="display:flex;align-items:baseline;gap:4px"><span style="font-size:24px;font-weight:900;color:white">15 €</span><span style="font-size:12px;color:rgba(255,255,255,0.6)">HT / mois</span></div>
-              <div style="font-size:10px;color:#34d399;font-weight:700;margin-top:2px">avec engagement 24 mois</div>
-            </div>
-            <ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:rgba(255,255,255,0.78);line-height:1.85">
-              <li>✅ Réception &amp; traçabilité</li>
-              <li>✅ Températures frigos &amp; congélateurs</li>
-              <li>✅ Huile de friture</li>
-              <li>✅ Engagement signé + Pack DDPP des 3 contrôles</li>
-            </ul>
-            <button onclick="showPage('page-login')" style="width:100%;background:linear-gradient(135deg,#38bdf8,#0ea5e9);color:#04263a;border:none;padding:11px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">Se connecter pour souscrire</button>
-          </div>
-          <!-- Essentiel -->
-          <div onclick="openTarifDetail('essentiel')" style="background:rgba(255,255,255,0.04);border:1.5px solid rgba(255,255,255,0.1);border-radius:18px;padding:26px;cursor:pointer;transition:all 0.25s ease" onmouseover="this.style.borderColor='rgba(74,222,128,0.3)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)';this.style.transform='translateY(0)'">
-            <div style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🥉 Essentiel</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px">1 établissement</div>
-            <div style="background:rgba(74,222,128,0.08);border-radius:11px;padding:14px;margin-bottom:14px">
-              <div id="essentielLabel" style="font-size:10px;color:#4ade80;font-weight:700;margin-bottom:4px">AVEC ENGAGEMENT 12 MOIS</div>
-              <div style="display:flex;align-items:baseline;gap:4px">
-                <span id="essentielPrix" style="font-size:34px;font-weight:900;color:white">39 €</span>
-                <span style="font-size:12px;color:rgba(255,255,255,0.6)">HT / mois</span>
-              </div>
-            </div>
-            <ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:rgba(255,255,255,0.75);line-height:1.85">
-              <li>✅ 19 modules HACCP</li>
-              <li>✅ Pack DDPP illimité</li>
-              <li>✅ Signature numérique</li>
-              <li>✅ Photos &amp; documents</li>
-              <li>✅ Multi-utilisateurs</li>
-            </ul>
-            <button onclick="event.stopPropagation();openTarifDetail('essentiel')" style="width:100%;background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);padding:11px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;margin-bottom:6px">📄 Voir le détail complet</button>
-            <button onclick="event.stopPropagation();showPage('page-login')" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:11px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">Se connecter pour souscrire</button>
-          </div>
-          <!-- Multi-sites -->
-          <div onclick="openTarifDetail('multisites')" style="background:linear-gradient(180deg,rgba(74,222,128,0.08),rgba(34,197,94,0.03));border:1.5px solid rgba(74,222,128,0.4);border-radius:18px;padding:26px;position:relative;box-shadow:0 12px 40px rgba(74,222,128,0.15);cursor:pointer;transition:all 0.25s ease" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 16px 48px rgba(74,222,128,0.25)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 12px 40px rgba(74,222,128,0.15)'">
-            <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;font-size:10px;font-weight:800;padding:4px 12px;border-radius:18px;letter-spacing:1px">⭐ POPULAIRE</div>
-            <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">🥇 Multi-sites</div>
-            <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:14px">Jusqu'à 5 établissements</div>
-            <div style="background:rgba(74,222,128,0.15);border-radius:11px;padding:14px;margin-bottom:14px">
-              <div id="multiLabel" style="font-size:10px;color:#4ade80;font-weight:700;margin-bottom:4px">AVEC ENGAGEMENT 12 MOIS</div>
-              <div style="display:flex;align-items:baseline;gap:4px">
-                <span id="multiPrix" style="font-size:34px;font-weight:900;color:white">129 €</span>
-                <span style="font-size:12px;color:rgba(255,255,255,0.6)">HT / mois</span>
-              </div>
-            </div>
-            <ul style="list-style:none;padding:0;margin:0 0 16px;font-size:12px;color:rgba(255,255,255,0.85);line-height:1.85">
-              <li>✅ Tout Essentiel inclus</li>
-              <li>✅ Jusqu'à <strong>5 établissements</strong></li>
-              <li>✅ Tableau de bord consolidé</li>
-              <li>✅ Pack DDPP par site</li>
-              <li>✅ Support prioritaire</li>
-            </ul>
-            <button onclick="event.stopPropagation();openTarifDetail('multisites')" style="width:100%;background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);padding:11px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;margin-bottom:6px">📄 Voir le détail complet</button>
-            <button onclick="event.stopPropagation();showPage('page-login')" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:11px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">Se connecter pour souscrire</button>
-          </div>
+
+        <!-- ============ LOGICIEL HACCP PRO ============ -->
+        <h3 style="font-size:17px;font-weight:800;color:white;margin:6px 0 12px;text-align:center">📱 Logiciel HACCP&nbsp;Pro</h3>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:12px">
+          <table style="width:100%;border-collapse:collapse;min-width:580px;font-size:13px">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.03)">
+                <th style="text-align:left;padding:14px 12px;color:rgba(255,255,255,0.6);font-weight:700;font-size:12px">Fonctionnalité</th>
+                <th style="padding:14px 8px;color:white;text-align:center">Essentiel<br><span style="color:#4ade80;font-size:16px;font-weight:900">9,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center">Solo<br><span style="color:#4ade80;font-size:16px;font-weight:900">29,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span style="color:#4ade80;font-size:16px;font-weight:900">79,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+              </tr>
+            </thead>
+            <tbody style="color:rgba(255,255,255,0.85)">
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Relevés température</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Réception &amp; traçabilité</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Huiles de friture</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Planning nettoyage</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Cuisson · refroidissement · remise en T°</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Étiquetage interne &amp; DLC</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Pertes &amp; invendus</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Nuisibles &amp; déchets</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Documents &amp; affichages obligatoires</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Matrice allergènes (14 INCO)</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Tableau de bord &amp; non-conformités</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Pack DDPP <span style="color:rgba(255,255,255,0.5);font-size:11px">(PDF inspecteur)</span></td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8)">Édition illimitée<br>des 3 contrôles</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8)">Édition illimitée<br>tous les contrôles</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8);background:rgba(74,222,128,0.05)">Édition illimitée<br>tous les contrôles</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Utilisateur</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;background:rgba(74,222,128,0.05)">1</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">🛡️ PMS personnalisé</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">🛡️ DUERP personnalisé</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">📌 Affiches obligatoires fournies</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">📡 Capteurs connectés <span style="color:rgba(255,255,255,0.5);font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7);background:rgba(74,222,128,0.05)">Sur devis</td></tr>
+            </tbody>
+          </table>
         </div>
-        <div style="text-align:center;margin-top:22px;padding:14px;background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.2);border-radius:12px;max-width:680px;margin-left:auto;margin-right:auto">
-          <div style="font-size:12px;color:white;font-weight:700;margin-bottom:2px">🎁 Offre lancement — jusqu'au 30 juin 2026</div>
-          <div style="font-size:11px;color:rgba(255,255,255,0.7)">Pour tout abonnement annuel : <strong>DUERP personnalisé OFFERT</strong> (évite l'amende jusqu'à 7 500 €)</div>
+        <p style="text-align:center;font-size:12.5px;color:rgba(255,255,255,0.75);margin:0 0 30px">✨ <strong style="color:#4ade80">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
+
+        <!-- ============ SERVICE AUDIT ============ -->
+        <h3 style="font-size:17px;font-weight:800;color:white;margin:6px 0 12px;text-align:center">🧑‍🔬 Service Audit sur place</h3>
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:14px">
+          <table style="width:100%;border-collapse:collapse;min-width:480px;font-size:13px">
+            <thead>
+              <tr style="background:rgba(255,255,255,0.03)">
+                <th style="text-align:left;padding:14px 12px;color:rgba(255,255,255,0.6);font-weight:700;font-size:12px">Prestation</th>
+                <th style="padding:14px 8px;color:white;text-align:center">Audit Essentiel<br><span style="color:#38bdf8;font-size:16px;font-weight:900">690 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center;background:rgba(56,189,248,0.07);border-left:1px solid rgba(56,189,248,0.2)">Audit Complet<br><span style="color:#38bdf8;font-size:16px;font-weight:900">1 490 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT</span></th>
+              </tr>
+            </thead>
+            <tbody style="color:rgba(255,255,255,0.85)">
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Déplacement sur site</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(56,189,248,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Rapport détaillé (anomalies) + préconisations</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(56,189,248,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Affiches obligatoires</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(56,189,248,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:11px 12px">Liste des documents obligatoires</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(56,189,248,0.05)">✓</td></tr>
+            </tbody>
+          </table>
         </div>
-        <!-- V94 Modal détail tarif -->
-        <div id="modalTarif" onclick="if(event.target===this)closeTarifDetail()" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
-          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(74,222,128,0.3);border-radius:18px;max-width:680px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
-            <button onclick="closeTarifDetail()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif">✕</button>
-            <div id="modalTarifContent"></div>
-          </div>
+
+        <!-- ====== Détail cliquable : listes + clause de protection ====== -->
+        <div style="max-width:760px;margin:0 auto 30px">
+          <details style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:11px;padding:0 14px;margin-bottom:8px">
+            <summary style="cursor:pointer;padding:13px 0;font-weight:800;font-size:13px;color:white;list-style:none">📑 Voir la liste des documents obligatoires</summary>
+            <ul style="margin:0 0 12px;padding:0 0 0 18px;font-size:12.5px;color:rgba(255,255,255,0.8);line-height:1.9">
+              <li>Plan de Maîtrise Sanitaire (PMS) + procédures HACCP</li>
+              <li>Plan de nettoyage &amp; désinfection</li>
+              <li>Plan de lutte contre les nuisibles (+ contrat dératisation)</li>
+              <li>Relevés de températures (frigos / congélateurs)</li>
+              <li>Traçabilité : étiquettes, bons de livraison, factures</li>
+              <li>Registre des non-conformités &amp; actions correctives</li>
+              <li>Attestation de formation hygiène (≥ 1 personne formée)</li>
+              <li>Déclaration d'activité auprès de la DDPP (+ agrément si concerné)</li>
+              <li>Protocole huiles de friture</li>
+              <li>Plats témoins (restauration collective)</li>
+              <li>DUERP (document unique des risques)</li>
+              <li>Contrats d'entretien (hotte, bac à graisse…) + analyses microbio si applicable</li>
+            </ul>
+          </details>
+          <details style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:11px;padding:0 14px;margin-bottom:8px">
+            <summary style="cursor:pointer;padding:13px 0;font-weight:800;font-size:13px;color:white;list-style:none">📌 Voir la liste des affiches obligatoires</summary>
+            <ul style="margin:0 0 12px;padding:0 0 0 18px;font-size:12.5px;color:rgba(255,255,255,0.8);line-height:1.9">
+              <li>Information allergènes</li>
+              <li>Consignes de lavage des mains</li>
+              <li>Interdiction de fumer / vapoter</li>
+              <li>Mention « eau potable / eau non potable » sur les points d'eau</li>
+              <li>Origine des viandes</li>
+              <li>Protocole de nettoyage en cuisine</li>
+              <li>Affichage des prix (clientèle)</li>
+            </ul>
+          </details>
+          <p style="font-size:11px;color:rgba(255,255,255,0.5);font-style:italic;line-height:1.6;margin:10px 4px 0">Ces listes sont fournies à titre indicatif, sur la base de la réglementation en vigueur à la date de l'audit. Elles n'ont pas de caractère exhaustif et ne sauraient engager la responsabilité de RTH&nbsp;NETGOCE en cas d'omission ou d'évolution réglementaire. Le client demeure seul responsable de la conformité de son établissement et de la mise à jour de ses obligations.</p>
+        </div>
+
+        <!-- ============ FAQ ============ -->
+        <h3 style="font-size:17px;font-weight:800;color:white;margin:10px 0 14px;text-align:center">Questions fréquentes</h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:920px;margin:0 auto 8px">
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je essayer gratuitement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — 14 jours, toutes les fonctions, sans carte bancaire.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment j'obtiens ma formule ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">C'est nous qui activons votre accès selon votre besoin. Vous nous contactez, on crée votre code en quelques minutes.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Y a-t-il un engagement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Non — sans engagement, résiliable à tout moment.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment se passe le paiement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Sur facture, par virement — pas de prélèvement automatique.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je changer de formule plus tard ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — vous nous contactez et on ajuste votre accès, sans perdre vos données.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Mes données sont-elles sécurisées ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — connexion HTTPS, accès cloisonné par établissement, sauvegardes régulières.</div></div>
+        </div>
+        <div style="text-align:center;margin-top:22px">
+          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">Démarrer l'essai gratuit</button>
         </div>
       </section>
       <!-- CTA FINAL -->
