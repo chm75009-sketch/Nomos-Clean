@@ -413,14 +413,20 @@
 
         <!-- ============ LOGICIEL HACCP PRO ============ -->
         <h3 style="font-size:17px;font-weight:800;color:white;margin:6px 0 12px;text-align:center">📱 Logiciel HACCP&nbsp;Pro</h3>
+        <div style="text-align:center;margin-bottom:14px">
+          <div style="display:inline-flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;gap:2px">
+            <button id="engTab12" onclick="setEngTarif('eng')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:9px 16px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Avec engagement 12 mois<span style="display:block;font-size:9px;font-weight:700;margin-top:1px;opacity:0.85">(jusqu'à -33%)</span></button>
+            <button id="engTabLibre" onclick="setEngTarif('libre')" style="background:transparent;color:rgba(255,255,255,0.7);border:none;padding:9px 16px;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Sans engagement</button>
+          </div>
+        </div>
         <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:12px">
           <table style="width:100%;border-collapse:collapse;min-width:580px;font-size:13px">
             <thead>
               <tr style="background:rgba(255,255,255,0.03)">
                 <th style="text-align:left;padding:14px 12px;color:rgba(255,255,255,0.6);font-weight:700;font-size:12px">Fonctionnalité</th>
-                <th style="padding:14px 8px;color:white;text-align:center">Essentiel<br><span style="color:#4ade80;font-size:16px;font-weight:900">9,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
-                <th style="padding:14px 8px;color:white;text-align:center">Solo<br><span style="color:#4ade80;font-size:16px;font-weight:900">29,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
-                <th style="padding:14px 8px;color:white;text-align:center;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span style="color:#4ade80;font-size:16px;font-weight:900">79,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center">Essentiel<br><span class="px-eng" style="color:#4ade80;font-size:16px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#4ade80;font-size:16px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center">Solo<br><span class="px-eng" style="color:#4ade80;font-size:16px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#4ade80;font-size:16px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th style="padding:14px 8px;color:white;text-align:center;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span class="px-eng" style="color:#4ade80;font-size:16px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#4ade80;font-size:16px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
               </tr>
             </thead>
             <tbody style="color:rgba(255,255,255,0.85)">
@@ -505,7 +511,7 @@
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:920px;margin:0 auto 8px">
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je essayer gratuitement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — 14 jours, toutes les fonctions, sans carte bancaire.</div></div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment j'obtiens ma formule ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">C'est nous qui activons votre accès selon votre besoin. Vous nous contactez, on crée votre code en quelques minutes.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Y a-t-il un engagement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Non — sans engagement, résiliable à tout moment.</div></div>
+          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Y a-t-il un engagement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Au choix : <strong>avec engagement 12 mois</strong> (tarif réduit, jusqu'à -33 %) ou <strong>sans engagement</strong>, résiliable à tout moment.</div></div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment se passe le paiement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Sur facture, par virement — pas de prélèvement automatique.</div></div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je changer de formule plus tard ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — vous nous contactez et on ajuste votre accès, sans perdre vos données.</div></div>
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Mes données sont-elles sécurisées ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — connexion HTTPS, accès cloisonné par établissement, sauvegardes régulières.</div></div>
@@ -513,6 +519,17 @@
         <div style="text-align:center;margin-top:22px">
           <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">Démarrer l'essai gratuit</button>
         </div>
+        <script>
+        window.setEngTarif = function(mode){
+          var on = (mode === 'libre');
+          var sec = document.getElementById('section-tarifs'); if(!sec) return;
+          sec.querySelectorAll('.px-eng').forEach(function(e){ e.style.display = on ? 'none' : ''; });
+          sec.querySelectorAll('.px-libre').forEach(function(e){ e.style.display = on ? '' : 'none'; });
+          var t12 = document.getElementById('engTab12'), tl = document.getElementById('engTabLibre');
+          if(t12){ t12.style.background = on ? 'transparent' : 'linear-gradient(135deg,#4ade80,#22c55e)'; t12.style.color = on ? 'rgba(255,255,255,0.7)' : '#0a0e1a'; }
+          if(tl){ tl.style.background = on ? 'linear-gradient(135deg,#4ade80,#22c55e)' : 'transparent'; tl.style.color = on ? '#0a0e1a' : 'rgba(255,255,255,0.7)'; }
+        };
+        </script>
       </section>
       <!-- CTA FINAL -->
       <section style="padding:34px 20px 22px;max-width:1000px;margin:0 auto;text-align:center">
