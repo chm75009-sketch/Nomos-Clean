@@ -424,9 +424,9 @@
             <thead>
               <tr style="background:rgba(255,255,255,0.03)">
                 <th style="text-align:left;padding:11px 7px;color:rgba(255,255,255,0.6);font-weight:700;font-size:12px">Fonctionnalité</th>
-                <th style="padding:11px 4px;color:white;text-align:center">Essentiel<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
-                <th style="padding:11px 4px;color:white;text-align:center">Solo<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
-                <th style="padding:11px 4px;color:white;text-align:center;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span></th>
+                <th onclick="openFormuleDetail('essentiel')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer">Essentiel<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('solo')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer">Solo<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('pro')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
               </tr>
             </thead>
             <tbody style="color:rgba(255,255,255,0.85)">
@@ -476,7 +476,49 @@
           if(t12){ t12.style.background = on ? 'transparent' : 'linear-gradient(135deg,#4ade80,#22c55e)'; t12.style.color = on ? 'rgba(255,255,255,0.7)' : '#0a0e1a'; }
           if(tl){ tl.style.background = on ? 'linear-gradient(135deg,#4ade80,#22c55e)' : 'transparent'; tl.style.color = on ? '#0a0e1a' : 'rgba(255,255,255,0.7)'; }
         };
+
+        // Détail d'une formule au clic
+        window._FORMULES = {
+          essentiel: { nom:'Essentiel', sub:'Les 3 contrôles essentiels', eng:'9,90 €', libre:'14,90 €', items:['Relevés de température','Réception & traçabilité','Huiles de friture','Pack DDPP — édition illimitée des 3 contrôles','1 utilisateur','Capteurs connectés en option (sur devis)'] },
+          solo: { nom:'Solo', sub:'Tous les contrôles HACCP du quotidien', eng:'29,90 €', libre:'39,90 €', items:['Tout l\'Essentiel, plus :','Planning nettoyage','Cuisson · refroidissement · remise en T°','Étiquetage interne & DLC','Pertes & invendus','Nuisibles & déchets','Documents & affichages obligatoires','Matrice allergènes (14 INCO)','Tableau de bord & non-conformités','Pack DDPP — tous les contrôles','1 utilisateur'] },
+          pro: { nom:'Pro', sub:'Tout Solo + services de conformité', eng:'79,90 €', libre:'99,90 €', items:['Tout le Solo, plus :','🛡️ PMS personnalisé','🛡️ DUERP personnalisé','📌 Affiches obligatoires fournies','1 utilisateur'] }
+        };
+        window.openFormuleDetail = function(key){
+          var f = window._FORMULES[key]; if(!f) return;
+          var m = document.getElementById('modalFormule'), c = document.getElementById('modalFormuleContent');
+          if(!m || !c) return;
+          var li = f.items.map(function(t){
+            var head = /,\s*plus\s*:$/.test(t);
+            return head ? '<li style="list-style:none;margin:6px 0 4px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:700">'+t+'</li>'
+                        : '<li style="margin-bottom:5px">'+t+'</li>';
+          }).join('');
+          c.innerHTML =
+            '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
+            '<h3 style="font-size:24px;font-weight:900;color:white;margin:0 0 2px">'+f.nom+'</h3>'+
+            '<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:16px">'+f.sub+'</div>'+
+            '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">'+
+              '<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:11px;padding:12px"><div style="font-size:9px;color:#4ade80;font-weight:800">ENGAGEMENT 12 MOIS</div><div style="font-size:22px;font-weight:900;color:white">'+f.eng+'<span style="font-size:11px;color:rgba(255,255,255,0.6);font-weight:600"> HT/mois</span></div></div>'+
+              '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:12px"><div style="font-size:9px;color:rgba(255,255,255,0.6);font-weight:800">SANS ENGAGEMENT</div><div style="font-size:22px;font-weight:900;color:rgba(255,255,255,0.85)">'+f.libre+'<span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600"> HT/mois</span></div></div>'+
+            '</div>'+
+            '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
+            '<ul style="padding:0 0 0 18px;margin:0 0 18px;font-size:13px;color:white;line-height:1.6">'+li+'</ul>'+
+            '<button onclick="closeFormuleDetail();showPage(\'page-inscription\')" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Démarrer l\'essai gratuit</button>';
+          m.style.display = 'flex';
+          document.body.style.overflow = 'hidden';
+        };
+        window.closeFormuleDetail = function(){
+          var m = document.getElementById('modalFormule'); if(m) m.style.display = 'none';
+          document.body.style.overflow = '';
+        };
         </script>
+
+        <!-- Fenêtre détail formule -->
+        <div id="modalFormule" onclick="if(event.target===this)closeFormuleDetail()" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
+          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(74,222,128,0.3);border-radius:18px;max-width:520px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
+            <button onclick="closeFormuleDetail()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif">✕</button>
+            <div id="modalFormuleContent"></div>
+          </div>
+        </div>
       </section>
       <!-- CTA FINAL -->
       <section style="padding:34px 20px 22px;max-width:1000px;margin:0 auto;text-align:center">
