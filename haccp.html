@@ -164,6 +164,10 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" defer onerror="console.warn('CDN non chargé: https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js')"></script>
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js" defer onerror="console.warn('CDN non chargé: exceljs')"></script>
 <style id="haccp-media-print">
+/* Cadrage : aucun débordement horizontal de la page (titres, barres, cartes restent
+   dans l'écran, même en « Affichage zoomé » iPhone). Les tableaux à défilement
+   interne (overflow-x:auto) gardent leur propre scroll, non affectés. */
+html, body { max-width: 100%; overflow-x: hidden; }
 @media print {
   body > *:not(#printOverlay) { display: none !important; }
   #printOverlay { display: block !important; position: static !important; height: auto !important; overflow: visible !important; }
@@ -4005,7 +4009,7 @@
         <div id="adminDashboard" style="display:none">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
             <div>
-              <h1 style="font-size:24px;font-weight:900;margin:0">🛠️ Administration HACCP Pro</h1>
+              <h1 style="font-size:clamp(17px,5.5vw,24px);font-weight:900;margin:0;overflow-wrap:anywhere;line-height:1.15">🛠️ Administration HACCP Pro</h1>
               <p style="font-size:12px;color:rgba(255,255,255,0.6);margin:4px 0 0">Gestion des inscriptions et abonnements · <span id="adminVersion" style="color:#14b8a6;font-weight:700"></span></p>
             </div>
             <button onclick="logoutAdmin()" style="background:rgba(220,38,38,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Se déconnecter</button>
