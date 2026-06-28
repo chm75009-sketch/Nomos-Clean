@@ -464,7 +464,7 @@
           <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Dois-je sauvegarder mes contrôles ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — pensez à exporter et conserver régulièrement vos contrôles (Pack DDPP / PDF). Vous restez responsable de la conservation de vos enregistrements.</div></div>
         </div>
         <div style="text-align:center;margin-top:22px">
-          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">Démarrer l'essai gratuit</button>
+          <button onclick="showPage('page-inscription')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">Démarrer l'essai gratuit</button>
         </div>
         <script>
         window.setEngTarif = function(mode){
@@ -3902,44 +3902,6 @@
               <input type="tel" id="insc_tel" required placeholder="06 XX XX XX XX" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
-            <div>
-              <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Formule <span style="color:#dc2626">*</span></label>
-              <select id="insc_formule" required onchange="updateRecapTarif()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
-                <option value="" style="background:#ffffff;color:#1a1a2e">— Choisir —</option>
-                <option value="essentiel" style="background:#ffffff;color:#1a1a2e">🥉 Essentiel — 1 établissement</option>
-                <option value="multisites" style="background:#ffffff;color:#1a1a2e">🥇 Multi-sites — Jusqu'à 5 établissements</option>
-              </select>
-              <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;line-height:1.4">Essentiel : à partir de <strong style="color:#4ade80">39€/mois HT</strong> · Multi-sites : à partir de <strong style="color:#4ade80">129€/mois HT</strong></div>
-            </div>
-            <div>
-              <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Engagement <span style="color:#dc2626">*</span></label>
-              <select id="insc_engagement" required onchange="updateRecapTarif()" style="width:100%;padding:11px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box">
-                <option value="" style="background:#ffffff;color:#1a1a2e">— Choisir —</option>
-                <option value="annuel" style="background:#ffffff;color:#1a1a2e">12 mois (DUERP OFFERT 🎁)</option>
-                <option value="mensuel" style="background:#ffffff;color:#1a1a2e">Sans engagement</option>
-              </select>
-              <div style="font-size:10px;color:rgba(255,255,255,0.55);margin-top:4px;line-height:1.4">Engagement 12 mois = <strong style="color:#4ade80">-34%</strong> + <strong style="color:#f59e0b">DUERP offert</strong> 🎁</div>
-            </div>
-          </div>
-          <!-- V96 — Récap dynamique tarif -->
-          <div id="recapTarif" style="display:none;background:linear-gradient(135deg,rgba(74,222,128,0.12),rgba(34,197,94,0.05));border:1.5px solid rgba(74,222,128,0.4);border-radius:12px;padding:16px;margin-top:4px">
-            <div style="font-size:10px;color:#4ade80;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Récapitulatif de votre offre</div>
-            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
-              <div>
-                <div id="recapTitle" style="font-size:15px;font-weight:800;color:white;margin-bottom:2px"></div>
-                <div id="recapEngagement" style="font-size:11px;color:rgba(255,255,255,0.65)"></div>
-              </div>
-              <div style="text-align:right">
-                <div style="display:flex;align-items:baseline;gap:4px;justify-content:flex-end">
-                  <span id="recapPrix" style="font-size:24px;font-weight:900;color:#4ade80"></span>
-                  <span style="font-size:11px;color:rgba(255,255,255,0.6)">HT / mois</span>
-                </div>
-                <div id="recapEconomie" style="font-size:10px;color:#f59e0b;font-weight:700;margin-top:2px"></div>
-              </div>
-            </div>
-            <div id="recapBonus" style="display:none;margin-top:10px;padding:8px 12px;background:rgba(245,158,11,0.12);border-radius:8px;font-size:11px;color:#fbbf24;font-weight:700;text-align:center">🎁 DUERP personnalisé OFFERT pour votre engagement annuel (jusqu'au 30/06/2026)</div>
-          </div>
           <!-- V102 — Adresse + SIRET obligatoires (preuves légales DDPP) -->
           <div>
             <label style="display:block;font-size:12px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:5px">Adresse complète <span style="color:#dc2626">*</span></label>
@@ -3958,7 +3920,7 @@
           <!-- RGPD -->
           <div style="display:flex;gap:10px;align-items:flex-start;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.2);border-radius:9px;padding:12px">
             <input type="checkbox" id="insc_rgpd" required style="margin-top:2px;cursor:pointer">
-            <label for="insc_rgpd" style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.5;cursor:pointer">J'accepte que mes données soient utilisées pour traiter ma demande d'inscription. <strong>Aucun email commercial</strong>. Données conservées 3 ans (durée légale). Conformité RGPD.</label>
+            <label for="insc_rgpd" style="font-size:11px;color:rgba(255,255,255,0.75);line-height:1.5;cursor:pointer">J'accepte que mes données soient utilisées pour traiter ma demande. <strong>Elles ne sont pas communiquées à des tiers</strong> et servent uniquement à vous recontacter au sujet de votre demande. Aucun email commercial. Données conservées 3 ans (durée légale). Conformité RGPD.</label>
           </div>
           <!-- Bouton -->
           <button type="submit" id="btnSubmitInscription" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:14px;border-radius:11px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3);margin-top:8px">🚀 Envoyer ma demande</button>
