@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v398';
+const CACHE = 'haccp-pro-v399';
 const CORE = [
   './',
   './accueil.html',
@@ -38,7 +38,7 @@ const CORE = [
   './slides/slide-6.webp',
   './slides/slide-7.webp',
   './slides/slide-8.webp',
-  // Module Audit (ExpertAudit / Clean Food) — même PWA, même scope « / ».
+  // Module Audit (ExpertAudit / Nomos) — même PWA, même scope « / ».
   './audit/index.html',
   './audit/audit.html',
   './audit/controles.html',

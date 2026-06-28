@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════
-// SHARED.JS — Clean Food | ExpertAudit HACCP
+// SHARED.JS — Nomos | ExpertAudit HACCP
 // Fonctions et constantes partagées entre toutes les pages
 // ════════════════════════════════════════════════════
 
@@ -276,8 +276,8 @@ function buildNavbar(activePage) {
     '<header class="cf-nav">' +
     '<div class="cf-nav-inner">' +
     '<a href="index.html" class="cf-nav-logo">' +
-    '<div style="width:42px;height:42px;border-radius:12px;background:#1f5649;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:.06em;flex-shrink:0">CF</div>' +
-    '<div><div style="font-weight:900;font-size:.95rem;letter-spacing:.08em;color:#153e35;line-height:1">CLEAN FOOD</div>' +
+    '<div style="width:42px;height:42px;border-radius:12px;background:#1f5649;color:#fff;font-weight:900;font-size:12px;display:flex;align-items:center;justify-content:center;letter-spacing:.06em;flex-shrink:0">N</div>' +
+    '<div><div style="font-weight:900;font-size:.95rem;letter-spacing:.08em;color:#153e35;line-height:1">NOMOS</div>' +
     '<div style="font-size:.62rem;color:#65716b;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:2px">Audit Hygiène &amp; Sécurité Alimentaire</div></div>' +
     '</a>' +
     '<nav class="cf-nav-links">' + desktopLinks + '</nav>' +
@@ -352,7 +352,7 @@ function goBack() {
 function envoyerNotifAdmin(adminEmail, d) {
   if (!adminEmail || typeof emailjs === 'undefined') return;
   emailjs.send('service_84lz31w', 'template_ti43bkh', {
-    to_name:      'Administrateur Clean Food',
+    to_name:      'Administrateur Nomos',
     to_email:     adminEmail,
     email:        adminEmail,
     code:         '⚠️ NOUVELLE DEMANDE — À TRAITER',
