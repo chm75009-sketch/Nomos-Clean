@@ -80,7 +80,7 @@ var MODE_LOCAL = false;
 // FORMULE active du compte connecté : 'complet' (défaut, version complète) ou 'rth'
 // (version simplifiée 3 contrôles « Contrôle RTH »). Renseignée à la connexion.
 var FORMULE_ACTIVE = 'complet';
-var _RTH_MODULES = { reception: 1, temperatures: 1, huiles: 1 };
+var _RTH_MODULES = { reception: 1, temperatures: 1, huiles: 1, exports: 1 };
 // ── SAUVEGARDE QUOTIDIENNE — coupe-circuit GLOBAL (tous les clients) ──
 // Mettre à false pour DÉSACTIVER instantanément la sauvegarde quotidienne pour
 // TOUT LE MONDE (prend effet au prochain chargement de l'app). Le réglage fin,
@@ -25767,11 +25767,26 @@ function _rthAccueil() {
     + '</div>'
     + '<div style="max-width:480px;margin:0 auto;padding:12px 16px 0"><div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:11.5px;color:#9a3412;line-height:1.45">⚠️ <b>3 contrôles</b> seulement. Vous restez responsable de réaliser <b>tous les autres</b> contrôles obligatoires (voir « Mes autres obligations »).</div></div>'
     + '<div style="max-width:480px;margin:0 auto;padding:16px">'
+    + '<div style="display:flex;gap:9px;align-items:flex-start;background:#eef9f3;border:1px solid #a7f3d0;border-radius:12px;padding:11px 12px;margin-bottom:12px;font-size:12px;color:#065f46;line-height:1.45"><span style="font-size:15px">📋</span><div><b>Enregistrement obligatoire.</b> Enregistrez vos 3 contrôles chaque jour — c\'est votre preuve en cas de contrôle.</div></div>'
     + _rthCarte('reception', '📦', '#fff7ed', 'Réception d\'une livraison', 'Températures, emballages, DLC')
     + _rthCarte('temperatures', '🌡️', '#eff6ff', 'Températures frigos', 'Chambres froides, réfrigérateurs, congélateurs')
     + _rthCarte('huiles', '🫙', '#fef9c3', 'Huile de friture', 'Aspect, température, TPM')
+    + '<div onclick="_rthOuvrir(\'exports\')" style="display:flex;align-items:center;gap:13px;background:#fff;border:1.5px solid #a7f3d0;border-radius:16px;padding:16px;margin-bottom:11px;box-shadow:0 2px 8px rgba(0,0,0,.05);cursor:pointer"><div style="width:52px;height:52px;border-radius:14px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0">📄</div><div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:800">Pack en cas de contrôle</div><div style="font-size:11.5px;color:#64748b">PDF de vos 3 contrôles pour l\'inspecteur (DDPP)</div></div><div style="color:#cbd5e1;font-size:22px;flex-shrink:0">&rsaquo;</div></div>'
     + '<div onclick="_rthUpsell()" style="display:flex;align-items:center;gap:10px;background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:14px;margin-top:8px;cursor:pointer"><div style="width:48px;height:48px;border-radius:12px;background:#ffedd5;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📋</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:800;color:#9a3412">Mes autres obligations</div><div style="font-size:11px;color:#b45309">Contrôles à débloquer (formule complète)</div></div><div style="color:#fdba74;font-size:22px;flex-shrink:0">&rsaquo;</div></div>'
     + '</div>');
+  try { setTimeout(_rthRappelQuotidien, 450); } catch (e) {}
+}
+// Rappel « en début de chaque journée » : une seule fois par jour, on invite à enregistrer.
+function _rthRappelQuotidien() {
+  try {
+    var k = 'haccp_rth_rappel_' + ((typeof ETAB_ID !== 'undefined' && ETAB_ID) ? ETAB_ID : 'x');
+    var auj = new Date().toISOString().slice(0, 10);
+    if (lsGet(k) === auj) return; // déjà rappelé aujourd'hui
+    lsSet(k, auj);
+    var msg = '📋 Pensez à enregistrer vos 3 contrôles du jour (Réception · Températures · Huiles).';
+    try { showToast(msg, 'ok', 6000); }
+    catch (e) { try { alert(msg); } catch (e2) {} }
+  } catch (e) {}
 }
 function _rthOuvrir(id) { _rthFermer(); openModule(id); }
 function _rthUpsell() {
@@ -25797,7 +25812,7 @@ function _rthModuleAutorise(id) { return !!(_RTH_MODULES && _RTH_MODULES[id]); }
 // Pur (testable) : déduit la formule depuis le code d'accès (marqueur « RTH »).
 // Ex. ESSAI-RTH-AB3KP-2026 / CLIENT-RTH-… → 'rth' ; ESSAI-… / RTH75 → 'complet'.
 function _formuleDepuisCode(code) { return /(^|-)RTH(-|$)/i.test(String(code || '')) ? 'rth' : 'complet'; }
-try { if (typeof window !== 'undefined') { window.demarrerRTH = demarrerRTH; window._rthUpsell = _rthUpsell; window._rthAccueil = _rthAccueil; window._rthOuvrir = _rthOuvrir; window._rthValiderEngagement = _rthValiderEngagement; window._rthDemandeUpgrade = _rthDemandeUpgrade; window._rthFermer = _rthFermer; } } catch (e) {}
+try { if (typeof window !== 'undefined') { window.demarrerRTH = demarrerRTH; window._rthUpsell = _rthUpsell; window._rthAccueil = _rthAccueil; window._rthOuvrir = _rthOuvrir; window._rthValiderEngagement = _rthValiderEngagement; window._rthDemandeUpgrade = _rthDemandeUpgrade; window._rthFermer = _rthFermer; window._rthRappelQuotidien = _rthRappelQuotidien; } } catch (e) {}
 
 // ════════════════════════════════════════════════════════════════════════════
 //  SAUVEGARDE QUOTIDIENNE (responsabilité client — cf. CGV art.11 & Politique)
