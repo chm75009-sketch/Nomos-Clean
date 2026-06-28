@@ -28,6 +28,13 @@ _Mise à jour : 25/06/2026._
 14. Audit externe (rapport pentest) **analysé point par point → globalement neutralisé** (la plupart des alertes
     étaient conditionnées à « si RLS insuffisant », ce qui n'est pas le cas).
 
+### Session 28/06/2026
+15. **CSP ACTIVÉE** (mode appliqué, plus seulement observation) via `netlify.toml` : bloque tout script/ressource
+    non autorisé. Liste blanche auditée sur Nomos **+ app Audit** : jsdelivr, **cdnjs.cloudflare** (docx), unpkg,
+    Google Fonts, Supabase ×2, EmailJS, Ubibot. **Anti-XSS renforcé.**
+16. **`826700` retiré du code** (comptes démo RTH75 / RTH3) → remplacé par `demo-rth-2026`. L'ancien mot de passe
+    admin n'apparaît plus dans le code des 2 apps.
+
 ## ⏸️ DÉCISIONS / EN ATTENTE (choix de Léa)
 - **E-mails** : Léa choisit la **communication manuelle** des codes (zéro dépendance). EmailJS non verrouillé (offre payante).
 - **CSP (anti-XSS)** : **à poser au moment du vrai hébergement** (pas GitHub Pages) — là on pourra la tester en
