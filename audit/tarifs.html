@@ -104,7 +104,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
   <div style="max-width:860px;margin:0 auto;padding:0 24px;text-align:center">
     <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px">Tarifs & Prestations</span>
     <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:2.2rem;color:#153e35;margin:0 0 12px;line-height:1.15">Choisissez la formule adaptée à votre établissement</h1>
-    <p style="font-size:1.05rem;color:#65716b;max-width:680px;margin:0 auto 24px">Audit HACCP en ligne, documents réglementaires ou accompagnement complet par nos experts — une solution pour chaque besoin.</p>
+    <p style="font-size:1.05rem;color:#65716b;max-width:680px;margin:0 auto 24px">Audit HACCP réalisé par nos experts, sur votre site — rapport détaillé et mise en conformité.</p>
     <a href="#contact-tarifs" style="display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.95rem;text-decoration:none">📩 Démarrer maintenant</a>
   </div>
 </section>
@@ -114,58 +114,48 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
       <div style="text-align:center;max-width:860px;margin:0 auto 32px">
         <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Prestations</span>
         <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 8px">Plusieurs formules selon votre besoin.</h2>
-        <p style="font-size:1rem;color:#65716b;text-align:justify">Audit en ligne avec ExpertAudit, documents réglementaires ou formule complète — choisissez selon votre situation.</p>
+        <p style="font-size:1rem;color:#65716b;text-align:justify">Audit réalisé par nos experts sur site — deux formules selon votre besoin.</p>
       </div>
 
-      <!-- Ligne 1 : Audits -->
-      <div style="font-size:.75rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">🔍 Audits HACCP</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px">
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #dfe6e0;display:flex;flex-direction:column">
-          <div style="font-size:1.5rem;margin-bottom:10px">🔑</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit par le client</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#1f5649;margin-bottom:8px">200 €</div>
-          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Code usage unique · Le client réalise lui-même l'audit · Rapport complet · Score de conformité · Recommandations</div>
-          <button onclick="showInscriptionAvecService('audit_client')" style="width:100%;padding:11px;background:#1f5649;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
+      <!-- Formules Audit (réalisées par nos experts uniquement) -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #2d6f60;display:flex;flex-direction:column">
+          <div style="font-size:1.5rem;margin-bottom:10px">🔍</div>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Essentiel</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#2d6f60;margin-bottom:10px">690 €</div>
+          <ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1">
+            <li>✅ Déplacement sur site</li>
+            <li>✅ Rapport détaillé (anomalies) + préconisations</li>
+            <li>✅ Affiches obligatoires fournies</li>
+          </ul>
+          <button onclick="showInscriptionAvecService('audit_essentiel')" style="width:100%;padding:11px;background:#2d6f60;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
         </div>
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #2d6f60;display:flex;flex-direction:column;position:relative">
-          <div style="position:absolute;top:-11px;left:18px;background:#2d6f60;color:#fff;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px">RECOMMANDÉ</div>
-          <div style="font-size:1.5rem;margin-bottom:10px">🧪</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit par nos experts</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#2d6f60;margin-bottom:8px">300 €</div>
-          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Nos auditeurs réalisent l'audit complet · Rapport professionnel · Accompagnement personnalisé</div>
-          <button onclick="showInscriptionAvecService('audit_admin')" style="width:100%;padding:11px;background:#2d6f60;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
-        </div>
-      </div>
-
-      <!-- Ligne 2 : Docs + Full -->
-      <div style="font-size:.75rem;color:#65716b;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px">📄 Documents & Formules complètes</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #b79029;display:flex;flex-direction:column;position:relative">
-          <div style="position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:#b79029;color:#201806;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px;white-space:nowrap">POPULAIRE</div>
-          <div style="font-size:1.5rem;margin-bottom:10px">📄</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Pack Documents</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#b79029;margin-bottom:4px">250 €</div>
-          <div style="font-size:.75rem;color:#65716b;margin-bottom:8px">ou 100 € par document</div>
-          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">PMS · Plan Nettoyage · DUERP · Format Word</div>
-          <button onclick="showInscriptionAvecService('docs')" style="width:100%;padding:11px;background:#b79029;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour commander</button>
-        </div>
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #d84f43;display:flex;flex-direction:column">
-          <div style="font-size:1.5rem;margin-bottom:10px">🎯</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Full client</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#d84f43;margin-bottom:8px">350 €</div>
-          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Audit client + Pack Documents · Tout inclus</div>
-          <button onclick="showInscriptionAvecService('full_client')" style="width:100%;padding:11px;background:#d84f43;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;margin-top:auto">📩 S'inscrire pour choisir</button>
-        </div>
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #5c3d8f;display:flex;flex-direction:column">
+        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #5c3d8f;display:flex;flex-direction:column;position:relative">
+          <div style="position:absolute;top:-11px;left:18px;background:#5c3d8f;color:#fff;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px">RECOMMANDÉ</div>
           <div style="font-size:1.5rem;margin-bottom:10px">⭐</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Full premium</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#5c3d8f;margin-bottom:8px">450 €</div>
-          <div style="font-size:.82rem;color:#65716b;line-height:1.7;margin-bottom:14px;flex:1">Audit réalisé <strong style="color:#153e35">par nos experts sur site</strong> + Pack Documents (PMS, Nettoyage, DUERP) · Accompagnement complet</div>
-          <button onclick="showInscriptionAvecService('full_admin')" style="width:100%;padding:11px;background:#5c3d8f;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;margin-top:auto">📩 S'inscrire pour choisir</button>
+          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Complet</div>
+          <div style="font-size:1.9rem;font-weight:900;color:#5c3d8f;margin-bottom:10px">1 490 €</div>
+          <ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1">
+            <li>✅ Tout l'Audit Essentiel</li>
+            <li>✅ Liste des documents obligatoires fournie</li>
+          </ul>
+          <button onclick="showInscriptionAvecService('audit_complet')" style="width:100%;padding:11px;background:#5c3d8f;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
         </div>
+      </div>
+      <div style="max-width:760px;margin:0 auto">
+        <details style="background:#fff;border:1px solid rgba(31,86,73,.12);border-radius:12px;padding:0 16px;margin-bottom:10px">
+          <summary style="cursor:pointer;padding:14px 0;font-weight:800;color:#153e35;font-size:.9rem">📑 Documents obligatoires fournis (Audit Complet)</summary>
+          <ul style="margin:0 0 12px;padding:0 0 0 18px;color:#65716b;font-size:.85rem;line-height:1.9"><li>Plan de Maîtrise Sanitaire (PMS) + procédures HACCP</li><li>Plan de nettoyage & désinfection</li><li>Plan de lutte contre les nuisibles (+ contrat dératisation)</li><li>Relevés de températures (frigos / congélateurs)</li><li>Traçabilité : étiquettes, bons de livraison, factures</li><li>Registre des non-conformités & actions correctives</li><li>Attestation de formation hygiène (≥ 1 personne formée)</li><li>Déclaration d'activité auprès de la DDPP (+ agrément si concerné)</li><li>Protocole huiles de friture</li><li>Plats témoins (restauration collective)</li><li>DUERP (document unique des risques)</li><li>Contrats d'entretien (hotte, bac à graisse…) + analyses microbio si applicable</li></ul>
+        </details>
+        <details style="background:#fff;border:1px solid rgba(31,86,73,.12);border-radius:12px;padding:0 16px;margin-bottom:10px">
+          <summary style="cursor:pointer;padding:14px 0;font-weight:800;color:#153e35;font-size:.9rem">📌 Affiches obligatoires fournies</summary>
+          <ul style="margin:0 0 12px;padding:0 0 0 18px;color:#65716b;font-size:.85rem;line-height:1.9"><li>Information allergènes</li><li>Consignes de lavage des mains</li><li>Interdiction de fumer / vapoter</li><li>Mention « eau potable / eau non potable » sur les points d'eau</li><li>Origine des viandes</li><li>Protocole de nettoyage en cuisine</li><li>Affichage des prix (clientèle)</li></ul>
+        </details>
+        <p style="font-size:.75rem;color:#8a9e95;font-style:italic;line-height:1.6;margin:8px 4px 0">Listes indicatives, non exhaustives, selon la réglementation en vigueur à la date de l'audit. Le client demeure seul responsable de la conformité de son établissement.</p>
       </div>
     </div>
   </section>
+
 
   <!-- ── CALCULATEUR ── -->
   <section style="padding:48px 0" id="calculateur">
@@ -241,11 +231,8 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
               <input type="hidden" id="ins_service" value="">
               <label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:8px">Service souhaité * <span style="font-weight:400;color:#65716b">(cliquez pour sélectionner)</span></label>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="serviceChoixGrid">
-                <div onclick="selectService('audit_client',this)" data-val="audit_client" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#1f5649;font-size:.88rem">🔑 Audit par moi-même</div><div style="font-size:1.1rem;font-weight:900;color:#1f5649;margin:2px 0">200 €</div><div style="font-size:.75rem;color:#65716b">Vous réalisez vous-même l'audit en ligne avec ExpertAudit. Vous obtenez un rapport complet avec votre score et les points à corriger en priorité.</div></div>
-                <div onclick="selectService('audit_admin',this)" data-val="audit_admin" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#2d6f60;font-size:.88rem">🧪 Audit par un expert</div><div style="font-size:1.1rem;font-weight:900;color:#2d6f60;margin:2px 0">300 €</div><div style="font-size:.75rem;color:#65716b">Un auditeur se déplace dans votre établissement. Vous recevez un rapport professionnel avec un plan d'action personnalisé.</div></div>
-                <div onclick="selectService('docs',this)" data-val="docs" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#b79029;font-size:.88rem">📄 Pack Documents</div><div style="font-size:1.1rem;font-weight:900;color:#b79029;margin:2px 0">250 €</div><div style="font-size:.75rem;color:#65716b">Accédez à 8 documents réglementaires à personnaliser et à adapter à votre situation par vos soins.</div></div>
-                <div onclick="selectService('full_client',this)" data-val="full_client" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#d84f43;font-size:.88rem">🎯 Full client</div><div style="font-size:1.1rem;font-weight:900;color:#d84f43;margin:2px 0">350 €</div><div style="font-size:.75rem;color:#65716b">Formule complète : vous réalisez vous-même l'audit ET recevez 8 documents réglementaires, à personnaliser et à adapter à votre situation par vos soins.</div></div>
-                <div onclick="selectService('full_admin',this)" data-val="full_admin" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;grid-column:1/-1"><div style="font-weight:700;color:#5c3d8f;font-size:.88rem">⭐ Full premium</div><div style="font-size:1.1rem;font-weight:900;color:#5c3d8f;margin:2px 0">450 €</div><div style="font-size:.75rem;color:#65716b">Notre formule tout inclus : un expert se déplace pour réaliser l'audit ET vous recevez l'ensemble de 8 documents réglementaires, à personnaliser et à adapter à votre situation par vos soins.</div></div>
+                <div onclick="selectService('audit_essentiel',this)" data-val="audit_essentiel" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#2d6f60;font-size:.88rem">🔍 Audit Essentiel</div><div style="font-size:1.1rem;font-weight:900;color:#2d6f60;margin:2px 0">690 €</div><div style="font-size:.75rem;color:#65716b">Audit réalisé par nos experts sur site : rapport détaillé (anomalies + préconisations) et affiches obligatoires fournies.</div></div>
+                <div onclick="selectService('audit_complet',this)" data-val="audit_complet" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;grid-column:1/-1"><div style="font-weight:700;color:#5c3d8f;font-size:.88rem">⭐ Audit Complet</div><div style="font-size:1.1rem;font-weight:900;color:#5c3d8f;margin:2px 0">1 490 €</div><div style="font-size:.75rem;color:#65716b">Tout l'Audit Essentiel + la liste des documents obligatoires fournie.</div></div>
               </div>
             </div>
             <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Adresse</label><input type="text" id="ins_adresse" placeholder="12 rue du Marché, 75001 Paris" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
@@ -344,7 +331,7 @@ function runCalc() {
 // ── Sélection service ──
 function selectService(val, el) {
   document.getElementById('ins_service').value = val;
-  var colors = { audit_client:'#1f5649', audit_admin:'#00796b', docs:'#6b3fa0', full_client:'#b7410e', full_admin:'#5c3d8f' };
+  var colors = { audit_essentiel:'#2d6f60', audit_complet:'#5c3d8f' };
   document.querySelectorAll('#serviceChoixGrid > div').forEach(function(d) {
     var isSelected = d.dataset.val === val;
     d.style.border = isSelected ? '2px solid ' + (colors[val]||'#2d6f60') : '2px solid #dfe6e0';
@@ -384,11 +371,8 @@ function soumettreInscription() {
   if (consent && !consent.checked) { alert('Veuillez accepter la politique de confidentialité pour continuer.'); return; }
 
   var serviceLabels = {
-    audit_client: 'Audit par le client — 200 €',
-    audit_admin:  'Audit par nos experts — 300 €',
-    docs:         'Pack Documents — 250 €',
-    full_client:  'Full client (audit + docs) — 350 €',
-    full_admin:   'Full premium (expert + docs) — 450 €'
+    audit_essentiel: 'Audit Essentiel — 690 €',
+    audit_complet:   'Audit Complet — 1 490 €'
   };
   var secteurLabels = { RESTAURATION:'Restauration Traditionnelle', RESTAURATION_RAPIDE:'Restauration Rapide', BOULANGERIE:'Boulangerie / Pâtisserie', BOUCHERIE:'Boucherie / Charcuterie' };
 
