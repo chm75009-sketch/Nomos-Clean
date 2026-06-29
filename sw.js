@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v408';
+const CACHE = 'haccp-pro-v409';
 const CORE = [
   './',
   './accueil.html',
@@ -149,6 +149,22 @@ self.addEventListener('fetch', (event) => {
   }
 
   const path = url.pathname;
+  // SW-4 — L'app Audit (/audit/) doit TOUJOURS afficher la derniere version quand
+  // il y a du reseau (ses pages n'ont pas le rechargement auto de l'app principale,
+  // et le « cache d'abord » les figeait sur une vieille version). => RESEAU D'ABORD,
+  // repli sur le cache uniquement hors-ligne.
+  if (path.indexOf('/audit/') !== -1) {
+    event.respondWith(
+      fetch(req).then((res) => {
+        if (res && res.ok) {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+        }
+        return res;
+      }).catch(() => caches.match(req))
+    );
+    return;
+  }
   // SW-1 : l'app est servie sur un sous-chemin (ex. /HACCP17-FACILE/), donc
   // `path === '/'` ne matchait jamais. On matche aussi la racine réelle (scope).
   let scopePath = '/';
