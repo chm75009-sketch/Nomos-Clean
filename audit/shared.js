@@ -440,3 +440,16 @@ function envoyerNotifAdmin(adminEmail, d) {
   };
 })();
 
+/* Pastille version (diagnostic cache) — coin haut droit, sur toutes les pages Audit */
+(function(){
+  var NV_BUILD = 'v411';
+  function tag(){
+    if(document.getElementById('nvBuildTag')) return;
+    var d=document.createElement('div'); d.id='nvBuildTag';
+    d.textContent='Audit '+NV_BUILD;
+    d.style.cssText='position:fixed;top:3px;right:6px;z-index:2147483647;font-size:9px;font-weight:700;color:#8a958f;background:rgba(255,255,255,.75);padding:1px 6px;border-radius:7px;font-family:sans-serif;pointer-events:none';
+    (document.body||document.documentElement).appendChild(d);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tag); else tag();
+})();
+
