@@ -402,35 +402,44 @@ function envoyerNotifAdmin(adminEmail, d) {
   setInterval(_gbSync, 400);
 })();
 
-/* === Détail formule Audit (tableau 3 formules + listes par formule) === */
+/* === Détail formule Audit (liste détaillée ligne par ligne, 1 colonne) === */
 (function(){
-  var DOCS_LI = "<li>Plan de Maîtrise Sanitaire (PMS) + procédures HACCP</li><li>Plan de nettoyage & désinfection</li><li>Plan de lutte contre les nuisibles (+ contrat dératisation)</li><li>Relevés de températures (frigos / congélateurs)</li><li>Traçabilité : étiquettes, bons de livraison, factures</li><li>Registre des non-conformités & actions correctives</li><li>Attestation de formation hygiène (≥ 1 personne formée)</li><li>Déclaration d'activité auprès de la DDPP (+ agrément si concerné)</li><li>Protocole huiles de friture</li><li>Plats témoins (restauration collective)</li><li>DUERP (document unique des risques)</li><li>Contrats d'entretien (hotte, bac à graisse…) + analyses microbio si applicable</li>", AFF_LI = "<li>Information allergènes</li><li>Consignes de lavage des mains</li><li>Interdiction de fumer / vapoter</li><li>Mention « eau potable / eau non potable » sur les points d'eau</li><li>Origine des viandes</li><li>Protocole de nettoyage en cuisine</li><li>Affichage des prix (clientèle)</li>";
-  var ROWS = ["Déplacement sur site","Rapport détaillé (anomalies) + préconisations","Affiches obligatoires fournies","Liste des documents obligatoires fournie"];
+  var DOCS = ["Plan de Maîtrise Sanitaire (PMS) + procédures HACCP", "Plan de nettoyage & désinfection", "Plan de lutte contre les nuisibles (+ contrat dératisation)", "Relevés de températures (frigos / congélateurs)", "Traçabilité : étiquettes, bons de livraison, factures", "Registre des non-conformités & actions correctives", "Attestation de formation hygiène (≥ 1 personne formée)", "Déclaration d'activité auprès de la DDPP (+ agrément si concerné)", "Protocole huiles de friture", "Plats témoins (restauration collective)", "DUERP (document unique des risques)", "Contrats d'entretien (hotte, bac à graisse…) + analyses microbio si applicable"], AFF = ["Information allergènes", "Consignes de lavage des mains", "Interdiction de fumer / vapoter", "Mention « eau potable / eau non potable » sur les points d'eau", "Origine des viandes", "Protocole de nettoyage en cuisine", "Affichage des prix (clientèle)"];
   var ORDER = ["audit_diagnostic","audit_essentiel","audit_complet"];
   var META = {
-    audit_diagnostic:{nom:"Audit Diagnostic",prix:"390 €",col:"#b7791f",inc:[1,1,0,0]},
-    audit_essentiel:{nom:"Audit Essentiel",prix:"690 €",col:"#2d6f60",inc:[1,1,1,0]},
-    audit_complet:{nom:"Audit Complet",prix:"1 490 €",col:"#5c3d8f",inc:[1,1,1,1]}
+    audit_diagnostic:{nom:"Audit Diagnostic",prix:"390 €",col:"#b7791f"},
+    audit_essentiel:{nom:"Audit Essentiel",prix:"690 €",col:"#2d6f60"},
+    audit_complet:{nom:"Audit Complet",prix:"1 490 €",col:"#5c3d8f"}
   };
+  // minIdx = formule minimale (0 Diagnostic, 1 Essentiel, 2 Complet) qui fournit l'élément
+  var SECTIONS = [
+    { titre:null, min:0, items:["Déplacement sur site","Rapport détaillé (anomalies) + préconisations"] },
+    { titre:"📌 Affiches obligatoires fournies", min:1, items:AFF },
+    { titre:"📑 Documents obligatoires fournis", min:2, items:DOCS }
+  ];
   window.closeAuditDetail = function(){ var m=document.getElementById("auditDetailModal"); if(m) m.remove(); document.body.style.overflow=""; };
   window.openAuditDetail = function(key){
     var meta = META[key] || META.audit_diagnostic;
-    function chk(v){ return v ? '<span style="color:#2d6f60;font-weight:900">✓</span>' : '<span style="color:#cbd5e1">—</span>'; }
-    var thead = '<tr><th style="text-align:left;padding:6px 8px;color:#65716b;font-weight:700">&nbsp;</th>' + ORDER.map(function(k){var m=META[k];return '<th style="padding:6px 5px;font-size:.72rem;color:'+m.col+(k===key?';background:'+m.col+'14':'')+'">'+m.nom.replace("Audit ","")+'<br>'+m.prix+'</th>';}).join("") + '</tr>';
-    var tbody = ROWS.map(function(r,i){ return '<tr style="border-top:1px solid #eef2f0"><td style="padding:8px;color:#374151">'+r+'</td>'+ORDER.map(function(k){return '<td style="text-align:center'+(k===key?';background:'+meta.col+'10':'')+'">'+chk(META[k].inc[i])+'</td>';}).join("")+'</tr>'; }).join("");
-    var incl = ROWS.filter(function(r,i){return meta.inc[i];}).map(function(r){return '<li>✅ '+r+'</li>';}).join("");
-    var affBlock = meta.inc[2] ? '<details style="border:1px solid #e7ece9;border-radius:10px;padding:0 12px;margin-bottom:8px"><summary style="cursor:pointer;padding:11px 0;font-weight:800;color:#153e35;font-size:.86rem">📌 Affiches obligatoires fournies</summary><ul style="margin:0 0 10px;padding:0 0 0 18px;color:#65716b;font-size:.82rem;line-height:1.8">'+AFF_LI+'</ul></details>' : '';
-    var docBlock = meta.inc[3] ? '<details style="border:1px solid #e7ece9;border-radius:10px;padding:0 12px;margin-bottom:8px"><summary style="cursor:pointer;padding:11px 0;font-weight:800;color:#153e35;font-size:.86rem">📑 Documents obligatoires fournis</summary><ul style="margin:0 0 10px;padding:0 0 0 18px;color:#65716b;font-size:.82rem;line-height:1.8">'+DOCS_LI+'</ul></details>' : '';
+    var selIdx = ORDER.indexOf(key); if(selIdx<0) selIdx=0;
+    function statut(minIdx){
+      if(minIdx <= selIdx) return '<span style="color:#2d6f60;font-weight:800;white-space:nowrap">✓ inclus</span>';
+      var m = META[ORDER[minIdx]];
+      return '<span style="display:inline-block;background:#f4f1ea;color:'+m.col+';font-size:.68rem;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap">dès '+m.nom.replace("Audit ","")+'</span>';
+    }
+    var body = "";
+    SECTIONS.forEach(function(sec){
+      if(sec.titre){ body += '<tr><td colspan="2" style="padding:9px 8px;background:#f3f6f4;color:#153e35;font-weight:800;font-size:.78rem">'+sec.titre+'</td></tr>'; }
+      sec.items.forEach(function(t){
+        body += '<tr style="border-top:1px solid #eef2f0"><td style="padding:8px;color:#374151;line-height:1.35">'+t+'</td><td style="padding:8px;text-align:right">'+statut(sec.min)+'</td></tr>';
+      });
+    });
     var html = '<div style="position:fixed;inset:0;z-index:99999;background:rgba(20,30,25,.55);display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto" onclick="if(event.target===this)closeAuditDetail()">'
       + '<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;padding:22px;margin:auto;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:\'Source Sans 3\',sans-serif">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px"><div><div style="font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:'+meta.col+'">Formule Audit</div><div style="font-size:1.4rem;font-weight:900;color:#153e35">'+meta.nom+'</div></div><button onclick="closeAuditDetail()" style="background:#f1f5f4;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;color:#475569;flex-shrink:0">✕</button></div>'
-      + '<div style="font-size:1.6rem;font-weight:900;color:'+meta.col+';margin-bottom:14px">'+meta.prix+' <span style="font-size:.8rem;color:#65716b;font-weight:600">HT</span></div>'
-      + '<div style="font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#65716b;margin-bottom:6px">Comparatif des formules</div>'
-      + '<div style="overflow-x:auto;margin-bottom:16px"><table style="width:100%;border-collapse:collapse;font-size:.85rem;min-width:380px"><thead>'+thead+'</thead><tbody>'+tbody+'</tbody></table></div>'
-      + '<div style="font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:'+meta.col+';margin-bottom:4px">Ce que comprend « '+meta.nom+' »</div>'
-      + '<ul style="margin:0 0 14px;padding:0 0 0 18px;color:#374151;font-size:.86rem;line-height:1.7">'+incl+'</ul>'
-      + affBlock + docBlock
-      + '<p style="font-size:.72rem;color:#8a9e95;font-style:italic;line-height:1.5;margin:6px 0 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client demeure seul responsable de la conformité de son établissement.</p>'
+      + '<div style="font-size:1.6rem;font-weight:900;color:'+meta.col+';margin-bottom:6px">'+meta.prix+' <span style="font-size:.8rem;color:#65716b;font-weight:600">HT</span></div>'
+      + '<div style="font-size:.74rem;color:#65716b;margin-bottom:12px">Ce que nous fournissons avec la formule <b style="color:#153e35">'+meta.nom+'</b> :</div>'
+      + '<div style="border:1px solid #e7ece9;border-radius:12px;overflow:hidden;margin-bottom:14px"><table style="width:100%;border-collapse:collapse;font-size:.82rem"><tbody>'+body+'</tbody></table></div>'
+      + '<p style="font-size:.72rem;color:#8a9e95;font-style:italic;line-height:1.5;margin:0 0 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client demeure seul responsable de la conformité de son établissement.</p>'
       + '<button onclick="closeAuditDetail(); if(typeof showInscriptionAvecService===\'function\')showInscriptionAvecService(\''+key+'\')" style="width:100%;padding:13px;background:linear-gradient(135deg,'+meta.col+',#153e35);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:.95rem;cursor:pointer">✅ Je suis intéressé par cette formule</button>'
       + '<div style="text-align:center;font-size:.74rem;color:#8a9e95;margin-top:8px">Vous serez dirigé vers le formulaire de demande à remplir et à envoyer.</div>'
       + '</div></div>';
