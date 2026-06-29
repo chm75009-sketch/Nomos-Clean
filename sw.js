@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v412';
+const CACHE = 'haccp-pro-v413';
 const CORE = [
   './',
   './accueil.html',
@@ -154,8 +154,12 @@ self.addEventListener('fetch', (event) => {
   // et le « cache d'abord » les figeait sur une vieille version). => RESEAU D'ABORD,
   // repli sur le cache uniquement hors-ligne.
   if (path.indexOf('/audit/') !== -1) {
+    // RESEAU D'ABORD en CONTOURNANT le cache HTTP du navigateur (cache:'reload').
+    // Sans ça, fetch() pouvait servir un shared.js figé par le cache HTTP (que la
+    // reinstallation de l'app ne vide pas) → l'app Audit restait sur une vieille
+    // version meme apres un nouveau deploiement. Repli sur le cache hors-ligne.
     event.respondWith(
-      fetch(req).then((res) => {
+      fetch(new Request(req.url, { cache: 'reload', credentials: 'same-origin' })).then((res) => {
         if (res && res.ok) {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
