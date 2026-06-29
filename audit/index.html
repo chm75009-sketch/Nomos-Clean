@@ -794,7 +794,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
     <div style="max-width:1180px;margin:0 auto;padding:0 24px">
       <div style="text-align:center;margin-bottom:28px">
         <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Démarrer</span>
-        <h2 style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 6px">Démarrez votre audit</h2>
+        <h2 id="auditFormStart" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 6px">Démarrez votre audit</h2>
         <p style="color:#65716b;font-size:.95rem">Remplissez le formulaire — notre équipe vous contactera sous 24h.</p>
       </div>
       <div style="max-width:680px;margin:0 auto">
@@ -1437,11 +1437,13 @@ function showInscription() {
   }, 100);
 }
 function showInscriptionAvecService(service) {
-  showInscription();
-  setTimeout(function(){
-    var el = document.querySelector('#serviceChoixGrid > div[data-val="'+service+'"]');
-    if (el) selectService(service, el);
-  }, 500);
+  if (typeof showInscription === 'function') { try { showInscription(); } catch(e){} }
+  setTimeout(function() {
+    var top = document.getElementById('auditFormStart');
+    if (top) { var y = top.getBoundingClientRect().top + window.pageYOffset - 16; window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' }); }
+    var card = document.querySelector('#serviceChoixGrid > div[data-val="' + service + '"]');
+    if (card) selectService(service, card);
+  }, 200);
 }
 function selectService(val, el) {
   var svc = document.getElementById('ins_service');
