@@ -420,9 +420,9 @@ function envoyerNotifAdmin(adminEmail, d) {
     var sel = ORDER.indexOf(key); if(sel<0) sel=0;
     var clause = (sel>=1) ? '<p style="font-size:.72rem;color:#8a9e95;font-style:italic;line-height:1.5;margin:12px 0 14px">Les affiches et documents fournis constituent une base de travail adaptée à votre établissement. Ils doivent être personnalisés, complétés et tenus à jour par vos soins en fonction de l\'évolution de votre activité. Ces documents n\'ont pas valeur contractuelle.</p>' : "";
     var aff = (sel>=1) ? secTitre("📌 Affiches obligatoires fournies (prêtes à afficher)",meta.col)+incList(AFF)
-                       : lockLine("Affiches obligatoires fournies — incluses dès l'Audit Essentiel (690 €).");
+                       : lockLine("Affiches obligatoires fournies — comprises dans les formules Audit Essentiel et Audit Complet.");
     var doc = (sel>=2) ? secTitre("📄 Documents obligatoires personnalisés — établis par nos soins",meta.col)+incList(DOCS)
-                       : lockLine("Documents obligatoires personnalisés (PMS, plan de nettoyage…) — inclus avec l'Audit Complet (1 490 €).");
+                       : lockLine("Documents obligatoires personnalisés (PMS, plan de nettoyage…) — compris uniquement dans la formule Audit Complet.");
     var html = '<div style="position:fixed;inset:0;z-index:99999;background:rgba(20,30,25,.55);display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto" onclick="if(event.target===this)closeAuditDetail()">'
       + '<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;padding:22px;margin:auto;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:\'Source Sans 3\',sans-serif">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px"><div><div style="font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:'+meta.col+'">Formule Audit</div><div style="font-size:1.4rem;font-weight:900;color:#153e35">'+meta.nom+'</div></div><button onclick="closeAuditDetail()" style="background:#f1f5f4;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;color:#475569;flex-shrink:0">✕</button></div>'
