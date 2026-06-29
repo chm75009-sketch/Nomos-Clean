@@ -117,30 +117,11 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
         <p style="font-size:1rem;color:#65716b;text-align:justify">Audit réalisé par nos experts sur site — deux formules selon votre besoin.</p>
       </div>
 
-      <!-- Formules Audit (réalisées par nos experts uniquement) -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #2d6f60;display:flex;flex-direction:column">
-          <div style="font-size:1.5rem;margin-bottom:10px">🔍</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Essentiel</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#2d6f60;margin-bottom:10px">690 €</div>
-          <ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1">
-            <li>✅ Déplacement sur site</li>
-            <li>✅ Rapport détaillé (anomalies) + préconisations</li>
-            <li>✅ Affiches obligatoires fournies</li>
-          </ul>
-          <button onclick="openAuditDetail('audit_essentiel')" style="width:100%;padding:10px;background:#fff;color:#2d6f60;border:1.5px solid #2d6f60;border-radius:999px;cursor:pointer;font-weight:800;font-size:.85rem;margin-bottom:8px">📋 Voir le détail</button><button onclick="showInscriptionAvecService('audit_essentiel')" style="width:100%;padding:11px;background:#2d6f60;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
-        </div>
-        <div style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #5c3d8f;display:flex;flex-direction:column;position:relative">
-          <div style="position:absolute;top:-11px;left:18px;background:#5c3d8f;color:#fff;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px">RECOMMANDÉ</div>
-          <div style="font-size:1.5rem;margin-bottom:10px">⭐</div>
-          <div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Complet</div>
-          <div style="font-size:1.9rem;font-weight:900;color:#5c3d8f;margin-bottom:10px">1 490 €</div>
-          <ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1">
-            <li>✅ Tout l'Audit Essentiel</li>
-            <li>✅ Liste des documents obligatoires fournie</li>
-          </ul>
-          <button onclick="openAuditDetail('audit_complet')" style="width:100%;padding:10px;background:#fff;color:#5c3d8f;border:1.5px solid #5c3d8f;border-radius:999px;cursor:pointer;font-weight:800;font-size:.85rem;margin-bottom:8px">📋 Voir le détail</button><button onclick="showInscriptionAvecService('audit_complet')" style="width:100%;padding:11px;background:#5c3d8f;color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem">📩 S'inscrire pour ce service</button>
-        </div>
+      <!-- Formules Audit (par nos experts) — clic sur une carte = détail -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-bottom:18px">
+        <div onclick="openAuditDetail('audit_diagnostic')" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #b7791f;display:flex;flex-direction:column;position:relative;cursor:pointer"><div style="font-size:1.5rem;margin-bottom:10px">📝</div><div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Diagnostic</div><div style="font-size:1.9rem;font-weight:900;color:#b7791f;margin-bottom:10px">390 €</div><ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1"><li>✅ Déplacement sur site</li><li>✅ Rapport détaillé (anomalies) + préconisations</li></ul><button onclick="event.stopPropagation();openAuditDetail('audit_diagnostic')" style="width:100%;padding:9px;background:#fff;color:#b7791f;border:1.5px solid #b7791f;border-radius:999px;cursor:pointer;font-weight:800;font-size:.82rem;margin-bottom:8px">📋 Voir le détail</button><button onclick="event.stopPropagation();showInscriptionAvecService('audit_diagnostic')" style="width:100%;padding:11px;background:linear-gradient(135deg,#b7791f,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.86rem">✅ Je suis intéressé</button></div>
+        <div onclick="openAuditDetail('audit_essentiel')" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #2d6f60;display:flex;flex-direction:column;position:relative;cursor:pointer"><div style="font-size:1.5rem;margin-bottom:10px">🔍</div><div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Essentiel</div><div style="font-size:1.9rem;font-weight:900;color:#2d6f60;margin-bottom:10px">690 €</div><ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1"><li>✅ Déplacement sur site</li><li>✅ Rapport détaillé (anomalies) + préconisations</li><li>✅ Affiches obligatoires fournies</li></ul><button onclick="event.stopPropagation();openAuditDetail('audit_essentiel')" style="width:100%;padding:9px;background:#fff;color:#2d6f60;border:1.5px solid #2d6f60;border-radius:999px;cursor:pointer;font-weight:800;font-size:.82rem;margin-bottom:8px">📋 Voir le détail</button><button onclick="event.stopPropagation();showInscriptionAvecService('audit_essentiel')" style="width:100%;padding:11px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.86rem">✅ Je suis intéressé</button></div>
+        <div onclick="openAuditDetail('audit_complet')" style="background:#fff;border-radius:14px;padding:24px;box-shadow:0 14px 40px rgba(21,62,53,.07);border:2px solid #5c3d8f;display:flex;flex-direction:column;position:relative;cursor:pointer"><div style="position:absolute;top:-11px;left:18px;background:#5c3d8f;color:#fff;font-size:.68rem;font-weight:800;padding:3px 12px;border-radius:999px">RECOMMANDÉ</div><div style="font-size:1.5rem;margin-bottom:10px">⭐</div><div style="font-weight:700;color:#153e35;font-size:.95rem;margin-bottom:4px">Audit Complet</div><div style="font-size:1.9rem;font-weight:900;color:#5c3d8f;margin-bottom:10px">1 490 €</div><ul style="list-style:none;padding:0;margin:0 0 14px;font-size:.82rem;color:#65716b;line-height:1.9;flex:1"><li>✅ Tout l'Audit Essentiel</li><li>✅ Liste des documents obligatoires fournie</li></ul><button onclick="event.stopPropagation();openAuditDetail('audit_complet')" style="width:100%;padding:9px;background:#fff;color:#5c3d8f;border:1.5px solid #5c3d8f;border-radius:999px;cursor:pointer;font-weight:800;font-size:.82rem;margin-bottom:8px">📋 Voir le détail</button><button onclick="event.stopPropagation();showInscriptionAvecService('audit_complet')" style="width:100%;padding:11px;background:linear-gradient(135deg,#5c3d8f,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.86rem">✅ Je suis intéressé</button></div>
       </div>
       <div style="max-width:760px;margin:0 auto">
         <details style="background:#fff;border:1px solid rgba(31,86,73,.12);border-radius:12px;padding:0 16px;margin-bottom:10px">
@@ -231,8 +212,9 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
               <input type="hidden" id="ins_service" value="">
               <label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:8px">Service souhaité * <span style="font-weight:400;color:#65716b">(cliquez pour sélectionner)</span></label>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px" id="serviceChoixGrid">
-                <div onclick="selectService('audit_essentiel',this)" data-val="audit_essentiel" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff"><div style="font-weight:700;color:#2d6f60;font-size:.88rem">🔍 Audit Essentiel</div><div style="font-size:1.1rem;font-weight:900;color:#2d6f60;margin:2px 0">690 €</div><div style="font-size:.75rem;color:#65716b">Audit réalisé par nos experts sur site : rapport détaillé (anomalies + préconisations) et affiches obligatoires fournies.</div><div onclick="event.stopPropagation();openAuditDetail('audit_essentiel')" style="margin-top:7px;color:#2d6f60;font-weight:800;font-size:.74rem;cursor:pointer;text-decoration:underline">📋 Voir le détail</div></div>
-                <div onclick="selectService('audit_complet',this)" data-val="audit_complet" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;grid-column:1/-1"><div style="font-weight:700;color:#5c3d8f;font-size:.88rem">⭐ Audit Complet</div><div style="font-size:1.1rem;font-weight:900;color:#5c3d8f;margin:2px 0">1 490 €</div><div style="font-size:.75rem;color:#65716b">Tout l'Audit Essentiel + la liste des documents obligatoires fournie.</div><div onclick="event.stopPropagation();openAuditDetail('audit_complet')" style="margin-top:7px;color:#5c3d8f;font-weight:800;font-size:.74rem;cursor:pointer;text-decoration:underline">📋 Voir le détail</div></div>
+                <div onclick="openAuditDetail('audit_diagnostic')" data-val="audit_diagnostic" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;"><div style="font-weight:700;color:#b7791f;font-size:.88rem">📝 Audit Diagnostic</div><div style="font-size:1.1rem;font-weight:900;color:#b7791f;margin:2px 0">390 €</div><div style="font-size:.75rem;color:#65716b">Audit sur site + rapport détaillé (anomalies) et préconisations.</div><div onclick="event.stopPropagation();openAuditDetail('audit_diagnostic')" style="margin-top:7px;color:#b7791f;font-weight:800;font-size:.74rem;cursor:pointer;text-decoration:underline">📋 Voir le détail</div></div>
+                <div onclick="openAuditDetail('audit_essentiel')" data-val="audit_essentiel" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff;"><div style="font-weight:700;color:#2d6f60;font-size:.88rem">🔍 Audit Essentiel</div><div style="font-size:1.1rem;font-weight:900;color:#2d6f60;margin:2px 0">690 €</div><div style="font-size:.75rem;color:#65716b">Tout le Diagnostic + affiches obligatoires fournies.</div><div onclick="event.stopPropagation();openAuditDetail('audit_essentiel')" style="margin-top:7px;color:#2d6f60;font-weight:800;font-size:.74rem;cursor:pointer;text-decoration:underline">📋 Voir le détail</div></div>
+                <div onclick="openAuditDetail('audit_complet')" data-val="audit_complet" style="border:2px solid #dfe6e0;border-radius:10px;padding:12px 14px;cursor:pointer;background:#fff; grid-column:1/-1;"><div style="font-weight:700;color:#5c3d8f;font-size:.88rem">⭐ Audit Complet</div><div style="font-size:1.1rem;font-weight:900;color:#5c3d8f;margin:2px 0">1 490 €</div><div style="font-size:.75rem;color:#65716b">Tout l'Essentiel + la liste des documents obligatoires fournie.</div><div onclick="event.stopPropagation();openAuditDetail('audit_complet')" style="margin-top:7px;color:#5c3d8f;font-weight:800;font-size:.74rem;cursor:pointer;text-decoration:underline">📋 Voir le détail</div></div>
               </div>
             </div>
             <div><label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:5px">Adresse</label><input type="text" id="ins_adresse" placeholder="12 rue du Marché, 75001 Paris" style="width:100%;padding:11px 14px;border:1.5px solid #dfe6e0;border-radius:10px;font-size:.88rem;box-sizing:border-box"></div>
@@ -331,7 +313,7 @@ function runCalc() {
 // ── Sélection service ──
 function selectService(val, el) {
   document.getElementById('ins_service').value = val;
-  var colors = { audit_essentiel:'#2d6f60', audit_complet:'#5c3d8f' };
+  var colors = { audit_diagnostic:'#b7791f', audit_essentiel:'#2d6f60', audit_complet:'#5c3d8f' };
   document.querySelectorAll('#serviceChoixGrid > div').forEach(function(d) {
     var isSelected = d.dataset.val === val;
     d.style.border = isSelected ? '2px solid ' + (colors[val]||'#2d6f60') : '2px solid #dfe6e0';
@@ -371,6 +353,7 @@ function soumettreInscription() {
   if (consent && !consent.checked) { alert('Veuillez accepter la politique de confidentialité pour continuer.'); return; }
 
   var serviceLabels = {
+    audit_diagnostic: 'Audit Diagnostic — 390 €',
     audit_essentiel: 'Audit Essentiel — 690 €',
     audit_complet:   'Audit Complet — 1 490 €'
   };
