@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v416';
+var APP_BUILD = 'v417';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24655,6 +24655,8 @@ function _sondeBlockEditable(s, i) {
     + '<div class="frow"><div class="flabel">N° de canal UbiBot</div><input id="cap_chan_' + i + '" class="finput" value="' + _capV(s.channel) + '" placeholder="channel id"></div>'
     + '<div class="frow"><div class="flabel">Clé de lecture du capteur</div><input id="cap_cle_' + i + '" class="finput" value="' + _capV(s.cle) + '" placeholder="clé de lecture API de ce capteur"></div>'
     + '<div class="frow"><div class="flabel">Température à enregistrer</div><select id="cap_src_' + i + '" class="fselect"><option value=""' + (s.champ !== 'externe' ? ' selected' : '') + '>Capteur intégré (boîtier)</option><option value="externe"' + (s.champ === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option></select></div>'
+    + '<div class="frow"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:13px;color:var(--dark);line-height:1.4"><input type="checkbox" id="cap_amb_' + i + '"' + (s.ambiance ? ' checked' : '') + ' style="width:18px;height:18px;margin-top:1px;flex:none">'
+    + '<span>🌡️ Enregistrer <strong>aussi la température ambiante</strong> (boîtier) — affichée sur une <strong>ligne séparée « Ambiance »</strong>, en information ; elle ne compte <strong>jamais</strong> pour la conformité.</span></label></div>'
     + '<div class="tgrid" style="margin-bottom:13px">'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.min) + '" placeholder="0"></div>'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.max) + '" placeholder="4"></div>'
@@ -24728,6 +24730,7 @@ function _capSyncFromDOM() {
       channel: ((document.getElementById('cap_chan_' + i) || {}).value || '').trim(),
       cle: ((document.getElementById('cap_cle_' + i) || {}).value || '').trim(),
       champ: (srcV === 'externe' ? 'externe' : ''),
+      ambiance: !!((document.getElementById('cap_amb_' + i) || {}).checked),
       min: isNaN(minV) ? _capWork[i].min : minV,
       max: isNaN(maxV) ? _capWork[i].max : maxV,
       heures: heures
