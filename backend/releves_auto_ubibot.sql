@@ -182,6 +182,10 @@ declare
   v_slot_ts timestamptz;
   v_mesure_ts timestamptz;   -- horodatage de la mesure (pour détecter un capteur hors ligne)
   v_offline boolean;
+  v_amb       boolean;        -- l'utilisateur veut-il AUSSI la température ambiante (boîtier) ?
+  v_temp_amb  numeric;        -- température ambiante lue (boîtier = field1)
+  v_champ_amb text;           -- champ ambiance (field1 par défaut)
+  v_temps     jsonb;          -- tableau final des températures (enceinte + ambiance éventuelle)
   n       integer := 0;
 begin
   for lec in
@@ -271,37 +275,50 @@ begin
       continue;
     end if;
 
+    -- ── Tableau des températures : ENCEINTE (sonde) + AMBIANCE (boîtier) optionnelle ──
+    --  L'ambiance est une ligne SÉPARÉE, purement informative : elle n'est JAMAIS
+    --  marquée « Non conforme » et ne touche pas nc_detectee (qui ne dépend que de
+    --  la sonde de l'enceinte). Activée par la case « ambiance » du capteur.
+    if v_offline then
+      v_temps := jsonb_build_array(jsonb_build_object(
+        'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
+        'precision', '', 'temp', '', 'conf', 'Capteur hors ligne',
+        'isNC',      false, 'offline', true, 'action', '',
+        'note',      'Capteur hors ligne — relevé non transmis. Historique disponible sur votre compte.',
+        'source',    'Capteur UbiBot (hors ligne)'));
+    else
+      v_temps := jsonb_build_array(jsonb_build_object(
+        'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
+        'precision', '', 'temp', v_temp::text,
+        'conf',      case when v_isNC then 'Non conforme' else 'Conforme' end,
+        'isNC',      v_isNC,
+        'action',    case when v_isNC then 'Vérifier l''enceinte et le capteur' else '' end,
+        'source',    'Capteur UbiBot (automatique)'));
+
+      v_amb := lower(coalesce(sonde->>'ambiance','')) in ('true','t','1','oui','yes');
+      if v_amb then
+        v_champ_amb := 'field1';                      -- capteur intégré du boîtier
+        if v_champ_amb is distinct from v_champ then  -- inutile si l'enceinte lit déjà field1
+          v_temp_amb := round(nullif(lv #>> array[v_champ_amb,'value'], '')::numeric, 1);
+          if v_temp_amb is not null then
+            v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+              'type',      'Température ambiante (local)',
+              'precision', '', 'temp', v_temp_amb::text,
+              'conf',      'Information (hors conformité)',
+              'isNC',      false, 'ambiance', true, 'action', '',
+              'source',    'Capteur UbiBot — ambiance (boîtier)'));
+          end if;
+        end if;
+      end if;
+    end if;
+
     insert into public.controles_haccp
       (code_client, establishment_id, module, contenu, signature, photos,
        date_controle, nc_detectee, nc_details, client_control_id)
     values (
       lec.code_client, v_estab, 'Températures enceintes',
       jsonb_build_object(
-        'temperatures', jsonb_build_array(
-          case when v_offline then
-            jsonb_build_object(
-              'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
-              'precision', '',
-              'temp',      '',
-              'conf',      'Capteur hors ligne',
-              'isNC',      false,
-              'offline',   true,
-              'action',    '',
-              'note',      'Capteur hors ligne — relevé non transmis. Historique disponible sur votre compte.',
-              'source',    'Capteur UbiBot (hors ligne)'
-            )
-          else
-            jsonb_build_object(
-              'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
-              'precision', '',
-              'temp',      v_temp::text,
-              'conf',      case when v_isNC then 'Non conforme' else 'Conforme' end,
-              'isNC',      v_isNC,
-              'action',    case when v_isNC then 'Vérifier l''enceinte et le capteur' else '' end,
-              'source',    'Capteur UbiBot (automatique)'
-            )
-          end
-        ),
+        'temperatures', v_temps,
         'signataire', 'Relevé automatique (capteur UbiBot)',
         'signe',      'Relevé automatique (capteur UbiBot)',
         'offline',    v_offline,
