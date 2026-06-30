@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v414';
+const CACHE = 'haccp-pro-v415';
 const CORE = [
   './',
   './accueil.html',
@@ -68,7 +68,15 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    ).then(() => self.clients.claim()).then(() =>
+      // AUTO-PURGE : des qu'une nouvelle version du SW s'active, on recharge
+      // toutes les fenetres ouvertes pour qu'elles abandonnent immediatement
+      // l'ancien HTML/JS encore affiche (sinon l'utilisateur reste bloque sur
+      // la vieille page tant qu'il ne ferme pas l'app a la main).
+      self.clients.matchAll({ type: 'window' }).then((cl) =>
+        cl.forEach((c) => { try { c.navigate(c.url); } catch (e) {} })
+      )
+    )
   );
 });
 
