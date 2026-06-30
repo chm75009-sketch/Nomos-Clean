@@ -442,7 +442,7 @@ function envoyerNotifAdmin(adminEmail, d) {
 
 /* Pastille version (diagnostic cache) — coin haut droit, sur toutes les pages Audit */
 (function(){
-  var NV_BUILD = 'v415';
+  var NV_BUILD = 'v416';
   function tag(){
     if(document.getElementById('nvBuildTag')) return;
     var d=document.createElement('div'); d.id='nvBuildTag';
