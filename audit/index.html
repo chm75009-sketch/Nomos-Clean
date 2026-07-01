@@ -740,9 +740,9 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
         <div id="haccp-lock" style="position:relative;background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,.97) 40%);margin-top:-180px;padding-top:180px;text-align:center;padding-bottom:32px">
           <div style="background:#fff;border:2px solid rgba(21,62,53,.15);border-radius:20px;padding:28px;max-width:560px;margin:0 auto;box-shadow:0 14px 40px rgba(21,62,53,.1)">
             <div style="font-size:2rem;margin-bottom:10px">🔒</div>
-            <h3 style="font-family:'DM Serif Display',Georgia,serif;color:#153e35;font-size:1.3rem;margin:0 0 8px">Accédez gratuitement au guide complet</h3>
+            <h3 style="font-family:'DM Serif Display',Georgia,serif;color:#153e35;font-size:1.3rem;margin:0 0 8px">Comprendre la méthode HACCP en 7 étapes — expliquée par l'exemple</h3>
             <p style="color:#65716b;font-size:.88rem;margin:0 0 18px">Laissez vos informations — nous vous envoyons votre accès immédiatement et préparons votre dossier pour l'audit.</p>
-            <div id="guide-form-msg" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:12px;margin-bottom:14px;font-size:.85rem;color:#2e7d32">✅ Accès débloqué ! Vous pouvez lire le guide complet.</div>
+            <div id="guide-form-msg" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:8px;padding:12px;margin-bottom:14px;font-size:.85rem;color:#2e7d32">✅ Accès débloqué ! Vous pouvez lire le guide (7 étapes HACCP).</div>
             <div id="guide-form" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;text-align:left">
               <div><label style="font-size:.78rem;font-weight:700;color:#153e35;display:block;margin-bottom:4px">Nom *</label><input type="text" id="g_nom" placeholder="Votre nom" style="width:100%;padding:9px 12px;border:1.5px solid #dfe6e0;border-radius:8px;font-size:.85rem;box-sizing:border-box"></div>
               <div><label style="font-size:.78rem;font-weight:700;color:#153e35;display:block;margin-bottom:4px">Email *</label><input type="email" id="g_email" placeholder="contact@restaurant.fr" style="width:100%;padding:9px 12px;border:1.5px solid #dfe6e0;border-radius:8px;font-size:.85rem;box-sizing:border-box"></div>
@@ -880,7 +880,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
       </div>
     </div>
   </footer>
-<script src="shared.js?v=416"></script>
+<script src="shared.js?v=417"></script>
 <script>
 function getEl(id){ return document.getElementById(id); }
 // Nettoyer toute donnée quiz résiduelle d'une session précédente
@@ -1372,6 +1372,18 @@ function debloquerGuide() {
   demandes.unshift(nouvelleDemande);
   saveDemandes(demandes);
   saveDemande_remote(nouvelleDemande).catch(function(e){ console.error('Supabase demande guide:', e); });
+
+  // Notification email admin (comme le formulaire d'audit) → tu reçois un email
+  // à chaque personne qui demande le guide (trace + alerte immédiate).
+  try {
+    var adminEmailG = (typeof getAdminEmail === 'function' ? getAdminEmail() : '') || 'r.t.h@orange.fr';
+    if (typeof envoyerNotifAdmin === 'function') envoyerNotifAdmin(adminEmailG, {
+      etab: societe, resp: nom, secteur: activite,
+      service: 'Guide HACCP interactif (gratuit)',
+      tel: tel, email: email, adresse: adresse || '', siret: siret || '',
+      message: 'Demande via Guide HACCP interactif', date: new Date().toLocaleDateString('fr-FR')
+    });
+  } catch(e) { console.error('Notif email guide:', e); }
 
   // Déverrouiller le guide
   document.getElementById('haccp-lock').style.display = 'none';
