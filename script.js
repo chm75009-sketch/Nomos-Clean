@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v417';
+var APP_BUILD = 'v418';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24573,6 +24573,29 @@ function _ubibotTempField(ch, champVoulu) {
   if (champVoulu === 'externe' && externe) return externe;
   return premier || 'field1';
 }
+// Choix du champ IDENTIQUE au serveur : pour une sonde « externe », si le boîtier
+// expose plusieurs sondes déportées (EXT1, EXT2, RS485…), on prend celle dont la
+// valeur colle le mieux aux seuils de l'enceinte (min/max) — ainsi la sonde dans le
+// congélateur (-25/-18) est choisie, pas celle restée à l'air ambiant.
+function _ubibotChoisirChamp(ch, lv, sonde) {
+  var champ = (sonde && sonde.champ) || '';
+  if (champ !== 'externe') return _ubibotTempField(ch, champ);
+  var mn = parseFloat(sonde && sonde.min), mx = parseFloat(sonde && sonde.max);
+  var best = null, bdist = null;
+  for (var n = 1; n <= 16; n++) {
+    var f = 'field' + n;
+    var label = String((ch && ch[f]) || '').toLowerCase();
+    if (!/temp/.test(label) || /humid/.test(label)) continue;
+    if (!/(ext|probe|sonde|d[eé]port|external|rs485|ds18)/.test(label)) continue;
+    var cv = (lv && lv[f]) ? parseFloat(lv[f].value) : NaN;
+    if (isNaN(cv)) continue;
+    var d;
+    if (!isNaN(mn) && !isNaN(mx)) d = (cv < mn) ? (mn - cv) : ((cv > mx) ? (cv - mx) : 0);
+    else d = Math.abs(cv);
+    if (bdist === null || d < bdist) { bdist = d; best = f; }
+  }
+  return best || _ubibotTempField(ch, 'externe');
+}
 function _lireUnCanalUbiBot(sonde, accountKey) {
   var chan = (sonde && sonde.channel) ? String(sonde.channel).trim() : '';
   if (!chan) return Promise.resolve(null);
@@ -24589,7 +24612,7 @@ function _lireUnCanalUbiBot(sonde, accountKey) {
       var lv = ch.last_values; if (typeof lv === 'string') { try { lv = JSON.parse(lv); } catch (e) { lv = null; } }
       var temp = null, date = ch.last_entry_date || '';
       if (lv) {
-        var f = _ubibotTempField(ch, sonde && sonde.champ);
+        var f = _ubibotChoisirChamp(ch, lv, sonde);
         if (lv[f] && typeof lv[f].value !== 'undefined' && lv[f].value !== null) {
           temp = lv[f].value; if (lv[f].created_at) date = lv[f].created_at;
         }
