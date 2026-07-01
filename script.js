@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v419';
+var APP_BUILD = 'v420';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3034,6 +3034,9 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   var sigNom = document.getElementById('temp_sig_nom');
   var signataire = signataireOverride || (sigPrenom && sigNom ? (sigPrenom.value + ' ' + sigNom.value).trim() : '—');
   var filled = enceintes.filter(function(e){ return e.temp || e.type !== '—'; });
+  // Option « sans température ambiante » (choisie dans « Relevés à inclure ») :
+  // on retire les lignes d'ambiance (boîtier) pour ne garder que les enceintes.
+  if (window._TEMP_SANS_AMBIANCE) filled = filled.filter(function(e){ return !(e.ambiance || /ambian/i.test(String(e.type||''))); });
   if (filled.length === 0) { showToast('Aucune enceinte saisie', 'warn'); return; }
   var ncCount = filled.filter(function(e){ return e.isNC; }).length;
   // Émargement d'en-tête adapté à la source : tout capteur → « Relevé automatique »,
@@ -9610,12 +9613,13 @@ function _demanderSourceTemp(onChoix) {
   var ov = document.createElement('div');
   ov.id = 'srcTempModal';
   ov.style.cssText = 'position:fixed;inset:0;z-index:100002;background:rgba(15,23,42,.78);display:flex;align-items:center;justify-content:center;padding:18px';
-  window._choixSourceTemp = function(v){ try{ setTempSourceFiltre(v); }catch(e){} var m=document.getElementById('srcTempModal'); if(m)m.remove(); try{ onChoix(v); }catch(e){} };
+  window._choixSourceTemp = function(v){ try{ setTempSourceFiltre(v); }catch(e){} try{ var cb=document.getElementById('_incAmbCb'); window._TEMP_SANS_AMBIANCE = !!(cb && !cb.checked); }catch(e){} var m=document.getElementById('srcTempModal'); if(m)m.remove(); try{ onChoix(v); }catch(e){} };
   function b(v,l){ return '<button type="button" onclick="_choixSourceTemp(\'' + v + '\')" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">' + l + '</button>'; }
   ov.innerHTML = '<div style="background:#fff;max-width:380px;width:100%;border-radius:18px;padding:22px;font-family:inherit;box-sizing:border-box">'
     + '<div style="font-size:30px;text-align:center">🌡️</div>'
     + '<h2 style="font-size:17px;color:#0f172a;text-align:center;margin:6px 0 4px">Relevés à inclure</h2>'
-    + '<p style="font-size:12px;color:#475569;text-align:center;margin:0 0 16px">Quels relevés de température mettre dans ce document ?</p>'
+    + '<p style="font-size:12px;color:#475569;text-align:center;margin:0 0 12px">Quels relevés de température mettre dans ce document ?</p>'
+    + '<label style="display:flex;align-items:center;gap:9px;font-size:12.5px;color:#0f172a;font-weight:600;margin:0 0 14px;cursor:pointer;background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 12px"><input type="checkbox" id="_incAmbCb" checked style="width:18px;height:18px;flex:none"> 🌡️ Inclure la température ambiante (sinon : enceintes seulement)</label>'
     + b('both','Les deux (capteur + manuel)') + b('auto','🤖 Capteur (auto) seulement') + b('manuel','✍️ Manuel seulement')
     + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();var m=document.getElementById(\'srcTempModal\');if(m)m.remove()" style="font-size:11px;color:#94a3b8;text-decoration:underline">Annuler</a></div>'
     + '</div>';
