@@ -624,7 +624,7 @@ body{background:#fff}
           <div id="quizWelcomeMsg" style="display:none;background:linear-gradient(135deg,#e8f5e9,#f0faf8);border:2px solid #2d6f60;border-radius:10px;padding:14px;margin-bottom:12px">
             <p style="margin:0 0 4px;font-size:.92rem;color:#153e35;font-weight:800">🎯 Votre diagnostic est prêt !</p>
             <p id="quizWelcomeEtab" style="margin:0;font-size:.82rem;color:#1f5649;font-weight:600"></p>
-            <p style="margin:6px 0 0;font-size:.78rem;color:#65716b">Inscrivez-vous ci-dessous pour obtenir votre code d'accès et lancer votre audit complet.</p>
+            <p style="margin:6px 0 0;font-size:.78rem;color:#65716b">Inscrivez-vous ci-dessous pour obtenir votre code d'accès et accéder à votre audit et à vos documents.</p>
           </div>
           <p style="margin:0 0 8px;font-size:.85rem;color:#153e35;font-weight:600">Vous n'avez pas encore de code ?</p>
           <p style="margin:0 0 10px;font-size:.8rem;color:#65716b">Inscrivez-vous sur notre site — notre équipe vous enverra votre code sous 24h.</p>
@@ -824,7 +824,7 @@ body{background:#fff}
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
             <button onclick="existantGenDoc('pms')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">📋 Plan de Maîtrise Sanitaire (PMS) <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
             <button onclick="existantGenDoc('pnd')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">🧹 Plan de Nettoyage &amp; Désinfection <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
-            <button onclick="existantGenDoc('duerp')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">⚠️ DUERP <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
+            <button onclick="existantGenDoc('duerp')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">⚠️ Document Unique <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
             <button onclick="existantGenDoc('temperatures')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">🌡️ Relevé des Températures <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
             <button onclick="existantGenDoc('reception')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">📦 Fiche de Réception <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
             <button onclick="existantGenDoc('tracabilite')" style="padding:8px 10px;background:#fff;border:1px solid #dfe6e0;border-radius:7px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.75rem;color:#153e35;font-weight:600;text-align:left">🔍 Traçabilité <span style="color:#2d6f60;font-size:.68rem">⬇ .docx</span></button>
@@ -996,7 +996,7 @@ body{background:#fff}
     <div id="welcomeBtnFull" style="display:none;margin-bottom:10px">
       <div style="background:#f5f2ea;border-radius:12px;padding:14px;margin-bottom:12px;border:1px solid rgba(21,62,53,.1)">
         <p style="margin:0 0 6px;font-size:.88rem;color:#153e35;font-weight:700">🎯 Votre accès complet inclut :</p>
-        <p style="margin:0;font-size:.82rem;color:#65716b">✅ Audit HACCP &nbsp;·&nbsp; ✅ Documents réglementaires (PMS, Nettoyage, DUERP)</p>
+        <p style="margin:0;font-size:.82rem;color:#65716b">✅ Audit HACCP &nbsp;·&nbsp; ✅ Documents réglementaires (PMS, Nettoyage, Document Unique)</p>
       </div>
       <button onclick="demarrerAuditClient()" style="width:100%;padding:15px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:1rem;font-weight:700;cursor:pointer">
         🚀 Accéder à mon espace
@@ -1005,7 +1005,7 @@ body{background:#fff}
 
     <!-- Bouton Audit seul (code HACCP) -->
     <button id="welcomeBtnAudit" onclick="demarrerAuditClient()" style="width:100%;padding:14px;background:linear-gradient(135deg,#2d6f60,#3b8a77);color:#fff;border:none;border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;margin-bottom:10px">
-      🚀 Démarrer l'audit HACCP
+      🚀 Accéder à mon audit et à mes documents
     </button>
     <!-- Bouton Documents seul (code DOCS) -->
     <button id="welcomeBtnDocs" onclick="voirPourquoiDocs()" style="width:100%;padding:14px;background:linear-gradient(135deg,#b79029,#d2ad46);color:#201806;border:none;border-radius:10px;font-family:'Source Sans 3',sans-serif;font-size:.95rem;font-weight:600;cursor:pointer;margin-bottom:10px">
@@ -1059,7 +1059,7 @@ body{background:#fff}
       <div style="display:flex;flex-direction:column;gap:12px;font-size:.84rem;color:#3a4a5c;line-height:1.6">
         <div style="display:flex;gap:10px"><span style="font-size:1.2rem;flex-shrink:0">📄</span><div><strong>Plan de Maîtrise Sanitaire (PMS)</strong><br>Obligatoire pour tout établissement manipulant des denrées alimentaires. Règlement CE n°852/2004 — sans PMS formalisé : mise en demeure immédiate et risque de fermeture administrative.</div></div>
         <div style="display:flex;gap:10px"><span style="font-size:1.2rem;flex-shrink:0">🧹</span><div><strong>Plan de Nettoyage & Désinfection (PND)</strong><br>Document obligatoire inclus dans le PMS. Art. L218-1 Code de la consommation — son absence entraîne une non-conformité immédiate, fermeture administrative possible + amende jusqu'à 15 000 €.</div></div>
-        <div style="display:flex;gap:10px"><span style="font-size:1.2rem;flex-shrink:0">⚠️</span><div><strong>Document Unique des Risques (DUERP)</strong><br>Obligatoire dès le 1er salarié. Art. L.4121-3 Code du Travail — amende de 3 750 €. Récidive : 1 an d'emprisonnement + 9 000 €.</div></div>
+        <div style="display:flex;gap:10px"><span style="font-size:1.2rem;flex-shrink:0">⚠️</span><div><strong>Document Unique d'évaluation des risques professionnels</strong><br>Obligatoire dès le 1er salarié. Art. L.4121-3 Code du Travail — amende de 3 750 €. Récidive : 1 an d'emprisonnement + 9 000 €.</div></div>
       </div>
     </div>
 
@@ -1070,7 +1070,7 @@ body{background:#fff}
         <div>• <strong>Avertissement / Mise en demeure</strong> : non-conformité mineure</div>
         <div>• <strong>Amende administrative</strong> : jusqu'à 1 500 € (pers. physique) ou 7 500 € (pers. morale)</div>
         <div>• <strong>Fermeture administrative</strong> : risque sanitaire grave ou récidive</div>
-        <div>• <strong>Responsabilité pénale</strong> : en cas d'accident du travail sur risque non évalué (DUERP)</div>
+        <div>• <strong>Responsabilité pénale</strong> : en cas d'accident du travail sur risque non évalué (Document Unique)</div>
       </div>
     </div>
 
@@ -1081,7 +1081,7 @@ body{background:#fff}
         <div style="background:#f0f4ff;border:2px solid #1f5649;border-radius:10px;padding:14px;text-align:center">
           <div style="font-size:1.8rem;font-weight:700;color:#1f5649" id="prixAffiche">250 €</div>
           <div style="font-size:.75rem;color:#65716b;margin-top:4px;font-weight:600">Pack Documents</div>
-          <div style="font-size:.72rem;color:#8a9e95;margin-top:2px">PMS + Nettoyage + DUERP</div>
+          <div style="font-size:.72rem;color:#8a9e95;margin-top:2px">PMS + Nettoyage + Document Unique</div>
         </div>
         <div style="background:#f9f0ff;border:2px solid #6b3fa0;border-radius:10px;padding:14px;text-align:center">
           <div style="font-size:1.8rem;font-weight:700;color:#6b3fa0" id="prixUnite">100 €</div>
@@ -1093,7 +1093,7 @@ body{background:#fff}
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;font-size:.82rem;color:#3a4a5c;text-align:left;background:#fbfaf7;border-radius:8px;padding:12px 16px">
         <div>✅ Plan de Maîtrise Sanitaire (PMS) — complet, 18 sections</div>
         <div>✅ Plan de Nettoyage & Désinfection — adapté à votre secteur</div>
-        <div>✅ Document Unique des Risques (DUERP) — conforme Code du Travail</div>
+        <div>✅ Document Unique d'évaluation des risques professionnels — conforme Code du Travail</div>
       </div>
       <!-- Sanctions par document -->
       <div style="background:#fff3cd;border:1px solid #ffc107;border-radius:10px;padding:14px;margin-bottom:14px;text-align:left">
@@ -1101,14 +1101,14 @@ body{background:#fff}
         <div style="font-size:.76rem;color:#856404;line-height:1.7">
           <div><strong>📄 PMS :</strong> Mise en demeure immédiate — fermeture administrative possible — amende jusqu'à 7 500 €</div>
           <div><strong>🧹 Plan de Nettoyage :</strong> Non-conformité immédiate DDPP — fermeture possible — amende jusqu'à 15 000 €</div>
-          <div><strong>⚠️ DUERP :</strong> Obligatoire dès le 1er salarié — amende 3 750 € — récidive : 1 an d'emprisonnement + 9 000 €</div>
+          <div><strong>⚠️ Document Unique :</strong> Obligatoire dès le 1er salarié — amende 3 750 € — récidive : 1 an d'emprisonnement + 9 000 €</div>
         </div>
       </div>
       <!-- Mention base de travail -->
       <div style="background:#fff8e1;border:1px solid rgba(183,144,41,.35);border-radius:10px;padding:14px 16px;margin-bottom:14px;text-align:left">
         <div style="font-size:.78rem;color:#5a4000;line-height:1.7">
           <strong style="color:#7a5c00">⚠️ Important — À lire avant utilisation</strong><br>
-          Les documents fournis (PMS, Plan de Nettoyage &amp; Désinfection, DUERP, etc.) constituent une <strong>base de travail</strong> adaptée à votre secteur d'activité. Ils <strong>n'ont pas valeur contractuelle</strong>.<br>
+          Les documents fournis (PMS, Plan de Nettoyage &amp; Désinfection, Document Unique, etc.) constituent une <strong>base de travail</strong> adaptée à votre secteur d'activité. Ils <strong>n'ont pas valeur contractuelle</strong>.<br>
           Ils doivent impérativement être <strong>complétés, personnalisés et mis à jour</strong> par vos soins selon l'évolution de votre activité. Les tableaux de relevés (températures, nettoyage, traçabilité, etc.) doivent être <strong>remplis régulièrement</strong> et conservés pour tout contrôle officiel.
         </div>
       </div>
@@ -1391,7 +1391,7 @@ body{background:#fff}
     };
 })();
 </script>
-<script src="shared.js?v=417"></script>
+<script src="shared.js?v=418"></script>
 <script>
 // ════════════════════════════════════════════════════
 // SYSTÈME D'AUTORISATION DOCUMENTS
@@ -2320,7 +2320,7 @@ function genDocsDUERP(code) {
 
   var children = [
     new d.Paragraph({spacing:{before:400,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'DOCUMENT UNIQUE D\'ÉVALUATION',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
-    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:100},children:[new d.TextRun({text:'DES RISQUES PROFESSIONNELS (DUERP)',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
+    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:100},children:[new d.TextRun({text:'DES RISQUES PROFESSIONNELS',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
     p('Conformément aux articles L.4121-3 et R.4121-1 du Code du travail (Décret n°2001-1016 du 5 novembre 2001).',{italic:true}),
     empty(),
     new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
@@ -2383,7 +2383,7 @@ function genDocsDUERP(code) {
     ]}),
     empty(),
     h1('8) ACCESSIBILITÉ'),
-    p('Le DUERP sera à disposition de toute personne qui en fera la demande.'),
+    p('Le Document Unique sera à disposition de toute personne qui en fera la demande.'),
     empty(),
     h1('HISTORIQUE DES VERSIONS'),
     p('• V1 — Établi le '+today),
@@ -2401,11 +2401,11 @@ function genDocsDUERP(code) {
         shading:{fill:'FDECEA',type:d.ShadingType.CLEAR}, margins:{top:100,bottom:100,left:160,right:160}, width:{size:W,type:d.WidthType.DXA},
         children:[
           new d.Paragraph({children:[new d.TextRun({text:'⚖️  SANCTIONS EN CAS DE NON-RESPECT (Art. L.4121-3 Code du Travail — Art. 223-1 Code pénal)',bold:true,size:19,font:'Arial',color:'C0392B'})]}),
-          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'L\'absence de Document Unique d\'Évaluation des Risques Professionnels (DUERP) est une infraction pénale. Sanctions (Art. L.4121-3 Code du Travail) : amende de 3 750 € • en cas de récidive : 1 an d\'emprisonnement + 9 000 €. En cas d\'accident du travail sur un risque non évalué, la responsabilité pénale de l\'employeur peut être engagée (Art. 223-1 Code pénal — mise en danger délibérée). Mise à jour obligatoire au minimum 1 fois par an et à chaque changement significatif (Art. R.4121-2 CT). Conservation : 40 ans.',size:18,font:'Arial',color:'7B241C'})]}),
+          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'L\'absence de Document Unique d\'Évaluation des Risques Professionnels est une infraction pénale. Sanctions (Art. L.4121-3 Code du Travail) : amende de 3 750 € • en cas de récidive : 1 an d\'emprisonnement + 9 000 €. En cas d\'accident du travail sur un risque non évalué, la responsabilité pénale de l\'employeur peut être engagée (Art. 223-1 Code pénal — mise en danger délibérée). Mise à jour obligatoire au minimum 1 fois par an et à chaque changement significatif (Art. R.4121-2 CT). Conservation : 40 ans.',size:18,font:'Arial',color:'7B241C'})]}),
         ]
       })]})]}),
     empty(),
-    p('DUERP — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
+    p('Document Unique — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
   ];
 
   var doc = new d.Document({
@@ -2413,8 +2413,8 @@ function genDocsDUERP(code) {
     sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{default:new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
   });
   d.Packer.toBlob(doc).then(function(blob){
-    downloadBlob(blob,'DUERP_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
-    toast('✅ DUERP Word téléchargé !','ok');
+    downloadBlob(blob,'Document_Unique_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
+    toast('✅ Document Unique Word téléchargé !','ok');
   }).catch(function(e){toast('Erreur : '+e.message,'err');});
 }
 
@@ -2947,7 +2947,7 @@ function prepEmail(code) {
     'Suite à l\'audit HACCP réalisé au sein de votre établissement « ' + info.etab + ' », veuillez trouver ci-joint vos documents réglementaires :\n\n' +
     '📄 1. Plan de Maîtrise Sanitaire (PMS) — fichier .docx\n' +
     '🧹 2. Plan de Nettoyage & Désinfection — fichier .docx\n' +
-    '⚠️ 3. Document Unique d\'Évaluation des Risques Professionnels (DUERP) — fichier .docx\n\n' +
+    '⚠️ 3. Document Unique d\'Évaluation des Risques Professionnels — fichier .docx\n\n' +
     'Ces documents ont été générés spécifiquement pour votre établissement et sont conformes à la réglementation en vigueur (Règlements CE 852/2004, Code du travail L.4121-3, Code de la consommation L218-1).\n\n' +
     'Pour toute question, n\'hésitez pas à me contacter.\n\n' +
     'Cordialement,\n' + (info.auditeur || 'L\'auditeur') + '\n\n---\nExpertAudit HACCP — Audit réalisé le ' + today
@@ -2976,7 +2976,7 @@ function showClientDocs() {
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' +
       '<button onclick="genDocsPMS(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#153e35,#1f5649);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📄 PMS<br><small style="font-weight:400;opacity:.8">Plan de Maîtrise Sanitaire</small></button>' +
       '<button onclick="genDocsNettoyage(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🧹 Nettoyage<br><small style="font-weight:400;opacity:.8">Plan de Nettoyage</small></button>' +
-      '<button onclick="genDocsDUERP(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ DUERP<br><small style="font-weight:400;opacity:.8">Document Unique Risques</small></button>' +
+      '<button onclick="genDocsDUERP(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ Document Unique<br><small style="font-weight:400;opacity:.8">Risques professionnels</small></button>' +
       '<button onclick="genDocsTemperatures(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#0277bd,#0288d1);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🌡️ Températures<br><small style="font-weight:400;opacity:.8">Relevé mensuel</small></button>' +
       '<button onclick="genDocsReception(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#e65100,#f57c00);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📦 Réception<br><small style="font-weight:400;opacity:.8">Marchandises</small></button>' +
       '<button onclick="genDocsTracabilite(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🔗 Traçabilité<br><small style="font-weight:400;opacity:.8">Registre lots</small></button>' +
@@ -4764,7 +4764,7 @@ function showAdminDocs() {
     '<p style="font-size:.82rem;color:#65716b;margin:0 0 8px">Cliquez sur un document pour le télécharger en format Word (.docx), personnalisé avec les coordonnées du client.</p>' +
     '<button onclick="genDocsPMS(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#153e35,#1f5649);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">📄</span><div><div>Plan de Maîtrise Sanitaire (PMS)</div><div style="font-size:.73rem;opacity:.75;font-weight:400">18 sections — tous secteurs — Règl. CE 852/2004</div></div></button>' +
     '<button onclick="genDocsNettoyage(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">🧹</span><div><div>Plan de Nettoyage & Désinfection</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Zones & fréquences par secteur — Arrêté 21/12/2009</div></div></button>' +
-    '<button onclick="genDocsDUERP(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">⚠️</span><div><div>Document Unique des Risques (DUERP)</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Risques par poste — Art. R.4121-1 Code du Travail</div></div></button>' +
+    '<button onclick="genDocsDUERP(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">⚠️</span><div><div>Document Unique d\'évaluation des risques professionnels</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Risques par poste — Art. R.4121-1 Code du Travail</div></div></button>' +
     '<button onclick="genDocsTemperatures(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#0277bd,#0288d1);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">🌡️</span><div><div>Relevé des Températures</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Fiche quotidienne + récapitulatif annuel — Règl. CE 852/2004</div></div></button>' +
     '<button onclick="genDocsReception(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#e65100,#f57c00);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">📦</span><div><div>Fiche Réception Marchandises</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Contrôle livraisons — Règl. CE 178/2002</div></div></button>' +
     '<button onclick="genDocsTracabilite(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">🔗</span><div><div>Registre de Traçabilité</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Entrées/sorties lots — Règl. CE 178/2002 Art.18-19</div></div></button>' +
@@ -5157,7 +5157,7 @@ function showDocsOnly() {
   var docs = [
     { fn:'genDocsPMS',           bg:'linear-gradient(135deg,#153e35,#1f5649)', icon:'📄', label:'Plan de Maîtrise Sanitaire (PMS)' },
     { fn:'genDocsNettoyage',     bg:'linear-gradient(135deg,#2d6a4f,#52b788)', icon:'🧹', label:'Plan de Nettoyage & Désinfection' },
-    { fn:'genDocsDUERP',         bg:'linear-gradient(135deg,#6b3fa0,#9b59b6)', icon:'⚠️', label:'Document Unique des Risques (DUERP)' },
+    { fn:'genDocsDUERP',         bg:'linear-gradient(135deg,#6b3fa0,#9b59b6)', icon:'⚠️', label:'Document Unique d\'évaluation des risques professionnels' },
     { fn:'genDocsTemperatures',  bg:'linear-gradient(135deg,#0277bd,#0288d1)', icon:'🌡️', label:'Relevé des Températures' },
     { fn:'genDocsReception',     bg:'linear-gradient(135deg,#e65100,#f57c00)', icon:'📦', label:'Fiche Réception Marchandises' },
     { fn:'genDocsTracabilite',   bg:'linear-gradient(135deg,#1565c0,#1976d2)', icon:'🔗', label:'Registre de Traçabilité' },
@@ -5752,7 +5752,7 @@ function refreshAdminTable() {
       '<td style="white-space:nowrap">' +
         '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;margin-bottom:3px;display:block;width:100%" onclick="genDocsPMS(\''+c.code+'\')">📄 PMS</button>' +
         '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;background:#2d6a4f;margin-bottom:3px;display:block;width:100%" onclick="genDocsNettoyage(\''+c.code+'\')">🧹 Nettoyage</button>' +
-        '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;background:#6b3fa0;margin-bottom:3px;display:block;width:100%" onclick="genDocsDUERP(\''+c.code+'\')">⚠️ DUERP</button>' +
+        '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;background:#6b3fa0;margin-bottom:3px;display:block;width:100%" onclick="genDocsDUERP(\''+c.code+'\')">⚠️ Document Unique</button>' +
         '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;background:' + (c.docsUnlocked ? '#2d6a4f' : '#888') + ';margin-bottom:3px;display:block;width:100%" onclick="toggleDocAuth(\''+c.code+'\')">' + (c.docsUnlocked ? '🔓 Docs débloqués' : '🔒 Débloquer docs') + '</button>' +
         '<button class="gen-btn" style="font-size:.72rem;padding:5px 9px;background:#c0392b;display:block;width:100%" onclick="prepEmail(\''+c.code+'\')">📧 Email</button>' +
       '</td>' +
@@ -7380,7 +7380,7 @@ function genWordPND(info) {
 //  3. DUERP
 // ══════════════════════════════════════════════════════════════
 function genWordDUERP(info) {
-  _makeDocx((info.etab||'client')+'_DUERP.docx', function(D,info,today) {
+  _makeDocx((info.etab||'client')+'_Document_Unique.docx', function(D,info,today) {
     return new D.Document({sections:[{properties:MARGINS_WIDE,children:[
       _hBandeau(D,'Document Unique d\'Évaluation des Risques Professionnels','Art. L.4121-3 et R.4121-1 du Code du Travail — Obligatoire dès 1 salarié'),
       _hVide(D),

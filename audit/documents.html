@@ -141,7 +141,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
         </div>
 
         <div style="background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:20px;border-left:4px solid #6b3fa0;filter:blur(3px);user-select:none;pointer-events:none">
-          <div style="font-weight:700;color:#6b3fa0;margin-bottom:6px">⚠️ Document Unique des Risques (DUERP)</div>
+          <div style="font-weight:700;color:#6b3fa0;margin-bottom:6px">⚠️ Document Unique d'évaluation des risques professionnels</div>
           <div style="font-size:.78rem;color:#65716b;margin-bottom:8px">Art. R.4121-1 Code du Travail — Obligatoire dès le 1er salarié.</div>
           <div style="background:#fff3cd;border-radius:8px;padding:8px 12px;font-size:.75rem;color:#856404">⚖️ Sanction : amende pouvant aller de 3 750 € à 9 000 € — récidive : jusqu'à 1 an d'emprisonnement</div>
         </div>
@@ -200,7 +200,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
         <div style="grid-column:1/-1;background:linear-gradient(135deg,#153e35,#1f5649);border-radius:14px;padding:20px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
           <div>
             <div style="font-weight:800;color:#fff;font-size:.95rem;margin-bottom:4px">🔒 9 documents supplémentaires réservés aux clients</div>
-            <div style="font-size:.82rem;color:rgba(255,255,255,.75)">PMS, Nettoyage, DUERP, Réception, Traçabilité, Allergènes, Non-Conformités, Étiquettes, Lavage des mains</div>
+            <div style="font-size:.82rem;color:rgba(255,255,255,.75)">PMS, Nettoyage, Document Unique, Réception, Traçabilité, Allergènes, Non-Conformités, Étiquettes, Lavage des mains</div>
           </div>
           <a href="audit.html" style="display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:linear-gradient(135deg,#d2ad46,#b79029);color:#201806;border:none;border-radius:999px;cursor:pointer;font-weight:800;font-size:.88rem;text-decoration:none;white-space:nowrap">📩 Accéder à tous les documents</a>
         </div>
@@ -210,7 +210,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
       <!-- Mention base de travail -->
       <div style="background:#f0f4f8;border:1px solid #b0c4d8;border-radius:12px;padding:16px 20px;margin-bottom:32px">
         <div style="font-size:.82rem;color:#4a6080;line-height:1.7">
-          <strong>⚠️ Important :</strong> Les documents fournis (PMS, Plan de Nettoyage &amp; Désinfection, DUERP, etc.) constituent une base de travail adaptée à votre secteur d'activité. Ils doivent être personnalisés et complétés par vos soins en fonction de l'évolution de votre activité. Ces documents n'ont pas valeur contractuelle.
+          <strong>⚠️ Important :</strong> Les documents fournis (PMS, Plan de Nettoyage &amp; Désinfection, Document Unique, etc.) constituent une base de travail adaptée à votre secteur d'activité. Ils doivent être personnalisés et complétés par vos soins en fonction de l'évolution de votre activité. Ces documents n'ont pas valeur contractuelle.
         </div>
       </div>
 
@@ -265,7 +265,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
 <div class="toasts" id="toasts"></div>
 
 
-<script src="shared.js?v=417"></script>
+<script src="shared.js?v=418"></script>
 <script>
 // ════════════════════════════════════════════════════
 // SYSTÈME D'AUTORISATION DOCUMENTS
@@ -1187,8 +1187,8 @@ function genDocsDUERP(code) {
 
   var children = [
     new d.Paragraph({spacing:{before:400,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'DOCUMENT UNIQUE D\'ÉVALUATION',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
-    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:100},children:[new d.TextRun({text:'DES RISQUES PROFESSIONNELS (DUERP)',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
-    p('Conformément aux articles L.4121-3 et R.4121-1 du Code du travail (Décret n°2001-1016 du 5 novembre 2001 — obligation d\'évaluation des risques professionnels). Le DUERP doit être mis à jour annuellement et après tout accident du travail ou modification significative des conditions de travail.',{italic:true}),
+    new d.Paragraph({alignment:d.AlignmentType.CENTER,spacing:{before:0,after:100},children:[new d.TextRun({text:'DES RISQUES PROFESSIONNELS',bold:true,size:44,font:'Arial',color:'1A2332'})]}),
+    p('Conformément aux articles L.4121-3 et R.4121-1 du Code du travail (Décret n°2001-1016 du 5 novembre 2001 — obligation d\'évaluation des risques professionnels). Le Document Unique doit être mis à jour annuellement et après tout accident du travail ou modification significative des conditions de travail.',{italic:true}),
     empty(),
     new d.Table({ width:{size:W,type:d.WidthType.DXA}, columnWidths:[W],
       rows:[new d.TableRow({children:[new d.TableCell({
@@ -1250,7 +1250,7 @@ function genDocsDUERP(code) {
     ]}),
     empty(),
     h1('8) ACCESSIBILITÉ'),
-    p('Le DUERP sera à disposition de toute personne qui en fera la demande.'),
+    p('Le Document Unique sera à disposition de toute personne qui en fera la demande.'),
     empty(),
     h1('HISTORIQUE DES VERSIONS'),
     p('• V1 — Établi le '+today),
@@ -1268,11 +1268,11 @@ function genDocsDUERP(code) {
         shading:{fill:'FDECEA',type:d.ShadingType.CLEAR}, margins:{top:100,bottom:100,left:160,right:160}, width:{size:W,type:d.WidthType.DXA},
         children:[
           new d.Paragraph({children:[new d.TextRun({text:'⚖️  SANCTIONS EN CAS DE NON-RESPECT (Art. L.4121-3 Code du Travail — Art. 223-1 Code pénal)',bold:true,size:19,font:'Arial',color:'C0392B'})]}),
-          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'L\'absence de Document Unique d\'Évaluation des Risques Professionnels (DUERP) est une infraction pénale. Sanctions (Art. L.4121-3 Code du Travail) : amende de 3 750 € • en cas de récidive : 1 an d\'emprisonnement + 9 000 €. En cas d\'accident du travail sur un risque non évalué, la responsabilité pénale de l\'employeur peut être engagée (Art. 223-1 Code pénal — mise en danger délibérée). Mise à jour obligatoire au minimum 1 fois par an et à chaque changement significatif (Art. R.4121-2 CT). Conservation : 40 ans.',size:18,font:'Arial',color:'7B241C'})]}),
+          new d.Paragraph({spacing:{before:60},children:[new d.TextRun({text:'L\'absence de Document Unique d\'Évaluation des Risques Professionnels est une infraction pénale. Sanctions (Art. L.4121-3 Code du Travail) : amende de 3 750 € • en cas de récidive : 1 an d\'emprisonnement + 9 000 €. En cas d\'accident du travail sur un risque non évalué, la responsabilité pénale de l\'employeur peut être engagée (Art. 223-1 Code pénal — mise en danger délibérée). Mise à jour obligatoire au minimum 1 fois par an et à chaque changement significatif (Art. R.4121-2 CT). Conservation : 40 ans.',size:18,font:'Arial',color:'7B241C'})]}),
         ]
       })]})]}),
     empty(),
-    p('DUERP — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
+    p('Document Unique — '+info.etab+' — SIRET : '+(info.siret||'—')+' — Généré le '+today+' par ExpertAudit HACCP',{italic:true,size:16,color:'888888'}),
   ];
 
   var doc = new d.Document({
@@ -1280,8 +1280,8 @@ function genDocsDUERP(code) {
     sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1134,right:1134,bottom:1134,left:1134}}},footers:{'default':new d.Footer({children:[new d.Paragraph({border:{top:{style:d.BorderStyle.SINGLE,size:2,color:'2d6f60'}},spacing:{before:60},children:[new d.TextRun({text:'Nomos — ExpertAudit HACCP — '+info.etab+' — ',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.CURRENT],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:'/',font:'Arial',size:14,color:'888888'}),new d.TextRun({children:[d.PageNumber.TOTAL_PAGES],font:'Arial',size:14,color:'888888'}),new d.TextRun({text:' — Généré le '+today,font:'Arial',size:14,color:'888888'})]})]})},children:children}]
   });
   d.Packer.toBlob(doc).then(function(blob){
-    downloadBlob(blob,'DUERP_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
-    toast('✅ DUERP Word téléchargé !','ok');
+    downloadBlob(blob,'Document_Unique_'+info.etab.replace(/\s+/g,'_')+'_'+today.replace(/\//g,'-')+'.docx');
+    toast('✅ Document Unique Word téléchargé !','ok');
   }).catch(function(e){toast('Erreur : '+e.message,'err');});
 }
 
@@ -1815,7 +1815,7 @@ function prepEmail(code) {
     'Suite à l\'audit HACCP réalisé au sein de votre établissement « ' + info.etab + ' », veuillez trouver ci-joint vos documents réglementaires :\n\n' +
     '📄 1. Plan de Maîtrise Sanitaire (PMS) — fichier .docx\n' +
     '🧹 2. Plan de Nettoyage & Désinfection — fichier .docx\n' +
-    '⚠️ 3. Document Unique d\'Évaluation des Risques Professionnels (DUERP) — fichier .docx\n\n' +
+    '⚠️ 3. Document Unique d\'Évaluation des Risques Professionnels — fichier .docx\n\n' +
     'Ces documents ont été générés spécifiquement pour votre établissement et sont conformes à la réglementation en vigueur (Règlements CE 852/2004, Code du travail L.4121-3, Code de la consommation L218-1).\n\n' +
     'Pour toute question, n\'hésitez pas à me contacter.\n\n' +
     'Cordialement,\n' + (info.auditeur || 'L\'auditeur') + '\n\n---\nExpertAudit HACCP — Audit réalisé le ' + today
@@ -1844,7 +1844,7 @@ function showClientDocs() {
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' +
       '<button onclick="genDocsPMS(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#153e35,#1f5649);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📄 PMS<br><small style="font-weight:400;opacity:.8">Plan de Maîtrise Sanitaire</small></button>' +
       '<button onclick="genDocsNettoyage(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🧹 Nettoyage<br><small style="font-weight:400;opacity:.8">Plan de Nettoyage</small></button>' +
-      '<button onclick="genDocsDUERP(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ DUERP<br><small style="font-weight:400;opacity:.8">Document Unique Risques</small></button>' +
+      '<button onclick="genDocsDUERP(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">⚠️ Document Unique<br><small style="font-weight:400;opacity:.8">Risques professionnels</small></button>' +
       '<button onclick="genDocsTemperatures(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#0277bd,#0288d1);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🌡️ Températures<br><small style="font-weight:400;opacity:.8">Relevé mensuel</small></button>' +
       '<button onclick="genDocsReception(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#e65100,#f57c00);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">📦 Réception<br><small style="font-weight:400;opacity:.8">Marchandises</small></button>' +
       '<button onclick="genDocsTracabilite(\''+code+'\')" style="padding:14px;background:linear-gradient(135deg,#1565c0,#1976d2);color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:\'DM Sans\',sans-serif;font-size:.83rem;font-weight:600">🔗 Traçabilité<br><small style="font-weight:400;opacity:.8">Registre lots</small></button>' +
@@ -1879,7 +1879,7 @@ var DEPT_DATA = {
     '69': { nom: 'Rhône (69)', inspections: 2800, fermetures: 49, mises_en_demeure: 336, duree_moy: '15 jours', motifs: 'Absence traçabilité, nuisibles, non-respect DLC' },
     '33': { nom: 'Gironde (33)', inspections: 2400, fermetures: 42, mises_en_demeure: 288, duree_moy: '14 jours', motifs: 'Manquements BPH, absence PMS, températures non conformes' },
     '31': { nom: 'Haute-Garonne (31)', inspections: 2100, fermetures: 37, mises_en_demeure: 252, duree_moy: '13 jours', motifs: 'Absence traçabilité, nuisibles, DLC dépassées' },
-    '59': { nom: 'Nord (59)', inspections: 3100, fermetures: 54, mises_en_demeure: 372, duree_moy: '16 jours', motifs: 'Locaux dégradés, nuisibles, absence PMS et DUERP' },
+    '59': { nom: 'Nord (59)', inspections: 3100, fermetures: 54, mises_en_demeure: 372, duree_moy: '16 jours', motifs: 'Locaux dégradés, nuisibles, absence PMS et Document Unique' },
     '67': { nom: 'Bas-Rhin (67)', inspections: 1900, fermetures: 33, mises_en_demeure: 228, duree_moy: '12 jours', motifs: 'Températures non conformes, absence traçabilité' },
     '06': { nom: 'Alpes-Maritimes (06)', inspections: 2600, fermetures: 46, mises_en_demeure: 312, duree_moy: '17 jours', motifs: 'Nuisibles, absence PMS, non-respect DLC, locaux dégradés' },
     '44': { nom: 'Loire-Atlantique (44)', inspections: 1750, fermetures: 30, mises_en_demeure: 210, duree_moy: '13 jours', motifs: 'Manquements BPH, absence traçabilité' },
@@ -1971,7 +1971,7 @@ window.addEventListener('DOMContentLoaded', function() {
         '<span class="icon">🖐️</span><div class="label"><div>Affiche Lavage des Mains</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>' +
         '<button class="doc-btn" style="background:linear-gradient(135deg,#e65100,#ff8f00)" onclick="genDocsHuiles(\'' + code + '\')">' +
         '<span class="icon">🍟</span><div class="label"><div>Fiche Contrôle Huiles de Friture</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>';
-        '<span class="icon">⚠️</span><div class="label"><div>Document Unique des Risques (DUERP)</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>';
+        '<span class="icon">⚠️</span><div class="label"><div>Document Unique d\'évaluation des risques professionnels</div><div class="sublabel">Télécharger en Word (.docx)</div></div></button>';
     }
   }
 });
