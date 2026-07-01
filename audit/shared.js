@@ -423,6 +423,7 @@ function envoyerNotifAdmin(adminEmail, d) {
                        : lockLine("Affiches obligatoires fournies — comprises dans les formules Audit Essentiel et Audit Complet.");
     var doc = (sel>=2) ? secTitre("📄 Documents obligatoires personnalisés — établis par nos soins",meta.col)+incList(DOCS)
                        : lockLine("Documents obligatoires personnalisés (PMS, plan de nettoyage…) — compris uniquement dans la formule Audit Complet.");
+    var valeurDoc = (sel>=2) ? '<div style="font-size:.75rem;color:#153e35;background:#f0f7f4;border-left:3px solid '+meta.col+';border-radius:9px;padding:10px 12px;margin:8px 0 2px;line-height:1.5">💡 Ces documents ne sont pas de simples modèles à copier : ils doivent être <b>adaptés à votre activité, cohérents entre eux et tenus à jour</b>. Un modèle générique = risque de rejet en contrôle. Nous les <b>établissons pour vous</b>, sous notre expertise et notre responsabilité.</div>' : "";
     var html = '<div style="position:fixed;inset:0;z-index:99999;background:rgba(20,30,25,.55);display:flex;align-items:flex-start;justify-content:center;padding:18px;overflow-y:auto" onclick="if(event.target===this)closeAuditDetail()">'
       + '<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;padding:22px;margin:auto;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:\'Source Sans 3\',sans-serif">'
       + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px"><div><div style="font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:'+meta.col+'">Formule Audit</div><div style="font-size:1.4rem;font-weight:900;color:#153e35">'+meta.nom+'</div></div><button onclick="closeAuditDetail()" style="background:#f1f5f4;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;color:#475569;flex-shrink:0">✕</button></div>'
@@ -430,7 +431,7 @@ function envoyerNotifAdmin(adminEmail, d) {
       + '<div style="font-size:.74rem;color:#65716b;margin-bottom:8px">Ce que comprend la formule <b style="color:#153e35">'+meta.nom+'</b> :</div>'
       + secTitre("🔍 Audit sur site",meta.col)
       + incList(["Déplacement dans votre établissement","Rapport détaillé : anomalies relevées + préconisations"])
-      + aff + doc
+      + aff + doc + valeurDoc
       + clause
       + '<button onclick="closeAuditDetail(); if(typeof showInscriptionAvecService===\'function\')showInscriptionAvecService(\''+key+'\')" style="width:100%;padding:13px;background:linear-gradient(135deg,'+meta.col+',#153e35);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:.95rem;cursor:pointer">✅ Je suis intéressé par cette formule</button>'
       + '<div style="text-align:center;font-size:.74rem;color:#8a9e95;margin-top:8px">Vous serez dirigé vers le formulaire de demande à remplir et à envoyer.</div>'
@@ -442,7 +443,7 @@ function envoyerNotifAdmin(adminEmail, d) {
 
 /* Pastille version (diagnostic cache) — coin haut droit, sur toutes les pages Audit */
 (function(){
-  var NV_BUILD = 'v416';
+  var NV_BUILD = 'v417';
   function tag(){
     if(document.getElementById('nvBuildTag')) return;
     var d=document.createElement('div'); d.id='nvBuildTag';
