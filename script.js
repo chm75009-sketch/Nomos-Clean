@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v418';
+var APP_BUILD = 'v419';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -25016,7 +25016,11 @@ function _ttNormaliser(rows) {
       var raw = (t.temp === '' || t.temp == null) ? null : parseFloat(String(t.temp).replace(',', '.'));
       var offline = !!(t.offline || c.offline || /hors ligne/i.test(t.conf || '')); // capteur hors ligne
       // Identité de l'enceinte : nom (relevé manuel) puis type (relevé capteur UbiBot).
-      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: c.channel || t.channel || '', temp: (isFinite(raw) ? raw : null), isNC: !!t.isNC || (t.conf === 'Non conforme'), sig: sig, auto: auto, offline: offline });
+      // Ligne « ambiance » (boîtier) = information : elle ne doit JAMAIS être
+      // rattachée à l'enceinte (elles partagent le même canal) → on lui retire le
+      // canal pour qu'elle ait sa PROPRE colonne dans l'Excel, et jamais de NC.
+      var _amb = !!t.ambiance || /ambian/i.test(String(t.type || ''));
+      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: _amb ? '' : (c.channel || t.channel || ''), temp: (isFinite(raw) ? raw : null), isNC: _amb ? false : (!!t.isNC || (t.conf === 'Non conforme')), ambiance: _amb, sig: sig, auto: auto, offline: offline });
     });
   });
   return out;
