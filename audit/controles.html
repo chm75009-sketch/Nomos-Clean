@@ -314,7 +314,7 @@ html,body{background:var(--bg);font-family:'Source Sans 3',Arial,sans-serif;colo
   <!-- CTA -->
   <div class="cta-band">
     <h3>Votre établissement est-il à risque ?</h3>
-    <p>Obtenez votre score de conformité en moins de 20 minutes avec notre outil d'audit HACCP professionnel.</p>
+    <p>Obtenez votre score de conformité et repérez vos points à risque — puis faites appel à nous pour votre audit sur site.</p>
     <button onclick="window.location.href='audit.html'">🔍 Lancer mon audit de conformité</button>
   </div>
 
@@ -484,11 +484,11 @@ var SANCTIONS = [
     doc:'Registre DLC / DDM'
   },
   {
-    motif:'Absence de Document Unique des Risques (DUERP)',
+    motif:'Absence de Document Unique d\'évaluation des risques professionnels',
     type:'amende',typeLabel:'Amende 1 500 €',
-    dept:'Gironde (33)',detail:'Contrôle de l\'inspection du travail simultané à la DDPP. Aucun DUERP rédigé depuis l\'ouverture (3 ans). Amende pour absence de document obligatoire + obligation de régularisation sous 30 jours.',
+    dept:'Gironde (33)',detail:'Contrôle de l\'inspection du travail simultané à la DDPP. Aucun Document Unique d\'évaluation des risques professionnels rédigé depuis l\'ouverture (3 ans). Amende pour absence de document obligatoire + obligation de régularisation sous 30 jours.',
     severity:'important',ref:'Art. R.4121-1 Code du Travail',date:'Févr. 2024',
-    doc:'Document Unique des Risques (DUERP)'
+    doc:'Document Unique d\'évaluation des risques professionnels'
   },
   {
     motif:'Plan de nettoyage et désinfection non tenu',
@@ -580,7 +580,7 @@ var TICKER_ITEMS = [
   {text:'🟢 Conforme — Ille-et-Vilaine 35 : audit réussi',color:'green'},
   {text:'🟡 Amende — Nord 59 : formation HACCP absente',color:'orange'},
   {text:'🔴 Saisie — Var 83 : eau non analysée',color:'red'},
-  {text:'🟡 Mise en demeure — Gironde 33 : DUERP manquant',color:'orange'},
+  {text:'🟡 Mise en demeure — Gironde 33 : Document Unique manquant',color:'orange'},
   {text:'🟢 Conforme — Haute-Savoie 74 : premier audit réussi',color:'green'},
 ];
 
@@ -596,6 +596,6 @@ buildTicker();
 renderDepts(DEPTS);
 renderSanctions(SANCTIONS);
 </script>
-<script src="shared.js?v=417"></script>
+<script src="shared.js?v=418"></script>
 </body>
 </html>
