@@ -182,10 +182,16 @@ declare
   v_slot_ts timestamptz;
   v_mesure_ts timestamptz;   -- horodatage de la mesure (pour détecter un capteur hors ligne)
   v_offline boolean;
-  v_amb       boolean;        -- l'utilisateur veut-il AUSSI la température ambiante (boîtier) ?
-  v_temp_amb  numeric;        -- température ambiante lue (boîtier = field1)
-  v_champ_amb text;           -- champ ambiance (field1 par défaut)
-  v_temps     jsonb;          -- tableau final des températures (enceinte + ambiance éventuelle)
+  v_boit      text;           -- 2ᵉ relevé (boîtier) : ''=aucun, 'ambiance', 'enceinte'
+  v_temp_amb  numeric;        -- température du boîtier lue (field1)
+  v_champ_amb text;           -- champ du boîtier (field1 par défaut)
+  v_b2min     numeric;        -- seuil min de la 2ᵉ enceinte
+  v_b2max     numeric;        -- seuil max de la 2ᵉ enceinte
+  v_b2nc      boolean;        -- 2ᵉ enceinte hors seuil ?
+  v_b2nom     text;           -- nom de la 2ᵉ enceinte
+  v_temps     jsonb;          -- tableau final des températures (enceinte + 2ᵉ relevé éventuel)
+  v_nc_final  boolean;        -- NC du contrôle = sonde OU 2ᵉ enceinte (jamais l'ambiance)
+  v_nc_det    text;           -- détail(s) NC
   n       integer := 0;
 begin
   for lec in
@@ -275,10 +281,21 @@ begin
       continue;
     end if;
 
-    -- ── Tableau des températures : ENCEINTE (sonde) + AMBIANCE (boîtier) optionnelle ──
-    --  L'ambiance est une ligne SÉPARÉE, purement informative : elle n'est JAMAIS
-    --  marquée « Non conforme » et ne touche pas nc_detectee (qui ne dépend que de
-    --  la sonde de l'enceinte). Activée par la case « ambiance » du capteur.
+    -- ── Tableau des températures : ENCEINTE (sonde) + 2ᵉ RELEVÉ (boîtier) optionnel ──
+    --  Le 2ᵉ relevé lit le capteur intégré du boîtier (field1). 3 modes, réglés par
+    --  le capteur (« boitier ») :
+    --   • 'ambiance'  → ligne SÉPARÉE purement informative : jamais « Non conforme »,
+    --                   ne touche pas nc_detectee.
+    --   • 'enceinte'  → 2ᵉ enceinte proche : a SON nom + SES seuils (boitierMin/Max)
+    --                   → compte pour la conformité (isNC réel, alimente nc_detectee).
+    --   • '' (aucun)  → rien : on n'enregistre que la sonde.
+    --  Compat ascendante : ancien réglage « ambiance = true » → mode 'ambiance'.
+    v_nc_final := v_isNC;
+    v_nc_det := case when v_isNC
+        then coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte')
+             || ' : ' || v_temp::text || '°C (hors seuil)'
+        else null end;
+
     if v_offline then
       v_temps := jsonb_build_array(jsonb_build_object(
         'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
@@ -295,18 +312,45 @@ begin
         'action',    case when v_isNC then 'Vérifier l''enceinte et le capteur' else '' end,
         'source',    'Capteur UbiBot (automatique)'));
 
-      v_amb := lower(coalesce(sonde->>'ambiance','')) in ('true','t','1','oui','yes');
-      if v_amb then
+      -- Mode du 2ᵉ relevé (avec compat ascendante sur l'ancien booléen « ambiance »)
+      v_boit := lower(coalesce(sonde->>'boitier',''));
+      if v_boit = '' and lower(coalesce(sonde->>'ambiance','')) in ('true','t','1','oui','yes') then
+        v_boit := 'ambiance';
+      end if;
+
+      if v_boit in ('ambiance','enceinte') then
         v_champ_amb := 'field1';                      -- capteur intégré du boîtier
         if v_champ_amb is distinct from v_champ then  -- inutile si l'enceinte lit déjà field1
           v_temp_amb := round(nullif(lv #>> array[v_champ_amb,'value'], '')::numeric, 1);
           if v_temp_amb is not null then
-            v_temps := v_temps || jsonb_build_array(jsonb_build_object(
-              'type',      'Température ambiante (local)',
-              'precision', '', 'temp', v_temp_amb::text,
-              'conf',      'Information (hors conformité)',
-              'isNC',      false, 'ambiance', true, 'action', '',
-              'source',    'Capteur UbiBot — ambiance (boîtier)'));
+            if v_boit = 'enceinte' then
+              -- 2ᵉ enceinte : seuils propres → conformité réelle.
+              v_b2nom := coalesce(nullif(sonde->>'boitierNom',''), '2ᵉ enceinte');
+              v_b2min := nullif(sonde->>'boitierMin','')::numeric;
+              v_b2max := nullif(sonde->>'boitierMax','')::numeric;
+              v_b2nc  := (v_b2min is not null and v_temp_amb < v_b2min)
+                      or (v_b2max is not null and v_temp_amb > v_b2max);
+              v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+                'type',      v_b2nom,
+                'precision', '', 'temp', v_temp_amb::text,
+                'conf',      case when v_b2nc then 'Non conforme' else 'Conforme' end,
+                'isNC',      v_b2nc, 'boitier', true,
+                'action',    case when v_b2nc then 'Vérifier l''enceinte et le capteur' else '' end,
+                'source',    'Capteur UbiBot (automatique)'));
+              if v_b2nc then
+                v_nc_final := true;
+                v_nc_det := coalesce(v_nc_det || ' ; ', '')
+                          || v_b2nom || ' : ' || v_temp_amb::text || '°C (hors seuil)';
+              end if;
+            else
+              -- Ambiance : information seulement, jamais de NC.
+              v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+                'type',      'Température ambiante (local)',
+                'precision', '', 'temp', v_temp_amb::text,
+                'conf',      'Information (hors conformité)',
+                'isNC',      false, 'ambiance', true, 'action', '',
+                'source',    'Capteur UbiBot — ambiance (boîtier)'));
+            end if;
           end if;
         end if;
       end if;
@@ -332,11 +376,7 @@ begin
         'source',     'ubibot',
         'auto',       true
       ),
-      null, '[]'::jsonb, v_slot_ts, v_isNC,
-      case when v_isNC
-        then coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte')
-             || ' : ' || v_temp::text || '°C (hors seuil)'
-        else null end,
+      null, '[]'::jsonb, v_slot_ts, v_nc_final, v_nc_det,
       v_ccid
     );
 
