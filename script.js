@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v425';
+var APP_BUILD = 'v426';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24699,7 +24699,7 @@ function _capBoitierBlock(s, i) {
     + '<option value="enceinte"' + (v === 'enceinte' ? ' selected' : '') + '>2ᵉ enceinte (frigo / congélateur proche — compte pour la conformité)</option>'
     + '</select></div>'
     + '<div id="cap_b2fields_' + i + '" style="' + show + ';background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 12px;margin-bottom:13px">'
-    + '<div class="frow"><div class="flabel">Nom de la 2ᵉ enceinte</div><input id="cap_b2nom_' + i + '" class="finput" value="' + _capV(s.boitierNom) + '" placeholder="Ex : Frigo desserts"></div>'
+    + '<div class="frow"><div class="flabel">2ᵉ enceinte associée</div><select id="cap_b2nom_' + i + '" class="fselect" onchange="onCapB2EncChange(' + i + ')">' + _capEncOpts(s.boitierNom || '') + '</select></div>'
     + '<div class="tgrid" style="margin:0">'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_b2min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMin) + '" placeholder="0"></div>'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_b2max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMax) + '" placeholder="4"></div>'
@@ -24865,25 +24865,41 @@ function _capBandeSeuil(seuil) {
   if (!isFinite(s)) return null;
   return { max: s, min: (s <= 0 ? s - 7 : 0) };
 }
+// Retrouve la plage de seuils (min/max) définie lors de la création d'une enceinte.
+function _capBandeParEnceinte(nom) {
+  var cfg = (typeof getEnceintesConfig === 'function') ? getEnceintesConfig() : [];
+  var e = null; for (var k = 0; k < cfg.length; k++) { if (((cfg[k].nom || cfg[k].name) || '') === nom) { e = cfg[k]; break; } }
+  var seuil = e ? (typeof e.seuil === 'number' ? e.seuil : parseFloat(e.seuil)) : NaN;
+  if (e && !isFinite(seuil)) {
+    var lbl = (typeof seuilEnceinteDepuisLabel === 'function') ? seuilEnceinteDepuisLabel((e.nom || '') + ' ' + (e.type || '') + ' ' + (e.precision || '')) : '';
+    var m = String(lbl).match(/([+-]?\d+)/); if (m) seuil = parseFloat(m[1]);
+  }
+  return _capBandeSeuil(seuil);
+}
 // Quand on choisit l'enceinte d'un bloc : pré-remplit les seuils + le nom (si vides).
 function onCapEncChange(i) {
   try {
     var sel = document.getElementById('cap_enc_' + i); if (!sel || !sel.value) return;
-    var nom = sel.value;
-    var cfg = (typeof getEnceintesConfig === 'function') ? getEnceintesConfig() : [];
-    var e = null; for (var k = 0; k < cfg.length; k++) { if (((cfg[k].nom || cfg[k].name) || '') === nom) { e = cfg[k]; break; } }
-    var seuil = e ? (typeof e.seuil === 'number' ? e.seuil : parseFloat(e.seuil)) : NaN;
-    if (e && !isFinite(seuil)) {
-      var lbl = (typeof seuilEnceinteDepuisLabel === 'function') ? seuilEnceinteDepuisLabel((e.nom || '') + ' ' + (e.type || '') + ' ' + (e.precision || '')) : '';
-      var m = String(lbl).match(/([+-]?\d+)/); if (m) seuil = parseFloat(m[1]);
-    }
-    var bande = _capBandeSeuil(seuil);
+    var bande = _capBandeParEnceinte(sel.value);
     if (bande) {
       var mx = document.getElementById('cap_max_' + i), mn = document.getElementById('cap_min_' + i);
       if (mx && mx.value === '') mx.value = bande.max;
       if (mn && mn.value === '') mn.value = bande.min;
     }
-    var nomEl = document.getElementById('cap_nom_' + i); if (nomEl && !nomEl.value) nomEl.value = 'Sonde ' + nom;
+    var nomEl = document.getElementById('cap_nom_' + i); if (nomEl && !nomEl.value) nomEl.value = 'Sonde ' + sel.value;
+  } catch (_) {}
+}
+// Quand on choisit la 2ᵉ enceinte : pré-remplit SES seuils depuis sa création
+// (comme « Enceinte associée »). On écrase si les champs sont vides.
+function onCapB2EncChange(i) {
+  try {
+    var sel = document.getElementById('cap_b2nom_' + i); if (!sel || !sel.value) return;
+    var bande = _capBandeParEnceinte(sel.value);
+    if (bande) {
+      var mx = document.getElementById('cap_b2max_' + i), mn = document.getElementById('cap_b2min_' + i);
+      if (mx && mx.value === '') mx.value = bande.max;
+      if (mn && mn.value === '') mn.value = bande.min;
+    }
   } catch (_) {}
 }
 function enregistrerCleUbibot() {
@@ -25655,6 +25671,7 @@ try {
   window.onSondeNbChange = onSondeNbChange;
   window.onCapEncChange = onCapEncChange;
   window.onCapB2Change = onCapB2Change;
+  window.onCapB2EncChange = onCapB2EncChange;
   window.rafraichirTemperaturesBeta = rafraichirTemperaturesBeta;
   window.enregistrerCleUbibot = enregistrerCleUbibot;
   window.onRelevesNbChange = onRelevesNbChange;
