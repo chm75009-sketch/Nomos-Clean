@@ -165,33 +165,34 @@ declare
   chan    jsonb;
   lv      jsonb;
   sonde   jsonb;
-  v_temp  numeric;
-  v_min   numeric;
-  v_max   numeric;
-  v_champ text;
+  v_releves jsonb;            -- liste des relevés du capteur (modèle « N relevés »)
+  rel       jsonb;            -- un relevé courant
+  v_src     text;             -- source du relevé : 'externe' ou 'field1'
+  v_enc     text;             -- enceinte associée au relevé
+  v_nom     text;             -- libellé affiché (nom d'enceinte)
+  v_rmin    numeric;          -- seuil min du relevé
+  v_rmax    numeric;          -- seuil max du relevé
+  v_ramb    boolean;          -- relevé « ambiance » (information, jamais NC) ?
+  v_field   text;             -- champ UbiBot choisi pour ce relevé
+  v_used    text[] := '{}';   -- champs déjà pris par les relevés précédents du capteur
   v_fi    integer;
   v_fname text;
   v_best  text;
   v_bdist numeric;
   v_cval  numeric;
   v_d     numeric;
+  v_temp  numeric;
+  v_mesure_ts timestamptz;   -- horodatage de la mesure (pour détecter un capteur hors ligne)
+  v_offline boolean;
   v_isNC  boolean;
   v_estab uuid;
   v_secteur text;
   v_ccid  text;
   v_slot_ts timestamptz;
-  v_mesure_ts timestamptz;   -- horodatage de la mesure (pour détecter un capteur hors ligne)
-  v_offline boolean;
-  v_boit      text;           -- 2ᵉ relevé (boîtier) : ''=aucun, 'ambiance', 'enceinte'
-  v_temp_amb  numeric;        -- température du boîtier lue (field1)
-  v_champ_amb text;           -- champ du boîtier (field1 par défaut)
-  v_b2min     numeric;        -- seuil min de la 2ᵉ enceinte
-  v_b2max     numeric;        -- seuil max de la 2ᵉ enceinte
-  v_b2nc      boolean;        -- 2ᵉ enceinte hors seuil ?
-  v_b2nom     text;           -- nom de la 2ᵉ enceinte
-  v_temps     jsonb;          -- tableau final des températures (enceinte + 2ᵉ relevé éventuel)
-  v_nc_final  boolean;        -- NC du contrôle = sonde OU 2ᵉ enceinte (jamais l'ambiance)
+  v_temps     jsonb;          -- tableau final des températures (1 entrée par relevé)
+  v_nc_final  boolean;        -- NC du contrôle = un relevé de conformité hors seuil (jamais l'ambiance)
   v_nc_det    text;           -- détail(s) NC
+  v_has_online boolean;       -- au moins une mesure en ligne enregistrée ?
   n       integer := 0;
 begin
   for lec in
@@ -213,51 +214,29 @@ begin
     if chan is null then continue; end if;
 
     sonde := lec.sondes->0;
-    v_min := nullif(sonde->>'min','')::numeric;
-    v_max := nullif(sonde->>'max','')::numeric;
 
     begin lv := (chan->>'last_values')::jsonb; exception when others then lv := null; end;
     if lv is null then continue; end if;
 
-    -- Quel champ lire ? Par défaut field1 (capteur intégré du boîtier). Si la
-    -- sonde est marquée « externe », le boîtier peut exposer PLUSIEURS sondes
-    -- externes (EXT1, EXT2, RS485…). On choisit la sonde externe de TEMPÉRATURE
-    -- dont la valeur correspond le mieux aux seuils de l'enceinte (min/max) —
-    -- ainsi une sonde de congélateur (-25/-18) prend bien EXT2 à -18 °C et pas
-    -- EXT1 resté à l'air ambiant. Repli sur field5 si rien n'est trouvé.
-    v_champ := coalesce(nullif(sonde->>'champ',''), 'field1');
-    if v_champ = 'externe' then
-      v_best := null; v_bdist := null;
-      for v_fi in 1..16 loop
-        v_fname := chan->>('field' || v_fi);
-        if v_fname is null then continue; end if;
-        if v_fname !~* 'temp' then continue; end if;                          -- que les températures
-        if v_fname !~* '(ext|probe|sonde|external|rs485)' then continue; end if; -- que les sondes externes
-        v_cval := nullif(lv #>> array['field' || v_fi,'value'], '')::numeric;
-        if v_cval is null then continue; end if;
-        if v_min is not null and v_max is not null then
-          if v_cval < v_min then v_d := v_min - v_cval;
-          elsif v_cval > v_max then v_d := v_cval - v_max;
-          else v_d := 0; end if;
-        else
-          v_d := abs(v_cval);
-        end if;
-        if v_bdist is null or v_d < v_bdist then v_bdist := v_d; v_best := 'field' || v_fi; end if;
-      end loop;
-      v_champ := coalesce(v_best, 'field5');
+    -- ── Liste des relevés à enregistrer (modèle « N relevés ») ────────────────
+    --  Chaque relevé = { source ('externe'/'field1'), enceinte, min, max, ambiance }.
+    --  Compat ascendante : ancien format (champ/min/max + boitier/ambiance) converti.
+    v_releves := sonde->'releves';
+    if v_releves is null or jsonb_typeof(v_releves) <> 'array' or jsonb_array_length(v_releves) = 0 then
+      v_releves := jsonb_build_array(jsonb_build_object(
+        'source',   case when sonde->>'champ' = 'externe' then 'externe' else 'field1' end,
+        'enceinte', coalesce(sonde->>'enceinte', sonde->>'nom'),
+        'min',      sonde->>'min', 'max', sonde->>'max', 'ambiance', false));
+      if lower(coalesce(sonde->>'boitier','')) = 'enceinte' then
+        v_releves := v_releves || jsonb_build_array(jsonb_build_object(
+          'source','field1','enceinte', sonde->>'boitierNom',
+          'min', sonde->>'boitierMin', 'max', sonde->>'boitierMax', 'ambiance', false));
+      elsif lower(coalesce(sonde->>'boitier','')) = 'ambiance'
+         or lower(coalesce(sonde->>'ambiance','')) in ('true','t','1','oui','yes') then
+        v_releves := v_releves || jsonb_build_array(jsonb_build_object(
+          'source','field1','enceinte','','ambiance', true));
+      end if;
     end if;
-
-    -- température lue + horodatage de la mesure (pour détecter un capteur hors ligne)
-    v_temp := round(nullif(lv #>> array[v_champ,'value'], '')::numeric, 1);
-    v_mesure_ts := nullif(lv #>> array[v_champ,'created_at'], '')::timestamptz;
-    -- HORS LIGNE : la dernière mesure remonte à plus de 90 min (capteur coupé /
-    -- déconnecté) → on n'enregistre PAS une fausse température figée, on marque
-    -- « capteur hors ligne » (honnête pour la DDPP).
-    v_offline := (v_mesure_ts is null) or (now() - v_mesure_ts > interval '90 minutes');
-    if v_temp is null and not v_offline then continue; end if;
-
-    v_isNC := (not v_offline) and ((v_min is not null and v_temp < v_min)
-           or (v_max is not null and v_temp > v_max));
 
     v_estab := lec.establishment_id;
     if v_estab is null then
@@ -281,80 +260,89 @@ begin
       continue;
     end if;
 
-    -- ── Tableau des températures : ENCEINTE (sonde) + 2ᵉ RELEVÉ (boîtier) optionnel ──
-    --  Le 2ᵉ relevé lit le capteur intégré du boîtier (field1). 3 modes, réglés par
-    --  le capteur (« boitier ») :
-    --   • 'ambiance'  → ligne SÉPARÉE purement informative : jamais « Non conforme »,
-    --                   ne touche pas nc_detectee.
-    --   • 'enceinte'  → 2ᵉ enceinte proche : a SON nom + SES seuils (boitierMin/Max)
-    --                   → compte pour la conformité (isNC réel, alimente nc_detectee).
-    --   • '' (aucun)  → rien : on n'enregistre que la sonde.
-    --  Compat ascendante : ancien réglage « ambiance = true » → mode 'ambiance'.
-    v_nc_final := v_isNC;
-    v_nc_det := case when v_isNC
-        then coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte')
-             || ' : ' || v_temp::text || '°C (hors seuil)'
-        else null end;
+    -- ── Boucle sur les relevés : 1 entrée par relevé (chacun sa colonne / son NC) ──
+    v_temps := '[]'::jsonb;
+    v_nc_final := false;
+    v_nc_det := null;
+    v_has_online := false;
+    v_used := '{}';
 
-    if v_offline then
-      v_temps := jsonb_build_array(jsonb_build_object(
-        'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
-        'precision', '', 'temp', '', 'conf', 'Capteur hors ligne',
-        'isNC',      false, 'offline', true, 'action', '',
-        'note',      'Capteur hors ligne — relevé non transmis. Historique disponible sur votre compte.',
-        'source',    'Capteur UbiBot (hors ligne)'));
-    else
-      v_temps := jsonb_build_array(jsonb_build_object(
-        'type',      coalesce(sonde->>'enceinte', sonde->>'nom', 'Enceinte'),
-        'precision', '', 'temp', v_temp::text,
-        'conf',      case when v_isNC then 'Non conforme' else 'Conforme' end,
-        'isNC',      v_isNC,
-        'action',    case when v_isNC then 'Vérifier l''enceinte et le capteur' else '' end,
-        'source',    'Capteur UbiBot (automatique)'));
+    for rel in select * from jsonb_array_elements(v_releves)
+    loop
+      v_src  := lower(coalesce(rel->>'source',''));
+      v_enc  := coalesce(rel->>'enceinte','');
+      v_ramb := lower(coalesce(rel->>'ambiance','')) in ('true','t','1','oui','yes');
+      v_rmin := nullif(rel->>'min','')::numeric;
+      v_rmax := nullif(rel->>'max','')::numeric;
+      v_nom  := coalesce(nullif(v_enc,''), 'Enceinte');
 
-      -- Mode du 2ᵉ relevé (avec compat ascendante sur l'ancien booléen « ambiance »)
-      v_boit := lower(coalesce(sonde->>'boitier',''));
-      if v_boit = '' and lower(coalesce(sonde->>'ambiance','')) in ('true','t','1','oui','yes') then
-        v_boit := 'ambiance';
-      end if;
-
-      if v_boit in ('ambiance','enceinte') then
-        v_champ_amb := 'field1';                      -- capteur intégré du boîtier
-        if v_champ_amb is distinct from v_champ then  -- inutile si l'enceinte lit déjà field1
-          v_temp_amb := round(nullif(lv #>> array[v_champ_amb,'value'], '')::numeric, 1);
-          if v_temp_amb is not null then
-            if v_boit = 'enceinte' then
-              -- 2ᵉ enceinte : seuils propres → conformité réelle.
-              v_b2nom := coalesce(nullif(sonde->>'boitierNom',''), '2ᵉ enceinte');
-              v_b2min := nullif(sonde->>'boitierMin','')::numeric;
-              v_b2max := nullif(sonde->>'boitierMax','')::numeric;
-              v_b2nc  := (v_b2min is not null and v_temp_amb < v_b2min)
-                      or (v_b2max is not null and v_temp_amb > v_b2max);
-              v_temps := v_temps || jsonb_build_array(jsonb_build_object(
-                'type',      v_b2nom,
-                'precision', '', 'temp', v_temp_amb::text,
-                'conf',      case when v_b2nc then 'Non conforme' else 'Conforme' end,
-                'isNC',      v_b2nc, 'boitier', true,
-                'action',    case when v_b2nc then 'Vérifier l''enceinte et le capteur' else '' end,
-                'source',    'Capteur UbiBot (automatique)'));
-              if v_b2nc then
-                v_nc_final := true;
-                v_nc_det := coalesce(v_nc_det || ' ; ', '')
-                          || v_b2nom || ' : ' || v_temp_amb::text || '°C (hors seuil)';
-              end if;
-            else
-              -- Ambiance : information seulement, jamais de NC.
-              v_temps := v_temps || jsonb_build_array(jsonb_build_object(
-                'type',      'Température ambiante (local)',
-                'precision', '', 'temp', v_temp_amb::text,
-                'conf',      'Information (hors conformité)',
-                'isNC',      false, 'ambiance', true, 'action', '',
-                'source',    'Capteur UbiBot — ambiance (boîtier)'));
-            end if;
+      -- Choix du champ. « externe » = meilleur champ de sonde externe selon les seuils,
+      -- SANS réutiliser un champ déjà pris par un relevé précédent de ce même capteur
+      -- (ainsi 2 sondes externes distinctes → 2 champs distincts). Sinon : field1 (boîtier).
+      if v_src = 'externe' then
+        v_best := null; v_bdist := null;
+        for v_fi in 1..16 loop
+          v_fname := chan->>('field' || v_fi);
+          if v_fname is null then continue; end if;
+          if v_fname !~* 'temp' then continue; end if;
+          if v_fname !~* '(ext|probe|sonde|external|rs485|ds18)' then continue; end if;
+          if ('field' || v_fi) = any(v_used) then continue; end if;
+          v_cval := nullif(lv #>> array['field' || v_fi,'value'], '')::numeric;
+          if v_cval is null then continue; end if;
+          if v_rmin is not null and v_rmax is not null then
+            if v_cval < v_rmin then v_d := v_rmin - v_cval;
+            elsif v_cval > v_rmax then v_d := v_cval - v_rmax;
+            else v_d := 0; end if;
+          else
+            v_d := abs(v_cval);
           end if;
+          if v_bdist is null or v_d < v_bdist then v_bdist := v_d; v_best := 'field' || v_fi; end if;
+        end loop;
+        v_field := coalesce(v_best, 'field1');
+      else
+        v_field := 'field1';
+      end if;
+      v_used := v_used || v_field;
+
+      v_temp := round(nullif(lv #>> array[v_field,'value'], '')::numeric, 1);
+      v_mesure_ts := nullif(lv #>> array[v_field,'created_at'], '')::timestamptz;
+      -- HORS LIGNE : dernière mesure > 90 min → on ne fige pas une fausse valeur.
+      v_offline := (v_mesure_ts is null) or (now() - v_mesure_ts > interval '90 minutes');
+
+      if v_ramb then
+        -- Ambiance : information seulement (jamais NC). Rien si pas de mesure.
+        if not v_offline and v_temp is not null then
+          v_has_online := true;
+          v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+            'type','Température ambiante (local)','precision','','temp', v_temp::text,
+            'conf','Information (hors conformité)','isNC', false, 'ambiance', true, 'releve', true,
+            'action','','source','Capteur UbiBot — ambiance (boîtier)'));
+        end if;
+      elsif v_offline then
+        v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+          'type', v_nom, 'precision','','temp','','conf','Capteur hors ligne',
+          'isNC', false, 'offline', true, 'releve', true, 'action','',
+          'note','Capteur hors ligne — relevé non transmis. Historique disponible sur votre compte.',
+          'source','Capteur UbiBot (hors ligne)'));
+      elsif v_temp is not null then
+        v_has_online := true;
+        v_isNC := (v_rmin is not null and v_temp < v_rmin)
+               or (v_rmax is not null and v_temp > v_rmax);
+        v_temps := v_temps || jsonb_build_array(jsonb_build_object(
+          'type', v_nom, 'precision','','temp', v_temp::text,
+          'conf', case when v_isNC then 'Non conforme' else 'Conforme' end,
+          'isNC', v_isNC, 'releve', true,
+          'action', case when v_isNC then 'Vérifier l''enceinte et le capteur' else '' end,
+          'source','Capteur UbiBot (automatique)'));
+        if v_isNC then
+          v_nc_final := true;
+          v_nc_det := coalesce(v_nc_det || ' ; ', '') || v_nom || ' : ' || v_temp::text || '°C (hors seuil)';
         end if;
       end if;
-    end if;
+    end loop;
+
+    -- Rien d'exploitable (aucune mesure, aucun hors-ligne) → on ne crée pas de preuve.
+    if jsonb_array_length(v_temps) = 0 then continue; end if;
 
     insert into public.controles_haccp
       (code_client, establishment_id, module, contenu, signature, photos,
@@ -365,7 +353,7 @@ begin
         'temperatures', v_temps,
         'signataire', 'Relevé automatique (capteur UbiBot)',
         'signe',      'Relevé automatique (capteur UbiBot)',
-        'offline',    v_offline,
+        'offline',    (not v_has_online),
         'timestamp',  'Programmé ' || to_char(v_slot_ts at time zone 'Europe/Paris', 'DD/MM/YYYY HH24:MI')
                       || ' · enregistré ' || to_char(now() at time zone 'Europe/Paris', 'HH24:MI'),
         'heure_programmee', to_char(v_slot_ts at time zone 'Europe/Paris', 'HH24:MI'),

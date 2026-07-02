@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v426';
+var APP_BUILD = 'v427';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24627,9 +24627,20 @@ function _lireUnCanalUbiBot(sonde, accountKey) {
           temp = lv[f].value; if (lv[f].created_at) date = lv[f].created_at;
         }
       }
-      return { channel: chan, temp: temp, date: date, nom: ch.name || '' };
+      return { channel: chan, temp: temp, date: date, nom: ch.name || '', ch: ch, lv: lv };
     })
     .catch(function () { return null; });
+}
+// Valeur d'UN relevé (sonde externe = meilleur champ selon les seuils ; sinon field1).
+function _ubibotValeurReleve(ch, lv, rel) {
+  if (!ch || !lv) return { temp: null, date: '' };
+  var f = (rel && rel.source === 'externe')
+    ? _ubibotChoisirChamp(ch, lv, { champ: 'externe', min: rel.min, max: rel.max })
+    : 'field1';
+  var cell = lv[f];
+  var v = (cell && typeof cell.value !== 'undefined' && cell.value !== null) ? parseFloat(cell.value) : NaN;
+  var date = (cell && cell.created_at) ? cell.created_at : (ch.last_entry_date || '');
+  return { temp: isNaN(v) ? null : v, date: date };
 }
 function _lireTemperaturesUbiBot() {
   var sondes = getSondesConfig();
@@ -24638,7 +24649,7 @@ function _lireTemperaturesUbiBot() {
   return Promise.all(sondes.map(function (s) { return _lireUnCanalUbiBot(s, accountKey); }))
     .then(function (results) {
       var map = {};
-      results.forEach(function (res) { if (res && res.channel) map[res.channel] = { temp: res.temp, date: res.date, nom: res.nom }; });
+      results.forEach(function (res) { if (res && res.channel) map[res.channel] = { temp: res.temp, date: res.date, nom: res.nom, ch: res.ch, lv: res.lv }; });
       return map;
     }).catch(function () { return {}; });
 }
@@ -24673,67 +24684,87 @@ function _capEncOpts(sel) {
 }
 function _capV(x) { return _echap(x == null ? '' : String(x)); }
 
-// Valeur normalisée du 2ᵉ relevé (boîtier intégré) : '' = aucun, 'ambiance' =
-// température ambiante (info), 'enceinte' = 2ᵉ enceinte (compte pour la conformité).
-// Compat ascendante : les anciens capteurs n'ont que s.ambiance (booléen).
-function _capBoitierVal(s) {
+// ── MODÈLE « N RELEVÉS » ────────────────────────────────────────────────
+// Un capteur (boîtier UbiBot) porte une IDENTIFICATION commune (nom, canal, clé,
+// heures) + une LISTE de relevés numérotés. Chaque relevé se paramètre à
+// l'identique : source (sonde externe / capteur intégré) + enceinte associée
+// (+ seuils repris automatiquement), OU « température ambiante » (information).
+// Compat ascendante : les anciens capteurs (champ/min/max + boitier/ambiance)
+// sont convertis à la volée en liste de relevés.
+function _capReleves(s) {
   s = s || {};
-  var b = String(s.boitier || '').toLowerCase();
-  if (b === 'ambiance' || b === 'enceinte' || b === 'aucun' || b === '') {
-    if (b === 'aucun') return '';
-    if (b) return b;
+  if (Array.isArray(s.releves) && s.releves.length) {
+    return s.releves.map(function (r) { return Object.assign({}, r); });
   }
-  return s.ambiance ? 'ambiance' : '';
+  var out = [];
+  // Relevé 1 = la mesure principale (sonde externe ou capteur intégré).
+  out.push({ source: (s.champ === 'externe') ? 'externe' : 'field1', enceinte: s.enceinte || '', min: s.min, max: s.max, ambiance: false });
+  // Relevé 2 = ancien « boîtier » (2ᵉ enceinte ou ambiance), s'il existait.
+  var b = String(s.boitier || '').toLowerCase();
+  if (b === '' && (s.ambiance === true || String(s.ambiance).toLowerCase() === 'true')) b = 'ambiance';
+  if (b === 'enceinte') out.push({ source: 'field1', enceinte: s.boitierNom || '', min: s.boitierMin, max: s.boitierMax, ambiance: false });
+  else if (b === 'ambiance') out.push({ source: 'field1', enceinte: '', min: undefined, max: undefined, ambiance: true });
+  return out;
 }
 
-// Bloc de configuration du 2ᵉ relevé (capteur intégré / boîtier). Un menu à 3
-// choix + les champs (nom + seuils) qui n'apparaissent que pour « 2ᵉ enceinte ».
-function _capBoitierBlock(s, i) {
-  s = s || {};
-  var v = _capBoitierVal(s);
-  var show = (v === 'enceinte') ? '' : 'display:none';
-  return '<div class="frow"><div class="flabel">2ᵉ relevé — capteur intégré (boîtier)</div>'
-    + '<select id="cap_b2_' + i + '" class="fselect" onchange="onCapB2Change(' + i + ')">'
-    + '<option value=""' + (v === '' ? ' selected' : '') + '>Aucun — n\'enregistrer que la sonde</option>'
-    + '<option value="ambiance"' + (v === 'ambiance' ? ' selected' : '') + '>Température ambiante (information, jamais « non conforme »)</option>'
-    + '<option value="enceinte"' + (v === 'enceinte' ? ' selected' : '') + '>2ᵉ enceinte (frigo / congélateur proche — compte pour la conformité)</option>'
+// Options d'enceinte pour UN relevé : la liste des enceintes + l'entrée spéciale
+// « Température ambiante (information) » (valeur __amb__).
+function _capReleveEncOpts(rel) {
+  var sel = (rel && rel.ambiance) ? '__amb__' : ((rel && rel.enceinte) || '');
+  var o = '<option value="">— choisir une enceinte —</option>';
+  var enceintes = (typeof getEnceintesConfig === 'function') ? getEnceintesConfig() : [];
+  var found = false;
+  enceintes.forEach(function (e) {
+    var n = (e && (e.nom || e.name)) || ''; if (!n) return;
+    var s = (n === sel); if (s) found = true;
+    o += '<option value="' + _echap(n) + '"' + (s ? ' selected' : '') + '>' + _echap(n) + '</option>';
+  });
+  if (sel && sel !== '__amb__' && !found) o += '<option value="' + _echap(sel) + '" selected>' + _echap(sel) + '</option>';
+  o += '<option value="__amb__"' + (sel === '__amb__' ? ' selected' : '') + '>🌡️ Température ambiante (information)</option>';
+  return o;
+}
+
+// Un bloc de relevé (i = capteur, j = relevé). Présentation IDENTIQUE pour tous.
+function _capReleveBlock(rel, i, j, nbRel) {
+  rel = rel || {};
+  var amb = !!rel.ambiance;
+  var src = (rel.source === 'externe') ? 'externe' : 'field1';
+  return '<div class="fblock" id="cap_rel_' + i + '_' + j + '" style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid #0ea5e9;border-radius:12px;padding:12px;margin:0 0 10px">'
+    + '<div class="fblock-title" style="margin-bottom:8px"><span style="font-size:14px">🌡️ Relevé N°' + (j + 1) + '</span>'
+    + (nbRel > 1 ? '<button onclick="retirerReleve(' + i + ',' + j + ')" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Retirer</button>' : '<span></span>')
+    + '</div>'
+    + '<div class="frow"><div class="flabel">Source du relevé</div><select id="cap_rsrc_' + i + '_' + j + '" class="fselect">'
+    + '<option value="externe"' + (src === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option>'
+    + '<option value="field1"' + (src === 'field1' ? ' selected' : '') + '>Capteur intégré (boîtier)</option>'
     + '</select></div>'
-    + '<div id="cap_b2fields_' + i + '" style="' + show + ';background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 12px;margin-bottom:13px">'
-    + '<div class="frow"><div class="flabel">2ᵉ enceinte associée</div><select id="cap_b2nom_' + i + '" class="fselect" onchange="onCapB2EncChange(' + i + ')">' + _capEncOpts(s.boitierNom || '') + '</select></div>'
-    + '<div class="tgrid" style="margin:0">'
-    + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_b2min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMin) + '" placeholder="0"></div>'
-    + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_b2max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMax) + '" placeholder="4"></div>'
-    + '</div></div>';
+    + '<div class="frow"><div class="flabel">Enceinte associée</div><select id="cap_renc_' + i + '_' + j + '" class="fselect" onchange="onReleveEncChange(' + i + ',' + j + ')">' + _capReleveEncOpts(rel) + '</select></div>'
+    + '<div id="cap_rseuils_' + i + '_' + j + '" class="tgrid" style="margin:0;' + (amb ? 'display:none' : '') + '">'
+    + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_rmin_' + i + '_' + j + '" type="number" step="0.1" class="finput" value="' + _capV(rel.min) + '" placeholder="0"></div>'
+    + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_rmax_' + i + '_' + j + '" type="number" step="0.1" class="finput" value="' + _capV(rel.max) + '" placeholder="4"></div>'
+    + '</div>'
+    + (amb ? '<div style="font-size:11.5px;color:#0369a1;margin-top:6px">Information seulement — jamais « non conforme ».</div>' : '')
+    + '</div>';
 }
 
-// Affiche/masque les champs « 2ᵉ enceinte » selon le choix, sans perdre les autres saisies.
-function onCapB2Change(i) {
-  _capSyncFromDOM();
-  var sel = document.getElementById('cap_b2_' + i);
-  var box = document.getElementById('cap_b2fields_' + i);
-  if (box) box.style.display = (sel && sel.value === 'enceinte') ? '' : 'none';
-}
-
-// Un bloc éditable de capteur (mêmes classes que les enceintes : fblock/frow/flabel/finput).
+// Un bloc éditable de capteur : identification commune + N relevés numérotés.
 function _sondeBlockEditable(s, i) {
   s = s || {};
   var heures = (Array.isArray(s.heures) && s.heures.length) ? s.heures : getRelevesConfig().heures.slice();
   var nb = heures.length || 2;
   var hh = '';
   for (var h = 0; h < nb; h++) hh += '<input type="time" id="cap_h_' + i + '_' + h + '" value="' + _capV(heures[h]) + '" style="padding:7px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:\'JetBrains Mono\',monospace">';
+  var releves = _capReleves(s);
+  var relHtml = '';
+  for (var j = 0; j < releves.length; j++) relHtml += _capReleveBlock(releves[j], i, j, releves.length);
   return '<div class="fblock" id="cap_block_' + i + '" style="border-left:4px solid var(--blue)">'
-    + '<div class="fblock-title"><span>' + _sondeIco(s) + ' Capteur N°' + (i + 1) + '</span>'
+    + '<div class="fblock-title"><span>📟 Capteur N°' + (i + 1) + ' (boîtier)</span>'
     + '<button onclick="supprimerSondeBeta(' + i + ')" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">Retirer</button></div>'
-    + '<div class="frow"><div class="flabel">Nom du capteur</div><input id="cap_nom_' + i + '" class="finput" value="' + _capV(s.nom) + '" placeholder="Ex : Sonde frigo poisson"></div>'
-    + '<div class="frow"><div class="flabel">Enceinte associée</div><select id="cap_enc_' + i + '" class="fselect" onchange="onCapEncChange(' + i + ')">' + _capEncOpts(s.enceinte || '') + '</select></div>'
+    + '<div class="frow"><div class="flabel">Nom du capteur</div><input id="cap_nom_' + i + '" class="finput" value="' + _capV(s.nom) + '" placeholder="Ex : Boîtier cuisine"></div>'
     + '<div class="frow"><div class="flabel">N° de canal UbiBot</div><input id="cap_chan_' + i + '" class="finput" value="' + _capV(s.channel) + '" placeholder="channel id"></div>'
     + '<div class="frow"><div class="flabel">Clé de lecture du capteur</div><input id="cap_cle_' + i + '" class="finput" value="' + _capV(s.cle) + '" placeholder="clé de lecture API de ce capteur"></div>'
-    + '<div class="frow"><div class="flabel">Température à enregistrer</div><select id="cap_src_' + i + '" class="fselect"><option value=""' + (s.champ !== 'externe' ? ' selected' : '') + '>Capteur intégré (boîtier)</option><option value="externe"' + (s.champ === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option></select></div>'
-    + _capBoitierBlock(s, i)
-    + '<div class="tgrid" style="margin-bottom:13px">'
-    + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.min) + '" placeholder="0"></div>'
-    + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.max) + '" placeholder="4"></div>'
-    + '</div>'
+    + '<div style="font-weight:800;font-size:12.5px;color:var(--dark);margin:14px 2px 8px">🌡️ Relevés de ce capteur <span style="color:var(--dim);font-weight:600">(sonde et/ou boîtier)</span></div>'
+    + relHtml
+    + '<div style="margin:2px 0 14px;text-align:center"><button onclick="ajouterReleve(' + i + ')" style="background:#ecfeff;border:1.5px solid #67e8f9;color:#0e7490;font-size:13px;font-weight:800;padding:9px 16px;border-radius:10px;cursor:pointer;font-family:Outfit,sans-serif"><span style="font-size:16px">+</span> Ajouter un relevé</button></div>'
     + '<div class="frow" style="margin:0"><div class="flabel">⏰ Relevés par jour (au choix)</div>'
     + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
     + '<input type="number" min="1" max="48" id="cap_nb_' + i + '" value="' + nb + '" onchange="onSondeNbChange(' + i + ')" style="width:64px;padding:8px;border:1.5px solid var(--border);border-radius:9px;font-size:15px;font-weight:800;text-align:center;font-family:\'JetBrains Mono\',monospace;color:var(--dark)">'
@@ -24794,29 +24825,41 @@ function _capSyncFromDOM() {
     var nb = nbEl ? (parseInt(nbEl.value, 10) || 1) : ((_capWork[i].heures || []).length || 2);
     if (nb < 1) nb = 1; if (nb > 48) nb = 48;
     var heures = []; for (var h = 0; h < nb; h++) { var he = document.getElementById('cap_h_' + i + '_' + h); heures.push(he && he.value ? he.value : ''); }
-    var minV = parseFloat((document.getElementById('cap_min_' + i) || {}).value);
-    var maxV = parseFloat((document.getElementById('cap_max_' + i) || {}).value);
-    var srcV = ((document.getElementById('cap_src_' + i) || {}).value || '');
-    var b2V = ((document.getElementById('cap_b2_' + i) || {}).value || '');
-    var b2min = parseFloat((document.getElementById('cap_b2min_' + i) || {}).value);
-    var b2max = parseFloat((document.getElementById('cap_b2max_' + i) || {}).value);
-    _capWork[i] = {
+    // Relevés : on lit TOUS les sous-blocs présents dans le DOM (cap_rsrc_i_j).
+    var releves = [];
+    for (var j = 0; ; j++) {
+      var srcEl = document.getElementById('cap_rsrc_' + i + '_' + j);
+      if (!srcEl) break;
+      var encV = ((document.getElementById('cap_renc_' + i + '_' + j) || {}).value || '');
+      var amb = (encV === '__amb__');
+      var rmin = parseFloat((document.getElementById('cap_rmin_' + i + '_' + j) || {}).value);
+      var rmax = parseFloat((document.getElementById('cap_rmax_' + i + '_' + j) || {}).value);
+      var prev = (Array.isArray(_capWork[i].releves) && _capWork[i].releves[j]) ? _capWork[i].releves[j] : {};
+      releves.push({
+        source: (srcEl.value === 'externe') ? 'externe' : 'field1',
+        enceinte: amb ? '' : encV.trim(),
+        ambiance: amb,
+        min: amb ? undefined : (isNaN(rmin) ? prev.min : rmin),
+        max: amb ? undefined : (isNaN(rmax) ? prev.max : rmax)
+      });
+    }
+    if (!releves.length) releves = _capReleves(_capWork[i]);   // sécurité : jamais vide
+    var r0 = releves[0] || {};
+    var base = Object.assign({}, _capWork[i]);
+    // On purge les anciens champs « boîtier » : la vérité est désormais dans releves[].
+    delete base.boitier; delete base.boitierNom; delete base.boitierMin; delete base.boitierMax;
+    _capWork[i] = Object.assign(base, {
       nom: (nomEl.value || '').trim(),
-      enceinte: ((document.getElementById('cap_enc_' + i) || {}).value || '').trim(),
       channel: ((document.getElementById('cap_chan_' + i) || {}).value || '').trim(),
       cle: ((document.getElementById('cap_cle_' + i) || {}).value || '').trim(),
-      champ: (srcV === 'externe' ? 'externe' : ''),
-      // 2ᵉ relevé (boîtier) : '' = aucun, 'ambiance' = info, 'enceinte' = conformité.
-      boitier: (b2V === 'ambiance' || b2V === 'enceinte') ? b2V : '',
-      boitierNom: ((document.getElementById('cap_b2nom_' + i) || {}).value || '').trim(),
-      boitierMin: isNaN(b2min) ? (_capWork[i] ? _capWork[i].boitierMin : undefined) : b2min,
-      boitierMax: isNaN(b2max) ? (_capWork[i] ? _capWork[i].boitierMax : undefined) : b2max,
-      // Compat ascendante : on garde le booléen ambiance = (boîtier en mode ambiance).
-      ambiance: (b2V === 'ambiance'),
-      min: isNaN(minV) ? _capWork[i].min : minV,
-      max: isNaN(maxV) ? _capWork[i].max : maxV,
-      heures: heures
-    };
+      releves: releves,
+      heures: heures,
+      // MIROIR LEGACY (relevé 1) — pour tout le code qui lit encore s.enceinte/min/max/champ/ambiance.
+      enceinte: r0.enceinte || '',
+      champ: (r0.source === 'externe') ? 'externe' : '',
+      min: r0.min, max: r0.max,
+      ambiance: !!r0.ambiance
+    });
   }
 }
 function _capMsg(t, err) { var e = document.getElementById('cap_save_msg'); if (e) { e.textContent = t || ''; e.style.color = err ? '#b91c1c' : '#16a34a'; if (t && !err) setTimeout(function () { var e2 = document.getElementById('cap_save_msg'); if (e2 && e2.textContent === t) e2.textContent = ''; }, 6000); } }
@@ -24837,9 +24880,25 @@ function onSondeNbChange(i) {
 // Ajoute un bloc capteur vierge (comme « + Ajouter une enceinte »).
 function ajouterSondeVide() {
   _capSyncFromDOM(); if (!_capWork) _capWork = [];
-  _capWork.push({ nom: '', enceinte: '', channel: '', cle: '', champ: '', min: undefined, max: undefined, heures: getRelevesConfig().heures.slice() });
+  _capWork.push({ nom: '', channel: '', cle: '', heures: getRelevesConfig().heures.slice(),
+    releves: [{ source: 'externe', enceinte: '', min: undefined, max: undefined, ambiance: false }] });
   _renderCapteursBeta();
   setTimeout(function () { var b = document.getElementById('cap_block_' + (_capWork.length - 1)); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
+}
+// Ajoute un relevé à un capteur (2ᵉ, 3ᵉ… mesure sur le même boîtier).
+function ajouterReleve(i) {
+  _capSyncFromDOM(); if (!_capWork || !_capWork[i]) return;
+  if (!Array.isArray(_capWork[i].releves) || !_capWork[i].releves.length) _capWork[i].releves = _capReleves(_capWork[i]);
+  _capWork[i].releves.push({ source: 'field1', enceinte: '', min: undefined, max: undefined, ambiance: false });
+  _renderCapteursBeta();
+  setTimeout(function () { var b = document.getElementById('cap_rel_' + i + '_' + (_capWork[i].releves.length - 1)); if (b) b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 60);
+}
+// Retire un relevé (jamais le dernier : un capteur garde au moins 1 relevé).
+function retirerReleve(i, j) {
+  _capSyncFromDOM(); if (!_capWork || !_capWork[i] || !Array.isArray(_capWork[i].releves)) return;
+  if (_capWork[i].releves.length <= 1) return;
+  _capWork[i].releves.splice(j, 1);
+  _renderCapteursBeta();
 }
 // Enregistre TOUS les capteurs (un seul bouton, tout est dedans — horaires compris).
 function enregistrerMesCapteurs() {
@@ -24848,13 +24907,24 @@ function enregistrerMesCapteurs() {
   for (var i = 0; i < arr.length; i++) {
     if (!arr[i].channel) { _capMsg('Capteur « ' + (arr[i].nom || ('N°' + (i + 1))) + ' » : indiquez le n° de canal.', true); return; }
     if (!arr[i].cle && !getUbibotKey()) { _capMsg('Capteur « ' + (arr[i].nom || ('N°' + (i + 1))) + ' » : indiquez la clé de lecture.', true); return; }
-    if (arr[i].min == null || isNaN(arr[i].min)) arr[i].min = /cong/i.test(arr[i].enceinte || '') ? -25 : 0;
-    if (arr[i].max == null || isNaN(arr[i].max)) arr[i].max = /cong/i.test(arr[i].enceinte || '') ? -18 : 4;
+    var rels = (Array.isArray(arr[i].releves) && arr[i].releves.length) ? arr[i].releves : _capReleves(arr[i]);
+    for (var j = 0; j < rels.length; j++) {
+      var r = rels[j];
+      if (r.ambiance) { r.min = undefined; r.max = undefined; continue; }
+      var cong = /cong/i.test(r.enceinte || '');
+      if (r.min == null || isNaN(r.min)) r.min = cong ? -25 : 0;
+      if (r.max == null || isNaN(r.max)) r.max = cong ? -18 : 4;
+    }
+    arr[i].releves = rels;
+    // Miroir legacy (relevé 1) pour le reste de l'app.
+    var r0 = rels[0] || {};
+    arr[i].enceinte = r0.enceinte || ''; arr[i].champ = (r0.source === 'externe') ? 'externe' : '';
+    arr[i].min = r0.min; arr[i].max = r0.max; arr[i].ambiance = !!r0.ambiance;
   }
   _capWork = arr.map(function (s) { return Object.assign({}, s); });
   saveSondesConfig(arr);
   _renderCapteursBeta();
-  _capMsg('✓ ' + arr.length + ' capteur(s) enregistré(s) — horaires compris.');
+  _capMsg('✓ ' + arr.length + ' capteur(s) enregistré(s) — relevés et horaires compris.');
   if (typeof showToast === 'function') showToast('Capteurs enregistrés.', 'ok', 2000);
 }
 
@@ -24876,27 +24946,18 @@ function _capBandeParEnceinte(nom) {
   }
   return _capBandeSeuil(seuil);
 }
-// Quand on choisit l'enceinte d'un bloc : pré-remplit les seuils + le nom (si vides).
-function onCapEncChange(i) {
+// Quand on choisit l'enceinte d'UN relevé : masque les seuils si « ambiance »,
+// sinon pré-remplit ses seuils depuis la création de l'enceinte (si vides).
+function onReleveEncChange(i, j) {
   try {
-    var sel = document.getElementById('cap_enc_' + i); if (!sel || !sel.value) return;
+    var sel = document.getElementById('cap_renc_' + i + '_' + j); if (!sel) return;
+    var box = document.getElementById('cap_rseuils_' + i + '_' + j);
+    if (sel.value === '__amb__') { if (box) box.style.display = 'none'; return; }
+    if (box) box.style.display = '';
+    if (!sel.value) return;
     var bande = _capBandeParEnceinte(sel.value);
     if (bande) {
-      var mx = document.getElementById('cap_max_' + i), mn = document.getElementById('cap_min_' + i);
-      if (mx && mx.value === '') mx.value = bande.max;
-      if (mn && mn.value === '') mn.value = bande.min;
-    }
-    var nomEl = document.getElementById('cap_nom_' + i); if (nomEl && !nomEl.value) nomEl.value = 'Sonde ' + sel.value;
-  } catch (_) {}
-}
-// Quand on choisit la 2ᵉ enceinte : pré-remplit SES seuils depuis sa création
-// (comme « Enceinte associée »). On écrase si les champs sont vides.
-function onCapB2EncChange(i) {
-  try {
-    var sel = document.getElementById('cap_b2nom_' + i); if (!sel || !sel.value) return;
-    var bande = _capBandeParEnceinte(sel.value);
-    if (bande) {
-      var mx = document.getElementById('cap_b2max_' + i), mn = document.getElementById('cap_b2min_' + i);
+      var mx = document.getElementById('cap_rmax_' + i + '_' + j), mn = document.getElementById('cap_rmin_' + i + '_' + j);
       if (mx && mx.value === '') mx.value = bande.max;
       if (mn && mn.value === '') mn.value = bande.min;
     }
@@ -25095,11 +25156,11 @@ function _ttNormaliser(rows) {
       // rattachée à l'enceinte (elles partagent le même canal) → on lui retire le
       // canal pour qu'elle ait sa PROPRE colonne dans l'Excel, et jamais de NC.
       var _amb = !!t.ambiance || /ambian/i.test(String(t.type || ''));
-      // 2ᵉ enceinte (boîtier affecté à une enceinte proche) : elle a son PROPRE nom
-      // et ses PROPRES seuils (donc son NC est valide), mais elle partage le canal de
-      // la sonde → on lui retire aussi le canal pour qu'elle ait sa propre colonne.
-      var _b2 = !!t.boitier && !_amb;
-      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: (_amb || _b2) ? '' : (c.channel || t.channel || ''), temp: (isFinite(raw) ? raw : null), isNC: _amb ? false : (!!t.isNC || (t.conf === 'Non conforme')), ambiance: _amb, sig: sig, auto: auto, offline: offline });
+      // Modèle « N relevés » : chaque relevé (2ᵉ enceinte, ambiance, sonde…) partage
+      // le canal du boîtier → on retire le canal pour que CHAQUE relevé ait sa PROPRE
+      // colonne (rattachée par le NOM de l'enceinte). L'ambiance n'est jamais NC.
+      var _sep = _amb || !!t.boitier || !!t.releve;
+      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: _sep ? '' : (c.channel || t.channel || ''), temp: (isFinite(raw) ? raw : null), isNC: _amb ? false : (!!t.isNC || (t.conf === 'Non conforme')), ambiance: _amb, sig: sig, auto: auto, offline: offline });
     });
   });
   return out;
@@ -25644,16 +25705,27 @@ function rafraichirTemperaturesBeta() {
     var html = '';
     sondes.forEach(function (s) {
       var r = map[String(s.channel)];
-      var couleur = '#94a3b8', etat = '⚪ Pas de données', t = '';
-      if (r && r.temp !== null && typeof r.temp !== 'undefined' && !isNaN(parseFloat(r.temp))) {
-        var tv = parseFloat(r.temp); t = tv.toFixed(1) + ' °C';
-        var ok = tv >= s.min && tv <= s.max;
-        couleur = ok ? '#16a34a' : '#dc2626';
-        etat = (ok ? '🟢 Conforme' : '🔴 HORS SEUIL') + (r.date ? ' · ' + _heureLisibleCap(r.date) : '');
-      }
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-left:5px solid ' + couleur + ';border-radius:10px;padding:10px 12px;margin-bottom:6px;background:#fff">'
-        + '<div style="font-size:13px"><strong>' + _echap(s.nom) + '</strong><br><span style="color:#64748b;font-size:12px">' + etat + '</span></div>'
-        + '<div style="font-size:20px;font-weight:800;color:' + couleur + '">' + (t || '—') + '</div></div>';
+      var releves = _capReleves(s);
+      releves.forEach(function (rel, j) {
+        var couleur = '#94a3b8', etat = '⚪ Pas de données', t = '';
+        var lect = (r && r.ch) ? _ubibotValeurReleve(r.ch, r.lv, rel) : { temp: (r ? r.temp : null), date: (r ? r.date : '') };
+        if (lect && lect.temp !== null && typeof lect.temp !== 'undefined' && !isNaN(parseFloat(lect.temp))) {
+          var tv = parseFloat(lect.temp); t = tv.toFixed(1) + ' °C';
+          if (rel.ambiance) {
+            couleur = '#0ea5e9';
+            etat = 'ℹ️ Ambiance (information)' + (lect.date ? ' · ' + _heureLisibleCap(lect.date) : '');
+          } else {
+            var ok = tv >= rel.min && tv <= rel.max;
+            couleur = ok ? '#16a34a' : '#dc2626';
+            etat = (ok ? '🟢 Conforme' : '🔴 HORS SEUIL') + (lect.date ? ' · ' + _heureLisibleCap(lect.date) : '');
+          }
+        }
+        var libelle = rel.ambiance ? 'Température ambiante' : (rel.enceinte || ('Relevé N°' + (j + 1)));
+        var sous = _echap(s.nom || 'Capteur') + ' · Relevé N°' + (j + 1);
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;border:1px solid #e5e7eb;border-left:5px solid ' + couleur + ';border-radius:10px;padding:10px 12px;margin-bottom:6px;background:#fff">'
+          + '<div style="font-size:13px"><strong>' + _echap(libelle) + '</strong> <span style="color:#94a3b8;font-size:11px">(' + sous + ')</span><br><span style="color:#64748b;font-size:12px">' + etat + '</span></div>'
+          + '<div style="font-size:20px;font-weight:800;color:' + couleur + '">' + (t || '—') + '</div></div>';
+      });
     });
     if (box) box.innerHTML = html;
   }).catch(function () { if (box) box.innerHTML = '<div style="color:#b91c1c;font-size:13px">Lecture impossible (clé ou réseau).</div>'; });
@@ -25669,9 +25741,9 @@ try {
   window.enregistrerMesCapteurs = enregistrerMesCapteurs;
   window.supprimerSondeBeta = supprimerSondeBeta;
   window.onSondeNbChange = onSondeNbChange;
-  window.onCapEncChange = onCapEncChange;
-  window.onCapB2Change = onCapB2Change;
-  window.onCapB2EncChange = onCapB2EncChange;
+  window.ajouterReleve = ajouterReleve;
+  window.retirerReleve = retirerReleve;
+  window.onReleveEncChange = onReleveEncChange;
   window.rafraichirTemperaturesBeta = rafraichirTemperaturesBeta;
   window.enregistrerCleUbibot = enregistrerCleUbibot;
   window.onRelevesNbChange = onRelevesNbChange;
