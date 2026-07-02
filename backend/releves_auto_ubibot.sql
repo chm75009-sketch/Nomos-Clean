@@ -276,10 +276,12 @@ begin
       v_rmax := nullif(rel->>'max','')::numeric;
       v_nom  := coalesce(nullif(v_enc,''), 'Enceinte');
 
-      -- Choix du champ. « externe » = meilleur champ de sonde externe selon les seuils,
-      -- SANS réutiliser un champ déjà pris par un relevé précédent de ce même capteur
-      -- (ainsi 2 sondes externes distinctes → 2 champs distincts). Sinon : field1 (boîtier).
-      if v_src = 'externe' then
+      -- Choix du champ. Un champ précis ('fieldN' choisi dans l'app) est utilisé tel quel.
+      -- « externe » = meilleur champ de sonde externe selon les seuils, SANS réutiliser un
+      -- champ déjà pris par un relevé précédent du capteur. Sinon : field1 (boîtier intégré).
+      if v_src ~ '^field[0-9]+$' then
+        v_field := v_src;
+      elsif v_src = 'externe' then
         v_best := null; v_bdist := null;
         for v_fi in 1..16 loop
           v_fname := chan->>('field' || v_fi);
