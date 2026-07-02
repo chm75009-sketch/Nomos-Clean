@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v427';
+var APP_BUILD = 'v428';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24631,12 +24631,15 @@ function _lireUnCanalUbiBot(sonde, accountKey) {
     })
     .catch(function () { return null; });
 }
-// Valeur d'UN relevé (sonde externe = meilleur champ selon les seuils ; sinon field1).
+// Valeur d'UN relevé : champ précis ('fieldN') si choisi, sinon 'externe' = meilleur
+// champ selon les seuils, sinon field1 (capteur intégré).
 function _ubibotValeurReleve(ch, lv, rel) {
   if (!ch || !lv) return { temp: null, date: '' };
-  var f = (rel && rel.source === 'externe')
-    ? _ubibotChoisirChamp(ch, lv, { champ: 'externe', min: rel.min, max: rel.max })
-    : 'field1';
+  var src = (rel && rel.source) || 'field1';
+  var f;
+  if (src === 'externe') f = _ubibotChoisirChamp(ch, lv, { champ: 'externe', min: rel.min, max: rel.max });
+  else if (/^field\d+$/.test(src)) f = src;
+  else f = 'field1';
   var cell = lv[f];
   var v = (cell && typeof cell.value !== 'undefined' && cell.value !== null) ? parseFloat(cell.value) : NaN;
   var date = (cell && cell.created_at) ? cell.created_at : (ch.last_entry_date || '');
@@ -24673,6 +24676,10 @@ function _sondeIco(s) {
 // même bloc : nom, enceinte, canal, clé, source, seuils, nombre de relevés),
 // un bouton « + Ajouter un capteur » et un bouton « 💾 Enregistrer mes capteurs ».
 var _capWork = null;
+// Sondes réelles découvertes sur chaque boîtier (par canal) : liste des champs de
+// TEMPÉRATURE exposés par UbiBot, avec leur vrai nom → alimente le menu « Source ».
+var _capBoitierChamps = {};   // { channel: [ {field, label, ext} ] }
+var _capChampsFetched = {};   // { channel: true } — évite de relire en boucle
 function _capInit() { if (_capWork === null) _capWork = (getSondesConfig() || []).map(function (s) { return Object.assign({}, s); }); }
 function _capEncOpts(sel) {
   var enceintes = (typeof getEnceintesConfig === 'function') ? getEnceintesConfig() : [];
@@ -24707,6 +24714,69 @@ function _capReleves(s) {
   return out;
 }
 
+// Liste des champs de TEMPÉRATURE exposés par un boîtier (d'après les noms UbiBot).
+// field1 = capteur intégré ; les autres champs « temp » à nom EXT/probe/sonde = sondes
+// externes branchées. On les renvoie dans l'ordre des champs.
+function _capChampsTemp(ch) {
+  var out = [];
+  if (!ch) return out;
+  for (var n = 1; n <= 16; n++) {
+    var f = 'field' + n;
+    var label = String(ch[f] || '').trim();
+    if (!label) continue;
+    if (!/temp/i.test(label) || /humid/i.test(label)) continue;   // que les températures
+    var ext = /(ext|probe|sonde|d[eé]port|external|rs485|ds18)/i.test(label);
+    out.push({ field: f, label: label, ext: (ext || f !== 'field1') });
+  }
+  return out;
+}
+// Lit (en tâche de fond) les sondes réelles de chaque boîtier, puis rafraîchit
+// l'écran une seule fois pour peupler les menus « Source du relevé ».
+function _capChargerChamps() {
+  if (!_capWork) return;
+  var accountKey = getUbibotKey();
+  var pending = [];
+  _capWork.forEach(function (s) {
+    var chn = String((s && s.channel) || '').trim();
+    if (!chn || _capBoitierChamps[chn] || _capChampsFetched[chn]) return;
+    if (!s.cle && !accountKey) return;                 // pas de clé → on ne peut pas lire
+    _capChampsFetched[chn] = true;
+    pending.push(_lireUnCanalUbiBot(s, accountKey).then(function (res) {
+      if (res && res.ch) { var champs = _capChampsTemp(res.ch); if (champs.length) { _capBoitierChamps[chn] = champs; return true; } }
+      return false;
+    }).catch(function () { return false; }));
+  });
+  if (!pending.length) return;
+  Promise.all(pending).then(function (rs) {
+    if (rs.some(Boolean)) { _capSyncFromDOM(); _renderCapteursBeta(); }
+  });
+}
+// Options du menu « Source du relevé » : chaque sonde réelle du boîtier par son nom
+// + le capteur intégré. Repli générique tant que le boîtier n'a pas été lu.
+function _capReleveSourceOpts(rel, channel) {
+  var chn = String(channel || '').trim();
+  var champs = _capBoitierChamps[chn];
+  var cur = (rel && rel.source) || 'externe';
+  if (!champs || !champs.length) {
+    var g = (cur === 'field1') ? 'field1' : (/^field\d+$/.test(cur) ? cur : 'externe');
+    return '<option value="externe"' + (g === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option>'
+         + '<option value="field1"' + (g === 'field1' ? ' selected' : '') + '>Capteur intégré (boîtier)</option>';
+  }
+  // Champ sélectionné : soit un champ précis, soit « externe » → 1ʳᵉ sonde externe.
+  var sel = null;
+  if (/^field\d+$/.test(cur)) sel = cur;
+  else if (cur === 'externe') { for (var i = 0; i < champs.length; i++) { if (champs[i].ext) { sel = champs[i].field; break; } } }
+  if (!sel && champs.length) sel = champs[0].field;
+  var o = '', k = 0;
+  champs.forEach(function (c) {
+    var lab;
+    if (c.field === 'field1' && !/ext|probe|sonde|rs485|ds18/i.test(c.label)) lab = 'Capteur intégré (boîtier)';
+    else { k++; lab = 'Sonde ' + c.label; }
+    o += '<option value="' + c.field + '"' + (c.field === sel ? ' selected' : '') + '>' + _echap(lab) + '</option>';
+  });
+  return o;
+}
+
 // Options d'enceinte pour UN relevé : la liste des enceintes + l'entrée spéciale
 // « Température ambiante (information) » (valeur __amb__).
 function _capReleveEncOpts(rel) {
@@ -24725,17 +24795,15 @@ function _capReleveEncOpts(rel) {
 }
 
 // Un bloc de relevé (i = capteur, j = relevé). Présentation IDENTIQUE pour tous.
-function _capReleveBlock(rel, i, j, nbRel) {
+function _capReleveBlock(rel, i, j, nbRel, channel) {
   rel = rel || {};
   var amb = !!rel.ambiance;
-  var src = (rel.source === 'externe') ? 'externe' : 'field1';
   return '<div class="fblock" id="cap_rel_' + i + '_' + j + '" style="background:#f8fafc;border:1px solid var(--border);border-left:4px solid #0ea5e9;border-radius:12px;padding:12px;margin:0 0 10px">'
     + '<div class="fblock-title" style="margin-bottom:8px"><span style="font-size:14px">🌡️ Relevé N°' + (j + 1) + '</span>'
     + (nbRel > 1 ? '<button onclick="retirerReleve(' + i + ',' + j + ')" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:5px 10px;font-size:11px;font-weight:700;cursor:pointer">Retirer</button>' : '<span></span>')
     + '</div>'
     + '<div class="frow"><div class="flabel">Source du relevé</div><select id="cap_rsrc_' + i + '_' + j + '" class="fselect">'
-    + '<option value="externe"' + (src === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option>'
-    + '<option value="field1"' + (src === 'field1' ? ' selected' : '') + '>Capteur intégré (boîtier)</option>'
+    + _capReleveSourceOpts(rel, channel)
     + '</select></div>'
     + '<div class="frow"><div class="flabel">Enceinte associée</div><select id="cap_renc_' + i + '_' + j + '" class="fselect" onchange="onReleveEncChange(' + i + ',' + j + ')">' + _capReleveEncOpts(rel) + '</select></div>'
     + '<div id="cap_rseuils_' + i + '_' + j + '" class="tgrid" style="margin:0;' + (amb ? 'display:none' : '') + '">'
@@ -24755,7 +24823,7 @@ function _sondeBlockEditable(s, i) {
   for (var h = 0; h < nb; h++) hh += '<input type="time" id="cap_h_' + i + '_' + h + '" value="' + _capV(heures[h]) + '" style="padding:7px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:\'JetBrains Mono\',monospace">';
   var releves = _capReleves(s);
   var relHtml = '';
-  for (var j = 0; j < releves.length; j++) relHtml += _capReleveBlock(releves[j], i, j, releves.length);
+  for (var j = 0; j < releves.length; j++) relHtml += _capReleveBlock(releves[j], i, j, releves.length, s.channel);
   return '<div class="fblock" id="cap_block_' + i + '" style="border-left:4px solid var(--blue)">'
     + '<div class="fblock-title"><span>📟 Capteur N°' + (i + 1) + ' (boîtier)</span>'
     + '<button onclick="supprimerSondeBeta(' + i + ')" style="border:none;background:#fee2e2;color:#b91c1c;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer">Retirer</button></div>'
@@ -24815,6 +24883,8 @@ function _renderCapteursBeta() {
     + '<button onclick="enregistrerCleUbibot()" style="border:none;background:#2563eb;color:#fff;border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer">Enregistrer</button></div>'
     + '<div style="color:var(--dim);font-size:11px;margin-top:6px">Utilisée seulement pour un capteur qui n\'a pas sa propre clé.</div></details>'
     + '</div>';
+  // Découverte des sondes réelles du/des boîtier(s) → peuple les menus « Source ».
+  _capChargerChamps();
 }
 // Lit l'état actuel de TOUS les blocs (DOM) vers la liste de travail _capWork.
 function _capSyncFromDOM() {
@@ -24835,8 +24905,10 @@ function _capSyncFromDOM() {
       var rmin = parseFloat((document.getElementById('cap_rmin_' + i + '_' + j) || {}).value);
       var rmax = parseFloat((document.getElementById('cap_rmax_' + i + '_' + j) || {}).value);
       var prev = (Array.isArray(_capWork[i].releves) && _capWork[i].releves[j]) ? _capWork[i].releves[j] : {};
+      var sv = srcEl.value;
       releves.push({
-        source: (srcEl.value === 'externe') ? 'externe' : 'field1',
+        // source : 'externe' (auto), 'field1' (intégré) ou un champ précis 'fieldN' (sonde choisie).
+        source: (sv === 'externe' || /^field\d+$/.test(sv)) ? sv : 'field1',
         enceinte: amb ? '' : encV.trim(),
         ambiance: amb,
         min: amb ? undefined : (isNaN(rmin) ? prev.min : rmin),
@@ -24855,8 +24927,9 @@ function _capSyncFromDOM() {
       releves: releves,
       heures: heures,
       // MIROIR LEGACY (relevé 1) — pour tout le code qui lit encore s.enceinte/min/max/champ/ambiance.
+      // Un champ précis autre que field1 (sonde externe choisie) = externe côté legacy.
       enceinte: r0.enceinte || '',
-      champ: (r0.source === 'externe') ? 'externe' : '',
+      champ: (r0.source === 'externe' || (/^field\d+$/.test(r0.source || '') && r0.source !== 'field1')) ? 'externe' : '',
       min: r0.min, max: r0.max,
       ambiance: !!r0.ambiance
     });
