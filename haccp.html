@@ -182,11 +182,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=423">
-    <script src="pms_secteurs.js?v=423" defer></script>
-    <script src="script.js?v=423" defer></script>
-<script src="patch_photo_bl.js?v=423" defer></script>
-<script src="pms_generateur.js?v=423" defer></script>
+    <link rel="stylesheet" href="style.css?v=424">
+    <script src="pms_secteurs.js?v=424" defer></script>
+    <script src="script.js?v=424" defer></script>
+<script src="patch_photo_bl.js?v=424" defer></script>
+<script src="pms_generateur.js?v=424" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -456,6 +456,15 @@ html, body { max-width: 100%; overflow-x: hidden; }
               <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">📡 Capteurs connectés <span style="color:rgba(255,255,255,0.5);font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7);background:rgba(74,222,128,0.05)">Sur devis</td></tr>
             </tbody>
           </table>
+        </div>
+        <!-- ============ RELEVÉS AUTOMATIQUES — DEVIS CAPTEURS ============ -->
+        <div style="max-width:720px;margin:4px auto 26px;background:linear-gradient(135deg,rgba(74,222,128,0.10),rgba(255,255,255,0.03));border:1px solid rgba(74,222,128,0.28);border-radius:16px;padding:18px 20px">
+          <div style="font-weight:800;color:white;font-size:15px;margin-bottom:6px">🌡️ Relevés de température automatiques</div>
+          <p style="font-size:12.5px;color:rgba(255,255,255,0.82);line-height:1.6;margin:0 0 10px">Couplée à des <strong>capteurs connectés</strong>, l'application enregistre vos températures d'enceintes <strong>automatiquement, 24h/24</strong> (même fermée), sans aucune saisie. <strong>Alertes</strong> en cas de dépassement de seuil · conformité DDPP · zéro oubli.</p>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+            <button type="button" onclick="ouvrirDevisCapteurs()" style="background:#4ade80;color:#0a1f14;border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📩 Demander un devis</button>
+            <span style="font-size:11.5px;color:rgba(255,255,255,0.6)">Devis gratuit et sans engagement · capteurs sur devis</span>
+          </div>
         </div>
         <p style="text-align:center;font-size:12.5px;color:rgba(255,255,255,0.75);margin:0 0 30px">✨ <strong style="color:#4ade80">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
 
@@ -4056,5 +4065,86 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <span class="nb-brand">HACCP Pro · Nomos</span>
       <button class="nb-home" onclick="location.href='accueil.html'" aria-label="Accueil Nomos">🏠 Accueil Nomos</button>
     </div>
+<!-- ============ MODAL — DEVIS CAPTEURS / RELEVÉS AUTOMATIQUES ============ -->
+<div id="modalDevisCapteurs" style="display:none;position:fixed;inset:0;z-index:100050;background:rgba(8,17,13,.72);overflow-y:auto;padding:16px" onclick="if(event.target===this)fermerDevisCapteurs()">
+  <div style="background:#fff;max-width:560px;margin:22px auto;border-radius:18px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.35);font-family:'Source Sans 3',system-ui,sans-serif">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px">
+      <div><div style="font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#0a8a4a">Relevés automatiques</div>
+      <h2 style="margin:2px 0 0;font-size:1.25rem;color:#0f2e20">Demander un devis — capteurs</h2></div>
+      <button type="button" onclick="fermerDevisCapteurs()" style="background:#eef2f0;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;color:#475569;flex:none">✕</button>
+    </div>
+    <p style="font-size:.8rem;color:#5b6b63;margin:6px 0 14px;line-height:1.5">Décrivez vos enceintes froides — nous revenons vers vous avec un <strong>devis gratuit et sans engagement</strong>.</p>
+
+    <div id="dv_ok" style="display:none;background:#e8f5e9;border:1px solid #a5d6a7;border-radius:10px;padding:12px;font-size:.85rem;color:#2e7d32;margin-bottom:12px">✅ Demande envoyée ! Nous vous recontactons rapidement avec votre devis.</div>
+    <div id="dv_err" style="display:none;background:#fdecea;border:1px solid #f5b5ae;border-radius:10px;padding:11px;font-size:.82rem;color:#c0392b;margin-bottom:12px"></div>
+
+    <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;color:#0a8a4a;letter-spacing:.05em;margin:4px 0 8px">Vos coordonnées</div>
+    <input id="dv_nom" placeholder="Nom du responsable *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <input id="dv_soc" placeholder="Société / établissement *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <input id="dv_adr" placeholder="Adresse de l'établissement *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <input id="dv_tel" placeholder="Téléphone *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <input id="dv_email" type="email" placeholder="Email *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <input id="dv_siret" placeholder="SIRET" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:14px;font-family:inherit;color:#0f2e20">
+
+    <div style="font-size:.68rem;font-weight:800;text-transform:uppercase;color:#0a8a4a;letter-spacing:.05em;margin:4px 0 8px">Vos enceintes froides</div>
+    <input id="dv_nb" type="number" min="1" placeholder="Nombre d'enceintes à équiper *" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:10px;font-family:inherit;color:#0f2e20">
+    <div style="font-size:.78rem;color:#5b6b63;margin-bottom:6px">Types d'enceintes :</div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px">
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_refpos" data-label="Réfrigérateur (froid positif)"> Réfrigérateur</label>
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_congel" data-label="Congélateur"> Congélateur</label>
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_cfpos" data-label="Chambre froide positive"> Chambre froide +</label>
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_cfneg" data-label="Chambre froide négative"> Chambre froide −</label>
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_vitrine" data-label="Vitrine / meuble réfrigéré"> Vitrine réfrigérée</label>
+      <label style="font-size:.8rem;color:#0f2e20;display:flex;align-items:center;gap:6px;background:#f4f8f6;border:1px solid #dbe6e0;border-radius:9px;padding:7px 10px;cursor:pointer"><input type="checkbox" id="dv_t_autre" data-label="Autre"> Autre</label>
+    </div>
+    <textarea id="dv_disp" rows="2" placeholder="Disposition : enceintes regroupées ou réparties (plusieurs pièces / étages) ?" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20"></textarea>
+    <select id="dv_wifi" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20;background:#fff">
+      <option value="">WiFi sur place ? (pour capteurs connectés)</option>
+      <option value="Oui">Oui</option><option value="Non">Non</option><option value="Je ne sais pas">Je ne sais pas</option>
+    </select>
+    <input id="dv_dist" placeholder="Distance entre les enceintes les + éloignées (ou surface du local)" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:9px;font-family:inherit;color:#0f2e20">
+    <textarea id="dv_prec" rows="2" placeholder="Précisions / besoin particulier" style="width:100%;box-sizing:border-box;padding:11px 12px;border:1.5px solid #d7e0db;border-radius:10px;font-size:14px;margin-bottom:14px;font-family:inherit;color:#0f2e20"></textarea>
+
+    <button type="button" id="dv_send" onclick="envoyerDevisCapteurs()" style="width:100%;padding:14px;background:linear-gradient(135deg,#22c07a,#0f7a4a);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit">📩 Envoyer ma demande</button>
+    <div style="text-align:center;font-size:.72rem;color:#8a9a92;margin-top:8px">Devis gratuit et sans engagement · réponse rapide</div>
+  </div>
+</div>
+<script>
+function ouvrirDevisCapteurs(){var m=document.getElementById('modalDevisCapteurs');if(m){m.style.display='block';document.body.style.overflow='hidden';}}
+function fermerDevisCapteurs(){var m=document.getElementById('modalDevisCapteurs');if(m){m.style.display='none';document.body.style.overflow='';}}
+function envoyerDevisCapteurs(){
+  function v(id){var e=document.getElementById(id);return e?String(e.value||'').trim():'';}
+  var nom=v('dv_nom'),soc=v('dv_soc'),adr=v('dv_adr'),tel=v('dv_tel'),email=v('dv_email'),siret=v('dv_siret');
+  var nb=v('dv_nb'),disp=v('dv_disp'),wifi=v('dv_wifi'),dist=v('dv_dist'),prec=v('dv_prec');
+  var types=[];['refpos','congel','cfpos','cfneg','vitrine','autre'].forEach(function(k){var c=document.getElementById('dv_t_'+k);if(c&&c.checked)types.push(c.getAttribute('data-label'));});
+  var err=document.getElementById('dv_err'),ok=document.getElementById('dv_ok');
+  if(err)err.style.display='none';if(ok)ok.style.display='none';
+  if(!nom||!soc||!adr||!tel||!email||!nb){if(err){err.textContent='Merci de remplir les champs obligatoires (*).';err.style.display='block';}return;}
+  var msg='DEMANDE DE DEVIS — CAPTEURS / RELEVES AUTOMATIQUES\n\n'
+    +'SIRET : '+(siret||'—')+'\n'+'Adresse : '+adr+'\n\n'
+    +'— ENCEINTES FROIDES —\n'
+    +'Nombre a equiper : '+nb+'\n'
+    +'Types : '+(types.length?types.join(', '):'—')+'\n'
+    +'Disposition : '+(disp||'—')+'\n'
+    +'WiFi sur place : '+(wifi||'—')+'\n'
+    +'Distance / surface : '+(dist||'—')+'\n'
+    +'Precisions : '+(prec||'—');
+  var cfg=window.HACCP_CONFIG||{};var dest=cfg.ADMIN_EMAIL||'r.t.h@orange.fr';
+  var btn=document.getElementById('dv_send');if(btn){btn.disabled=true;btn.textContent='Envoi…';}
+  function done(s){if(btn){btn.disabled=false;btn.textContent='📩 Envoyer ma demande';}if(s){if(ok)ok.style.display='block';}else{if(err){err.textContent='Envoi impossible. Réessayez, ou écrivez à '+dest+'.';err.style.display='block';}}}
+  if(window.emailjs&&cfg.EMAILJS_PUBLIC_KEY&&cfg.EMAILJS_TEMPLATE_ADMIN){
+    try{window.emailjs.send(cfg.EMAILJS_SERVICE,cfg.EMAILJS_TEMPLATE_ADMIN,{
+      to_email:dest,etablissement:soc,secteur:'📩 DEVIS Capteurs / Relevés automatiques',
+      responsable:nom,email_client:email,telephone:tel,
+      formule:'Demande de devis — capteurs',engagement:'—',nb_repas:'—',message:msg
+    }).then(function(){done(true);}).catch(function(e){console.warn('devis email',e);done(false);});}
+    catch(e){console.warn(e);done(false);}
+  }else{
+    window.location.href='mailto:'+dest+'?subject='+encodeURIComponent('Demande de devis capteurs — '+soc)+'&body='+encodeURIComponent(msg+'\n\nContact : '+nom+' · '+tel+' · '+email);
+    done(true);
+  }
+}
+window.ouvrirDevisCapteurs=ouvrirDevisCapteurs;window.fermerDevisCapteurs=fermerDevisCapteurs;window.envoyerDevisCapteurs=envoyerDevisCapteurs;
+</script>
 </body>
 </html>
