@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v424';
+var APP_BUILD = 'v425';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24673,6 +24673,47 @@ function _capEncOpts(sel) {
 }
 function _capV(x) { return _echap(x == null ? '' : String(x)); }
 
+// Valeur normalisée du 2ᵉ relevé (boîtier intégré) : '' = aucun, 'ambiance' =
+// température ambiante (info), 'enceinte' = 2ᵉ enceinte (compte pour la conformité).
+// Compat ascendante : les anciens capteurs n'ont que s.ambiance (booléen).
+function _capBoitierVal(s) {
+  s = s || {};
+  var b = String(s.boitier || '').toLowerCase();
+  if (b === 'ambiance' || b === 'enceinte' || b === 'aucun' || b === '') {
+    if (b === 'aucun') return '';
+    if (b) return b;
+  }
+  return s.ambiance ? 'ambiance' : '';
+}
+
+// Bloc de configuration du 2ᵉ relevé (capteur intégré / boîtier). Un menu à 3
+// choix + les champs (nom + seuils) qui n'apparaissent que pour « 2ᵉ enceinte ».
+function _capBoitierBlock(s, i) {
+  s = s || {};
+  var v = _capBoitierVal(s);
+  var show = (v === 'enceinte') ? '' : 'display:none';
+  return '<div class="frow"><div class="flabel">2ᵉ relevé — capteur intégré (boîtier)</div>'
+    + '<select id="cap_b2_' + i + '" class="fselect" onchange="onCapB2Change(' + i + ')">'
+    + '<option value=""' + (v === '' ? ' selected' : '') + '>Aucun — n\'enregistrer que la sonde</option>'
+    + '<option value="ambiance"' + (v === 'ambiance' ? ' selected' : '') + '>Température ambiante (information, jamais « non conforme »)</option>'
+    + '<option value="enceinte"' + (v === 'enceinte' ? ' selected' : '') + '>2ᵉ enceinte (frigo / congélateur proche — compte pour la conformité)</option>'
+    + '</select></div>'
+    + '<div id="cap_b2fields_' + i + '" style="' + show + ';background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:10px 12px;margin-bottom:13px">'
+    + '<div class="frow"><div class="flabel">Nom de la 2ᵉ enceinte</div><input id="cap_b2nom_' + i + '" class="finput" value="' + _capV(s.boitierNom) + '" placeholder="Ex : Frigo desserts"></div>'
+    + '<div class="tgrid" style="margin:0">'
+    + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_b2min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMin) + '" placeholder="0"></div>'
+    + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_b2max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.boitierMax) + '" placeholder="4"></div>'
+    + '</div></div>';
+}
+
+// Affiche/masque les champs « 2ᵉ enceinte » selon le choix, sans perdre les autres saisies.
+function onCapB2Change(i) {
+  _capSyncFromDOM();
+  var sel = document.getElementById('cap_b2_' + i);
+  var box = document.getElementById('cap_b2fields_' + i);
+  if (box) box.style.display = (sel && sel.value === 'enceinte') ? '' : 'none';
+}
+
 // Un bloc éditable de capteur (mêmes classes que les enceintes : fblock/frow/flabel/finput).
 function _sondeBlockEditable(s, i) {
   s = s || {};
@@ -24688,8 +24729,7 @@ function _sondeBlockEditable(s, i) {
     + '<div class="frow"><div class="flabel">N° de canal UbiBot</div><input id="cap_chan_' + i + '" class="finput" value="' + _capV(s.channel) + '" placeholder="channel id"></div>'
     + '<div class="frow"><div class="flabel">Clé de lecture du capteur</div><input id="cap_cle_' + i + '" class="finput" value="' + _capV(s.cle) + '" placeholder="clé de lecture API de ce capteur"></div>'
     + '<div class="frow"><div class="flabel">Température à enregistrer</div><select id="cap_src_' + i + '" class="fselect"><option value=""' + (s.champ !== 'externe' ? ' selected' : '') + '>Capteur intégré (boîtier)</option><option value="externe"' + (s.champ === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option></select></div>'
-    + '<div class="frow"><label style="display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:13px;color:var(--dark);line-height:1.4"><input type="checkbox" id="cap_amb_' + i + '"' + (s.ambiance ? ' checked' : '') + ' style="width:18px;height:18px;margin-top:1px;flex:none">'
-    + '<span>🌡️ Enregistrer <strong>aussi la température ambiante</strong> (boîtier) — affichée sur une <strong>ligne séparée « Ambiance »</strong>, en information ; elle ne compte <strong>jamais</strong> pour la conformité.</span></label></div>'
+    + _capBoitierBlock(s, i)
     + '<div class="tgrid" style="margin-bottom:13px">'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil min °C</div><input id="cap_min_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.min) + '" placeholder="0"></div>'
     + '<div class="frow" style="margin:0"><div class="flabel">Seuil max °C</div><input id="cap_max_' + i + '" type="number" step="0.1" class="finput" value="' + _capV(s.max) + '" placeholder="4"></div>'
@@ -24757,13 +24797,22 @@ function _capSyncFromDOM() {
     var minV = parseFloat((document.getElementById('cap_min_' + i) || {}).value);
     var maxV = parseFloat((document.getElementById('cap_max_' + i) || {}).value);
     var srcV = ((document.getElementById('cap_src_' + i) || {}).value || '');
+    var b2V = ((document.getElementById('cap_b2_' + i) || {}).value || '');
+    var b2min = parseFloat((document.getElementById('cap_b2min_' + i) || {}).value);
+    var b2max = parseFloat((document.getElementById('cap_b2max_' + i) || {}).value);
     _capWork[i] = {
       nom: (nomEl.value || '').trim(),
       enceinte: ((document.getElementById('cap_enc_' + i) || {}).value || '').trim(),
       channel: ((document.getElementById('cap_chan_' + i) || {}).value || '').trim(),
       cle: ((document.getElementById('cap_cle_' + i) || {}).value || '').trim(),
       champ: (srcV === 'externe' ? 'externe' : ''),
-      ambiance: !!((document.getElementById('cap_amb_' + i) || {}).checked),
+      // 2ᵉ relevé (boîtier) : '' = aucun, 'ambiance' = info, 'enceinte' = conformité.
+      boitier: (b2V === 'ambiance' || b2V === 'enceinte') ? b2V : '',
+      boitierNom: ((document.getElementById('cap_b2nom_' + i) || {}).value || '').trim(),
+      boitierMin: isNaN(b2min) ? (_capWork[i] ? _capWork[i].boitierMin : undefined) : b2min,
+      boitierMax: isNaN(b2max) ? (_capWork[i] ? _capWork[i].boitierMax : undefined) : b2max,
+      // Compat ascendante : on garde le booléen ambiance = (boîtier en mode ambiance).
+      ambiance: (b2V === 'ambiance'),
       min: isNaN(minV) ? _capWork[i].min : minV,
       max: isNaN(maxV) ? _capWork[i].max : maxV,
       heures: heures
@@ -25030,7 +25079,11 @@ function _ttNormaliser(rows) {
       // rattachée à l'enceinte (elles partagent le même canal) → on lui retire le
       // canal pour qu'elle ait sa PROPRE colonne dans l'Excel, et jamais de NC.
       var _amb = !!t.ambiance || /ambian/i.test(String(t.type || ''));
-      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: _amb ? '' : (c.channel || t.channel || ''), temp: (isFinite(raw) ? raw : null), isNC: _amb ? false : (!!t.isNC || (t.conf === 'Non conforme')), ambiance: _amb, sig: sig, auto: auto, offline: offline });
+      // 2ᵉ enceinte (boîtier affecté à une enceinte proche) : elle a son PROPRE nom
+      // et ses PROPRES seuils (donc son NC est valide), mais elle partage le canal de
+      // la sonde → on lui retire aussi le canal pour qu'elle ait sa propre colonne.
+      var _b2 = !!t.boitier && !_amb;
+      out.push({ jour: jour, hour: hh, enceinte: String(t.nom || t.type || '').trim(), channel: (_amb || _b2) ? '' : (c.channel || t.channel || ''), temp: (isFinite(raw) ? raw : null), isNC: _amb ? false : (!!t.isNC || (t.conf === 'Non conforme')), ambiance: _amb, sig: sig, auto: auto, offline: offline });
     });
   });
   return out;
@@ -25601,6 +25654,7 @@ try {
   window.supprimerSondeBeta = supprimerSondeBeta;
   window.onSondeNbChange = onSondeNbChange;
   window.onCapEncChange = onCapEncChange;
+  window.onCapB2Change = onCapB2Change;
   window.rafraichirTemperaturesBeta = rafraichirTemperaturesBeta;
   window.enregistrerCleUbibot = enregistrerCleUbibot;
   window.onRelevesNbChange = onRelevesNbChange;
