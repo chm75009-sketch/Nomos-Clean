@@ -9,7 +9,7 @@
  *    en arriere-plan : chargement instantane, mise a jour discrete.
  * Les CDN externes (Supabase, Chart.js, polices…) ne sont pas interceptes.
  */
-const CACHE = 'haccp-pro-v428';
+const CACHE = 'haccp-pro-v429';
 const CORE = [
   './',
   './accueil.html',
@@ -127,6 +127,27 @@ function shellStrategy(req) {
   });
 }
 
+// SW-5 — NAVIGATION (ouverture / rechargement de l'app) : RESEAU D'ABORD.
+//  La page HTML est petite (quelques Ko) et c'est ELLE qui reference la version
+//  des scripts (script.js?v=NNN). En la rechargeant depuis le reseau a chaque
+//  ouverture (quand il y a du reseau), l'appareil voit TOUJOURS la derniere
+//  version immediatement — plus besoin de fermer/rouvrir plusieurs fois. Repli
+//  rapide sur le cache si hors-ligne / reseau lent (delai 3,5 s).
+function navStrategy(req) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), 3500);
+  return fetch(new Request(req.url, { cache: 'reload', credentials: 'same-origin' }), { signal: ctrl.signal }).then((res) => {
+    clearTimeout(t);
+    if (res && res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {}); }
+    return res;
+  }).catch(() => {
+    clearTimeout(t);
+    return caches.match(req, { ignoreSearch: true })
+      .then((r) => r || caches.match('./index.html', { ignoreSearch: true })
+        .then((r2) => r2 || caches.match('./', { ignoreSearch: true })));
+  });
+}
+
 // SW-3 — CDN critiques : cache d'abord + revalidation. Sert la version en cache
 // instantanement (et hors-ligne), met a jour en fond quand il y a du reseau.
 function cdnStrategy(req) {
@@ -177,13 +198,20 @@ self.addEventListener('fetch', (event) => {
     );
     return;
   }
+  // SW-5 — NAVIGATION : reseau d'abord (voir navStrategy) → derniere version tout
+  // de suite quand il y a du reseau. La page HTML est petite, aucun risque de
+  // timeout comme avec le gros script.js.
+  if (req.mode === 'navigate') {
+    event.respondWith(navStrategy(req));
+    return;
+  }
   // SW-1 : l'app est servie sur un sous-chemin (ex. /HACCP17-FACILE/), donc
   // `path === '/'` ne matchait jamais. On matche aussi la racine réelle (scope).
   let scopePath = '/';
   try { scopePath = new URL(self.registration.scope).pathname; } catch (e) {}
-  // Coquille de l'app : navigation (ouverture/rechargement) + fichiers de code.
-  const isShell = req.mode === 'navigate'
-    || path === '/'
+  // Coquille de l'app : fichiers de code versionnes (script.js?v=NNN…). Comme
+  // l'URL change a chaque version, le « cache d'abord » sert quand meme la bonne.
+  const isShell = path === '/'
     || path === scopePath
     || /\/(index\.html|script\.js|style\.css|patch_photo_bl\.js)$/.test(path);
 
