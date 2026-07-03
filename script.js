@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v434';
+var APP_BUILD = 'v435';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2941,7 +2941,7 @@ function imprimerCuisson() {
     if (plat.remiseT0 || plat.remiseTf) {
       html += '<tr style="background:#fff8f8"><td colspan="2" style="padding:6px 10px;border-top:1px solid #fee2e2;border-bottom:1px solid #fee2e2;font-weight:800;color:#dc2626;font-size:11px">Remise en temperature</td></tr>';
       html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° initiale</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.remiseT0 ? plat.remiseT0 + '°C' : '—') + '</td></tr>';
-      html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° finale</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.remiseTf ? plat.remiseTf + '°C' : '—') + '</td></tr>';
+      html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° finale</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.remiseTf ? plat.remiseTf + '°C' : '—') + ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : 63°C min)</span></td></tr>';
       var remiseConfColor = plat.isRemiseNC ? '#dc2626' : '#16a34a';
       html += '<tr><td style="padding:5px 10px;font-weight:600">Conformite</td><td style="padding:5px 10px;color:' + remiseConfColor + ';font-weight:700">' + (_echap(plat.remiseConf||'—')) + '</td></tr>';
       if (plat.isRemiseNC) html += '<tr style="background:#fff0f0"><td style="padding:5px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:5px 10px;color:#dc2626;font-weight:700">' + (_echap(plat.remiseAction||'A definir')) + '</td></tr>';
@@ -3060,6 +3060,26 @@ function _fmtSeuil(s){
   if(mn!=null&&mx!=null) return mn+' à '+mx+' °C';
   if(mx!=null) return '≤ '+mx+' °C';
   if(mn!=null) return '≥ '+mn+' °C';
+  return '';
+}
+// Seuil réglementaire d'un produit de réception, retrouvé par son libellé dans les
+// catalogues produits (repli quand aucun seuil n'a été saisi/choisi). Froid = « ≤ »,
+// liaison chaude (≥ 60) = « ≥ ».
+function _seuilReceptionProduit(typeLabel){
+  var t = String(typeLabel==null?'':typeLabel).trim(); if(!t) return '';
+  try{
+    var cats = [];
+    if(typeof PRODUITS!=='undefined') cats.push(PRODUITS);
+    if(typeof PRODUITS_BP!=='undefined') cats.push(PRODUITS_BP);
+    if(typeof PRODUITS_RAPIDE!=='undefined') cats.push(PRODUITS_RAPIDE);
+    if(typeof PRODUITS_BOUCHERIE!=='undefined') cats.push(PRODUITS_BOUCHERIE);
+    if(typeof PRODUITS_COLLECTIVE!=='undefined') cats.push(PRODUITS_COLLECTIVE);
+    for(var c=0;c<cats.length;c++){ var arr=cats[c]||[]; for(var i=0;i<arr.length;i++){
+      if(String(arr[i].label==null?'':arr[i].label).trim()===t){ var s=arr[i].seuil;
+        if(s!=null&&isFinite(s)) return (s>=60?'≥ ':'≤ ')+(s<0?'':'+')+s+'°C';
+      }
+    } }
+  }catch(e){}
   return '';
 }
 function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
@@ -7286,7 +7306,8 @@ function imprimerReception(dataOverride, photosOverride) {
         html += '<div class="produit-data"><table>';
         html += '<tr><td>N° de lot</td><td><strong>' + (_echap(p.lot||'—')) + '</strong></td></tr>';
         html += '<tr><td>DLC / DLUO</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
-        html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (p.seuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(p.seuil) + ')</span>' : '') + '</td></tr>';
+        var _pSeuil = p.seuil || _seuilReceptionProduit(p.type);
+        html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (_pSeuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(_pSeuil) + ')</span>' : '') + '</td></tr>';
         html += '<tr><td>Conformité T°</td><td style="color:' + confColor + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
         if (p.nc && p.actionCorrective) {
           html += '<tr><td style="color:#dc2626;font-weight:700">Action corrective</td><td style="color:#dc2626;font-weight:700">' + _echap(p.actionCorrective) + '</td></tr>';
@@ -7328,7 +7349,8 @@ function imprimerReception(dataOverride, photosOverride) {
         html += '<div class="produit-body"><div class="produit-data"><table>';
         html += '<tr><td>N° de lot</td><td><strong>' + (_echap(p.lot||'—')) + '</strong></td></tr>';
         html += '<tr><td>DLC / DLUO</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
-        html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (p.seuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(p.seuil) + ')</span>' : '') + '</td></tr>';
+        var _pSeuil = p.seuil || _seuilReceptionProduit(p.type);
+        html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (_pSeuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(_pSeuil) + ')</span>' : '') + '</td></tr>';
         html += '<tr><td>Conformité T°</td><td style="color:' + confColor + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
         html += '<tr><td>Emballage</td><td style="color:' + embColor + ';font-weight:700">' + (_echap(p.emballage||'—')) + '</td></tr>';
         html += '</table></div>';
