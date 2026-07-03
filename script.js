@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v433';
+var APP_BUILD = 'v434';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13392,7 +13392,10 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   function esc(v){ return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
   // ═══ SEUILS RÉGLEMENTAIRES — V115 ═══
   function _seuilTemp(enc) {
-    return seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||'')) || '—';
+    // 1) seuils stockés dans le relevé ; 2) config capteur (tous les relevés) ; 3) libellé.
+    if (enc && (enc.min!=null || enc.max!=null)) { var _s0 = _fmtSeuil({min:enc.min,max:enc.max}); if (_s0) return _s0; }
+    if (typeof _seuilPourEnceinte === 'function') { var _s1 = _fmtSeuil(_seuilPourEnceinte(enc && enc.type)); if (_s1) return _s1; }
+    return seuilEnceinteDepuisLabel(String((enc&&enc.type)||'') + ' ' + String((enc&&enc.precision)||'')) || '—';
   }
   function _seuilCuisson(produit) {
     var p = String(produit||'').toLowerCase();
@@ -13421,7 +13424,10 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   // ═══ FIN SEUILS ═══
   // ═══ SEUILS RÉGLEMENTAIRES — V115 ═══
   function _seuilTemp(enc) {
-    return seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||'')) || '—';
+    // 1) seuils stockés dans le relevé ; 2) config capteur (tous les relevés) ; 3) libellé.
+    if (enc && (enc.min!=null || enc.max!=null)) { var _s0 = _fmtSeuil({min:enc.min,max:enc.max}); if (_s0) return _s0; }
+    if (typeof _seuilPourEnceinte === 'function') { var _s1 = _fmtSeuil(_seuilPourEnceinte(enc && enc.type)); if (_s1) return _s1; }
+    return seuilEnceinteDepuisLabel(String((enc&&enc.type)||'') + ' ' + String((enc&&enc.precision)||'')) || '—';
   }
   function _seuilCuisson(produit) {
     var p = String(produit||'').toLowerCase();
@@ -13450,7 +13456,10 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   // ═══ FIN SEUILS ═══
   // ═══ SEUILS RÉGLEMENTAIRES — V115 ═══
   function _seuilTemp(enc) {
-    return seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||'')) || '—';
+    // 1) seuils stockés dans le relevé ; 2) config capteur (tous les relevés) ; 3) libellé.
+    if (enc && (enc.min!=null || enc.max!=null)) { var _s0 = _fmtSeuil({min:enc.min,max:enc.max}); if (_s0) return _s0; }
+    if (typeof _seuilPourEnceinte === 'function') { var _s1 = _fmtSeuil(_seuilPourEnceinte(enc && enc.type)); if (_s1) return _s1; }
+    return seuilEnceinteDepuisLabel(String((enc&&enc.type)||'') + ' ' + String((enc&&enc.precision)||'')) || '—';
   }
   function _seuilCuisson(produit) {
     var p = String(produit||'').toLowerCase();
@@ -13479,7 +13488,10 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   // ═══ FIN SEUILS ═══
   // ═══ SEUILS RÉGLEMENTAIRES — V115 ═══
   function _seuilTemp(enc) {
-    return seuilEnceinteDepuisLabel(String(enc.type||'') + ' ' + String(enc.precision||'')) || '—';
+    // 1) seuils stockés dans le relevé ; 2) config capteur (tous les relevés) ; 3) libellé.
+    if (enc && (enc.min!=null || enc.max!=null)) { var _s0 = _fmtSeuil({min:enc.min,max:enc.max}); if (_s0) return _s0; }
+    if (typeof _seuilPourEnceinte === 'function') { var _s1 = _fmtSeuil(_seuilPourEnceinte(enc && enc.type)); if (_s1) return _s1; }
+    return seuilEnceinteDepuisLabel(String((enc&&enc.type)||'') + ' ' + String((enc&&enc.precision)||'')) || '—';
   }
   function _seuilCuisson(produit) {
     var p = String(produit||'').toLowerCase();
