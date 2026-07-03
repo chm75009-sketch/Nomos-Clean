@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v429';
+var APP_BUILD = 'v430';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24757,21 +24757,21 @@ function _capReleveSourceOpts(rel, channel) {
   var chn = String(channel || '').trim();
   var champs = _capBoitierChamps[chn];
   var cur = (rel && rel.source) || 'externe';
+  // Option AUTO toujours en tête et RECOMMANDÉE : le serveur détecte automatiquement
+  // la sonde externe active (le bon port), même si le client ne connaît pas EXT1/EXT2.
+  var auto = (cur === 'externe' || cur == null || cur === '') ? ' selected' : '';
+  var o = '<option value="externe"' + auto + '>🔎 Sonde externe — détection automatique (recommandé)</option>';
   if (!champs || !champs.length) {
-    var g = (cur === 'field1') ? 'field1' : (/^field\d+$/.test(cur) ? cur : 'externe');
-    return '<option value="externe"' + (g === 'externe' ? ' selected' : '') + '>Sonde externe branchée (frigo / congélateur)</option>'
-         + '<option value="field1"' + (g === 'field1' ? ' selected' : '') + '>Capteur intégré (boîtier)</option>';
+    o += '<option value="field1"' + (cur === 'field1' ? ' selected' : '') + '>Capteur intégré (boîtier)</option>';
+    // on garde un éventuel champ précis déjà enregistré pour ne pas le perdre
+    if (/^field\d+$/.test(cur) && cur !== 'field1') o += '<option value="' + cur + '" selected>Sonde (champ ' + cur + ')</option>';
+    return o;
   }
-  // Champ sélectionné : soit un champ précis, soit « externe » → 1ʳᵉ sonde externe.
-  var sel = null;
-  if (/^field\d+$/.test(cur)) sel = cur;
-  else if (cur === 'externe') { for (var i = 0; i < champs.length; i++) { if (champs[i].ext) { sel = champs[i].field; break; } } }
-  if (!sel && champs.length) sel = champs[0].field;
-  var o = '', k = 0;
+  var sel = /^field\d+$/.test(cur) ? cur : null;
   champs.forEach(function (c) {
     var lab;
     if (c.field === 'field1' && !/ext|probe|sonde|rs485|ds18/i.test(c.label)) lab = 'Capteur intégré (boîtier)';
-    else { k++; lab = 'Sonde ' + c.label; }
+    else lab = 'Sonde ' + c.label + ' (choix précis)';
     o += '<option value="' + c.field + '"' + (c.field === sel ? ' selected' : '') + '>' + _echap(lab) + '</option>';
   });
   return o;
