@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v432';
+var APP_BUILD = 'v433';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3028,6 +3028,40 @@ function collecterDonneesRefroidissement() {
   }
   return prods;
 }
+// Retrouve les seuils (min/max) réellement appliqués à une enceinte, par son nom :
+// d'abord dans les relevés des capteurs (valeurs exactes), sinon dans la config des
+// enceintes (seuil réglementaire → plage). Sert à afficher la NORME dans les rapports.
+function _normEnc(x){ try { return (typeof _ttNorm==='function') ? _ttNorm(x) : String(x==null?'':x).toLowerCase().trim(); } catch(e){ return String(x==null?'':x).toLowerCase().trim(); } }
+function _seuilPourEnceinte(nom){
+  var n = _normEnc(nom); if(!n) return null;
+  try{
+    var sondes = (typeof getSondesConfig==='function') ? getSondesConfig() : [];
+    for(var i=0;i<sondes.length;i++){
+      var rels = (sondes[i] && Array.isArray(sondes[i].releves) && sondes[i].releves.length) ? sondes[i].releves : [sondes[i]];
+      for(var j=0;j<rels.length;j++){
+        var r=rels[j]; if(!r||r.ambiance) continue;
+        if(_normEnc(r.enceinte)===n && (r.min!=null||r.max!=null)) return { min:r.min, max:r.max };
+      }
+    }
+    var encs = (typeof getEnceintesConfig==='function') ? getEnceintesConfig() : [];
+    for(var k=0;k<encs.length;k++){
+      if(_normEnc(encs[k].nom||encs[k].name)===n){
+        var b = (typeof _capBandeParEnceinte==='function') ? _capBandeParEnceinte(encs[k].nom||encs[k].name) : null;
+        if(b) return { min:b.min, max:b.max };
+      }
+    }
+  }catch(e){}
+  return null;
+}
+function _fmtSeuil(s){
+  if(!s) return '';
+  var mn=(s.min!=null&&!isNaN(parseFloat(s.min)))?parseFloat(s.min):null;
+  var mx=(s.max!=null&&!isNaN(parseFloat(s.max)))?parseFloat(s.max):null;
+  if(mn!=null&&mx!=null) return mn+' à '+mx+' °C';
+  if(mx!=null) return '≤ '+mx+' °C';
+  if(mn!=null) return '≥ '+mn+' °C';
+  return '';
+}
 function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   var enceintes = (dataOverride && Array.isArray(dataOverride)) ? dataOverride : collecterDonneesTemperatures();
   var sigPrenom = document.getElementById('temp_sig_prenom');
@@ -3055,7 +3089,11 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   filled.forEach(function(enc, i) {
     var borderColor = enc.isNC ? '#dc2626' : '#0891b2';
     var confColor = enc.isNC ? '#dc2626' : '#16a34a';
-    var seuilTxt = seuilEnceinteDepuisLabel(String(enc.type||'')+' '+String(enc.precision||'')) || '—';
+    // NORME : seuils réels de l'enceinte (stockés dans le relevé, sinon config capteur/
+    // enceinte, sinon déduits du libellé). Pas de norme pour l'ambiance (info).
+    var _estAmb = (enc.ambiance || /ambian/i.test(String(enc.type||'')));
+    var _seuilObj = (enc.min!=null||enc.max!=null) ? { min:enc.min, max:enc.max } : _seuilPourEnceinte(enc.type);
+    var seuilTxt = _estAmb ? '' : (_fmtSeuil(_seuilObj) || seuilEnceinteDepuisLabel(String(enc.type||'')+' '+String(enc.precision||'')) || '');
     html += '<div style="border:2px solid ' + borderColor + ';border-radius:10px;margin-bottom:12px;overflow:hidden">';
     html += '<div style="background:' + borderColor + ';color:white;padding:8px 12px;display:flex;justify-content:space-between">';
     // Étiquette = le VRAI nom de l'enceinte (ex. « Enceinte N°1 ») et NON un numéro qui
@@ -3072,7 +3110,8 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Émargement</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(_estReleveAuto(enc) ? '🤖 Relevé automatique (capteur UbiBot)' : ('✍️ ' + (signataire || 'Manuel'))) + '</td></tr>';
     if (enc._quand) html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Date / heure</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(String(enc._quand)) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(enc.type) + '</td></tr>';
-    html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T relevee</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (enc.temp ? enc.temp + '°C' : '—') + (seuilTxt && seuilTxt !== '—' ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + seuilTxt + ')</span>' : '') + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T relevee</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (enc.temp ? enc.temp + '°C' : '—') + '</td></tr>';
+    if (seuilTxt && seuilTxt !== '—') html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">Norme (seuil)</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#0891b2;font-weight:700">' + _echap(seuilTxt) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformite</td><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(enc.conf) + '</td></tr>';
     if (enc.isNC) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(enc.action||'A definir')) + '</td></tr>';
     html += '</table></div>';
