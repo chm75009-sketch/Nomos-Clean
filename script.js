@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v430';
+var APP_BUILD = 'v431';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -26508,8 +26508,8 @@ try{(function(){
     if(document.getElementById('nvBuildTag')) return;
     var v=(typeof APP_BUILD!=='undefined')?APP_BUILD:'?';
     var d=document.createElement('div'); d.id='nvBuildTag';
-    d.textContent='HACCP '+v;
-    d.style.cssText='position:fixed;top:3px;right:6px;z-index:2147483647;font-size:9px;font-weight:700;color:rgba(255,255,255,.55);background:rgba(0,0,0,.28);padding:1px 6px;border-radius:7px;font-family:sans-serif;pointer-events:none';
+    d.textContent='Version '+String(v).replace(/^v/i,'');
+    d.style.cssText='position:fixed;top:8px;right:10px;z-index:2147483647;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563eb,#1e40af);padding:5px 11px;border-radius:10px;font-family:Outfit,sans-serif;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25)';
     (document.body||document.documentElement).appendChild(d);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tag); else tag();
