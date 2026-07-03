@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v431';
+var APP_BUILD = 'v432';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -24882,6 +24882,8 @@ function _renderCapteursBeta() {
     + '<div style="display:flex;gap:6px;margin-top:8px"><input id="cap_ubikey" type="text" value="' + _echap(getUbibotKey()) + '" placeholder="Clé de lecture API (par défaut)" class="finput" style="flex:1">'
     + '<button onclick="enregistrerCleUbibot()" style="border:none;background:#2563eb;color:#fff;border-radius:9px;padding:8px 12px;font-size:13px;font-weight:700;cursor:pointer">Enregistrer</button></div>'
     + '<div style="color:var(--dim);font-size:11px;margin-top:6px">Utilisée seulement pour un capteur qui n\'a pas sa propre clé.</div></details>'
+    // Bouton FERMER de secours, tout en bas (au cas où celui du haut serait masqué).
+    + '<button onclick="fermerCapteursBeta()" style="width:100%;border:none;background:#e2e8f0;color:#334155;border-radius:11px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;margin-top:16px">⬅︎ Fermer cette page</button>'
     + '</div>';
   // Découverte des sondes réelles du/des boîtier(s) → peuple les menus « Source ».
   _capChargerChamps();
@@ -26509,7 +26511,9 @@ try{(function(){
     var v=(typeof APP_BUILD!=='undefined')?APP_BUILD:'?';
     var d=document.createElement('div'); d.id='nvBuildTag';
     d.textContent='Version '+String(v).replace(/^v/i,'');
-    d.style.cssText='position:fixed;top:8px;right:10px;z-index:2147483647;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563eb,#1e40af);padding:5px 11px;border-radius:10px;font-family:Outfit,sans-serif;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25)';
+    // Coin BAS-GAUCHE + pointer-events:none : lisible mais ne recouvre JAMAIS un
+    // bouton (les taps passent au travers) — surtout pas le « Fermer » en haut à droite.
+    d.style.cssText='position:fixed;left:10px;bottom:10px;z-index:2147483647;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563eb,#1e40af);padding:5px 11px;border-radius:10px;font-family:Outfit,sans-serif;letter-spacing:.3px;box-shadow:0 2px 8px rgba(0,0,0,.25);pointer-events:none';
     (document.body||document.documentElement).appendChild(d);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tag); else tag();
