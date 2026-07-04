@@ -162,7 +162,7 @@ async function apresLaCapturePhoto(base64, controleId, source) {
     // privée iOS. On NE PEUT PAS enregistrer la photo → on prévient clairement
     // l'utilisateur au lieu d'échouer en silence (sinon il croit la photo prise).
     console.warn('[HACCP Photo] Boîte indisponible — photo non rangée');
-    if (typeof showToast === 'function') showToast('⚠️ Photo non sauvegardée sur cet appareil (stockage indisponible). Évitez la navigation privée et réessayez.', 'err', 7000);
+    if (typeof showToast === 'function') showToast('⚠️ Photo non sauvegardée sur cet appareil (stockage indisponible). Éviter la navigation privée et réessayez.', 'err', 7000);
     return;
   }
   if (!base64) return;
@@ -178,7 +178,7 @@ async function apresLaCapturePhoto(base64, controleId, source) {
     console.info('[HACCP Photo] ✓ Photo rangée — id=' + newId + ' source=' + source + ' controleId=' + rec.controleId);
   } catch(e) {
     console.error('[HACCP Photo] Erreur rangement:', e);
-    if (typeof showToast === 'function') showToast('⚠️ Une photo n\'a pas pu être enregistrée. Reprenez-la pour être sûr.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('⚠️ Une photo n\'a pas pu être enregistrée. La reprendre pour être sûr.', 'err', 6000);
   }
 }
 // ══════════════════════════════════════════════════════════════
@@ -599,7 +599,7 @@ async function sbLoginTentative(codeAcces, pwd) {
     // 1h-2h du matin le jour J en France.
     var exp = new Date(etab.date_expiration); exp.setHours(23, 59, 59, 999);
     if (exp < new Date()) {
-      return { ok: false, msg: 'Votre abonnement a expiré le ' + exp.toLocaleDateString('fr-FR') + '. Contactez HACCP Pro pour le renouveler.' };
+      return { ok: false, msg: 'Votre abonnement a expiré le ' + exp.toLocaleDateString('fr-FR') + '. Contacter HACCP Pro pour le renouveler.' };
     }
   }
   // SUIVI ADMIN — horodate la dernière connexion réussie (fire&forget, n'impacte
@@ -637,25 +637,25 @@ async function sbLogin(codeAcces, pwd) {
       // valide (< 7 jours) correspond. Sinon message clair selon le cas.
       var off = await _tryOfflineLogin(code, pwd);
       if (off.ok) { MODE_LOCAL = false; return off; }
-      if (off.subExpired) return { ok: false, msg: 'Abonnement expiré. Contactez HACCP Pro.' };
-      if (off.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 7 jours). Reconnectez-vous avec du réseau au moins une fois.' };
-      return { ok: false, msg: 'Pas de réseau et aucune connexion récente sur cet appareil. Connectez-vous une fois avec du réseau.' };
+      if (off.subExpired) return { ok: false, msg: 'Abonnement expiré. Contacter HACCP Pro.' };
+      if (off.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 7 jours). Rese connecter avec du réseau au moins une fois.' };
+      return { ok: false, msg: 'Pas de réseau et aucune connexion récente sur cet appareil. Se connecter une fois avec du réseau.' };
     }
     return result;
   } catch(e) {
     var emsg = (e && e.message) ? e.message : String(e);
     console.error('sbLogin exception:', emsg);
-    return { ok: false, msg: 'Erreur de connexion. Vérifiez votre réseau.' };
+    return { ok: false, msg: 'Erreur de connexion. Vérifier votre réseau.' };
   }
 }
 
 function sbLoginLocal(code, pwd) {
   var etab = CODES_LOCAUX[code];
   if (!etab) {
-    return { ok: false, msg: 'Code d\'accès non reconnu. Vérifiez le code et réessayez.' };
+    return { ok: false, msg: 'Code d\'accès non reconnu. Vérifier le code et réessayez.' };
   }
   if (!etab.actif) {
-    return { ok: false, msg: 'Cet établissement est désactivé. Contactez HACCP Pro.' };
+    return { ok: false, msg: 'Cet établissement est désactivé. Contacter HACCP Pro.' };
   }
   // Vérification mot de passe local
   if (etab.mot_de_passe && etab.mot_de_passe !== pwd) {
@@ -745,12 +745,12 @@ function pinVocalActif() { try { return !!lsGet('haccp_pinv'); } catch (e) { ret
 async function activerPinVocal() {
   var code = (document.getElementById('login_code') ? document.getElementById('login_code').value : '').trim().toUpperCase();
   var pwd = (document.getElementById('login_pwd') ? document.getElementById('login_pwd').value : '').trim();
-  if (!code || !pwd) { alert('Entrez d\'abord votre code d\'accès et votre mot de passe, puis activez le PIN.'); return; }
-  var pin = prompt('Choisissez un code PIN à 4 chiffres pour cet appareil :');
+  if (!code || !pwd) { alert('Entrer d\'abord votre code d\'accès et votre mot de passe, puis activez le PIN.'); return; }
+  var pin = prompt('Choisir un code PIN à 4 chiffres pour cet appareil :');
   if (pin === null) return;
   pin = String(pin).replace(/\D/g, '');
   if (pin.length !== 4) { alert('Le PIN doit comporter exactement 4 chiffres.'); return; }
-  var pin2 = prompt('Confirmez le PIN à 4 chiffres :');
+  var pin2 = prompt('Confirmer le PIN à 4 chiffres :');
   if (pin2 === null) return;
   if (String(pin2).replace(/\D/g, '') !== pin) { alert('Les deux PIN ne correspondent pas.'); return; }
   var keyHex = await _sha256Hex(pin);
@@ -770,7 +770,7 @@ function desactiverPinVocal() {
 
 async function connexionParPin(pin) {
   pin = String(pin || '').replace(/\D/g, '');
-  if (pin.length !== 4) { alert('Dictez ou saisissez vos 4 chiffres.'); return; }
+  if (pin.length !== 4) { alert('Dicter ou saisissez vos 4 chiffres.'); return; }
   var raw; try { raw = lsGet('haccp_pinv'); } catch (e) {}
   if (!raw) { alert('Aucun PIN activé sur cet appareil.'); return; }
   var o; try { o = JSON.parse(raw); } catch (e) { return; }
@@ -1262,11 +1262,11 @@ function lsSet(key, value) {
       // Toujours plein APRÈS avoir vidé tous les caches régénérables : on n'efface
       // pas les contrôles. On alerte clairement l'utilisateur.
       console.warn('localStorage quota dépassé — contrôles préservés, données du moment non mises en cache');
-      if (typeof showToast === 'function') showToast('⚠️ Stockage plein (vos contrôles sont saufs, ils sont dans le cloud). Allez dans Réglages → « Libérer de l\'espace » pour vider le cache.', 'err', 7000);
+      if (typeof showToast === 'function') showToast('⚠️ Stockage plein (vos contrôles sont saufs, ils sont dans le cloud). Aller dans Réglages → « Libérer de l\'espace » pour vider le cache.', 'err', 7000);
       return false;
     } catch(e3) {
       console.warn('localStorage quota dépassé — données non sauvegardées');
-      if (typeof showToast === 'function') showToast('⚠️ Stockage plein — données non sauvegardées. Libérez de l\'espace.', 'err', 5000);
+      if (typeof showToast === 'function') showToast('⚠️ Stockage plein — données non sauvegardées. Libérer de l\'espace.', 'err', 5000);
       return false;
     }
   }
@@ -1860,7 +1860,7 @@ function activerEssaiUniversel() {
     '<div class="modal-box" style="max-width:380px;text-align:left">' +
       '<div style="font-size:34px;text-align:center">🎁</div>' +
       '<div class="modal-title" style="text-align:center">Votre essai gratuit de ' + ESSAI_UNIVERSEL_JOURS + ' jours</div>' +
-      '<div class="modal-desc" style="text-align:center;margin-bottom:14px">Renseignez vos coordonnées pour activer l\'essai.</div>' +
+      '<div class="modal-desc" style="text-align:center;margin-bottom:14px">Renseigner vos coordonnées pour activer l\'essai.</div>' +
       '<input id="eu_etab" placeholder="Nom de l\'établissement *" style="' + inp + '">' +
       '<input id="eu_resp" placeholder="Nom et prénom *" style="' + inp + '">' +
       '<input id="eu_adresse" placeholder="Adresse complète *" style="' + inp + '">' +
@@ -1896,7 +1896,7 @@ window.validerEssaiUniversel = async function() {
   if (!sect) { show('Merci de choisir votre secteur d\'activité.'); return; }
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail)) { show('E-mail invalide.'); return; }
 
-  if (!window._supabase) { show('Connexion à la base impossible. Réessayez.'); return; }
+  if (!window._supabase) { show('Connexion à la base impossible. Réessayer.'); return; }
   var btn = document.getElementById('eu_btn');
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Activation…'; }
   var reset = function(){ if (btn){ btn.disabled=false; btn.textContent='🚀 Activer mes '+ESSAI_UNIVERSEL_JOURS+' jours'; } };
@@ -1905,7 +1905,7 @@ window.validerEssaiUniversel = async function() {
     // État de campagne piloté depuis l'admin (suspension + plafond)
     var cfg = await getEssaiConfig();
     if (!cfg.active) {
-      show('L\'offre d\'essai gratuite est actuellement fermée. Contactez-nous pour un accès.');
+      show('L\'offre d\'essai gratuite est actuellement fermée. Nous contacter pour un accès.');
       reset(); return;
     }
     // SEC — stats EU3J via RPC serveur (plafond + email déjà utilisé).
@@ -1916,7 +1916,7 @@ window.validerEssaiUniversel = async function() {
     var euCount = stats.count || 0;
     // Plafond d'activations (valeur pilotée depuis l'admin)
     if (euCount >= cfg.max) {
-      show('L\'offre d\'essai gratuite est terminée (limite atteinte). Contactez-nous pour un accès.');
+      show('L\'offre d\'essai gratuite est terminée (limite atteinte). Nous contacter pour un accès.');
       reset(); return;
     }
     // 1 essai par e-mail
@@ -1976,7 +1976,7 @@ window.motDePasseOublie = async function() {
   if (code === null) return;
   code = code.trim().toUpperCase();
   if (!code) return;
-  if (!window._supabase) { alert('Connexion à la base impossible. Réessayez avec une connexion internet.'); return; }
+  if (!window._supabase) { alert('Connexion à la base impossible. Réessayer avec une connexion internet.'); return; }
 
   try {
     // SEC — recherche via RPC serveur : etablissements/comptes_clients ne sont plus
@@ -1987,13 +1987,13 @@ window.motDePasseOublie = async function() {
     var look = await window._supabase.rpc('reset_password', { p_code: code });
     if (look.error) { alert('Erreur : ' + look.error.message); return; }
     var info = look.data;
-    if (!info || !info.found) { alert('Code d\'accès non reconnu. Vérifiez votre code.'); return; }
+    if (!info || !info.found) { alert('Code d\'accès non reconnu. Vérifier votre code.'); return; }
     var etab = { nom: info.nom, code_acces: info.code_acces, mot_de_passe: info.new_password,
                  date_expiration: info.date_expiration, email: info.email };
     var email = info.email || '';
     if (!email) {
       try { window._supabase.from('historique_admin').insert([{ action: 'Mot de passe oublié (sans e-mail)', code_concerne: code }]).then(function(){}); } catch(e){}
-      alert('Aucune adresse e-mail n\'est associée à ce compte. Contactez HACCP Pro pour récupérer votre accès.');
+      alert('Aucune adresse e-mail n\'est associée à ce compte. Contacter HACCP Pro pour récupérer votre accès.');
       return;
     }
 
@@ -2035,7 +2035,7 @@ window.motDePasseOublie = async function() {
     } catch(e) {}
 
     if (envoye) {
-      alert('✅ C\'est envoyé !\n\nUn NOUVEAU mot de passe a été adressé par e-mail à : ' + emailMasque + '\n\n(L\'ancien ne fonctionne plus.) Pensez à vérifier vos spams.');
+      alert('✅ C\'est envoyé !\n\nUn NOUVEAU mot de passe a été adressé par e-mail à : ' + emailMasque + '\n\n(L\'ancien ne fonctionne plus.) Penser à vérifier vos spams.');
     } else {
       alert('Votre demande a bien été enregistrée, mais l\'envoi automatique n\'a pas pu aboutir. HACCP Pro va vous recontacter.');
     }
@@ -2082,10 +2082,10 @@ async function connexion() {
   var pwd = (document.getElementById('login_pwd').value || '').trim();
   var errEl = document.getElementById('login_error');
   var btn = document.getElementById('login_btn');
-  if (!code) { errEl.textContent = 'Saisissez votre code d\'accès.'; errEl.style.display='block'; return; }
+  if (!code) { errEl.textContent = 'Saisir votre code d\'accès.'; errEl.style.display='block'; return; }
   // Code universel d'essai (flyer) : pas de mot de passe, on ouvre le formulaire de contact
   if (code === ESSAI_UNIVERSEL_CODE || code === 'HACCP3J') { errEl.style.display = 'none'; activerEssaiUniversel(); return; }
-  if (!pwd) { errEl.textContent = 'Saisissez votre mot de passe.'; errEl.style.display='block'; return; }
+  if (!pwd) { errEl.textContent = 'Saisir votre mot de passe.'; errEl.style.display='block'; return; }
   errEl.style.display = 'none';
   btn.textContent = '⏳ Connexion en cours...'; btn.disabled = true;
   if (typeof showLoader === 'function') showLoader('Connexion à votre établissement…');
@@ -2758,7 +2758,7 @@ function afficherAideTemperatures() {
   header.appendChild(hTitle); header.appendChild(closeBtn);
   var warning = document.createElement('div');
   warning.style.cssText = 'background:#fef3c7;border-bottom:1px solid #fcd34d;padding:10px 16px;font-size:11px;color:#92400e;font-weight:600';
-  warning.textContent = 'A titre indicatif — Verifiez avec votre referent HACCP ou votre Plan de Maitrise Sanitaire (PMS).';
+  warning.textContent = 'A titre indicatif — Vérifier avec votre referent HACCP ou votre Plan de Maitrise Sanitaire (PMS).';
   var table = document.createElement('div');
   table.style.cssText = 'padding:16px';
   var rows = [
@@ -3422,7 +3422,7 @@ function genererRapportParBlocHTML(pageId, titre, blocs, type) {
         html += '<tr><td>' + _echap(s.label) + '</td><td class="' + s.cls + '">' + statutCell + '</td>' + actCell + '</tr>';
       });
       var confEl = bloc.querySelector('.conformite-badge');
-      if (confEl && confEl.textContent.trim() && confEl.textContent.indexOf('Saisissez') === -1 && confEl.textContent.indexOf('Sélectionnez') === -1) {
+      if (confEl && confEl.textContent.trim() && confEl.textContent.indexOf('Saisir') === -1 && confEl.textContent.indexOf('Sélectionner') === -1) {
         var confTxt = confEl.textContent.trim();
         var confCls = confEl.classList.contains('bad') ? 'nc' : (confEl.classList.contains('ok') ? 'ok' : '');
         html += '<tr><td>Conformité</td><td class="' + confCls + '">' + confTxt + '</td><td style="color:#9ca3af">—</td></tr>';
@@ -4031,7 +4031,7 @@ function buildNCAction(ncId) {
       '<select id="nc_act_type_' + ncId + '">' + opts + '</select>' +
     '</div>' +
     '<div class="frow"><div class="flabel">Précisions (si nécessaire)</div>' +
-      '<input type="text" id="nc_act_detail_' + ncId + '" placeholder="Décrivez l\'action corrective effectuée..."/>' +
+      '<input type="text" id="nc_act_detail_' + ncId + '" placeholder="Décrire l\'action corrective effectuée..."/>' +
     '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
       '<div class="frow"><div class="flabel">Responsable</div>' +
@@ -4262,7 +4262,7 @@ function changerDeCompte() {
   var p = document.getElementById('login_pwd'); if (p) p.value = '';
   var e = document.getElementById('login_error'); if (e) e.style.display = 'none';
   _majLienChangerCompte();
-  if (typeof showToast === 'function') showToast('Compte oublié sur cet appareil. Connectez-vous avec un autre code.', 'info', 4000);
+  if (typeof showToast === 'function') showToast('Compte oublié sur cet appareil. Se connecter avec un autre code.', 'info', 4000);
   showPage('page-login');
   try { if (c) c.focus(); } catch(eF) {}
 }
@@ -4618,7 +4618,7 @@ function ajouterCategorie() {
           '</select>' +
         '</div>' +
         '<div class="frow"><div class="flabel">Précisions (si nécessaire)</div>' +
-          '<input type="text" id="tcat_detail_' + id + '" placeholder="Décrivez l\'action corrective effectuée..."/>' +
+          '<input type="text" id="tcat_detail_' + id + '" placeholder="Décrire l\'action corrective effectuée..."/>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
           '<div class="frow"><div class="flabel req">Responsable</div>' +
@@ -4632,7 +4632,7 @@ function ajouterCategorie() {
       '</div>' +
       '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed #e5e7eb">' +
         '<div style="font-size:12px;font-weight:700;color:#374151;margin-bottom:8px">📋 Autres produits rattachés par représentativité</div>' +
-        '<div style="font-size:11px;color:#6b7280;margin-bottom:8px">Cochez les autres produits reçus dans cette catégorie — ils héritent du résultat de contrôle.</div>' +
+        '<div style="font-size:11px;color:#6b7280;margin-bottom:8px">Cocher les autres produits reçus dans cette catégorie — ils héritent du résultat de contrôle.</div>' +
         '<div id="tcat_rattaches_' + id + '"></div>' +
       '</div>' +
     '</div>';
@@ -4717,7 +4717,7 @@ function onCategorieTemp(id) {
     return;
   }
 
-  if (confEl) { confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisissez la température'; }
+  if (confEl) { confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisir la température'; }
   body.style.display = 'block';
 }
 
@@ -4969,7 +4969,7 @@ function ajouterCompartiment() {
             '</select>' +
           '</div>' +
           '<div class="frow"><div class="flabel">Précisions (si nécessaire)</div>' +
-            '<input type="text" id="comp_detail_' + id + '" placeholder="Décrivez l\'action corrective effectuée..."/>' +
+            '<input type="text" id="comp_detail_' + id + '" placeholder="Décrire l\'action corrective effectuée..."/>' +
           '</div>' +
           '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
             '<div class="frow"><div class="flabel req">Responsable</div>' +
@@ -5020,7 +5020,7 @@ function onCompType(id) {
     if (__pcA && __pcA.children.length === 0) ajouterProduit(true, id);
     return;
   }
-  if (confEl) { confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisissez la T° sonde'; }
+  if (confEl) { confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisir la T° sonde'; }
   body.style.display = 'block';
   // V116 Livraison 5 — pré-afficher Produit N°1 si le compartiment est vide
   var __pcN = document.getElementById('produits_compart_' + id);
@@ -5272,21 +5272,21 @@ function ajouterProduit(skipScroll, compartId) {
       '</div>' +
       '<div id="produit_wrap_' + id + '" style="display:none">' +
         '<div class="frow"><div class="flabel">Produit</div>' +
-          '<input type="text" class="finput" id="search_prod_' + id + '" placeholder="🔍 Tapez les premières lettres..." oninput="filtrerProduits(this.id,this.nextElementSibling.id)" style="margin-bottom:6px"/>' +
+          '<input type="text" class="finput" id="search_prod_' + id + '" placeholder="🔍 Taper les premières lettres..." oninput="filtrerProduits(this.id,this.nextElementSibling.id)" style="margin-bottom:6px"/>' +
           '<select class="fselect" id="type_' + id + '" onchange="onTypeChange(' + id + ')">' +
             '<option value="">-- Sélectionner --</option>' +
           '</select>' +
         '</div>' +
       '</div>' +
       '<div id="autre_' + id + '" style="display:none">' +
-        '<div class="frow"><div class="flabel">Précisez le produit</div><input class="finput" id="autre_nom_' + id + '" placeholder="Nom du produit"/></div>' +
+        '<div class="frow"><div class="flabel">Préciser le produit</div><input class="finput" id="autre_nom_' + id + '" placeholder="Nom du produit"/></div>' +
       '</div>' +
       '<div id="prodrec_chips_' + id + '" class="memo-chips" style="display:none"></div>' +
       '<div class="frow" style="margin-top:12px"><div class="flabel req" style="font-weight:700;color:#dc2626">🌡️ T° relevée sur le produit</div>' +
       '<div class="tinput-wrap"><input type="number" class="finput" id="temp_' + id + '" step="0.1" placeholder="ex: +3" oninput="checkConformite(' + id + ')" style="font-size:18px;font-weight:700"/><div class="tunit">°C</div></div></div>' +
       '<div class="frow"><div class="flabel">Seuil réglementaire</div>' +
       '<span id="seuil_val_' + id + '" style="font-weight:800;font-size:16px;color:#f97316;margin-right:8px">—</span>' +
-      '<span id="seuil_lbl_' + id + '" style="font-size:11px;color:#92400e">Sélectionnez la catégorie</span></div>' +
+      '<span id="seuil_lbl_' + id + '" style="font-size:11px;color:#92400e">Sélectionner la catégorie</span></div>' +
       '<div class="frow"><div class="flabel">Conformite</div><div class="status-group" id="conf_status_' + id + '"><button class="status-btn active-ok" onclick="setConfStatus(' + id + ', `ok`)">✅ Conforme</button><button class="status-btn" onclick="setConfStatus(' + id + ', `bad`)">✗ Non conforme</button></div></div>' +
       '<div class="frow"><div class="flabel">Seuil</div><input type="text" id="conf_seuil_' + id + '" readonly style="background:#f3f4f6;cursor:not-allowed"/></div>' +
       '<div class="frow"><div class="flabel">Valeur relevee</div><input type="text" id="conf_val_' + id + '" readonly style="background:#f3f4f6;cursor:not-allowed"/></div>' +
@@ -5306,7 +5306,7 @@ function ajouterProduit(skipScroll, compartId) {
           '</select>' +
         '</div>' +
         '<div class="frow"><div class="flabel">Précisions (si nécessaire)</div>' +
-          '<input type="text" id="nc_temp_detail_' + id + '" placeholder="Décrivez l\'action corrective effectuée..."/>' +
+          '<input type="text" id="nc_temp_detail_' + id + '" placeholder="Décrire l\'action corrective effectuée..."/>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
           '<div class="frow"><div class="flabel req">Responsable</div>' +
@@ -5327,7 +5327,7 @@ function ajouterProduit(skipScroll, compartId) {
         // V80 — Wrapper photo : bandeau rouge AU-DESSUS + cadre rouge autour (photo reste lisible pour vérification)
         '<div id="photo_wrapper_' + id + '" style="display:none;margin-top:8px">' +
           '<div id="photo_banner_' + id + '" style="display:none;background:#dc2626;color:white;font-size:13px;font-weight:800;padding:10px 12px;border-radius:10px 10px 0 0;text-align:center;line-height:1.4">' +
-            '❌ PHOTO NON VALIDE — Cochez les 2 cases ci-dessous pour qu\'elle soit acceptée' +
+            '❌ PHOTO NON VALIDE — Cocher les 2 cases ci-dessous pour qu\'elle soit acceptée' +
           '</div>' +
           '<img class="photo-preview" id="photo_' + id + '" alt="" style="display:block;width:100%;border:3px solid #dc2626;border-top:none;border-radius:0 0 10px 10px;box-sizing:border-box"/>' +
           '<button type="button" onclick="supprimerPhotoEtiquette(' + id + ')" style="width:100%;margin-top:6px;background:#fee2e2;color:#b91c1c;border:1px solid #fecaca;border-radius:8px;padding:8px;font-size:12px;font-weight:700;cursor:pointer">🗑️ Supprimer la photo / en reprendre une autre</button>' +
@@ -5359,7 +5359,7 @@ function ajouterProduit(skipScroll, compartId) {
       '</div>' +
       '<div class="nc-auto" id="nc_emb_' + id + '" style="display:none">⚡ NC automatique — emballage refusé</div>' +
     buildNCAction('nc_emb_' + id + '') +
-      '<div class="obs-hidden" id="obs_wrap_' + id + '"><div class="flabel">Observations emballage</div><textarea class="ftextarea" id="obs_emb_' + id + '" placeholder="Décrivez l\'état..."></textarea></div>' +
+      '<div class="obs-hidden" id="obs_wrap_' + id + '"><div class="flabel">Observations emballage</div><textarea class="ftextarea" id="obs_emb_' + id + '" placeholder="Décrire l\'état..."></textarea></div>' +
     '</div>' +
 
     // SECTION 2 TRAÇABILITÉ
@@ -5381,7 +5381,7 @@ function ajouterProduit(skipScroll, compartId) {
   if (tempField) {
     tempField.disabled = true;
     tempField.style.opacity = '0.5';
-    tempField.placeholder = '↑ Choisissez d\'abord la catégorie';
+    tempField.placeholder = '↑ Choisir d\'abord la catégorie';
   }
   // V80 fix — Scroller automatiquement vers le nouveau bloc Produit, en haut sur la catégorie
   // Mais SEULEMENT si le produit a été ajouté manuellement (pas le 1er produit auto à l'ouverture du module)
@@ -5416,7 +5416,7 @@ function onTypeChange(id) {
   var seuilLbl = document.getElementById('seuil_lbl_' + id);
   if (!val || val === 'custom' || val === '') {
     if (seuilVal) { seuilVal.textContent = '—'; }
-    if (seuilLbl) { seuilLbl.textContent = 'Sélectionnez la catégorie'; }
+    if (seuilLbl) { seuilLbl.textContent = 'Sélectionner la catégorie'; }
     return;
   }
   if (val === 'amb') {
@@ -6613,7 +6613,7 @@ function onVehType() {
     seuilDisp.style.color = '#f97316';
   }
   if (seuilLbl) seuilLbl.textContent = s.txt + ' — Seuil réglementaire';
-  if (conf) { conf.textContent = 'Saisissez la température'; conf.className = 'conformite-badge pending'; }
+  if (conf) { conf.textContent = 'Saisir la température'; conf.className = 'conformite-badge pending'; }
 
   // Réinitialiser T° et NC
   var tempEl = document.getElementById('veh_temp');
@@ -6650,7 +6650,7 @@ function checkVehTemp() {
     return;
   }
   var temp = parseFloat(tempEl.value);
-  if (isNaN(temp)) { conf.textContent = 'Saisissez la température'; conf.className = 'conformite-badge pending'; if (ncDiv) ncDiv.style.display='none'; if (ncAuto) ncAuto.style.display='none'; return; }
+  if (isNaN(temp)) { conf.textContent = 'Saisir la température'; conf.className = 'conformite-badge pending'; if (ncDiv) ncDiv.style.display='none'; if (ncAuto) ncAuto.style.display='none'; return; }
   var prodNom = sel.options[sel.selectedIndex].text.split('—')[0].trim();
 
   if (temp <= s.max) {
@@ -6798,7 +6798,7 @@ function selStatut(id, type) {
           '</select>' +
         '</div>' +
         '<div class="frow"><div class="flabel">Précisions</div>' +
-          '<input type="text" id="emb_abime_detail_' + id + '" placeholder="Décrivez l\'action effectuée..."/>' +
+          '<input type="text" id="emb_abime_detail_' + id + '" placeholder="Décrire l\'action effectuée..."/>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
           '<div class="frow"><div class="flabel">Responsable</div>' +
@@ -7435,7 +7435,7 @@ function downloadPDF() {
 }
 
 function confirmerSansTelecharger() {
-  showConfirm('📦', 'Réception — sans PDF', 'Sans PDF vous n\'avez pas de preuve légale en cas de contrôle DDPP. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModal(); });
+  showConfirm('📦', 'Réception — sans PDF', 'Sans PDF vous n\'avez pas de preuve légale en cas de contrôle DDPP. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModal(); });
 }
 
 function fermerModal() {
@@ -7534,7 +7534,7 @@ async function validerReception() {
   var _recPhoto = false;
   try { _recPhoto = !!document.querySelector('#page-reception img.photo-preview[src]:not([src=""])'); } catch(_) {}
   if (!_recInfo && _recProduits === 0 && _recCat === 0 && !_recPhoto) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune information saisie. Renseignez au moins le fournisseur, un produit ou une température avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle vide : aucune information saisie. Renseigner au moins le fournisseur, un produit ou une température avant de valider.', 'err', 6000);
     return;
   }
   // V113 — D : Sauvegarde Supabase AVANT PDF (awaited, après check signature)
@@ -7601,7 +7601,7 @@ var MODULES = [
   {id:'audits', hidden:true,       cat:'pilotage',  num:16, ico:'📋', name:'Réaliser — Votre audit interne',                    color:'c17', badge:'Recommandé',ddpp:false, freq:'Mensuel',     alert:false, fn:''},
   {id:'dashboard',    cat:'pilotage',  num:17, ico:'📊', name:'Consulter — Votre tableau de bord',                 color:'c18', badge:'Live',      ddpp:false, freq:'Permanent',   alert:false, fn:''},
   {id:'exports',      cat:'pilotage',  num:18, ico:'📄', name:'Générer — Votre Pack contrôle DDPP',                color:'c19', badge:'Pack DDPP', ddpp:false, freq:'Sur demande',  alert:false, fn:''},
-  {id:'allergenes',   cat:'pilotage',  num:19, ico:'🥜', name:'Affichage — Allergènes de votre carte',             color:'c20', badge:'Option',    ddpp:false, freq:'Ponctuel',    alert:false, option:true, fn:'Générez la matrice des 14 allergènes de votre carte'},
+  {id:'allergenes',   cat:'pilotage',  num:19, ico:'🥜', name:'Affichage — Allergènes de votre carte',             color:'c20', badge:'Option',    ddpp:false, freq:'Ponctuel',    alert:false, option:true, fn:'Générer la matrice des 14 allergènes de votre carte'},
   {id:'plat-temoin',  cat:'quotidien', num:20, ico:'🍽️', name:'Plat Témoin — Conservation 5 jours',               color:'c6',  badge:'DDPP',      ddpp:true,  freq:'Quotidien',   alert:false, fn:'', secteurs:['collective']},
   {id:'liaison-thermique', cat:'quotidien', num:21, ico:'🌡️', name:'Liaison Chaude/Froide — Distribution',           color:'c7',  badge:'DDPP',      ddpp:true,  freq:'Quotidien',   alert:false, fn:'', secteurs:['collective']},
   {id:'registre-convives', cat:'quotidien', num:22, ico:'👥', name:'Registre des Convives & Grammages',              color:'c8',  badge:'',          ddpp:false, freq:'Quotidien',   alert:false, fn:'', secteurs:['collective']},
@@ -7699,15 +7699,15 @@ function switchCat(cat, tab) {
 var BP_HEADERS = {
   reception: {
     title: 'Réception & Traçabilité',
-    intro: 'Enregistrez chaque livraison reçue en boulangerie-pâtisserie : farines, beurre, œufs, levures, chocolats, crèmes, fruits... Vérifiez l\'état des emballages, les températures et les DLC.'
+    intro: 'Enregistrer chaque livraison reçue en boulangerie-pâtisserie : farines, beurre, œufs, levures, chocolats, crèmes, fruits... Vérifier l\'état des emballages, les températures et les DLC.'
   },
   temperatures: {
     title: 'Relevé Températures — Boulangerie & Pâtisserie',
-    intro: 'Relevez les températures de vos enceintes froides : chambre froide beurre & crèmes, vitrine réfrigérée, tour feuilletage, congélateur et cellule de fermentation / pousse.'
+    intro: 'Relever les températures de vos enceintes froides : chambre froide beurre & crèmes, vitrine réfrigérée, tour feuilletage, congélateur et cellule de fermentation / pousse.'
   },
   hygiene: {
     title: 'Hygiène & Tenue — Boulangerie & Pâtisserie',
-    intro: 'Vérifiez la tenue et l\'hygiène de votre équipe : toque ou résille, tablier propre, pas de bijoux, mains propres. Toute blessure doit être couverte d\'un pansement bleu détectable.'
+    intro: 'Vérifier la tenue et l\'hygiène de votre équipe : toque ou résille, tablier propre, pas de bijoux, mains propres. Toute blessure doit être couverte d\'un pansement bleu détectable.'
   },
   ouverture: {
     title: 'Vérification Nettoyage — Avant Mise en Production',
@@ -7715,27 +7715,27 @@ var BP_HEADERS = {
   },
   cuisson: {
     title: 'Contrôle Cuisson — Boulangerie & Pâtisserie',
-    intro: 'Enregistrez les températures de cuisson par produit (pains, viennoiseries, pâtisseries). Chaque four doit être calibré et les températures respectées selon les fiches techniques.'
+    intro: 'Enregistrer les températures de cuisson par produit (pains, viennoiseries, pâtisseries). Chaque four doit être calibré et les températures respectées selon les fiches techniques.'
   },
   refroidissement: {
     title: 'Contrôle Refroidissement — Entremets & Crèmes',
-    intro: 'Tout produit cuit ou chaud (crème pâtissière, ganache, entremets) doit être refroidi rapidement : passer de +63°C à +10°C en 2h maximum. Utilisez une cellule de refroidissement.'
+    intro: 'Tout produit cuit ou chaud (crème pâtissière, ganache, entremets) doit être refroidi rapidement : passer de +63°C à +10°C en 2h maximum. Utiliser une cellule de refroidissement.'
   },
   etiquetage: {
     title: 'Édition Étiquettes — Boulangerie & Pâtisserie',
-    intro: 'Étiquetez chaque produit fabriqué : pains spéciaux, entremets, tartes, crèmes. Indiquez le nom, la date de fabrication et la DLC. Viennoiseries : 24h. Entremets : 3 jours max.'
+    intro: 'Étiqueter chaque produit fabriqué : pains spéciaux, entremets, tartes, crèmes. Indiquer le nom, la date de fabrication et la DLC. Viennoiseries : 24h. Entremets : 3 jours max.'
   },
   documents: {
     title: 'Vérification Documents — Boulangerie & Pâtisserie',
-    intro: 'Vérifiez que tous vos documents obligatoires sont présents : formation HACCP, PMS, traçabilité farines, analyses micro, contrats prestataires.'
+    intro: 'Vérifier que tous vos documents obligatoires sont présents : formation HACCP, PMS, traçabilité farines, analyses micro, contrats prestataires.'
   },
   affichage: {
     title: 'Contrôle Affichages — Boulangerie & Pâtisserie',
-    intro: 'Vérifiez les affichages obligatoires dans votre fournil et espace de vente. Allergènes, DLC produits exposés, prix TTC, interdiction de fumer.'
+    intro: 'Vérifier les affichages obligatoires dans votre fournil et espace de vente. Allergènes, DLC produits exposés, prix TTC, interdiction de fumer.'
   },
   fermeture: {
     title: 'Contrôle Nettoyage & Désinfection — Fin de Production',
-    intro: 'En fin de journée, nettoyez et désinfectez : fours, pétrins, laminoir, tours réfrigérées, plans de travail, moules et ustensiles. Respectez les 5 étapes réglementaires.'
+    intro: 'En fin de journée, nettoyez et désinfectez : fours, pétrins, laminoir, tours réfrigérées, plans de travail, moules et ustensiles. Respecter les 5 étapes réglementaires.'
   },
 };
 
@@ -7743,15 +7743,15 @@ var BP_HEADERS = {
 var RAPIDE_HEADERS = {
   reception: {
     title: 'Réception & Traçabilité — Restauration rapide',
-    intro: 'Enregistrez chaque livraison : viandes hachées, poulet, pains burger, sauces, fromages, légumes, surgelés... Vérifiez températures, DLC et intégrité des emballages.'
+    intro: 'Enregistrer chaque livraison : viandes hachées, poulet, pains burger, sauces, fromages, légumes, surgelés... Vérifier températures, DLC et intégrité des emballages.'
   },
   temperatures: {
     title: 'Relevé Températures — Restauration rapide',
-    intro: 'Relevez les températures de vos équipements : réfrigérateur garnitures, réfrigérateur boissons, vitrine chaude / bain-marie, congélateur surgelés et lampe chauffante.'
+    intro: 'Relever les températures de vos équipements : réfrigérateur garnitures, réfrigérateur boissons, vitrine chaude / bain-marie, congélateur surgelés et lampe chauffante.'
   },
   hygiene: {
     title: 'Hygiène & Tenue — Restauration rapide',
-    intro: 'Vérifiez la tenue et l\'hygiène de chaque équipier : calot ou casquette, tablier propre, pas de bijoux, mains propres. Port de gants obligatoire lors de la préparation.'
+    intro: 'Vérifier la tenue et l\'hygiène de chaque équipier : calot ou casquette, tablier propre, pas de bijoux, mains propres. Port de gants obligatoire lors de la préparation.'
   },
   ouverture: {
     title: 'Vérification Nettoyage — Avant Ouverture',
@@ -7759,23 +7759,23 @@ var RAPIDE_HEADERS = {
   },
   cuisson: {
     title: 'Contrôle Cuisson — Restauration rapide',
-    intro: 'Enregistrez les températures de cuisson : hamburger (71°C cœur), poulet (74°C), kebab (74°C), frites (175°C huile). Chaque produit doit atteindre sa température cœur minimale.'
+    intro: 'Enregistrer les températures de cuisson : hamburger (71°C cœur), poulet (74°C), kebab (74°C), frites (175°C huile). Chaque produit doit atteindre sa température cœur minimale.'
   },
   refroidissement: {
     title: 'Contrôle Refroidissement — Restauration rapide',
-    intro: 'Refroidissez rapidement vos préparations maison (sauces, garnitures, salades cuites). Règle : passer de +63°C à +10°C en 2h maximum.'
+    intro: 'Refroidir rapidement vos préparations maison (sauces, garnitures, salades cuites). Règle : passer de +63°C à +10°C en 2h maximum.'
   },
   etiquetage: {
     title: 'Édition Étiquettes — Restauration rapide',
-    intro: 'Étiquetez chaque préparation maison : sandwichs, sauces, salades, garnitures. Indiquez le nom, la date et l\'heure de préparation, et la DLC (4h à température ambiante, 3 jours au froid).'
+    intro: 'Étiqueter chaque préparation maison : sandwichs, sauces, salades, garnitures. Indiquer le nom, la date et l\'heure de préparation, et la DLC (4h à température ambiante, 3 jours au froid).'
   },
   documents: {
     title: 'Vérification Documents — Restauration rapide',
-    intro: 'Vérifiez que tous vos documents obligatoires sont présents : formation HACCP, PMS, fiches allergènes par produit, traçabilité, contrat collecte huiles.'
+    intro: 'Vérifier que tous vos documents obligatoires sont présents : formation HACCP, PMS, fiches allergènes par produit, traçabilité, contrat collecte huiles.'
   },
   affichage: {
     title: 'Contrôle Affichages — Restauration rapide',
-    intro: 'Vérifiez les affichages obligatoires en cuisine, au comptoir et en salle. Allergènes, prix TTC, origine viandes, interdiction de fumer.'
+    intro: 'Vérifier les affichages obligatoires en cuisine, au comptoir et en salle. Allergènes, prix TTC, origine viandes, interdiction de fumer.'
   },
   fermeture: {
     title: 'Contrôle Nettoyage & Désinfection — Fermeture',
@@ -7785,30 +7785,30 @@ var RAPIDE_HEADERS = {
 
 // ── HEADERS BOUCHERIE & CHARCUTERIE ──
 var BOUCHERIE_HEADERS = {
-  reception: {title:'Réception & Traçabilité — Boucherie & Charcuterie', intro:'Enregistrez chaque livraison : carcasses, viandes découpées, abats, charcuterie, épices, boyaux. Vérifiez températures, étiquetage, origine bovine et DLC. Traçabilité obligatoire pour tout bovin.'},
-  temperatures: {title:'Relevé Températures — Boucherie & Charcuterie', intro:'Relevez les températures de vos enceintes : chambre froide viandes (+4°C max), chambre froide charcuterie, réfrigérateur salle de découpe, vitrine réfrigérée vente, congélateur.'},
-  hygiene: {title:'Hygiène & Tenue — Boucherie & Charcuterie', intro:'Vérifiez la tenue de chaque boucher/charcutier : tablier propre, gants, charlotte, pas de bijoux, mains propres. Le port de cotte de mailles est obligatoire lors de la découpe.'},
+  reception: {title:'Réception & Traçabilité — Boucherie & Charcuterie', intro:'Enregistrer chaque livraison : carcasses, viandes découpées, abats, charcuterie, épices, boyaux. Vérifier températures, étiquetage, origine bovine et DLC. Traçabilité obligatoire pour tout bovin.'},
+  temperatures: {title:'Relevé Températures — Boucherie & Charcuterie', intro:'Relever les températures de vos enceintes : chambre froide viandes (+4°C max), chambre froide charcuterie, réfrigérateur salle de découpe, vitrine réfrigérée vente, congélateur.'},
+  hygiene: {title:'Hygiène & Tenue — Boucherie & Charcuterie', intro:'Vérifier la tenue de chaque boucher/charcutier : tablier propre, gants, charlotte, pas de bijoux, mains propres. Le port de cotte de mailles est obligatoire lors de la découpe.'},
   ouverture: {title:'Vérification Nettoyage — Avant Découpe', intro:'Avant de commencer la découpe, vérifiez que le billot, les couteaux, la scie à os, les planches et la salle de découpe ont été nettoyés et désinfectés.'},
-  cuisson: {title:'Contrôle Cuisson — Boucherie & Charcuterie', intro:'Enregistrez les températures de cuisson de vos préparations traiteur. Viande hachée : 71°C. Volaille : 74°C. Charcuterie cuite maison : 74°C au cœur. Farce : 74°C.'},
-  refroidissement: {title:'Contrôle Refroidissement — Boucherie & Charcuterie', intro:'Refroidissez rapidement vos préparations cuites : pâté, rillettes, charcuterie cuite, plats traiteur. Règle : passer de +63°C à +10°C en 2h maximum.'},
-  etiquetage: {title:'Étiquetage Produits — Boucherie & Charcuterie', intro:'Étiquetez chaque produit : viande hachée (J+1 obligatoire), préparations (J+3), charcuterie cuite maison (J+5). Mention origine bovine obligatoire. DLC réglementaire selon le Règlement CE 853/2004.'},
+  cuisson: {title:'Contrôle Cuisson — Boucherie & Charcuterie', intro:'Enregistrer les températures de cuisson de vos préparations traiteur. Viande hachée : 71°C. Volaille : 74°C. Charcuterie cuite maison : 74°C au cœur. Farce : 74°C.'},
+  refroidissement: {title:'Contrôle Refroidissement — Boucherie & Charcuterie', intro:'Refroidir rapidement vos préparations cuites : pâté, rillettes, charcuterie cuite, plats traiteur. Règle : passer de +63°C à +10°C en 2h maximum.'},
+  etiquetage: {title:'Étiquetage Produits — Boucherie & Charcuterie', intro:'Étiqueter chaque produit : viande hachée (J+1 obligatoire), préparations (J+3), charcuterie cuite maison (J+5). Mention origine bovine obligatoire. DLC réglementaire selon le Règlement CE 853/2004.'},
   fermeture: {title:'Nettoyage & Désinfection — Fin de Service Boucherie', intro:'En fin de journée, nettoyez et désinfectez intégralement : billot, couteaux, scie à os, hachoir, salle de découpe, bacs, crochets, vitrine. Respect des 5 étapes réglementaires.'},
-  documents: {title:'Vérification Documents — Boucherie & Charcuterie', intro:'Vérifiez vos documents obligatoires : formation HACCP, déclaration DDPP, registre traçabilité bovine (CERFA 11111), analyses micro semestrielles, agrément sanitaire si applicable.'},
-  affichage: {title:'Contrôle Affichages — Boucherie & Charcuterie', intro:'Vérifiez les affichages obligatoires : origine des viandes bovines (OBLIGATOIRE), prix TTC, allergènes, interdiction de fumer. Affichage origine porc et volaille recommandé.'},
+  documents: {title:'Vérification Documents — Boucherie & Charcuterie', intro:'Vérifier vos documents obligatoires : formation HACCP, déclaration DDPP, registre traçabilité bovine (CERFA 11111), analyses micro semestrielles, agrément sanitaire si applicable.'},
+  affichage: {title:'Contrôle Affichages — Boucherie & Charcuterie', intro:'Vérifier les affichages obligatoires : origine des viandes bovines (OBLIGATOIRE), prix TTC, allergènes, interdiction de fumer. Affichage origine porc et volaille recommandé.'},
 };
 
 // ── HEADERS RESTAURATION COLLECTIVE ──
 var COLLECTIVE_HEADERS = {
-  reception: {title:'Réception & Traçabilité — Restauration collective', intro:'Enregistrez chaque livraison selon le plan de maîtrise sanitaire (PMS). Contrôle des températures, DLC, étiquetage et conformité des conditionnements. Traçabilité complète obligatoire.'},
-  temperatures: {title:'Relevé Températures — Restauration collective', intro:'Relevez les températures de toutes vos enceintes : chambres froides viandes et légumes, réfrigérateur desserts, bain-marie/maintien chaud, congélateur et cellule de refroidissement.'},
-  hygiene: {title:'Hygiène & Tenue — Restauration collective', intro:'Vérifiez la tenue complète de chaque agent : tenue propre, charlotte, pas de bijoux, mains propres. En EHPAD/hôpital : contrôle renforcé pour populations vulnérables.'},
+  reception: {title:'Réception & Traçabilité — Restauration collective', intro:'Enregistrer chaque livraison selon le plan de maîtrise sanitaire (PMS). Contrôle des températures, DLC, étiquetage et conformité des conditionnements. Traçabilité complète obligatoire.'},
+  temperatures: {title:'Relevé Températures — Restauration collective', intro:'Relever les températures de toutes vos enceintes : chambres froides viandes et légumes, réfrigérateur desserts, bain-marie/maintien chaud, congélateur et cellule de refroidissement.'},
+  hygiene: {title:'Hygiène & Tenue — Restauration collective', intro:'Vérifier la tenue complète de chaque agent : tenue propre, charlotte, pas de bijoux, mains propres. En EHPAD/hôpital : contrôle renforcé pour populations vulnérables.'},
   ouverture: {title:'Vérification Nettoyage — Avant Service', intro:'Avant de démarrer le service, vérifiez la propreté de toute la cuisine, des équipements de cuisson, du matériel de service et des zones de préparation froide et chaude.'},
-  cuisson: {title:'Contrôle Cuisson — Restauration collective', intro:'Enregistrez les températures de cuisson de tous les plats. Cible : +63°C minimum au cœur. Repas en liaison froide remis en température : atteindre +63°C en moins d’1 heure. Traçabilité obligatoire.'},
+  cuisson: {title:'Contrôle Cuisson — Restauration collective', intro:'Enregistrer les températures de cuisson de tous les plats. Cible : +63°C minimum au cœur. Repas en liaison froide remis en température : atteindre +63°C en moins d’1 heure. Traçabilité obligatoire.'},
   refroidissement: {title:'Contrôle Refroidissement — Restauration collective', intro:'Refroidissement obligatoire pour liaison froide. Règle : passer de +63°C à +10°C en 2h maximum. Utilisation de la cellule de refroidissement rapide recommandée. Enregistrement obligatoire.'},
-  etiquetage: {title:'Étiquetage — Restauration collective', intro:'Étiquetez chaque préparation : plats cuisinés (J+3), viandes cuites (J+3), sauces (J+3), salades (J+1). En liaison froide : mention de la date de remise en température obligatoire.'},
+  etiquetage: {title:'Étiquetage — Restauration collective', intro:'Étiqueter chaque préparation : plats cuisinés (J+3), viandes cuites (J+3), sauces (J+3), salades (J+1). En liaison froide : mention de la date de remise en température obligatoire.'},
   fermeture: {title:'Nettoyage & Désinfection — Fin de Service Collectif', intro:'En fin de service, nettoyez et désinfectez l’intégralité de la cuisine : plans de travail, équipements de cuisson, matériel de distribution, sols, éviers. Respect des 5 étapes réglementaires.'},
-  documents: {title:'Vérification Documents — Restauration collective', intro:'Vérifiez vos documents : agrément sanitaire, PMS à jour, analyses micro mensuelles (si > 200 repas/jour), plan HACCP, registres températures, contrats prestataires. Documents DDPP obligatoires.'},
-  affichage: {title:'Contrôle Affichages — Restauration collective', intro:'Vérifiez les affichages obligatoires selon le type de structure (scolaire, EHPAD, hospitalier, entreprise). Menus affichés, allergènes, numéros d’urgence, règlement intérieur.'},
+  documents: {title:'Vérification Documents — Restauration collective', intro:'Vérifier vos documents : agrément sanitaire, PMS à jour, analyses micro mensuelles (si > 200 repas/jour), plan HACCP, registres températures, contrats prestataires. Documents DDPP obligatoires.'},
+  affichage: {title:'Contrôle Affichages — Restauration collective', intro:'Vérifier les affichages obligatoires selon le type de structure (scolaire, EHPAD, hospitalier, entreprise). Menus affichés, allergènes, numéros d’urgence, règlement intérieur.'},
 };
 
 
@@ -7872,7 +7872,7 @@ function updateModuleHeader(pageId, moduleId) {
         ptBlock.querySelector('div[style*="fff8f8"]').textContent = 'En boulangerie, les plans de travail doivent être séparés par type de production. Si partagé : nettoyage + désinfection complets obligatoires.';
       } else if (SECTEUR_ACTIF === 'rapide' || SECTEUR_ACTIF === 'boucherie' || SECTEUR_ACTIF === 'collective') {
         ptBlock.querySelector('.fblock-title').textContent = '⚠️ Zones de préparation — Séparation cru / cuit';
-        ptBlock.querySelector('div[style*="fff8f8"]').textContent = 'Séparez les zones cru / cuit / assemblage. Si zone partagée : nettoyage et désinfection complets obligatoires entre chaque utilisation.';
+        ptBlock.querySelector('div[style*="fff8f8"]').textContent = 'Séparer les zones cru / cuit / assemblage. Si zone partagée : nettoyage et désinfection complets obligatoires entre chaque utilisation.';
       } else if (SECTEUR_ACTIF === 'boucherie') {
         ptBlock.querySelector('.fblock-title').textContent = '⚠️ Salle de découpe — Hygiène des surfaces en contact';
         ptBlock.querySelector('div[style*="fff8f8"]').textContent = 'En boucherie, toute surface en contact avec la viande doit être nettoyée et désinfectée entre chaque espèce animale. Billot, couteaux et scies : désinfection complète après chaque usage.';
@@ -8526,7 +8526,7 @@ function resetModule(pageId) {
   // 8. Réinitialiser les badges de conformité
   page.querySelectorAll('.conformite-badge').forEach(function(el) {
     el.className = 'conformite-badge pending';
-    el.textContent = 'Saisissez la temperature';
+    el.textContent = 'Saisir la temperature';
   });
 
   // 9. Effacer les signatures (canvas)
@@ -9105,7 +9105,7 @@ function downloadTracaPDF() {
 }
 
 function confirmerSansTracaPDF() {
-  showConfirm('📄', 'Traçabilité — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalTraca(); });
+  showConfirm('📄', 'Traçabilité — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalTraca(); });
 }
 function fermerModalTraca() {
   document.getElementById('modalTracaPdf').classList.remove('visible');
@@ -9355,7 +9355,7 @@ function buildEnceinteBlock(id, nom, type, seuil) {
         seuilDisplay +
       '</div>' +
     '</div>' +
-    '<div class="conformite-badge pending" id="enc_conf_' + id + '" style="margin-top:8px">Saisissez la temperature</div>' +
+    '<div class="conformite-badge pending" id="enc_conf_' + id + '" style="margin-top:8px">Saisir la temperature</div>' +
     '<div class="nc-auto" id="enc_nc_' + id + '" style="display:none">⚡ NC automatique — temperature hors seuil</div>' +
     buildNCAction('enc_nc_' + id) +
   '</div>';
@@ -9441,7 +9441,7 @@ function checkTempEnceinte(id, seuil) {
   var confEl = document.getElementById('enc_conf_' + id);
   var ncEl   = document.getElementById('enc_nc_' + id);
   if (!tempEl || tempEl.value === '') {
-    if (confEl) { confEl.className='conformite-badge pending'; confEl.textContent='Saisissez la température'; }
+    if (confEl) { confEl.className='conformite-badge pending'; confEl.textContent='Saisir la température'; }
     if (ncEl) { ncEl.style.display = 'none'; hideNCAction(ncEl.id); }
     return;
   }
@@ -9459,7 +9459,7 @@ function checkTempEnceinte(id, seuil) {
       var seuilDisp = document.getElementById('enc_seuil_display_' + id);
       if (seuilDisp) seuilDisp.textContent = (seuil < 0 ? '' : '+') + seuil + '°C';
     } else {
-      if (confEl) { confEl.className='conformite-badge pending'; confEl.textContent='Saisissez le seuil ci-dessus'; }
+      if (confEl) { confEl.className='conformite-badge pending'; confEl.textContent='Saisir le seuil ci-dessus'; }
       return;
     }
   }
@@ -9613,7 +9613,7 @@ async function validerTemperatures() {
     }
   });
   if (_pleines === 0) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température relevée. Relevez au moins une enceinte avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température relevée. Relever au moins une enceinte avant de valider.', 'err', 6000);
     return;
   }
   if (_vides.length > 0) {
@@ -9720,7 +9720,7 @@ function downloadTempPDF() {
 }
 
 function confirmerSansTempPDF() {
-  showConfirm('🌡️', 'Températures — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalTemp(); });
+  showConfirm('🌡️', 'Températures — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalTemp(); });
 }
 function fermerModalTemp() {
   document.getElementById('modalTempPdf').classList.remove('visible');
@@ -9973,7 +9973,7 @@ function selHyg(btn, type) {
                 '<option value="">-- Sélectionner --</option>' + _coptsX + '<option>Autre (préciser)</option>' +
               '</select></div>' +
             '<div class="frow" style="display:none"><div class="flabel">Préciser la non-conformité</div>' +
-              '<input type="text" class="nc-constat-autre" id="ca_' + _cidX + '" placeholder="Décrivez la non-conformité constatée"/></div>';
+              '<input type="text" class="nc-constat-autre" id="ca_' + _cidX + '" placeholder="Décrire la non-conformité constatée"/></div>';
           var _titleX = existingAction.querySelector('.nc-action-title');
           if (_titleX && _titleX.nextSibling) {
             while (_wrapX.firstChild) existingAction.insertBefore(_wrapX.firstChild, _titleX.nextSibling);
@@ -10014,7 +10014,7 @@ function selHyg(btn, type) {
             '</select>' +
           '</div>' +
           '<div class="frow" style="display:none"><div class="flabel">Préciser la non-conformité</div>' +
-            '<input type="text" class="nc-constat-autre" id="ca_' + aId + '" placeholder="Décrivez la non-conformité constatée"/>' +
+            '<input type="text" class="nc-constat-autre" id="ca_' + aId + '" placeholder="Décrire la non-conformité constatée"/>' +
           '</div>'
         : '') +
         '<div class="frow"><div class="flabel">Action corrective</div>' +
@@ -10025,7 +10025,7 @@ function selHyg(btn, type) {
           '</select>' +
         '</div>' +
         '<div class="frow"><div class="flabel">Précisions</div>' +
-          '<input type="text" class="nc-act-detail" id="d_' + aId + '" placeholder="Précisez si besoin..."/>' +
+          '<input type="text" class="nc-act-detail" id="d_' + aId + '" placeholder="Préciser si besoin..."/>' +
         '</div>' +
         '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
           '<div class="frow"><div class="flabel">Responsable</div>' +
@@ -10145,7 +10145,7 @@ function downloadHygPDF() {
 }
 
 function confirmerSansHygPDF() {
-  showConfirm('🖐️', 'Hygiène — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalHyg(); });
+  showConfirm('🖐️', 'Hygiène — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalHyg(); });
 }
 function fermerModalHyg() {
   document.getElementById('modalHygPdf').classList.remove('visible');
@@ -10268,7 +10268,7 @@ function downloadOuvPDF() {
 }
 
 function confirmerSansOuvPDF() {
-  showConfirm('🌅', 'Nettoyage ouverture — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalOuv(); });
+  showConfirm('🌅', 'Nettoyage ouverture — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalOuv(); });
 }
 function fermerModalOuv() {
   document.getElementById('modalOuvPdf').classList.remove('visible');
@@ -10431,7 +10431,7 @@ function ajouterPlat() {
       '</div>' +
       '<div class="tgrid" style="margin-top:10px">' +
         '<div class="tcard"><div class="tcard-lbl">' + getBySection('T° a coeur mesuree', 'T° four relevee', 'T° a coeur mesuree', 'T° a coeur mesuree', 'T° a coeur mesuree') + '</div><div class="tinput-wrap"><input type="number" id="plat_temp_' + id + '" placeholder="0" step="0.1" oninput="checkCuissonConf(' + id + ')"/><div class="tunit">°C</div></div></div>' +
-        '<div class="tcard"><div class="tcard-lbl">Conformité</div><div class="conformite-badge pending" id="plat_conf_' + id + '" style="margin-top:8px;font-size:11px">Saisissez la T°</div></div>' +
+        '<div class="tcard"><div class="tcard-lbl">Conformité</div><div class="conformite-badge pending" id="plat_conf_' + id + '" style="margin-top:8px;font-size:11px">Saisir la T°</div></div>' +
       '</div>' +
       '<div class="nc-auto" id="plat_nc_' + id + '" style="display:none">⚡ NC automatique — T° insuffisante</div>' +
     buildNCAction('plat_nc_' + id + '') +
@@ -10452,7 +10452,7 @@ function ajouterPlat() {
           '<div class="tcard"><div class="tcard-lbl">T° initiale (°C)</div><div class="tinput-wrap"><input type="number" id="remise_t0_' + id + '" placeholder="0" step="0.1" oninput="checkRemise(' + id + ')"/><div class="tunit">°C</div></div></div>' +
           '<div class="tcard"><div class="tcard-lbl">T° finale atteinte (°C)</div><div class="tinput-wrap"><input type="number" id="remise_tf_' + id + '" placeholder="0" step="0.1" oninput="checkRemise(' + id + ')"/><div class="tunit">°C</div></div></div>' +
         '</div>' +
-        '<div class="conformite-badge pending" id="remise_conf_' + id + '" style="margin-top:8px;font-size:11px">Saisissez les températures</div>' +
+        '<div class="conformite-badge pending" id="remise_conf_' + id + '" style="margin-top:8px;font-size:11px">Saisir les températures</div>' +
         '<div class="nc-auto" id="remise_nc_' + id + '" style="display:none">⚡ NC automatique — +63°C non atteint en moins d\'1h</div>' +
     buildNCAction('remise_nc_' + id + '') +
       '</div>' +
@@ -10510,7 +10510,7 @@ function checkCuissonConf(id) {
   var confEl = document.getElementById('plat_conf_' + id);
   var ncEl = document.getElementById('plat_nc_' + id);
   if (!typeVal || typeVal === '' || typeVal === 'custom' || !tempEl.value) {
-    confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisissez la T°';
+    confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisir la T°';
     ncEl.style.display = 'none'; hideNCAction(ncEl.id); return;
   }
   var seuil = parseFloat(typeVal);
@@ -10555,7 +10555,7 @@ function checkRemise(id) {
   var tf = parseFloat(document.getElementById('remise_tf_' + id).value);
   var confEl = document.getElementById('remise_conf_' + id);
   var ncEl = document.getElementById('remise_nc_' + id);
-  if (isNaN(tf)) { confEl.className='conformite-badge pending'; confEl.textContent='Saisissez les températures'; ncEl.style.display='none'; hideNCAction(ncEl.id); return; }
+  if (isNaN(tf)) { confEl.className='conformite-badge pending'; confEl.textContent='Saisir les températures'; ncEl.style.display='none'; hideNCAction(ncEl.id); return; }
   if (tf >= 63) {
     confEl.className='conformite-badge ok'; confEl.textContent='✓ Conforme — +63°C atteint';
     ncEl.style.display='none'; hideNCAction(ncEl.id);
@@ -10705,7 +10705,7 @@ function validerCuisson() {
     }
   });
   if (_pleines === 0) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température saisie. Renseignez au moins un plat (T° à cœur ou remise) avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température saisie. Renseigner au moins un plat (T° à cœur ou remise) avant de valider.', 'err', 6000);
     return;
   }
   if (_vides.length > 0) {
@@ -10745,7 +10745,7 @@ function _finaliserCuisson(retirerVides) {
 function downloadCuisPDF() {
   imprimerCuisson();
 }
-function confirmerSansCuisPDF() { showConfirm('🍳', 'Cuisson — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalCuis(); }); }
+function confirmerSansCuisPDF() { showConfirm('🍳', 'Cuisson — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalCuis(); }); }
 function fermerModalCuis() { document.getElementById('modalCuisPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // ══════════════════════════════
@@ -10859,7 +10859,7 @@ function ajouterProduitRefroi() {
         '<div style="font-size:10px;color:#dc2626;margin-top:3px;font-weight:600">⚠️ NC automatique si > +10°C</div>' +
       '</div>' +
     '</div>' +
-    '<div class="conformite-badge pending" id="refroi_conf_' + id + '" style="margin-top:8px">Sélectionnez un produit puis saisissez les températures</div>' +
+    '<div class="conformite-badge pending" id="refroi_conf_' + id + '" style="margin-top:8px">Sélectionner un produit puis saisissez les températures</div>' +
     '<div class="nc-auto" id="refroi_nc_' + id + '" style="display:none">⚡ NC automatique — Refroidissement insuffisant</div>' +
     buildNCAction('refroi_nc_' + id);
   container.appendChild(div);
@@ -10888,7 +10888,7 @@ function checkRefroi(id) {
 
   if (!t2El || t2El.value === '') {
     confEl.className='conformite-badge pending';
-    confEl.textContent='Saisissez les deux températures';
+    confEl.textContent='Saisir les deux températures';
     ncEl.style.display='none'; hideNCAction(ncEl.id); return;
   }
 
@@ -10986,7 +10986,7 @@ async function validerRefroi() {
     }
   });
   if (_pleines === 0) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température saisie. Renseignez au moins une préparation (T° départ ou après 2h) avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température saisie. Renseigner au moins une préparation (T° départ ou après 2h) avant de valider.', 'err', 6000);
     return;
   }
   if (_vides.length > 0) {
@@ -11026,7 +11026,7 @@ async function _finaliserRefroi(prenom, nom) {
 function downloadRefroiPDF() {
   imprimerModule('page-refroidissement', 'Refroidissement Rapide');
 }
-function confirmerSansRefroiPDF() { showConfirm('❄️', 'Refroidissement — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalRefroi(); }); }
+function confirmerSansRefroiPDF() { showConfirm('❄️', 'Refroidissement — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalRefroi(); }); }
 function fermerModalRefroi() { document.getElementById('modalRefroiPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // Réimpression Refroidissement : beau rapport « 1 bloc par préparation » depuis les données enregistrées
@@ -11187,12 +11187,12 @@ function ajouterFriteuse() {
         '<div style="font-size:10px;color:#dc2626;font-weight:600;margin-top:4px;text-align:center">Max 25%</div>' +
       '</div>' +
     '</div>' +
-    '<div class="conformite-badge pending" id="fr_conf_' + id + '" style="margin-top:8px">Saisissez la température et le TPM</div>' +
+    '<div class="conformite-badge pending" id="fr_conf_' + id + '" style="margin-top:8px">Saisir la température et le TPM</div>' +
 
     // Action T° > 175°C
     '<div id="fr_action_temp_' + id + '" style="display:none;margin-top:10px;background:#fff7ed;border-radius:10px;padding:12px 14px">' +
       '<div style="font-size:12px;font-weight:800;color:#c2410c;margin-bottom:8px">🌡️ T° > 175°C — Action requise</div>' +
-      '<div style="font-size:11px;color:#6b7280;margin-bottom:10px">La T° trop élevée peut dégrader l\'huile et présenter un risque. Réduisez le thermostat et revérifiez.</div>' +
+      '<div style="font-size:11px;color:#6b7280;margin-bottom:10px">La T° trop élevée peut dégrader l\'huile et présenter un risque. Réduire le thermostat et revérifiez.</div>' +
       '<div class="frow"><div class="flabel">Thermostat baissé — T° revenue sous 175°C ?</div>' +
         '<div class="status-group">' +
           '<button class="status-btn" onclick="selHyg(this,\'ok\')">✅ Oui — Revenue dans les normes</button>' +
@@ -11248,7 +11248,7 @@ function checkHuile(id) {
 
   if (!tempEl.value && !tpmEl.value) {
     confEl.className='conformite-badge pending';
-    confEl.textContent='Saisissez la température et le TPM';
+    confEl.textContent='Saisir la température et le TPM';
     if (actionTemp) actionTemp.style.display='none';
     if (actionTpm) actionTpm.style.display='none';
     return;
@@ -11330,7 +11330,7 @@ async function validerHuiles() {
     }
   });
   if (_pleines === 0) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune mesure saisie. Renseignez au moins une friteuse (température ou TPM) avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle vide : aucune mesure saisie. Renseigner au moins une friteuse (température ou TPM) avant de valider.', 'err', 6000);
     return;
   }
   if (_vides.length > 0) {
@@ -11392,7 +11392,7 @@ function downloadHuilePDF() {
 }
 
 function confirmerSansHuilePDF() {
-  showConfirm('🫙', 'Huiles — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok){ document.getElementById('modalHuilePdf').classList.remove('visible'); showPage('page-guide'); } });
+  showConfirm('🫙', 'Huiles — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok){ document.getElementById('modalHuilePdf').classList.remove('visible'); showPage('page-guide'); } });
 }
 
 // Réimpression Huiles : beau rapport « 1 bloc par friteuse » depuis les données enregistrées
@@ -11657,7 +11657,7 @@ function ajouterEtiquette() {
       '</select>' +
     '</div>' +
     '<div id="etiq_autre_wrap_' + id + '" style="display:none">' +
-      '<div class="frow no-adv"><div class="flabel">Précisez le type</div>' +
+      '<div class="frow no-adv"><div class="flabel">Préciser le type</div>' +
         '<input class="finput" id="etiq_autre_' + id + '" placeholder="' + getBySection('Ex : Mousse au chocolat, Terrine...', 'Ex : Financier pistache, Bûche praliné...', 'Ex : Sauce barbecue maison, Garniture...', 'Ex : Farce maison, Préparation traiteur...', 'Ex : Sauce maison, Dessert préparé...') + '"/>' +
       '</div>' +
     '</div>' +
@@ -12052,7 +12052,7 @@ function downloadEtiqPDF() {
 }
 
 function confirmerSansEtiqPDF() {
-  showConfirm('🏷️', 'Étiquetage — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok){ document.getElementById('modalEtiqPdf').classList.remove('visible'); showPage('page-guide'); } });
+  showConfirm('🏷️', 'Étiquetage — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok){ document.getElementById('modalEtiqPdf').classList.remove('visible'); showPage('page-guide'); } });
 }
 
 
@@ -12140,7 +12140,7 @@ function ajouterDechet() {
       '</select>' +
     '</div>' +
     '<div id="dechet_autre_wrap_' + id + '" style="display:none">' +
-      '<div class="frow"><div class="flabel">Précisez</div><input class="finput" id="dechet_autre_' + id + '" placeholder="Type de déchet..."/></div>' +
+      '<div class="frow"><div class="flabel">Préciser</div><input class="finput" id="dechet_autre_' + id + '" placeholder="Type de déchet..."/></div>' +
     '</div>' +
     '<div id="dechet_info_' + id + '" style="display:none;margin-top:6px" class="auto-field"></div>' +
     '<div class="frow" style="margin-top:10px"><div class="flabel req">Quantité / Volume estimé</div><input class="finput" id="dechet_qte_' + id + '" placeholder="Ex : 2 bacs, 15 kg, 3 sacs..."/></div>' +
@@ -12239,7 +12239,7 @@ async function validerDechets() {
 function downloadDechetsPDF() {
   imprimerModule('page-dechets', 'Dechets & Biodechets');
 }
-function confirmerSansDechetsPDF() { showConfirm('♻️', 'Déchets — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalDechets(); }); }
+function confirmerSansDechetsPDF() { showConfirm('♻️', 'Déchets — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalDechets(); }); }
 function fermerModalDechets() { document.getElementById('modalDechetsPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // selPlan — affiche action corrective si non respecté
@@ -12353,7 +12353,7 @@ function ajouterPerte() {
     '<div class="frow"><div class="flabel">Produit concerné</div>' +
       '<select class="fselect" id="perte_prod_' + id + '"><option value="">-- Sélectionner --</option>' + prodOpts + '<option value="autre">➕ Autre (saisie libre)</option></select>' +
     '</div>' +
-    '<div id="perte_autre_' + id + '" style="display:none"><div class="frow"><div class="flabel">Nom du produit</div><input class="finput" id="perte_autre_nom_' + id + '" placeholder="Précisez"/></div></div>' +
+    '<div id="perte_autre_' + id + '" style="display:none"><div class="frow"><div class="flabel">Nom du produit</div><input class="finput" id="perte_autre_nom_' + id + '" placeholder="Préciser"/></div></div>' +
     '<div class="frow"><div class="flabel req">Quantité perdue</div><input class="finput" id="perte_qte_' + id + '" placeholder="Ex : 2kg, 5 portions..."/></div>' +
     '<div class="frow"><div class="flabel">N° de lot</div><input class="finput" id="perte_lot_' + id + '" placeholder="N° lot — traçabilité"/></div>' +
     '<div class="frow"><div class="flabel">DLC / DLUO</div><input class="finput" type="date" id="perte_dlc_' + id + '"/></div>' +
@@ -12461,7 +12461,7 @@ async function validerPertes() {
 function downloadPertesPDF() {
   imprimerModule('page-pertes', 'Pertes & Invendus');
 }
-function confirmerSansPertesPDF() { showConfirm('🗑️', 'Pertes — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalPertes(); }); }
+function confirmerSansPertesPDF() { showConfirm('🗑️', 'Pertes — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalPertes(); }); }
 function fermerModalPertes() { document.getElementById('modalPertesPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // ══════════════════════════════
@@ -12517,7 +12517,7 @@ async function validerFermeture() {
 function downloadFermPDF() {
   imprimerModule('page-fermeture', 'Nettoyage Fermeture');
 }
-function confirmerSansFermPDF() { showConfirm('🧽', 'Nettoyage fermeture — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalFerm(); }); }
+function confirmerSansFermPDF() { showConfirm('🧽', 'Nettoyage fermeture — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalFerm(); }); }
 function fermerModalFerm() { document.getElementById('modalFermPdf').classList.remove('visible'); showPage('page-guide'); }
 
 function takeDocPhoto(previewId) {
@@ -12795,13 +12795,13 @@ async function presenterDocsCoches() {
   }
   var fichiers = await _inspDocsFichiersCoches();
   if (!fichiers.length) {
-    if (typeof showToast==='function') showToast('Cochez au moins un document à présenter','warn',3000); return;
+    if (typeof showToast==='function') showToast('Cocher au moins un document à présenter','warn',3000); return;
   }
   var labelParCle = {};
   COFFRE_DOCS.forEach(function(d){ labelParCle[d.cle] = d.label; });
 
   var w = window.open('', '_blank');
-  if (!w) { if (typeof showToast==='function') showToast('Autorisez les fenêtres pop-up pour afficher les documents','warn',4000); return; }
+  if (!w) { if (typeof showToast==='function') showToast('Autoriser les fenêtres pop-up pour afficher les documents','warn',4000); return; }
 
   var etab = '';
   try { if (typeof _ls==='function') etab = _ls('haccp_etab_nom') || ''; } catch(e){}
@@ -13035,7 +13035,7 @@ function genererPackDDPP() {
     '<div class="modal-box" style="max-width:380px">' +
       '<div class="modal-ico">🔴</div>' +
       '<div class="modal-title">Pack Contrôle DDPP</div>' +
-      '<div class="modal-desc">Sélectionnez la période des contrôles à inclure dans le Pack DDPP</div>' +
+      '<div class="modal-desc">Sélectionner la période des contrôles à inclure dans le Pack DDPP</div>' +
       _tempSourceSelectorHTML('Relevés de température à inclure (capteur / manuel)') +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:16px 0">' +
         '<button class="status-btn" data-dfrom="' + today + '" data-dto="' + today + '" onclick="selPeriodeDDPP(this)">Aujourd\u0027hui</button>' +
@@ -13066,7 +13066,7 @@ function fermerDDPPModal() {
 function lancerPackDDPPCustom() {
   var from = document.getElementById('ddpp_from');
   var to = document.getElementById('ddpp_to');
-  if (!from || !to || !from.value || !to.value) { showToast('Selectionnez une periode', 'warn'); return; }
+  if (!from || !to || !from.value || !to.value) { showToast('Sélectionner une periode', 'warn'); return; }
   var sel = _PACK_DDPP_SELECTION; _PACK_DDPP_SELECTION = null;
   lancerPackDDPPAvecPhotos(from.value, to.value, sel);
 }
@@ -13542,7 +13542,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   // ═══ FIN SEUILS ═══
   var modal = document.getElementById('ddppPeriodeModal');
   if (modal) modal.classList.remove('visible');
-  if (!dateFrom || !dateTo) { showToast('Veuillez selectionner une periode', 'warn'); return; }
+  if (!dateFrom || !dateTo) { showToast('Sélectionner une periode', 'warn'); return; }
 
   var dateLabel = dateFrom === dateTo ? dateFrom : dateFrom + ' au ' + dateTo;
   var modules = [
@@ -14885,7 +14885,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
     try { if (typeof _sqMarquerTelecharge==='function') _sqMarquerTelecharge('pdf'); } catch(e){}
     var _oldTitre = document.title;
     try { document.title = (window._sqNomPerso && String(window._sqNomPerso)) || ('Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_')); } catch(e){}
-    try { if (typeof showToast==='function') showToast('Touchez Partager ↑ puis « Enregistrer dans Fichiers ».','ok',5500); } catch(e){}
+    try { if (typeof showToast==='function') showToast('Toucher Partager ↑ puis « Enregistrer dans Fichiers ».','ok',5500); } catch(e){}
     setTimeout(function(){ try { window.print(); } catch(e){} setTimeout(function(){ try { document.title = _oldTitre; } catch(e){} }, 1500); }, 350);
   };
   var btnFerm = document.createElement('button');
@@ -15019,7 +15019,7 @@ function afficherModalBrouillon(dateStr, nbChamps, callback) {
       // V80 — Avertissement juridique sur le brouillon
       '<div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:10px 12px;margin-bottom:16px;color:#991b1b;font-size:11.5px;line-height:1.5">' +
         '<div style="font-weight:800;color:#dc2626;margin-bottom:4px">⚠️ Important — Valeur juridique</div>' +
-        'Un brouillon n\'est <strong>PAS un enregistrement officiel</strong>. Tant qu\'il n\'est pas validé et signé, il n\'a <strong>aucune valeur en cas de contrôle DDPP</strong>. Pensez à finaliser et signer votre saisie pour qu\'elle soit recevable.' +
+        'Un brouillon n\'est <strong>PAS un enregistrement officiel</strong>. Tant qu\'il n\'est pas validé et signé, il n\'a <strong>aucune valeur en cas de contrôle DDPP</strong>. Penser à finaliser et signer votre saisie pour qu\'elle soit recevable.' +
       '</div>' +
       '<div style="display:flex;flex-direction:column;gap:8px">' +
         '<button id="btnBrouillonRecup" style="padding:14px;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:Outfit,sans-serif">📂 Récupérer le brouillon</button>' +
@@ -15332,7 +15332,7 @@ function chargerHistoriqueControles() {
     if (entries.length === 0) {
       html += '<div style="color:#6b7280;font-size:13px;padding:8px 0">Aucun contrôle enregistré pour le moment.</div>';
     } else {
-      html += '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">Retrouvez, consultez et réimprimez n\'importe quel contrôle validé.</div>';
+      html += '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">Retrouver, consultez et réimprimez n\'importe quel contrôle validé.</div>';
       entries.forEach(function(e) {
         var d = new Date(e.ts);
         var ok = !isNaN(d.getTime());
@@ -15655,7 +15655,7 @@ async function chargerHistoriqueControlesCloud() {
     }
 
     var html = '<div class="bloc-section-title" style="margin-top:8px">🗂️ Historique des contrôles</div>';
-    html += '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">Retrouvez, consultez et réimprimez n\'importe quel contrôle validé (synchronisé sur tous vos appareils).</div>';
+    html += '<div style="font-size:12px;color:#6b7280;margin-bottom:10px">Retrouver, consultez et réimprimez n\'importe quel contrôle validé (synchronisé sur tous vos appareils).</div>';
     rows.forEach(function(r) {
       var contenu = r.contenu;
       if (typeof contenu === 'string') { try { contenu = JSON.parse(contenu); } catch(eP) { contenu = {}; } }
@@ -16027,7 +16027,7 @@ function initDashboard() {
     var avgEl = document.getElementById('db_conf_avg');
     if (scoreEl) scoreEl.innerHTML = (score !== null ? score : '—') + '<span style="font-size:28px">%</span>';
     if (scoreEl) scoreEl.parentElement.style.background = score !== null ? (score>=80 ? 'linear-gradient(135deg,#14532d,#16a34a)' : score>=60 ? 'linear-gradient(135deg,#78350f,#f59e0b)' : 'linear-gradient(135deg,#7f1d1d,#dc2626)') : 'linear-gradient(135deg,#1e3a5f,#3b82f6)';
-    if (scoreDetail) scoreDetail.textContent = (totalControles > 0 ? totalConf + '/' + totalControles + ' controles conformes' : 'Ouvrez les modules pour calculer le score') + ' — ' + periode.label;
+    if (scoreDetail) scoreDetail.textContent = (totalControles > 0 ? totalConf + '/' + totalControles + ' controles conformes' : 'Ouvrir les modules pour calculer le score') + ' — ' + periode.label;
     var chartModTitle = document.getElementById('db_chart_mod_title');
     if (chartModTitle) chartModTitle.textContent = 'Controles par module — ' + periode.label;
     if (avgEl) avgEl.textContent = score !== null ? score + '%' : '—%';
@@ -16163,7 +16163,7 @@ function initDashboard() {
     if (histEl) {
       var recent = entriesPeriode; // tous les contrôles de la période
       if (recent.length === 0) {
-        histEl.innerHTML = '<div style="color:var(--dim);font-size:12px">Aucun contrôle enregistré. Remplissez et validez vos modules.</div>';
+        histEl.innerHTML = '<div style="color:var(--dim);font-size:12px">Aucun contrôle enregistré. Remplir et validez vos modules.</div>';
       } else {
         histEl.innerHTML = recent.map(function(e) {
           // V110 — calcul icône selon statut réel : ⚠️ si NC sur ce module/date, sinon ✅
@@ -16434,7 +16434,7 @@ function renderBarometre() {
     var fil = '';
     var derniers = jour.slice(-4).reverse();
     if (derniers.length === 0) {
-      fil = '<div style="font-size:11.5px;color:#9ca3af;text-align:center;padding:8px 0">Validez un module — il apparaîtra ici en direct.</div>';
+      fil = '<div style="font-size:11.5px;color:#9ca3af;text-align:center;padding:8px 0">Valider un module — il apparaîtra ici en direct.</div>';
     } else {
       derniers.forEach(function(en){
         var qui = (en.signe && String(en.signe).trim()) ? String(en.signe).trim() : '—';
@@ -16983,7 +16983,7 @@ function renderEquipe() {
   if (membres.length === 0) {
     host.innerHTML = '<div style="text-align:center;color:#9ca3af;font-size:13px;padding:26px 12px">' +
       '<div style="font-size:34px;margin-bottom:8px">👥</div>' +
-      'Aucune personne enregistrée.<br>Ajoutez les membres de votre équipe ci-dessus.</div>';
+      'Aucune personne enregistrée.<br>Ajouter les membres de votre équipe ci-dessus.</div>';
   } else {
     host.innerHTML = membres.map(function(m){
       var nomComplet = ((m.prenom || '') + ' ' + (m.nom || '')).trim();
@@ -17054,7 +17054,7 @@ function ajouterMembreEquipe() {
   var prenom = prenomEl ? prenomEl.value.trim() : '';
   var nom = nomEl ? nomEl.value.trim() : '';
   if (!prenom && !nom) {
-    if (typeof showToast === 'function') showToast('Indiquez au moins un nom ou un prénom', 'warn', 3000);
+    if (typeof showToast === 'function') showToast('Indiquer au moins un nom ou un prénom', 'warn', 3000);
     return;
   }
   var membres = getEquipe();
@@ -17382,7 +17382,7 @@ function exporterSelection(source) {
     if (chk && chk.checked) selectionnes.push(modules[i]);
   }
   if (selectionnes.length === 0) {
-    showToast('Veuillez cocher au moins un module à exporter', 'warn', 3500);
+    showToast('Cocher au moins un module à exporter', 'warn', 3500);
     return;
   }
   _PACK_DDPP_SELECTION = selectionnes;
@@ -18173,7 +18173,7 @@ function genererMatrice() {
     }
     plats.push({nom:nom, allergSet:allergSet, hasManual:hasManual});
   });
-  if (!plats.length) { showToast('Ajoutez au moins un plat avec ses ingrédients.', 'warn'); return; }
+  if (!plats.length) { showToast('Ajouter au moins un plat avec ses ingrédients.', 'warn'); return; }
 
   // EN-TÊTE ÉTABLISSEMENT
   var etabNom = 'RESTAURANT TEST';
@@ -18249,7 +18249,7 @@ function supprimerPlatAllerg(id) {
 
 function imprimerMatrice() {
   var matriceEl = document.getElementById('matriceContent');
-  if (!matriceEl || !matriceEl.innerHTML.trim()) { showToast('Generez d\'abord la matrice.', 'warn'); return; }
+  if (!matriceEl || !matriceEl.innerHTML.trim()) { showToast('Générer d\'abord la matrice.', 'warn'); return; }
 
   var existing = document.getElementById('printOverlay');
   if (existing) existing.remove();
@@ -18356,7 +18356,7 @@ function ajouterNC() {
       '<select class="fselect" id="nc_module_' + id + '"><option value="">-- Sélectionner --</option>' + modOpts + '</select>' +
     '</div>' +
     '<div class="frow"><div class="flabel">Description de la non-conformité</div>' +
-      '<textarea class="ftextarea" id="nc_desc_' + id + '" placeholder="Décrivez précisément ce qui a été constaté..." style="min-height:70px"></textarea>' +
+      '<textarea class="ftextarea" id="nc_desc_' + id + '" placeholder="Décrire précisément ce qui a été constaté..." style="min-height:70px"></textarea>' +
     '</div>' +
     '<div class="frow"><div class="flabel">Gravité</div>' +
       '<div class="status-group">' +
@@ -18366,7 +18366,7 @@ function ajouterNC() {
       '</div>' +
     '</div>' +
     '<div class="frow"><div class="flabel req">Action corrective mise en place</div>' +
-      '<textarea class="ftextarea" id="nc_action_' + id + '" placeholder="Décrivez l\'action corrective effectuée ou prévue..." style="min-height:70px"></textarea>' +
+      '<textarea class="ftextarea" id="nc_action_' + id + '" placeholder="Décrire l\'action corrective effectuée ou prévue..." style="min-height:70px"></textarea>' +
     '</div>' +
     '<div class="tgrid">' +
       '<div class="frow"><div class="flabel">Responsable</div><input class="finput" id="nc_resp_' + id + '" placeholder="Nom & prénom"/></div>' +
@@ -18792,7 +18792,7 @@ function alimenterRegistreNC() {
         '<div style="font-size:13px;font-weight:700;color:' + graviteColor + '">' + _echap(nc.desc) + '</div>' +
       '</div>' +
       '<div class="frow"><div class="flabel req" style="color:#dc2626">Action corrective</div>' +
-        '<input type="text" id="nc_action_' + id + '" class="finput" placeholder="Decrivez action corrective..." value="' + (nc.action||'').replace(/"/g,"'") + '"/>' +
+        '<input type="text" id="nc_action_' + id + '" class="finput" placeholder="Décrire action corrective..." value="' + (nc.action||'').replace(/"/g,"'") + '"/>' +
       '</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
         '<div class="frow"><div class="flabel">Responsable</div><input type="text" id="nc_resp_' + id + '" class="finput" placeholder="Nom & prenom"/></div>' +
@@ -18837,7 +18837,7 @@ var ncGlobalesData = [];
 function downloadNCPDF() {
   imprimerModule('page-nc', 'NC & Actions Correctives');
 }
-function confirmerSansNCPDF() { showConfirm('⚠️', 'NC — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalNC(); }); }
+function confirmerSansNCPDF() { showConfirm('⚠️', 'NC — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalNC(); }); }
 function fermerModalNC() { document.getElementById('modalNCPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // ══════════════════════════════
@@ -18891,7 +18891,7 @@ async function validerAffichage() {
 function downloadAffPDF() {
   imprimerModule('page-affichage', 'Affichages Reglementaires');
 }
-function confirmerSansAffPDF() { showConfirm('📌', 'Affichage — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalAff(); }); }
+function confirmerSansAffPDF() { showConfirm('📌', 'Affichage — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalAff(); }); }
 function fermerModalAff() { document.getElementById('modalAffPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // ══════════════════════════════
@@ -18981,7 +18981,7 @@ async function validerDocs() {
 function downloadDocsPDF() {
   imprimerModule('page-documents', 'Controle Documentaire');
 }
-function confirmerSansDocsPDF() { showConfirm('📁', 'Documents — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalDocs(); }); }
+function confirmerSansDocsPDF() { showConfirm('📁', 'Documents — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalDocs(); }); }
 function fermerModalDocs() { document.getElementById('modalDocsPdf').classList.remove('visible'); showPage('page-guide'); }
 
 // ══════════════════════════════
@@ -19048,7 +19048,7 @@ async function validerNuisibles() {
 function downloadNuisPDF() {
   imprimerModule('page-nuisibles', 'Suivi Nuisibles');
 }
-function confirmerSansNuisPDF() { showConfirm('🐛', 'Nuisibles — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuez seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalNuis(); }); }
+function confirmerSansNuisPDF() { showConfirm('🐛', 'Nuisibles — sans PDF', 'Sans PDF vous n\'avez pas de preuve legale. Continuer seulement si vous imprimez ce document.', 'Continuer quand même', '', function(ok){ if(ok) fermerModalNuis(); }); }
 function fermerModalNuis() { document.getElementById('modalNuisPdf').classList.remove('visible'); showPage('page-guide'); }
 
 renderMods('quotidien');
@@ -20963,7 +20963,7 @@ function testEffacerDonnees() {
         // 3) SIREN (9 chiffres) OU SIRET (14 chiffres) — espaces/points tolérés (preuve DDPP).
         var _siretD = (((document.getElementById('insc_siret') || {}).value) || '').replace(/\D/g, '');
         if (_siretD.length !== 9 && _siretD.length !== 14) {
-          showStatus('⚠️ Indiquez un SIREN (9 chiffres) ou un SIRET (14 chiffres).', 'err');
+          showStatus('⚠️ Indiquer un SIREN (9 chiffres) ou un SIRET (14 chiffres).', 'err');
           try { (document.getElementById('insc_siret') || {}).focus(); } catch (e) {}
           return;
         }
@@ -21035,7 +21035,7 @@ function testEffacerDonnees() {
           if (btn) { btn.disabled = false; btn.textContent = '🚀 Envoyer ma demande'; }
         }).catch(function(err) {
           console.error('[V95] Catch Supabase:', err);
-          showStatus('❌ Erreur réseau. Vérifiez votre connexion.', 'err');
+          showStatus('❌ Erreur réseau. Vérifier votre connexion.', 'err');
           if (btn) { btn.disabled = false; btn.textContent = '🚀 Envoyer ma demande'; }
         });
 
@@ -21756,7 +21756,7 @@ function testEffacerDonnees() {
           var inp = 'width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;margin-bottom:10px';
           ov.innerHTML = '<div style="max-width:460px;margin:28px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4)">'
             + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
-            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifiez les champs puis enregistrez.</div>'
+            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifier les champs puis enregistrez.</div>'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Nom de l\'établissement</label><input id="mod_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Secteur</label><select id="mod_secteur" style="' + inp + '">' + opts + '</select>'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Mot de passe</label><input id="mod_pwd" value="" placeholder="(laisser vide = inchangé)" style="' + inp + '">'
@@ -22043,7 +22043,7 @@ function testEffacerDonnees() {
           var lab = 'font-size:12px;color:#334155;font-weight:600;display:block;margin-bottom:4px';
           ov.innerHTML = '<div style="max-width:460px;margin:28px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4)">'
             + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
-            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifiez les informations puis enregistrez.</div>'
+            + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifier les informations puis enregistrez.</div>'
             + '<label style="'+lab+'">Nom de l\'établissement</label><input id="mc_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
             + '<label style="'+lab+'">Secteur d\'activité</label><select id="mc_secteur" style="' + inp + '">' + opts + '</select>'
             + '<label style="'+lab+'">Responsable</label><input id="mc_resp" value="' + escapeHtml(r.responsable || '') + '" style="' + inp + '">'
@@ -22084,7 +22084,7 @@ function testEffacerDonnees() {
       window.supprimerClient = function(id, code, nom) {
         if (!window._supabase) return;
         if (!confirm('Supprimer d\u00e9finitivement le client \u00ab ' + (nom || code) + ' \u00bb ?\n\nCela supprime sa fiche et son acc\u00e8s (il ne pourra plus se connecter).\nSes contr\u00f4les d\u00e9j\u00e0 enregistr\u00e9s ne sont PAS supprim\u00e9s.')) return;
-        if (!confirm('Confirmez une seconde fois : suppression d\u00e9finitive de ' + code + ' ?')) return;
+        if (!confirm('Confirmer une seconde fois : suppression d\u00e9finitive de ' + code + ' ?')) return;
         // 1) Fiche
         window._supabase.rpc('admin_delete_comptes', { p_pwd: _adminPwd, p_ids: [id] }).then(function(rc){
           if (rc.error) { alert('Erreur suppression fiche : ' + rc.error.message); return; }
@@ -22169,7 +22169,7 @@ function testEffacerDonnees() {
         if (!sel.length) { alert('Aucun client s\u00e9lectionn\u00e9.\n\nCochez les comptes \u00e0 supprimer, ou utilisez \u00ab Tout s\u00e9lectionner \u00bb.'); return; }
         var items = sel.map(function(x){ return { id: x.getAttribute('data-id'), code: x.getAttribute('data-code'), nom: x.getAttribute('data-nom') }; });
         if (!confirm('Supprimer d\u00e9finitivement ' + items.length + ' client(s) s\u00e9lectionn\u00e9(s) ?\n\nLeur fiche et leur acc\u00e8s seront supprim\u00e9s. Leurs contr\u00f4les d\u00e9j\u00e0 enregistr\u00e9s ne sont PAS supprim\u00e9s.')) return;
-        if (!confirm('Confirmez une seconde fois : suppression d\u00e9finitive de ' + items.length + ' compte(s) ?')) return;
+        if (!confirm('Confirmer une seconde fois : suppression d\u00e9finitive de ' + items.length + ' compte(s) ?')) return;
         _supprimerLotClients(items, 'S\u00e9lection');
       };
 
@@ -22570,7 +22570,7 @@ function _majBadgeNonSync() {
       el = document.createElement('button');
       el.id = 'badgeNonSync';
       el.type = 'button';
-      el.title = 'Contrôles en sécurité en local, pas encore confirmés au cloud. Appuyez pour réessayer.';
+      el.title = 'Contrôles en sécurité en local, pas encore confirmés au cloud. Appuyer pour réessayer.';
       el.style.cssText = 'position:fixed;left:12px;bottom:calc(12px + env(safe-area-inset-bottom,0px));z-index:95;background:#f59e0b;color:#1f2937;border:none;border-radius:20px;padding:8px 13px;font-size:12px;font-weight:800;font-family:Outfit,sans-serif;cursor:pointer;box-shadow:0 6px 18px rgba(245,158,11,0.45);display:inline-flex;align-items:center;gap:6px';
       el.onclick = function(){
         el.textContent = '⏳ Synchronisation…';
@@ -22960,7 +22960,7 @@ function fermerInfosLegales() {
 // erreur). Sert à faire remonter sur tous les appareils des contrôles restés bloqués
 // en local sur un seul.
 async function forcerSynchroComplete(btn) {
-  if (typeof ETAB_ID === 'undefined' || !ETAB_ID) { if (typeof showToast === 'function') showToast('Connectez-vous d\'abord.', 'warn', 3000); return; }
+  if (typeof ETAB_ID === 'undefined' || !ETAB_ID) { if (typeof showToast === 'function') showToast('Se connecter d\'abord.', 'warn', 3000); return; }
   if (navigator.onLine === false) { if (typeof showToast === 'function') showToast('Pas de connexion internet — réessayez en ligne.', 'err', 4000); return; }
   var _old = btn && btn.textContent;
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Synchro…'; }
@@ -23008,7 +23008,7 @@ function ouvrirMesRapports() {
 
   var hint = document.createElement('div');
   hint.style.cssText = 'background:#fef3c7;border-bottom:1px solid #fcd34d;padding:8px 16px;font-size:11.5px;color:#92400e;text-align:center';
-  hint.textContent = 'Touchez « Voir / Imprimer » puis, sur iPhone, utilisez Partager → Imprimer pour enregistrer le PDF.';
+  hint.textContent = 'Toucher « Voir / Imprimer » puis, sur iPhone, utilisez Partager → Imprimer pour enregistrer le PDF.';
 
   var content = document.createElement('div');
   content.id = 'mesRapportsListe';
@@ -23100,7 +23100,7 @@ function _peuplerListeRapports(content, attenteCloud) {
       : '<div style="text-align:center;color:#6b7280;padding:30px 16px;font-size:14px">Aucun contrôle trouvé pour le moment.<br><span style="font-size:12px">Vos contrôles validés apparaîtront ici automatiquement.</span></div>';
     return;
   }
-  var html = '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">' + keys.length + ' contrôle' + (keys.length > 1 ? 's' : '') + ' enregistré' + (keys.length > 1 ? 's' : '') + '. Touchez un contrôle pour ouvrir son rapport complet.</div>';
+  var html = '<div style="font-size:12px;color:#6b7280;margin-bottom:12px">' + keys.length + ' contrôle' + (keys.length > 1 ? 's' : '') + ' enregistré' + (keys.length > 1 ? 's' : '') + '. Toucher un contrôle pour ouvrir son rapport complet.</div>';
   keys.forEach(function(ts) {
     var r = rows[ts] || {};
     var contenu = r.contenu || {};
@@ -23393,7 +23393,7 @@ function _peuplerListeRapports(content, attenteCloud) {
   window.inspSetPeriode = function(k){ var p = periodByKey(k); if (!p) return; _lsSet('haccp_insp_period', JSON.stringify(p)); render(); };
   window.inspApplyCustom = function(){
     var f = document.getElementById('insp_from'), t = document.getElementById('insp_to');
-    if (!f || !t || !f.value || !t.value){ if (typeof showToast==='function') showToast('Sélectionnez une période','warn'); return; }
+    if (!f || !t || !f.value || !t.value){ if (typeof showToast==='function') showToast('Sélectionner une période','warn'); return; }
     var from=f.value, to=t.value; if (from>to){ var tmp=from; from=to; to=tmp; }
     _lsSet('haccp_insp_period', JSON.stringify({key:'custom', from:from, to:to, label:'Période précise'}));
     render();
@@ -23415,7 +23415,7 @@ function _peuplerListeRapports(content, attenteCloud) {
   window.inspGenererSelection = function(){
     var codes = [];
     document.querySelectorAll('.insp-mod-chk:checked').forEach(function(c){ codes.push(c.value); });
-    if (!codes.length){ if (typeof showToast==='function') showToast('Cochez au moins un module','warn',2500); return; }
+    if (!codes.length){ if (typeof showToast==='function') showToast('Cocher au moins un module','warn',2500); return; }
     var p = currentPeriod();
     try {
       if (typeof lancerPackDDPPAvecPhotos==='function') { window._PACK_DDPP_SELECTION = codes; lancerPackDDPPAvecPhotos(p.from, p.to, codes); return; }
@@ -23986,7 +23986,7 @@ function collectEnceintesConfig() {
 
 function enregistrerMesEnceintes() {
   var arr = collectEnceintesConfig();
-  if (!arr.length) { if (typeof showToast === 'function') showToast('Ajoutez au moins une enceinte avant d\'enregistrer.', 'warn', 3000); return; }
+  if (!arr.length) { if (typeof showToast === 'function') showToast('Ajouter au moins une enceinte avant d\'enregistrer.', 'warn', 3000); return; }
   _saveEncCfgRaw(arr); setEncCfgMaj(Date.now());
   _majMesEnceintesHint();
   if (typeof showToast === 'function') showToast('💾 Enregistrement…', 'info', 1500);
@@ -24254,7 +24254,7 @@ function buildFriteusesPreconfigees() {
 }
 function enregistrerMesFriteuses() {
   var arr = collectFriteusesConfig();
-  if (!arr.length) { if (typeof showToast === 'function') showToast('Ajoutez au moins une friteuse avant d\'enregistrer.', 'warn', 3000); return; }
+  if (!arr.length) { if (typeof showToast === 'function') showToast('Ajouter au moins une friteuse avant d\'enregistrer.', 'warn', 3000); return; }
   _saveFriteusesRaw(arr); _majMesFriteusesHint();
   if (typeof showToast === 'function') showToast('💾 Enregistrement…', 'info', 1500);
   _listePushCloud(FRITEUSES_CFG_MODULE, 'friteuses', arr).then(function (res) {
@@ -24925,7 +24925,7 @@ function _renderCapteursBeta() {
   _capInit();
   var listeHtml = '';
   if (!_capWork.length) {
-    listeHtml = '<div style="color:var(--dim);font-size:13px;padding:8px 2px">Aucun capteur pour l\'instant. Cliquez « + Ajouter un capteur », remplissez le bloc, puis « 💾 Enregistrer mes capteurs ».</div>';
+    listeHtml = '<div style="color:var(--dim);font-size:13px;padding:8px 2px">Aucun capteur pour l\'instant. Cliquer « + Ajouter un capteur », remplissez le bloc, puis « 💾 Enregistrer mes capteurs ».</div>';
   } else {
     _capWork.forEach(function (s, i) { listeHtml += _sondeBlockEditable(s, i); });
   }
@@ -25792,7 +25792,7 @@ function _ttAjouterCourbes(wb, releves) {
 function telechargerTableauPeriode() {
   if (!_ttPret()) return;
   var from = (document.getElementById('tt_from') || {}).value, to = (document.getElementById('tt_to') || {}).value;
-  if (!from || !to) { _ttMsg('Choisissez les deux dates.', true); return; }
+  if (!from || !to) { _ttMsg('Choisir les deux dates.', true); return; }
   if (from > to) { var t = from; from = to; to = t; }
   _ttMsg('Préparation du tableau…');
   _ttEnsureExcel(function (ok) {
@@ -25846,10 +25846,10 @@ function rafraichirTemperaturesBeta() {
   var box = document.getElementById('cap_resultats');
   if (box) box.innerHTML = '<div style="text-align:center;color:#64748b;font-size:13px;padding:8px">⏳ Lecture en cours…</div>';
   var _aUneCle = getUbibotKey() || (getSondesConfig() || []).some(function (s) { return s && s.cle; });
-  if (!_aUneCle) { if (box) box.innerHTML = '<div style="color:#b91c1c;font-size:13px">Renseignez la clé de lecture du capteur (étape 2) ou la clé de compte UbiBot (étape 1).</div>'; return; }
+  if (!_aUneCle) { if (box) box.innerHTML = '<div style="color:#b91c1c;font-size:13px">Renseigner la clé de lecture du capteur (étape 2) ou la clé de compte UbiBot (étape 1).</div>'; return; }
   _lireTemperaturesUbiBot().then(function (map) {
     var sondes = getSondesConfig();
-    if (!sondes.length) { if (box) box.innerHTML = '<div style="color:#64748b;font-size:13px">Associez au moins une sonde (étape 2).</div>'; return; }
+    if (!sondes.length) { if (box) box.innerHTML = '<div style="color:#64748b;font-size:13px">Associer au moins une sonde (étape 2).</div>'; return; }
     var html = '';
     sondes.forEach(function (s) {
       var r = map[String(s.channel)];
@@ -26079,9 +26079,9 @@ function _rthEngagement() {
 function _rthValiderEngagement() {
   var ok = document.getElementById('rth_ok'), nom = document.getElementById('rth_nom'), err = document.getElementById('rth_err');
   function _e(m) { if (err) { err.textContent = m; err.style.display = 'block'; } }
-  if (!ok || !ok.checked) { _e('Veuillez cocher l\'engagement.'); return; }
-  if (!nom || !nom.value.trim()) { _e('Indiquez le nom du signataire.'); return; }
-  if (!_rthSigState || !_rthSigState.v) { _e('Veuillez signer dans le cadre.'); return; }
+  if (!ok || !ok.checked) { _e('Cocher l\'engagement.'); return; }
+  if (!nom || !nom.value.trim()) { _e('Indiquer le nom du signataire.'); return; }
+  if (!_rthSigState || !_rthSigState.v) { _e('Signer dans le cadre.'); return; }
   var nomV = nom.value.trim();
   var dateISO = new Date().toISOString();
   var sigData = '';
@@ -26121,7 +26121,7 @@ function _rthAccueil() {
     + '</div>'
     + '<div style="max-width:480px;margin:0 auto;padding:12px 16px 0"><div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:10px 12px;font-size:11.5px;color:#9a3412;line-height:1.45">⚠️ <b>3 contrôles</b> seulement. Vous restez responsable de réaliser <b>tous les autres</b> contrôles obligatoires (voir « Mes autres obligations »).</div></div>'
     + '<div style="max-width:480px;margin:0 auto;padding:16px">'
-    + '<div style="display:flex;gap:9px;align-items:flex-start;background:#eef9f3;border:1px solid #a7f3d0;border-radius:12px;padding:11px 12px;margin-bottom:12px;font-size:12px;color:#065f46;line-height:1.45"><span style="font-size:15px">📋</span><div><b>Enregistrement obligatoire.</b> Enregistrez vos 3 contrôles chaque jour — c\'est votre preuve en cas de contrôle.</div></div>'
+    + '<div style="display:flex;gap:9px;align-items:flex-start;background:#eef9f3;border:1px solid #a7f3d0;border-radius:12px;padding:11px 12px;margin-bottom:12px;font-size:12px;color:#065f46;line-height:1.45"><span style="font-size:15px">📋</span><div><b>Enregistrement obligatoire.</b> Enregistrer vos 3 contrôles chaque jour — c\'est votre preuve en cas de contrôle.</div></div>'
     + _rthCarte('reception', '📦', '#fff7ed', 'Réception d\'une livraison', 'Températures, emballages, DLC')
     + _rthCarte('temperatures', '🌡️', '#eff6ff', 'Températures frigos', 'Chambres froides, réfrigérateurs, congélateurs')
     + _rthCarte('huiles', '🫙', '#fef9c3', 'Huile de friture', 'Aspect, température, TPM')
@@ -26137,7 +26137,7 @@ function _rthRappelQuotidien() {
     var auj = new Date().toISOString().slice(0, 10);
     if (lsGet(k) === auj) return; // déjà rappelé aujourd'hui
     lsSet(k, auj);
-    var msg = '📋 Pensez à enregistrer vos 3 contrôles du jour (Réception · Températures · Huiles).';
+    var msg = '📋 Penser à enregistrer vos 3 contrôles du jour (Réception · Températures · Huiles).';
     try { showToast(msg, 'ok', 6000); }
     catch (e) { try { alert(msg); } catch (e2) {} }
   } catch (e) {}
@@ -26149,10 +26149,10 @@ function _rthUpsell() {
   _rthShow(
     '<div style="background:#0a0e1a;color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between"><div style="font-weight:900;font-size:15px">Autres obligations</div><button onclick="_rthAccueil()" style="background:rgba(255,255,255,.12);border:none;color:#fff;border-radius:9px;padding:7px 13px;font-size:13px;font-weight:800;cursor:pointer;font-family:Outfit,sans-serif">← Retour</button></div>'
     + '<div style="max-width:480px;margin:0 auto;padding:16px">'
-    + '<div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.5">Voici les contrôles que vous devez <b>aussi</b> réaliser. <b>Débloquez-les</b> en passant à la formule complète.</div>'
+    + '<div style="font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.5">Voici les contrôles que vous devez <b>aussi</b> réaliser. <b>Les débloquer</b> en passant à la formule complète.</div>'
     + li
     + '<div style="font-size:13px;font-weight:800;text-align:center;margin:14px 0 8px">🔓 Besoin de tous les contrôles ?</div>'
-    + '<div style="border:1.5px solid #34d399;background:#ecfdf5;border-radius:11px;padding:12px 13px;margin-bottom:10px;text-align:center;font-size:12.5px;color:#0f172a">Passez à la <b>formule complète</b> : les 19 contrôles + Pack DDPP illimité.</div>'
+    + '<div style="border:1.5px solid #34d399;background:#ecfdf5;border-radius:11px;padding:12px 13px;margin-bottom:10px;text-align:center;font-size:12.5px;color:#0f172a">Passer à la <b>formule complète</b> : les 19 contrôles + Pack DDPP illimité.</div>'
     + '<button onclick="_rthDemandeUpgrade()" style="width:100%;border:none;border-radius:14px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,#34d399,#10b981);color:#06281f;font-family:Outfit,sans-serif">Demander la formule complète</button>'
     + '<div style="font-size:11px;color:#94a3b8;text-align:center;margin-top:8px">Nous vous recontactons pour l\'activer.</div>'
     + '</div>');
@@ -26227,7 +26227,7 @@ function telechargerSauvegardeComplete() {
     // Repli (navigateurs sans partage ni sélecteur) : téléchargement classique
     _sqDownloadBlob(blob, nom);
     return true;
-  } catch(e) { console.warn('Sauvegarde complète échouée:', e); try { alert('La sauvegarde complète a échoué. Réessayez.'); } catch(e2){} return false; }
+  } catch(e) { console.warn('Sauvegarde complète échouée:', e); try { alert('La sauvegarde complète a échoué. Réessayer.'); } catch(e2){} return false; }
 }
 function restaurerSauvegardeFichier(input) {
   try {
@@ -26475,7 +26475,7 @@ function choisirDossierSauvegarde() {
           _sqMarquerTelecharge('json');
           alert(ok
             ? '✅ Dossier enregistré.\nVos contrôles y seront copiés automatiquement chaque jour, à la première ouverture.'
-            : 'Dossier enregistré, mais l\'écriture du fichier a échoué. Réessayez.');
+            : 'Dossier enregistré, mais l\'écriture du fichier a échoué. Réessayer.');
         });
       });
     }, function(){ /* annulé par l'utilisateur */ });

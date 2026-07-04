@@ -153,7 +153,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
           <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px"><div style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.66);font-weight:800">Poids des charges fixes</div><div id="poidsCharges" style="font-size:2.2rem;font-weight:900;margin-top:4px">0 €</div></div>
           <div style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px"><div style="font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;color:rgba(255,255,255,.66);font-weight:800">Impact cumulé estimatif</div><div id="impactTotal" style="font-size:2.2rem;font-weight:900;margin-top:4px">0 €</div></div>
         </div>
-        <div id="calcAlert" style="margin-top:12px;padding:12px;border-radius:14px;background:rgba(216,79,67,.16);border:1px solid rgba(216,79,67,.25);color:#ffd8d4;font-size:.88rem">Renseignez votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.</div>
+        <div id="calcAlert" style="margin-top:12px;padding:12px;border-radius:14px;background:rgba(216,79,67,.16);border:1px solid rgba(216,79,67,.25);color:#ffd8d4;font-size:.88rem">Renseigner votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.</div>
       </div>
     </div>
   </section>
@@ -189,7 +189,7 @@ html,body{background:#f5f2ea;font-family:'Source Sans 3',Arial,sans-serif;color:
       <div style="text-align:center;margin-bottom:28px">
         <span style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.9);border:1px solid rgba(31,86,73,.12);color:#1f5649;font-size:.78rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Démarrer</span>
         <h2 id="auditFormStart" style="font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;color:#153e35;margin:0 0 6px">Démarrer votre audit</h2>
-        <p style="color:#65716b;font-size:.95rem">Remplissez le formulaire — notre équipe vous contactera sous 24h.</p>
+        <p style="color:#65716b;font-size:.95rem">Remplir le formulaire — notre équipe vous contactera sous 24h.</p>
       </div>
       <div style="max-width:680px;margin:0 auto">
         <div style="background:#fff;border-radius:20px;padding:30px;box-shadow:0 14px 40px rgba(21,62,53,.08)">
@@ -295,7 +295,7 @@ function runCalc() {
   if (cEl) cEl.textContent = euro.format(charges);
   if (iEl) iEl.textContent = euro.format(impact);
   if (aEl) {
-    if (impact === 0) aEl.textContent = "Renseignez votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.";
+    if (impact === 0) aEl.textContent = "Renseigner votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.";
     else if (impact < 10000) aEl.textContent = "Même sur une hypothèse modérée, l'impact financier potentiel reste supérieur au coût d'une démarche préventive structurée.";
     else if (impact < 30000) aEl.textContent = "L'estimation montre un risque financier significatif. L'enjeu n'est pas seulement sanitaire, mais aussi économique.";
     else aEl.textContent = "Sur cette hypothèse, le coût potentiel d'une interruption d'activité devient majeur. Un audit en amont vise précisément à réduire ce niveau de risque.";
@@ -336,14 +336,14 @@ function soumettreInscription() {
   var effectif= (document.getElementById('ins_effectif') || {}).value || '';
   var message = (document.getElementById('ins_message') || {}).value || '';
 
-  if (!resp)    { alert('Veuillez saisir votre nom.'); return; }
-  if (!etab)    { alert('Veuillez saisir le nom de l\'établissement.'); return; }
-  if (!secteur) { alert('Veuillez sélectionner votre secteur d\'activité.'); return; }
-  if (!service) { alert('Veuillez sélectionner le service souhaité.'); return; }
-  if (!tel)     { alert('Veuillez saisir votre téléphone.'); return; }
-  if (!email)   { alert('Veuillez saisir votre email.'); return; }
+  if (!resp)    { alert('Saisir votre nom.'); return; }
+  if (!etab)    { alert('Saisir le nom de l\'établissement.'); return; }
+  if (!secteur) { alert('Sélectionner votre secteur d\'activité.'); return; }
+  if (!service) { alert('Sélectionner le service souhaité.'); return; }
+  if (!tel)     { alert('Saisir votre téléphone.'); return; }
+  if (!email)   { alert('Saisir votre email.'); return; }
   var consent = document.getElementById('rgpd_consent');
-  if (consent && !consent.checked) { alert('Veuillez accepter la politique de confidentialité pour continuer.'); return; }
+  if (consent && !consent.checked) { alert('Accepter la politique de confidentialité pour continuer.'); return; }
 
   var serviceLabels = {
     audit_diagnostic: 'Audit Diagnostic — 390 € HT',
@@ -488,7 +488,7 @@ window.addEventListener('DOMContentLoaded', function() {
       if (filled) {
         var msg = document.getElementById('inscriptionMsg');
         if (msg) {
-          msg.textContent = '✅ Vos informations ont été pré-remplies depuis votre test. Vérifiez et complétez si nécessaire.';
+          msg.textContent = '✅ Vos informations ont été pré-remplies depuis votre test. Vérifier et complétez si nécessaire.';
           msg.style.display = 'block';
           msg.style.background = '#e8f5e9';
           msg.style.borderColor = '#a5d6a7';

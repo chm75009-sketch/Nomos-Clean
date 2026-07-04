@@ -1287,7 +1287,7 @@ function genDocsDUERP(code) {
 
 // ─── Fiche Relevé Températures ───
 function genDocsTemperatures(code) {
-  if (!isDocAuthorized(code)) { alert('Non autorisé. Demandez à votre auditeur.'); return; }
+  if (!isDocAuthorized(code)) { alert('Non autorisé. Demander à votre auditeur.'); return; }
   var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
   toast('⏳ Génération Relevé Températures...', 'inf');
   try {
@@ -1732,19 +1732,19 @@ function genDocsLavageMains(code) {
       new d.Paragraph({spacing:{before:0,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Affiche obligatoire — zones de préparation et lavabos',size:20,font:'Arial',color:'65716b',italic:true})]}),
       new d.Paragraph({spacing:{before:0,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:info.etab,bold:true,size:24,font:'Arial',color:'2d6f60'})]}),
       new d.Paragraph({spacing:{before:0,after:180},children:[new d.TextRun({text:'DUREE MINIMALE : 30 SECONDES — 7 ETAPES',bold:true,size:28,font:'Arial',color:'CC0000'})]}),
-      step(1,'*','Mouillez vos mains','Eau tiède courante.'),
+      step(1,'*','Mouiller vos mains','Eau tiède courante.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(2,'*','Appliquez du savon','Savon liquide bactéricide.'),
+      step(2,'*','Appliquer du savon','Savon liquide bactéricide.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(3,'*','Frottez paume contre paume','Mouvements circulaires — 5 secondes minimum.'),
+      step(3,'*','Frotter paume contre paume','Mouvements circulaires — 5 secondes minimum.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(4,'*','Dos des mains et espaces interdigitaux','Frottez le dos de chaque main et entre les doigts.'),
+      step(4,'*','Dos des mains et espaces interdigitaux','Frotter le dos de chaque main et entre les doigts.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(5,'*','Ongles et pouces','Frottez les ongles dans la paume opposée.'),
+      step(5,'*','Ongles et pouces','Frotter les ongles dans la paume opposée.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(6,'*','Rincez abondamment','Eau courante — minimum 10 secondes.'),
+      step(6,'*','Rincer abondamment','Eau courante — minimum 10 secondes.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(7,'*','Séchez et fermez le robinet','Essuie-mains usage unique — fermez avec le papier.'),
+      step(7,'*','Sécher et fermez le robinet','Essuie-mains usage unique — fermez avec le papier.'),
       p('SANCTIONS : fermeture administrative possible — amende jusqu\'à 1 500 EUR par infraction.',{bold:true,size:20,color:'CC0000',before:180,after:80}),
       new d.Paragraph({spacing:{before:100,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Généré le '+today+' pour '+info.etab+' — ExpertAudit HACCP',size:16,font:'Arial',color:'AAAAAA',italic:true})]}),
     ];
@@ -1838,7 +1838,7 @@ function showClientDocs() {
   if (!authorized) {
     el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:10px">📦 Mes Documents Réglementaires</h3>' +
       '<div style="background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);border-radius:8px;padding:14px 18px;font-size:.85rem;color:#c0392b">' +
-      '🔒 Vos documents ne sont pas encore débloqués par votre auditeur.<br>Contactez votre auditeur pour qu\'il autorise le téléchargement.</div>';
+      '🔒 Vos documents ne sont pas encore débloqués par votre auditeur.<br>Contacter votre auditeur pour qu\'il autorise le téléchargement.</div>';
   } else {
     el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:14px">📦 Mes Documents Réglementaires</h3>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' +
