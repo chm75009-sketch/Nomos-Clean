@@ -18,7 +18,11 @@
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
-    navigator.serviceWorker.register('../sw.js').catch(function () {});
+    navigator.serviceWorker.register('../sw.js', { updateViaCache: 'none' }).then(function (reg) {
+      var v = function () { try { if (navigator.onLine !== false) { var p = reg.update(); if (p && p.catch) p.catch(function(){}); } } catch (e) {} };
+      v(); setInterval(v, 60 * 1000);
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') v(); });
+    }).catch(function () {});
   });
 }
 // ── Bouton « Installer l'application » (PWA) ──

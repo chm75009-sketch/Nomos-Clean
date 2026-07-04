@@ -17,10 +17,37 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <script>
+// Enregistrement du service worker + MISE À JOUR AUTOMATIQUE.
+// L'accueil est le point d'entrée de l'app installée (start_url). On vérifie la
+// nouvelle version à l'ouverture, au retour au premier plan et toutes les minutes,
+// et dès qu'une nouvelle version prend la main, la page se recharge TOUTE SEULE.
+// updateViaCache:'none' => sw.js est toujours revérifié sur le réseau (jamais figé
+// par le cache HTTP du navigateur), sinon l'appareil pouvait rester bloqué sur une
+// très vieille version pendant des heures/jours.
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function () {
-    navigator.serviceWorker.register('sw.js').catch(function () {});
-  });
+  (function () {
+    var hadController = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (!hadController) { hadController = true; return; } // 1re installation : pas de reload
+      window.location.reload(); // nouvelle version prête → accueil neutre, on recharge
+    });
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(function (reg) {
+        var verifier = function () {
+          try {
+            if (navigator.onLine === false) return;
+            var p = reg.update();
+            if (p && typeof p.catch === 'function') p.catch(function () {});
+          } catch (e) {}
+        };
+        verifier();
+        setInterval(verifier, 60 * 1000);
+        document.addEventListener('visibilitychange', function () {
+          if (document.visibilityState === 'visible') verifier();
+        });
+      }).catch(function () {});
+    });
+  })();
 }
 </script>
 <!-- Formulaire de démo / RDV : envoi d'email côté client (même service que l'app Audit). -->
