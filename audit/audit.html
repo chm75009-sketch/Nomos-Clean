@@ -710,7 +710,7 @@ body{background:#fff}
   <div id="adminChoixScreen" style="display:none;min-height:calc(100vh - 58px);background:#f5f2ea;align-items:center;justify-content:center;padding:30px 16px">
     <div style="max-width:700px;width:100%">
       <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;color:#153e35;text-align:center;margin-bottom:6px">Que souhaitez-vous faire ?</h1>
-      <p style="text-align:center;color:#65716b;font-size:.85rem;margin-bottom:28px">Choisissez une action pour commencer</p>
+      <p style="text-align:center;color:#65716b;font-size:.85rem;margin-bottom:28px">Choisir une action pour commencer</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
         <!-- Nouveau client -->
         <div onclick="showNouveauClient()" style="background:#fff;border-radius:14px;padding:28px 24px;box-shadow:0 4px 24px rgba(26,35,50,.08);border:2px solid transparent;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.borderColor='#2d6f60'" onmouseout="this.style.borderColor='transparent'">
@@ -3579,7 +3579,7 @@ function toggleFaq(btn) {
       // Mettre à jour le message de validation
       var valMsg = getEl('email-validation');
       if (valMsg) {
-        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
+        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifier votre boîte mail et saisissez le code reçu.';
       }
     }, function(error) {
       // Erreur d'envoi
