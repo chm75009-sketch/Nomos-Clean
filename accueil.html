@@ -137,7 +137,7 @@ if ('serviceWorker' in navigator) {
   @media(max-width:720px){.picker{grid-template-columns:1fr}}
   .pick{display:flex;flex-direction:column;border-radius:18px;padding:16px 16px 15px;text-decoration:none;color:#fff;border:1px solid rgba(255,255,255,.12);position:relative;overflow:hidden}
   .pick.audit{background:linear-gradient(150deg,#0f766e,#11352f)}
-  .pick.pro{background:linear-gradient(150deg,#1f2937,#0f172a)}
+  .pick.pro{background:linear-gradient(150deg,#64748b,#3f4a5c)}
   .pick .pk-top{display:flex;align-items:center;gap:12px;margin-bottom:10px}
   .pick .pk-ico{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
   .pick .pk-tag{font-size:10.5px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.7)}
@@ -145,7 +145,7 @@ if ('serviceWorker' in navigator) {
   .pick p{font-size:13px;color:rgba(255,255,255,.8);line-height:1.4;margin-bottom:13px}
   .pick .go{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;font-weight:800;font-size:14.5px;padding:13px;border-radius:12px}
   .pick.audit .go{color:#0f4a43}
-  .pick.pro .go{color:#1f2937}
+  .pick.pro .go{color:#3f4a5c}
   .choice-mini{position:relative;text-align:center;color:#52617a;font-size:13.5px;margin-top:16px;font-weight:600}
   .choice-mini b{color:var(--ink)}
 
@@ -201,7 +201,7 @@ if ('serviceWorker' in navigator) {
   @media(max-width:820px){.sols{grid-template-columns:1fr}}
   .sol{position:relative;border-radius:24px;padding:30px 28px;color:#fff;overflow:hidden;display:flex;flex-direction:column}
   .sol.audit{background:linear-gradient(155deg,#0f766e,#11352f)}
-  .sol.pro{background:linear-gradient(155deg,#1f2937,#0f172a)}
+  .sol.pro{background:linear-gradient(155deg,#64748b,#3f4a5c)}
   .sol .step{font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.66)}
   .sol h3{font-family:'Fraunces',serif;font-size:25px;font-weight:800;line-height:1.1;margin:8px 0 6px}
   .sol .pitch{color:rgba(255,255,255,.82);font-size:14.5px;line-height:1.55;margin-bottom:18px}
@@ -209,8 +209,15 @@ if ('serviceWorker' in navigator) {
   .sol li{display:flex;gap:10px;font-size:14px;line-height:1.4}
   .sol li .d{flex-shrink:0;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:1px}
   .sol .scta{margin-top:auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#fff;font-weight:800;font-size:15px;padding:15px 22px;border-radius:14px;text-decoration:none}
-  .sol.audit .scta{color:#0f4a43}.sol.pro .scta{color:#1f2937}
+  .sol.audit .scta{color:#0f4a43}.sol.pro .scta{color:#3f4a5c}
   .sol .ribbon{position:absolute;top:18px;right:-34px;transform:rotate(45deg);background:var(--gold);color:#3b2c05;font-weight:900;font-size:11px;letter-spacing:1px;padding:5px 44px}
+  /* Noms des deux applications, au-dessus de chaque rectangle */
+  .solwrap{display:flex;flex-direction:column;gap:9px}
+  .solwrap>.sol{flex:1}
+  .solname{font-family:'Fraunces',serif;font-weight:800;font-size:19px;text-align:center;letter-spacing:-.2px}
+  .solname .n{font-weight:900}
+  .solname.audit{color:#0f766e}
+  .solname.pro{color:#5a6675}
 
   /* ── ENSEMBLE ── */
   .together{background:linear-gradient(120deg,#0f766e 0%,#11352f 100%);border-radius:24px;color:#fff;padding:34px 30px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;margin-top:30px}
@@ -332,17 +339,23 @@ if ('serviceWorker' in navigator) {
 
       <!-- LES 2 SOLUTIONS DÉTAILLÉES, TOUT DE SUITE -->
       <div class="sols" id="solutions">
-        <article class="sol audit reveal">
-          <h3>Auditer & préparez le contrôle</h3>
-          <p class="pitch">On vous accompagne pour <strong>évaluer votre établissement</strong> comme le ferait un inspecteur et vous <strong>mettre en conformité</strong> à temps.</p>
-          <a class="scta" href="audit/index.html">Préparer mon contrôle →</a>
-        </article>
-        <article class="sol pro reveal">
-          <div class="ribbon">Au quotidien</div>
-          <h3>Automatiser & gagnez du temps</h3>
-          <p class="pitch">L'application qui <strong>construit vos preuves toute seule</strong> : relevés, traçabilité et Pack DDPP prêts à présenter <strong>en quelques secondes</strong>.</p>
-          <a class="scta" href="haccp.html">Sécuriser mon quotidien →</a>
-        </article>
+        <div class="solwrap">
+          <div class="solname audit"><span class="n">Nomos</span> Audit</div>
+          <article class="sol audit reveal">
+            <h3>Auditer & préparez le contrôle</h3>
+            <p class="pitch">On vous accompagne pour <strong>évaluer votre établissement</strong> comme le ferait un inspecteur et vous <strong>mettre en conformité</strong> à temps.</p>
+            <a class="scta" href="audit/index.html">Préparer mon contrôle →</a>
+          </article>
+        </div>
+        <div class="solwrap">
+          <div class="solname pro"><span class="n">Nomos</span> Traça</div>
+          <article class="sol pro reveal">
+            <div class="ribbon">Au quotidien</div>
+            <h3>Automatiser & gagnez du temps</h3>
+            <p class="pitch">L'application qui <strong>construit vos preuves toute seule</strong> : relevés, traçabilité et Pack DDPP prêts à présenter <strong>en quelques secondes</strong>.</p>
+            <a class="scta" href="haccp.html">Sécuriser mon quotidien →</a>
+          </article>
+        </div>
       </div>
     </div>
   </header>
