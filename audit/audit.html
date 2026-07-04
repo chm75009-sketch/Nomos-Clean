@@ -608,11 +608,11 @@ body{background:#fff}
       </div>
       <div id="tabClient">
         <div class="auth-info" style="color:#153e35;background:#f0faf8;border:1px solid rgba(21,62,53,.2)">
-          🔑 Entrez le code d'accès unique fourni par votre auditeur.<br>
+          🔑 Entrer le code d'accès unique fourni par votre auditeur.<br>
           <strong style="color:#153e35">Chaque code est valable pour une seule session.</strong>
         </div>
         <div style="background:#fff8e1;border:1px solid rgba(183,144,41,.35);border-radius:7px;padding:8px 13px;font-size:.75rem;color:#7a5c00;margin-bottom:10px;line-height:1.5">
-          ⚠️ <strong>Code à usage unique</strong> — Une fois saisi, ce code ne pourra plus être réutilisé. Assurez-vous d'être prêt avant de valider.
+          ⚠️ <strong>Code à usage unique</strong> — Une fois saisi, ce code ne pourra plus être réutilisé. S'assurer d'être prêt avant de valider.
         </div>
         <div class="auth-err" id="clientErr"></div>
         <div class="auth-field">
@@ -624,10 +624,10 @@ body{background:#fff}
           <div id="quizWelcomeMsg" style="display:none;background:linear-gradient(135deg,#e8f5e9,#f0faf8);border:2px solid #2d6f60;border-radius:10px;padding:14px;margin-bottom:12px">
             <p style="margin:0 0 4px;font-size:.92rem;color:#153e35;font-weight:800">🎯 Votre diagnostic est prêt !</p>
             <p id="quizWelcomeEtab" style="margin:0;font-size:.82rem;color:#1f5649;font-weight:600"></p>
-            <p style="margin:6px 0 0;font-size:.78rem;color:#65716b">Inscrivez-vous ci-dessous pour obtenir votre code d'accès et accéder à votre audit et à vos documents.</p>
+            <p style="margin:6px 0 0;font-size:.78rem;color:#65716b">S'inscrire ci-dessous pour obtenir votre code d'accès et accéder à votre audit et à vos documents.</p>
           </div>
           <p style="margin:0 0 8px;font-size:.85rem;color:#153e35;font-weight:600">Vous n'avez pas encore de code ?</p>
-          <p style="margin:0 0 10px;font-size:.8rem;color:#65716b">Inscrivez-vous sur notre site — notre équipe vous enverra votre code sous 24h.</p>
+          <p style="margin:0 0 10px;font-size:.8rem;color:#65716b">S'inscrire sur notre site — notre équipe vous enverra votre code sous 24h.</p>
           <a href="tarifs.html#contact-tarifs" id="btnInscriptionAudit" style="display:block;width:100%;padding:12px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-weight:800;font-size:.92rem;text-decoration:none;text-align:center;box-sizing:border-box">📩 Choisir ma formule & m'inscrire</a>
         </div>
       </div>
@@ -680,7 +680,7 @@ body{background:#fff}
       <!-- Sauvegarde / Restauration -->
       <div style="margin-bottom:16px;background:#fff8e1;border:1px solid rgba(183,144,41,.35);border-radius:12px;padding:14px">
         <label style="font-size:.82rem;font-weight:700;color:#153e35;display:block;margin-bottom:4px">🛡️ Sauvegarde des données (clients + historique)</label>
-        <div style="font-size:.74rem;color:#65716b;line-height:1.5;margin-bottom:10px">Exportez régulièrement un fichier de sauvegarde et conservez-le. Après une réinstallation ou un changement d'appareil, réimportez-le pour tout récupérer.</div>
+        <div style="font-size:.74rem;color:#65716b;line-height:1.5;margin-bottom:10px">Exporter régulièrement un fichier de sauvegarde et conservez-le. Après une réinstallation ou un changement d'appareil, réimportez-le pour tout récupérer.</div>
         <div style="display:flex;gap:8px;flex-wrap:wrap">
           <button onclick="exportBackup()" style="flex:1;min-width:150px;padding:10px 14px;background:linear-gradient(135deg,#2d6f60,#153e35);color:#fff;border:none;border-radius:999px;cursor:pointer;font-weight:700;font-size:.85rem;font-family:'Source Sans 3',sans-serif">💾 Exporter la sauvegarde</button>
           <button onclick="document.getElementById('restoreFile').click()" style="flex:1;min-width:150px;padding:10px 14px;background:#fff;color:#153e35;border:1.5px solid #2d6f60;border-radius:999px;cursor:pointer;font-weight:700;font-size:.85rem;font-family:'Source Sans 3',sans-serif">📥 Restaurer un fichier</button>
@@ -710,7 +710,7 @@ body{background:#fff}
   <div id="adminChoixScreen" style="display:none;min-height:calc(100vh - 58px);background:#f5f2ea;align-items:center;justify-content:center;padding:30px 16px">
     <div style="max-width:700px;width:100%">
       <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;color:#153e35;text-align:center;margin-bottom:6px">Que souhaitez-vous faire ?</h1>
-      <p style="text-align:center;color:#65716b;font-size:.85rem;margin-bottom:28px">Choisissez une action pour commencer</p>
+      <p style="text-align:center;color:#65716b;font-size:.85rem;margin-bottom:28px">Choisir une action pour commencer</p>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
         <!-- Nouveau client -->
         <div onclick="showNouveauClient()" style="background:#fff;border-radius:14px;padding:28px 24px;box-shadow:0 4px 24px rgba(26,35,50,.08);border:2px solid transparent;cursor:pointer;transition:all .2s;text-align:center" onmouseover="this.style.borderColor='#2d6f60'" onmouseout="this.style.borderColor='transparent'">
@@ -930,7 +930,7 @@ body{background:#fff}
         </div>
       </div>
       <div id="suiviClientWrap">
-        <div style="font-size:.82rem;color:#8a9e95;text-align:center;padding:16px">Sélectionnez un client pour voir son historique.</div>
+        <div style="font-size:.82rem;color:#8a9e95;text-align:center;padding:16px">Sélectionner un client pour voir son historique.</div>
       </div>
     </div>
 
@@ -967,7 +967,7 @@ body{background:#fff}
           <button onclick="viderHistoriqueAudits()" title="Supprimer tous les audits et photos (cloud + local) — l'équipe est conservée" style="background:#fdecec;border:1px solid #f5b7b1;border-radius:8px;padding:7px 14px;font-family:'Source Sans 3',sans-serif;font-size:.8rem;color:#c0392b;font-weight:600;cursor:pointer">🗑 Vider photos &amp; historique</button>
         </div>
       </div>
-      <p style="font-size:.8rem;color:#65716b;margin:6px 0 12px">Audits enregistrés (cloud). Cliquez « 📋 Détail » pour consulter, modifier ou télécharger un rapport professionnel.</p>
+      <p style="font-size:.8rem;color:#65716b;margin:6px 0 12px">Audits enregistrés (cloud). Cliquer « 📋 Détail » pour consulter, modifier ou télécharger un rapport professionnel.</p>
       <div id="auditsWrap"><div style="font-size:.82rem;color:#8a9e95;text-align:center;padding:16px">⏳ Chargement…</div></div>
     </div>
 
@@ -1022,7 +1022,7 @@ body{background:#fff}
   <div style="background:#fff;border-radius:18px;padding:36px;width:100%;max-width:480px;box-shadow:0 20px 60px rgba(0,0,0,.35);text-align:center">
     <div style="font-size:2.5rem;margin-bottom:12px">🍽️</div>
     <h1 style="font-family:'Playfair Display',Georgia,serif;font-size:1.4rem;color:#153e35;margin-bottom:6px">Votre secteur d'activité</h1>
-    <p style="font-size:.83rem;color:#65716b;margin-bottom:24px">Sélectionnez votre secteur pour accéder à l'audit adapté à votre activité.</p>
+    <p style="font-size:.83rem;color:#65716b;margin-bottom:24px">Sélectionner votre secteur pour accéder à l'audit adapté à votre activité.</p>
     <div style="display:flex;flex-direction:column;gap:10px">
       <button onclick="choisirSecteur('RESTAURATION')" style="padding:16px;background:#fff;border:2px solid #dfe6e0;border-radius:12px;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:.9rem;font-weight:600;color:#153e35;text-align:left;display:flex;align-items:center;gap:14px;transition:all .15s" onmouseover="this.style.borderColor='#2d6f60';this.style.background='#f0faf8'" onmouseout="this.style.borderColor='#dfe6e0';this.style.background='#fff'">
         <span style="font-size:1.6rem">🍽️</span>
@@ -1209,7 +1209,7 @@ body{background:#fff}
   </div>
 
   <!-- OBS -->
-  <div class="obs"><h3>📝 Actions Correctives Requises</h3><textarea id="obs1" placeholder="Décrivez les actions correctives immédiates..." oninput="saveDraftDebounced()"></textarea></div>
+  <div class="obs"><h3>📝 Actions Correctives Requises</h3><textarea id="obs1" placeholder="Décrire les actions correctives immédiates..." oninput="saveDraftDebounced()"></textarea></div>
   <div class="obs"><h3>📋 Observations Générales</h3><textarea id="obs2" placeholder="Points positifs, recommandations..." oninput="saveDraftDebounced()"></textarea></div>
 
   <!-- SIGNATURES -->
@@ -1606,7 +1606,7 @@ function genDocsPMS(code) {
   try {
     var d = window.docx;
     if (!d || !d.Document) {
-      toast('❌ Bibliothèque Word non chargée. Rechargez la page.', 'err');
+      toast('❌ Bibliothèque Word non chargée. Recharger la page.', 'err');
       alert('La bibliothèque de génération Word n\'est pas disponible.\nVérifiez votre connexion et rechargez la page (F5).');
       return;
     }
@@ -2420,7 +2420,7 @@ function genDocsDUERP(code) {
 
 // ─── Fiche Relevé Températures ───
 function genDocsTemperatures(code) {
-  if (!isDocAuthorized(code)) { alert('Non autorisé. Demandez à votre auditeur.'); return; }
+  if (!isDocAuthorized(code)) { alert('Non autorisé. Demander à votre auditeur.'); return; }
   var info = getInfoByCode(code); if (!info || !info.etab) { alert('Informations client introuvables.'); return; }
   toast('⏳ Génération Relevé Températures...', 'inf');
   try {
@@ -2864,19 +2864,19 @@ function genDocsLavageMains(code) {
       new d.Paragraph({spacing:{before:0,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Affiche obligatoire — zones de préparation et lavabos',size:20,font:'Arial',color:'65716b',italic:true})]}),
       new d.Paragraph({spacing:{before:0,after:200},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:info.etab,bold:true,size:24,font:'Arial',color:'2d6f60'})]}),
       new d.Paragraph({spacing:{before:0,after:180},children:[new d.TextRun({text:'DUREE MINIMALE : 30 SECONDES — 7 ETAPES',bold:true,size:28,font:'Arial',color:'CC0000'})]}),
-      step(1,'*','Mouillez vos mains','Eau tiède courante.'),
+      step(1,'*','Mouiller vos mains','Eau tiède courante.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(2,'*','Appliquez du savon','Savon liquide bactéricide.'),
+      step(2,'*','Appliquer du savon','Savon liquide bactéricide.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(3,'*','Frottez paume contre paume','Mouvements circulaires — 5 secondes minimum.'),
+      step(3,'*','Frotter paume contre paume','Mouvements circulaires — 5 secondes minimum.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(4,'*','Dos des mains et espaces interdigitaux','Frottez le dos de chaque main et entre les doigts.'),
+      step(4,'*','Dos des mains et espaces interdigitaux','Frotter le dos de chaque main et entre les doigts.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(5,'*','Ongles et pouces','Frottez les ongles dans la paume opposée.'),
+      step(5,'*','Ongles et pouces','Frotter les ongles dans la paume opposée.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(6,'*','Rincez abondamment','Eau courante — minimum 10 secondes.'),
+      step(6,'*','Rincer abondamment','Eau courante — minimum 10 secondes.'),
       new d.Paragraph({spacing:{before:50,after:50},children:[new d.TextRun({text:''})]}),
-      step(7,'*','Séchez et fermez le robinet','Essuie-mains usage unique — fermez avec le papier.'),
+      step(7,'*','Sécher et fermez le robinet','Essuie-mains usage unique — fermez avec le papier.'),
       p('SANCTIONS : fermeture administrative possible — amende jusqu\'à 1 500 EUR par infraction.',{bold:true,size:20,color:'CC0000',before:180,after:80}),
       new d.Paragraph({spacing:{before:100,after:60},alignment:d.AlignmentType.CENTER,children:[new d.TextRun({text:'Généré le '+today+' pour '+info.etab+' — ExpertAudit HACCP',size:16,font:'Arial',color:'AAAAAA',italic:true})]}),
     ];
@@ -2970,7 +2970,7 @@ function showClientDocs() {
   if (!authorized) {
     el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:10px">📦 Mes Documents Réglementaires</h3>' +
       '<div style="background:rgba(224,82,82,.08);border:1px solid rgba(224,82,82,.2);border-radius:8px;padding:14px 18px;font-size:.85rem;color:#c0392b">' +
-      '🔒 Vos documents ne sont pas encore débloqués par votre auditeur.<br>Contactez votre auditeur pour qu\'il autorise le téléchargement.</div>';
+      '🔒 Vos documents ne sont pas encore débloqués par votre auditeur.<br>Contacter votre auditeur pour qu\'il autorise le téléchargement.</div>';
   } else {
     el.innerHTML = '<h3 style="font-size:.85rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#65716b;margin-bottom:14px">📦 Mes Documents Réglementaires</h3>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">' +
@@ -3214,7 +3214,7 @@ function finaliserCreationCode(codeObj, opts) {
             (info.email ? '\n📧 Email envoyé à : ' + info.email : '\nAucun email renseigné — transmettez le code manuellement.') +
             (opts.extra ? '\n\n' + opts.extra : ''));
     } else {
-      alert('⚠️ Code NON synchronisé — reconnectez-vous à internet, le code ne marchera pas encore.\n\n' +
+      alert('⚠️ Code NON synchronisé — rese connecter à internet, le code ne marchera pas encore.\n\n' +
             'Code : ' + codeObj.code + '\nClient : ' + (info.etab || '') +
             '\n\nIl est enregistré localement et sera envoyé automatiquement dès le retour de la connexion (ou via le bouton « Synchroniser maintenant » dans l\'admin). N\'envoyez PAS le code au client tant qu\'il n\'est pas synchronisé.\n\n(Détail technique : ' + (res.error || 'connexion indisponible') + ')');
     }
@@ -3278,7 +3278,7 @@ function manualSync() {
   flushPendingQueue(function(ok, fail){
     updateSyncIndicator();
     refreshAdminTable();
-    if (fail > 0)      { if (typeof toast==='function') toast('⚠️ ' + fail + ' code(s) toujours non synchronisé(s). Vérifiez votre connexion.', 'err'); }
+    if (fail > 0)      { if (typeof toast==='function') toast('⚠️ ' + fail + ' code(s) toujours non synchronisé(s). Vérifier votre connexion.', 'err'); }
     else if (ok > 0)   { if (typeof toast==='function') toast('✅ ' + ok + ' code(s) synchronisé(s).', 'ok'); }
     else               { if (typeof toast==='function') toast('Rien à synchroniser.', 'ok'); }
   });
@@ -3395,7 +3395,7 @@ function genDocCode() {
   var idx = parseInt(sel.value);
   var exp = document.getElementById('doc_exp').value;
 
-  if (isNaN(idx) || sel.value === '') { alert('Veuillez sélectionner un client dans la liste.'); return; }
+  if (isNaN(idx) || sel.value === '') { alert('Sélectionner un client dans la liste.'); return; }
 
   var codes = getCodes();
   // Récupérer les codes de type audit uniquement (pas docs) pour la liste
@@ -3409,7 +3409,7 @@ function genDocCode() {
     if (!seenNames[key]) { seenNames[key]=true; auditCodes.push(c); }
   });
   var existing = auditCodes[idx];
-  if (!existing) { alert('Client introuvable. Veuillez rafraîchir la page.'); return; }
+  if (!existing) { alert('Client introuvable. Rafraîchir la page.'); return; }
 
   var code = makeDocCode();
   while (codes.find(function(c){ return c.code === code; })) { code = makeDocCode(); }
@@ -3433,7 +3433,7 @@ function genDocCode() {
   refreshAdminTable();
 
   if (navigator.clipboard) navigator.clipboard.writeText(code).catch(function(){});
-  alert('✅ Code Documents généré : ' + code + '\n\nCopié dans le presse-papier.\nTransmettez-le à : ' + existing.client + '\n\n⚠️ Ce code donne accès aux documents uniquement, sans audit.');
+  alert('✅ Code Documents généré : ' + code + '\n\nCopié dans le presse-papier.\nLe transmettre à : ' + existing.client + '\n\n⚠️ Ce code donne accès aux documents uniquement, sans audit.');
 }
 
 // ── Tabs auth ──
@@ -3469,7 +3469,7 @@ function toggleFaq(btn) {
     if (cEl) cEl.textContent = euro.format(charges);
     if (iEl) iEl.textContent = euro.format(impact);
     if (aEl) {
-      if (impact === 0) aEl.textContent = "Renseignez votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.";
+      if (impact === 0) aEl.textContent = "Renseigner votre CA journalier et vos charges fixes pour obtenir une estimation pédagogique.";
       else if (impact < 10000) aEl.textContent = "Même sur une hypothèse modérée, l'impact financier potentiel reste supérieur au coût d'une démarche préventive structurée.";
       else if (impact < 30000) aEl.textContent = "L'estimation montre un risque financier significatif. L'enjeu n'est pas seulement sanitaire, mais aussi économique.";
       else aEl.textContent = "Sur cette hypothèse, le coût potentiel d'une interruption d'activité devient majeur. Un audit en amont vise précisément à réduire ce niveau de risque.";
@@ -3579,14 +3579,14 @@ function toggleFaq(btn) {
       // Mettre à jour le message de validation
       var valMsg = getEl('email-validation');
       if (valMsg) {
-        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifiez votre boîte mail et saisissez le code reçu.';
+        valMsg.querySelector('p').innerHTML = 'Un email de validation vient d\'être envoyé à <strong>' + em.value.trim().replace(/[&<>"]/g, function(c){return '&#'+c.charCodeAt(0)+';';}) + '</strong>.<br>Vérifier votre boîte mail et saisissez le code reçu.';
       }
     }, function(error) {
       // Erreur d'envoi
       if (showBtn) { showBtn.disabled = false; showBtn.textContent = 'Voir mon score'; }
       console.error('EmailJS error:', error);
       if (err) {
-        err.innerText = 'Erreur lors de l\'envoi de l\'email. Vérifiez votre adresse email et réessayez.';
+        err.innerText = 'Erreur lors de l\'envoi de l\'email. Vérifier votre adresse email et réessayez.';
         err.style.display = 'block';
       }
       // Fallback : afficher quand même l'écran de validation
@@ -3617,7 +3617,7 @@ function toggleFaq(btn) {
     }).then(function() {
       alert('✅ Code renvoyé à ' + em.value.trim());
     }, function() {
-      alert('Erreur lors du renvoi. Vérifiez votre adresse email.');
+      alert('Erreur lors du renvoi. Vérifier votre adresse email.');
     });
   }
 
@@ -3715,7 +3715,7 @@ function debloquerGuide() {
   var err     = document.getElementById('guide-form-err');
 
   if (!nom || !email || !societe || !tel || !activite) {
-    if (err) { err.textContent = 'Veuillez remplir tous les champs obligatoires (*).'; err.style.display = 'block'; }
+    if (err) { err.textContent = 'Remplir tous les champs obligatoires (*).'; err.style.display = 'block'; }
     return;
   }
   if (err) err.style.display = 'none';
@@ -3782,7 +3782,7 @@ function changerMotDePasseAdmin() {
   var pwd = document.getElementById('profile_pwd_new').value;
   var confirm = document.getElementById('profile_pwd_confirm').value;
   var msg = document.getElementById('profile_msg');
-  if (!pwd) { showProfileMsg('Veuillez saisir un mot de passe.', 'err'); return; }
+  if (!pwd) { showProfileMsg('Saisir un mot de passe.', 'err'); return; }
   if (pwd !== confirm) { showProfileMsg('Les mots de passe ne correspondent pas.', 'err'); return; }
   if (pwd.length < 4) { showProfileMsg('Mot de passe trop court (4 caractères minimum).', 'err'); return; }
   localStorage.setItem('haccp_adminpwd', pwd);
@@ -3792,7 +3792,7 @@ function changerMotDePasseAdmin() {
 }
 function sauverEmailAdmin() {
   var email = document.getElementById('profile_email').value.trim();
-  if (!email) { showProfileMsg('Veuillez saisir un email.', 'err'); return; }
+  if (!email) { showProfileMsg('Saisir un email.', 'err'); return; }
   localStorage.setItem('haccp_admin_email', email);
   showProfileMsg('✅ Email admin sauvegardé : ' + email, 'ok');
   // Mettre à jour le champ dans le panneau admin
@@ -3996,14 +3996,14 @@ function soumettreInscription() {
   var effectif= document.getElementById('ins_effectif').value.trim();
   var message = document.getElementById('ins_message').value.trim();
 
-  if (!resp)    { alert('Veuillez saisir votre nom.'); return; }
-  if (!etab)    { alert('Veuillez saisir le nom de l\'établissement.'); return; }
-  if (!secteur) { alert('Veuillez sélectionner votre secteur d\'activité.'); return; }
-  if (!service) { alert('Veuillez sélectionner le service souhaité.'); return; }
-  if (!tel)     { alert('Veuillez saisir votre téléphone.'); return; }
-  if (!email)   { alert('Veuillez saisir votre email.'); return; }
+  if (!resp)    { alert('Saisir votre nom.'); return; }
+  if (!etab)    { alert('Saisir le nom de l\'établissement.'); return; }
+  if (!secteur) { alert('Sélectionner votre secteur d\'activité.'); return; }
+  if (!service) { alert('Sélectionner le service souhaité.'); return; }
+  if (!tel)     { alert('Saisir votre téléphone.'); return; }
+  if (!email)   { alert('Saisir votre email.'); return; }
   var consent = document.getElementById('rgpd_consent');
-  if (consent && !consent.checked) { alert('Veuillez accepter la politique de confidentialité pour continuer.'); return; }
+  if (consent && !consent.checked) { alert('Accepter la politique de confidentialité pour continuer.'); return; }
 
   var serviceLabels = {
     audit_client: 'Audit par le client — 200 €',
@@ -4094,7 +4094,7 @@ function _adminCheck(pwd, cb) {
 function loginAdmin() {
   var pwd = document.getElementById('adminPwd').value;
   var err = document.getElementById('adminErr');
-  if (!pwd) { err.textContent='Veuillez saisir le mot de passe.'; err.classList.add('on'); return; }
+  if (!pwd) { err.textContent='Saisir le mot de passe.'; err.classList.add('on'); return; }
   err.classList.remove('on');
   _adminCheck(pwd, function (ok) {
     if (!ok) { err.textContent='Mot de passe incorrect.'; err.classList.add('on'); document.getElementById('adminPwd').value=''; return; }
@@ -4113,7 +4113,7 @@ function loginClient() {
   document.getElementById('clientCode').value = code;
   var err = document.getElementById('clientErr');
   if (err) { err.textContent = ''; err.classList.remove('on'); err.style.display = 'none'; }
-  if (!code) { if (err) { err.textContent = 'Veuillez saisir votre code d\'accès.'; err.style.display = 'block'; } return; }
+  if (!code) { if (err) { err.textContent = 'Saisir votre code d\'accès.'; err.style.display = 'block'; } return; }
   // Valide UNIQUEMENT le code saisi via le serveur (plus de téléchargement de toute la liste)
   fetchOneCode_remote(code).then(function(remoteCodes) {
     mergeRemoteCodes(remoteCodes);
@@ -4122,14 +4122,14 @@ function loginClient() {
   }).finally(function() {
     var codes = getCodes();
     var found = codes.find(function(c){ return c.code === code; });
-  if (!found) { if(err){ err.textContent='Code invalide. Vérifiez votre code et réessayez.'; err.style.display='block'; } return; }
+  if (!found) { if(err){ err.textContent='Code invalide. Vérifier votre code et réessayez.'; err.style.display='block'; } return; }
   // V2.1 — Tolérance reconnexion : si used MAIS audit pas terminé, on autorise (résilience mobile)
   // Bloqué uniquement si l'audit a été VRAIMENT finalisé (score affiché → audit_termine = true)
   if (found.used && found.audit_termine) {
-    if(err){ err.textContent='⚠️ Audit déjà réalisé avec ce code. Contactez votre auditeur pour obtenir un nouveau code.'; err.style.display='block'; }
+    if(err){ err.textContent='⚠️ Audit déjà réalisé avec ce code. Contacter votre auditeur pour obtenir un nouveau code.'; err.style.display='block'; }
     return;
   }
-  if (found.exp && new Date(found.exp) < new Date()) { if(err){ err.textContent='Ce code a expiré. Demandez un nouveau code à votre auditeur.'; err.style.display='block'; } return; }
+  if (found.exp && new Date(found.exp) < new Date()) { if(err){ err.textContent='Ce code a expiré. Demander un nouveau code à votre auditeur.'; err.style.display='block'; } return; }
 
   // Marquer comme utilisé localement (mais audit_termine reste false → reconnexion possible)
   found.used = true;
@@ -4372,7 +4372,7 @@ function genererCodeDocsExistant() {
   var idx = parseInt(sel.value);
   var codes = sel._uniqueCodes || getCodes().filter(function(c){ return c.type !== 'docs'; });
   var chosen = isNaN(idx) ? null : codes[idx];
-  if (!chosen) { alert('Veuillez sélectionner un client.'); return; }
+  if (!chosen) { alert('Sélectionner un client.'); return; }
   // Créer un code docs pour ce client
   var allCodes = getCodes();
   var code = makeDocCode();
@@ -4386,7 +4386,7 @@ function genererCodeDocsExistant() {
   persistNewCode(allCodes[0]);
   refreshAdminTable();
   if (navigator.clipboard) navigator.clipboard.writeText(code).catch(function(){});
-  alert('✅ Code Documents généré : '+code+'\n\nCopié dans le presse-papier.\nTransmettez-le à : '+(chosen.client||'')+'\n\n📄 Ce code donne accès à tous les documents (200 €)');
+  alert('✅ Code Documents généré : '+code+'\n\nCopié dans le presse-papier.\nLe transmettre à : '+(chosen.client||'')+'\n\n📄 Ce code donne accès à tous les documents (200 €)');
 }
 
 function creerCodeDocsSeulement() {
@@ -4434,7 +4434,7 @@ function genererCodeFullExistant(typeService) {
   var idx = parseInt(sel.value);
   var codes = sel._uniqueCodes || getCodes().filter(function(c){ return c.type !== 'docs' && c.type !== 'full' && c.type !== 'admin_temp'; });
   var chosen = isNaN(idx) ? null : codes[idx];
-  if (!chosen) { alert('Veuillez sélectionner un client.'); return; }
+  if (!chosen) { alert('Sélectionner un client.'); return; }
   var codeType = (typeService === 'full_admin') ? 'full_admin' : 'full_client';
   var prix = (codeType === 'full_admin') ? '450 €' : '350 €';
   var code = makeUniqueCode(makeFullCode);
@@ -4445,7 +4445,7 @@ function genererCodeFullExistant(typeService) {
   refreshAdminTable();
   if (navigator.clipboard) navigator.clipboard.writeText(code).catch(function(){});
   var label = codeType === 'full_admin' ? '⭐ Full premium — 450 €' : '🎯 Full client — 350 €';
-  alert('✅ Code Full généré : '+code+'\n\nCopié dans le presse-papier.\nTransmettez-le à : '+(chosen.client||'')+'\n\n'+label);
+  alert('✅ Code Full généré : '+code+'\n\nCopié dans le presse-papier.\nLe transmettre à : '+(chosen.client||'')+'\n\n'+label);
 }
 
 function auditerClientExistant() {
@@ -4454,7 +4454,7 @@ function auditerClientExistant() {
   // Utiliser _uniqueCodes (liste dédupliquée) pour avoir le bon index
   var codes = sel._uniqueCodes || getCodes().filter(function(c){ return c.type !== 'admin_temp'; });
   var chosen = isNaN(idx) ? null : codes[idx];
-  if (!chosen) { alert('Veuillez sélectionner un client.'); return; }
+  if (!chosen) { alert('Sélectionner un client.'); return; }
   var info = chosen.info || {};
   // S'assurer que etab est bien rempli (fallback sur client)
   if (!info.etab) info = Object.assign({}, info, { etab: chosen.client || '' });
@@ -4477,7 +4477,7 @@ function renouvelerCodeExistant() {
   var allCodes = getCodes();
   var auditCodes = allCodes.filter(function(c){ return c.type !== 'docs'; });
   var chosen = isNaN(idx) ? null : auditCodes[idx];
-  if (!chosen) { alert('Veuillez sélectionner un client.'); return; }
+  if (!chosen) { alert('Sélectionner un client.'); return; }
   renewCode(chosen.code);
 }
 
@@ -4517,9 +4517,9 @@ function collectNouveauClientForm() {
   var resp     = document.getElementById('ci_resp').value.trim();
   var etab     = document.getElementById('ci_etab').value.trim();
   var auditeur = document.getElementById('ci_auditeur').value.trim();
-  if (!resp)     { alert('Veuillez saisir le nom du responsable.'); return null; }
-  if (!etab)     { alert('Veuillez saisir le nom de l\'établissement.'); return null; }
-  if (!auditeur) { alert('Veuillez saisir le nom de l\'auditeur.'); return null; }
+  if (!resp)     { alert('Saisir le nom du responsable.'); return null; }
+  if (!etab)     { alert('Saisir le nom de l\'établissement.'); return null; }
+  if (!auditeur) { alert('Saisir le nom de l\'auditeur.'); return null; }
   return {
     resp:     resp,
     etab:     etab,
@@ -4761,7 +4761,7 @@ function showAdminDocs() {
     '<button onclick="document.getElementById(\'adminDocsPanel\').style.display=\'none\'" style="width:36px;height:36px;background:rgba(255,255,255,.15);border:none;border-radius:10px;cursor:pointer;font-size:1.1rem;color:#fff;flex-shrink:0">✕</button>' +
     '</div>' +
     '<div style="overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:8px">' +
-    '<p style="font-size:.82rem;color:#65716b;margin:0 0 8px">Cliquez sur un document pour le télécharger en format Word (.docx), personnalisé avec les coordonnées du client.</p>' +
+    '<p style="font-size:.82rem;color:#65716b;margin:0 0 8px">Cliquer sur un document pour le télécharger en format Word (.docx), personnalisé avec les coordonnées du client.</p>' +
     '<button onclick="genDocsPMS(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#153e35,#1f5649);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">📄</span><div><div>Plan de Maîtrise Sanitaire (PMS)</div><div style="font-size:.73rem;opacity:.75;font-weight:400">18 sections — tous secteurs — Règl. CE 852/2004</div></div></button>' +
     '<button onclick="genDocsNettoyage(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#2d6a4f,#52b788);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">🧹</span><div><div>Plan de Nettoyage & Désinfection</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Zones & fréquences par secteur — Arrêté 21/12/2009</div></div></button>' +
     '<button onclick="genDocsDUERP(\''+tempCode+'\')" style="padding:13px 16px;background:linear-gradient(135deg,#6b3fa0,#9b59b6);color:#fff;border:none;border-radius:10px;cursor:pointer;font-family:\'Source Sans 3\',sans-serif;font-size:.88rem;font-weight:600;text-align:left;display:flex;align-items:center;gap:12px"><span style="font-size:1.2rem">⚠️</span><div><div>Document Unique d\'évaluation des risques professionnels</div><div style="font-size:.73rem;opacity:.75;font-weight:400">Risques par poste — Art. R.4121-1 Code du Travail</div></div></button>' +
@@ -4791,7 +4791,7 @@ function logout() {
               "• 📄 Téléchargé le rapport PDF\n" +
               "• 📧 Reçu le rapport par email\n\n" +
               "Une fois déconnecté, vous ne pourrez PLUS accéder à vos documents avec ce code.\n\n" +
-              "Cliquez OK uniquement si vous avez sauvegardé vos documents.";
+              "Cliquer OK uniquement si vous avez sauvegardé vos documents.";
     if (!confirm(msg)) return;
   } else {
     if (!confirm('Se déconnecter ?')) return;
@@ -4924,7 +4924,7 @@ function afficherSuiviClient(code) {
   var wrap = document.getElementById('suiviClientWrap');
   if (!wrap) return;
   if (!code) {
-    wrap.innerHTML = '<div style="font-size:.82rem;color:#8a9e95;text-align:center;padding:16px">Sélectionnez un client pour voir son historique.</div>';
+    wrap.innerHTML = '<div style="font-size:.82rem;color:#8a9e95;text-align:center;padding:16px">Sélectionner un client pour voir son historique.</div>';
     return;
   }
   var codes = getCodes();
@@ -5299,9 +5299,9 @@ function genCode() {
   var exp      = document.getElementById('newCodeExp').value;
   var visite   = document.getElementById('ci_visite').value;
 
-  if (!resp)     { alert('Veuillez saisir le nom du responsable.'); return; }
-  if (!etab)     { alert('Veuillez saisir le nom de l\'établissement.'); return; }
-  if (!auditeur) { alert('Veuillez saisir le nom de l\'auditeur.'); return; }
+  if (!resp)     { alert('Saisir le nom du responsable.'); return; }
+  if (!etab)     { alert('Saisir le nom de l\'établissement.'); return; }
+  if (!auditeur) { alert('Saisir le nom de l\'auditeur.'); return; }
 
   var code = makeCode();
   var codes = getCodes();
@@ -5339,9 +5339,9 @@ function genCode() {
       // Envoyer le code par email au client (uniquement si bien synchronisé)
       var serviceLabel = '🔑 Audit client — 200 €';
       envoyerCodeParEmail(newCodeObj.info, code, serviceLabel);
-      alert('✅ Code généré ET synchronisé : ' + code + '\n\nCe code a été copié dans le presse-papier.\nUn email a été envoyé à : ' + email + '\nTransmettez-le aussi à : ' + resp + ' (' + etab + ')');
+      alert('✅ Code généré ET synchronisé : ' + code + '\n\nCe code a été copié dans le presse-papier.\nUn email a été envoyé à : ' + email + '\nLe transmettre aussi à : ' + resp + ' (' + etab + ')');
     } else {
-      alert('⚠️ Code non synchronisé — reconnectez-vous à internet, le code ne marchera pas encore.\n\nCode : ' + code + '\nClient : ' + resp + ' (' + etab + ')\n\nIl est enregistré localement et sera envoyé automatiquement dès le retour de la connexion (ou via le bouton « Synchroniser maintenant »). N\'envoyez le code au client qu\'une fois synchronisé.\n\n(Détail technique : ' + (res.error || 'connexion indisponible') + ')');
+      alert('⚠️ Code non synchronisé — rese connecter à internet, le code ne marchera pas encore.\n\nCode : ' + code + '\nClient : ' + resp + ' (' + etab + ')\n\nIl est enregistré localement et sera envoyé automatiquement dès le retour de la connexion (ou via le bouton « Synchroniser maintenant »). N\'envoyez le code au client qu\'une fois synchronisé.\n\n(Détail technique : ' + (res.error || 'connexion indisponible') + ')');
     }
   });
 }
@@ -5349,7 +5349,7 @@ function genCode() {
 function saveAdminEmailFromInput() {
   var v = (document.getElementById('adminEmailInput').value||'').trim();
   if (v) { saveAdminEmail(v); toast('✅ Email admin sauvegardé.','ok'); }
-  else   { alert('Veuillez saisir une adresse email.'); }
+  else   { alert('Saisir une adresse email.'); }
 }
 
 function refreshDemandes() {
@@ -5638,14 +5638,14 @@ function renewCode(oldCode) {
   refreshAdminTable();
 
   if (navigator.clipboard) navigator.clipboard.writeText(newCode).catch(function(){});
-  alert('✅ Nouveau code généré : ' + newCode + '\n\nCopié dans le presse-papier.\nTransmettez-le à : ' + (original.client||''));
+  alert('✅ Nouveau code généré : ' + newCode + '\n\nCopié dans le presse-papier.\nLe transmettre à : ' + (original.client||''));
 }
 
 function copyCode(code) {
   if (navigator.clipboard) {
     navigator.clipboard.writeText(code).then(function(){ alert('Code copié : ' + code); });
   } else {
-    prompt('Copiez ce code :', code);
+    prompt('Copier ce code :', code);
   }
 }
 
@@ -5717,7 +5717,7 @@ function refreshAdminTable() {
   }
   var wrap = document.getElementById('codesTableWrap');
   if (!codes.length) {
-    wrap.innerHTML = '<div class="code-empty">Aucun code généré. Créez un premier code ci-dessus.</div>';
+    wrap.innerHTML = '<div class="code-empty">Aucun code généré. Créer un premier code ci-dessus.</div>';
     return;
   }
   var rows = codes.map(function(c) {
@@ -5766,7 +5766,7 @@ function refreshAdminTable() {
     '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center">' +
       '<button onclick="deleteSelectedCodes()" style="background:#fdecec;border:1px solid #f5b7b1;border-radius:8px;padding:7px 12px;font-family:\'Source Sans 3\',sans-serif;font-size:.78rem;color:#c0392b;font-weight:600;cursor:pointer">🗑 Supprimer la sélection</button>' +
       '<button onclick="deleteAllCodes()" style="background:#c0392b;border:1px solid #c0392b;border-radius:8px;padding:7px 12px;font-family:\'Source Sans 3\',sans-serif;font-size:.78rem;color:#fff;font-weight:600;cursor:pointer">🗑 Tout supprimer</button>' +
-      '<span style="font-size:.74rem;color:#8a9e95">Cochez des codes, puis « Supprimer la sélection ».</span>' +
+      '<span style="font-size:.74rem;color:#8a9e95">Cocher des codes, puis « Supprimer la sélection ».</span>' +
     '</div>' +
     '<table class="codes-table"><thead><tr>' +
     '<th style="width:34px;text-align:center"><input type="checkbox" onclick="toggleAllCodeChecks(this)" title="Tout sélectionner" style="width:16px;height:16px;cursor:pointer"></th><th>Code</th><th>Client / Secteur</th><th>Statut</th><th>Créé le</th><th>Expire</th><th>Utilisé le</th><th>Documents</th><th></th>' +
@@ -7075,7 +7075,7 @@ function getData() {
 }
 function saveHist() {
   const d = getData();
-  if (!d.m.etab) { toast("Veuillez renseigner l'établissement.", 'err'); return; }
+  if (!d.m.etab) { toast("Renseigner l'établissement.", 'err'); return; }
   // 1) CLOUD d'abord (source de vérité) — génère le rapport + photos et l'envoie à Supabase
   try { saveAudit_remote(d); } catch(e) { console.warn('saveAudit_remote:', e); }
   // 2) Historique local (best-effort : peut dépasser le quota avec des photos → on réduit)
@@ -7151,7 +7151,7 @@ function saveAudit_remote(d) {
 // ═══════════════════════════════════════════════════════
 function _makeDocx(filename, buildFn, info) {
   if (!window.docx || !window.docx.Document) {
-    alert('La bibliothèque Word (docx) n\'est pas encore chargée. Patientez quelques secondes et réessayez.');
+    alert('La bibliothèque Word (docx) n\'est pas encore chargée. Patienter quelques secondes et réessayez.');
     return;
   }
   var D = window.docx;
@@ -7592,13 +7592,13 @@ function genWordLavageMains(info) {
       _hVide(D),
       _hP(D,'DURÉE MINIMALE : 30 SECONDES — 7 ÉTAPES OBLIGATOIRES',{b:true,c:'c0392b',sz:28}),
       _hVide(D),
-      _hBullet(D,'Étape 1 — Mouillez vos mains à l\'eau tiède courante'),
-      _hBullet(D,'Étape 2 — Appliquez du savon liquide bactéricide'),
-      _hBullet(D,'Étape 3 — Frottez paume contre paume (mouvements circulaires, 5 sec)'),
-      _hBullet(D,'Étape 4 — Frottez le dos des mains et les espaces interdigitaux'),
-      _hBullet(D,'Étape 5 — Frottez les ongles dans la paume opposée — nettoyez les pouces'),
-      _hBullet(D,'Étape 6 — Rincez abondamment à l\'eau courante (10 sec minimum)'),
-      _hBullet(D,'Étape 7 — Séchez avec essuie-mains usage unique — fermez le robinet avec le papier'),
+      _hBullet(D,'Étape 1 — Mouiller vos mains à l\'eau tiède courante'),
+      _hBullet(D,'Étape 2 — Appliquer du savon liquide bactéricide'),
+      _hBullet(D,'Étape 3 — Frotter paume contre paume (mouvements circulaires, 5 sec)'),
+      _hBullet(D,'Étape 4 — Frotter le dos des mains et les espaces interdigitaux'),
+      _hBullet(D,'Étape 5 — Frotter les ongles dans la paume opposée — nettoyez les pouces'),
+      _hBullet(D,'Étape 6 — Rincer abondamment à l\'eau courante (10 sec minimum)'),
+      _hBullet(D,'Étape 7 — Sécher avec essuie-mains usage unique — fermez le robinet avec le papier'),
       _hVide(D),
       _hSection(D,'QUAND SE LAVER LES MAINS ?'), _hVide(D),
       _hBullet(D,'Avant de commencer le travail'),
@@ -7642,7 +7642,7 @@ function genWordHuiles(info) {
 // ── existantGenDoc : appelé par les boutons HTML fixes ──
 function existantGenAllDocs() {
   var info = window._existantClientInfo;
-  if (!info) { alert('Veuillez sélectionner un client.'); return; }
+  if (!info) { alert('Sélectionner un client.'); return; }
   var sel = document.getElementById('existant_client_sel');
   var codes = sel && sel._uniqueCodes ? sel._uniqueCodes : getCodes().filter(function(c){ return c.type !== 'admin_temp'; });
   var chosen = codes[parseInt(sel ? sel.value : -1)];
@@ -8841,7 +8841,7 @@ function editAuditFromCloud(idx) {
     set('obs1', a.obs1 || '');
     set('obs2', a.obs2 || '');
     if (typeof calcScore === 'function') calcScore();
-    if (typeof toast === 'function') toast('✏️ Audit chargé pour modification. Modifiez puis « 💾 Sauvegarder » — une nouvelle version sera enregistrée.', 'inf');
+    if (typeof toast === 'function') toast('✏️ Audit chargé pour modification. Modifier puis « 💾 Sauvegarder » — une nouvelle version sera enregistrée.', 'inf');
   }, 400);
 }
 
@@ -9137,7 +9137,7 @@ function initApp() {
 // ── Modification infos client existant ──
 function openEditModal() {
   var info = window._existantClientInfo;
-  if (!info) { alert('Veuillez sélectionner un client.'); return; }
+  if (!info) { alert('Sélectionner un client.'); return; }
   document.getElementById('edit_etab').value    = info.etab    || '';
   document.getElementById('edit_resp').value    = info.resp    || '';
   document.getElementById('edit_tel').value     = info.tel     || '';
@@ -9384,7 +9384,7 @@ function renderTeam(){
   var host=document.getElementById('teamListe'); if(!host) return;
   var membres=getTeam();
   if(!membres.length){
-    host.innerHTML='<div style="text-align:center;color:#8a9e95;font-size:.85rem;padding:24px 12px"><div style="font-size:2rem;margin-bottom:8px">👥</div>Aucun auditeur enregistré.<br>Ajoutez les membres de votre équipe ci-dessus.</div>';
+    host.innerHTML='<div style="text-align:center;color:#8a9e95;font-size:.85rem;padding:24px 12px"><div style="font-size:2rem;margin-bottom:8px">👥</div>Aucun auditeur enregistré.<br>Ajouter les membres de votre équipe ci-dessus.</div>';
   } else {
     host.innerHTML=membres.map(function(m){
       var nom=((m.prenom||'')+' '+(m.nom||'')).trim();
@@ -9446,7 +9446,7 @@ function _resetTeamForm(){
 function teamAdd(){
   var p=document.getElementById('teamPrenom'), n=document.getElementById('teamNom');
   var prenom=p?p.value.trim():'', nom=n?n.value.trim():'';
-  if(!prenom&&!nom){ _teamToast('Indiquez au moins un nom ou un prénom.','err'); return; }
+  if(!prenom&&!nom){ _teamToast('Indiquer au moins un nom ou un prénom.','err'); return; }
   var membres=getTeam();
   if(_editingTeamId){
     membres=membres.map(function(m){ return m.id===_editingTeamId ? {id:m.id,prenom:prenom,nom:nom,photo:_teamPhotoTmp||''} : m; });
