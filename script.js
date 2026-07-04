@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v438';
+var APP_BUILD = 'v439';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -599,7 +599,7 @@ async function sbLoginTentative(codeAcces, pwd) {
     // 1h-2h du matin le jour J en France.
     var exp = new Date(etab.date_expiration); exp.setHours(23, 59, 59, 999);
     if (exp < new Date()) {
-      return { ok: false, msg: 'Votre abonnement a expiré le ' + exp.toLocaleDateString('fr-FR') + '. Contacter HACCP Pro pour le renouveler.' };
+      return { ok: false, msg: 'Votre abonnement a expiré le ' + exp.toLocaleDateString('fr-FR') + '. Contacter Nomos Traça pour le renouveler.' };
     }
   }
   // SUIVI ADMIN — horodate la dernière connexion réussie (fire&forget, n'impacte
@@ -637,7 +637,7 @@ async function sbLogin(codeAcces, pwd) {
       // valide (< 7 jours) correspond. Sinon message clair selon le cas.
       var off = await _tryOfflineLogin(code, pwd);
       if (off.ok) { MODE_LOCAL = false; return off; }
-      if (off.subExpired) return { ok: false, msg: 'Abonnement expiré. Contacter HACCP Pro.' };
+      if (off.subExpired) return { ok: false, msg: 'Abonnement expiré. Contacter Nomos Traça.' };
       if (off.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 7 jours). Rese connecter avec du réseau au moins une fois.' };
       return { ok: false, msg: 'Pas de réseau et aucune connexion récente sur cet appareil. Se connecter une fois avec du réseau.' };
     }
@@ -655,7 +655,7 @@ function sbLoginLocal(code, pwd) {
     return { ok: false, msg: 'Code d\'accès non reconnu. Vérifier le code et réessayez.' };
   }
   if (!etab.actif) {
-    return { ok: false, msg: 'Cet établissement est désactivé. Contacter HACCP Pro.' };
+    return { ok: false, msg: 'Cet établissement est désactivé. Contacter Nomos Traça.' };
   }
   // Vérification mot de passe local
   if (etab.mot_de_passe && etab.mot_de_passe !== pwd) {
@@ -1093,7 +1093,7 @@ async function sbSauvegarderEtab(etabData) {
               '<div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:10px;margin-bottom:18px;font-size:11px;color:rgba(255,255,255,0.85)">💰 <strong>Économie engagement :</strong> ' + t.economie + '</div>' +
               '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>' +
               '<ul style="list-style:none;padding:0;margin:0 0 18px;font-size:13px;color:white;line-height:1.7">' + caracHtml + '</ul>' +
-              '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Pourquoi HACCP Pro ?</div>' +
+              '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Pourquoi Nomos Traça ?</div>' +
               '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-bottom:18px">' +
                 '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px"><div style="font-size:18px;margin-bottom:4px">🎯</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Utilisation facile</div><div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.5">Mode guidé pas à pas, langage simple, accessible à toute votre équipe.</div></div>' +
                 '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:12px"><div style="font-size:18px;margin-bottom:4px">🌱</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Pas de papier</div><div style="font-size:11px;color:rgba(255,255,255,0.65);line-height:1.5">Plus de classeurs, plus de paperasse égarée. Tout est numérique, sécurisé.</div></div>' +
@@ -1295,7 +1295,7 @@ try { document.addEventListener('DOMContentLoaded', function(){ _renderTrace(); 
 
 // V80 — Helpers de gestion du stockage (limite Safari ~5 Mo)
 function estimerTailleStockage() {
-  // Retourne {bytes, mo, pct, total_mo} — estimation du localStorage utilisé par HACCP Pro
+  // Retourne {bytes, mo, pct, total_mo} — estimation du localStorage utilisé par Nomos Traça
   try {
     var total = 0;
     for (var i = 0; i < localStorage.length; i++) {
@@ -1993,7 +1993,7 @@ window.motDePasseOublie = async function() {
     var email = info.email || '';
     if (!email) {
       try { window._supabase.from('historique_admin').insert([{ action: 'Mot de passe oublié (sans e-mail)', code_concerne: code }]).then(function(){}); } catch(e){}
-      alert('Aucune adresse e-mail n\'est associée à ce compte. Contacter HACCP Pro pour récupérer votre accès.');
+      alert('Aucune adresse e-mail n\'est associée à ce compte. Contacter Nomos Traça pour récupérer votre accès.');
       return;
     }
 
@@ -2017,7 +2017,7 @@ window.motDePasseOublie = async function() {
             code_acces: etab.code_acces,
             mot_de_passe: etab.mot_de_passe || '',
             formule: '',
-            message: 'Voici votre NOUVEAU mot de passe HACCP Pro (l\'ancien ne fonctionne plus).' + infoEssai
+            message: 'Voici votre NOUVEAU mot de passe Nomos Traça (l\'ancien ne fonctionne plus).' + infoEssai
           }
         );
         envoye = true;
@@ -2037,7 +2037,7 @@ window.motDePasseOublie = async function() {
     if (envoye) {
       alert('✅ C\'est envoyé !\n\nUn NOUVEAU mot de passe a été adressé par e-mail à : ' + emailMasque + '\n\n(L\'ancien ne fonctionne plus.) Penser à vérifier vos spams.');
     } else {
-      alert('Votre demande a bien été enregistrée, mais l\'envoi automatique n\'a pas pu aboutir. HACCP Pro va vous recontacter.');
+      alert('Votre demande a bien été enregistrée, mais l\'envoi automatique n\'a pas pu aboutir. Nomos Traça va vous recontacter.');
     }
   } catch(e) {
     alert('Erreur : ' + ((e && e.message) ? e.message : e));
@@ -2949,7 +2949,7 @@ function imprimerCuisson() {
     html += '</table></div>';
   });
 
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
 
   var existing = document.getElementById('printOverlay');
@@ -3136,7 +3136,7 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     if (enc.isNC) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(enc.action||'A definir')) + '</td></tr>';
     html += '</table></div>';
   });
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
   var existing = document.getElementById('printOverlay');
   if (existing) existing.remove();
@@ -3486,7 +3486,7 @@ function genererRapportParBlocHTML(pageId, titre, blocs, type) {
     html += '</table>';
   }
 
-  html += '<div class="footer">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div class="footer">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
 
   return html;
@@ -3768,7 +3768,7 @@ function imprimerModuleAplat(pageId, titre, dataOverride) {
     html += '</table>';
   }
 
-  html += '<div class="footer">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div class="footer">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
 
   // Overlay
@@ -7398,7 +7398,7 @@ function imprimerReception(dataOverride, photosOverride) {
     });
   }
 
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
 
   var overlay = document.createElement('div');
   overlay.id = 'printOverlay';
@@ -11061,7 +11061,7 @@ function imprimerRefroidissementData(prods, signataire, ts) {
     if (nc) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(p.action || 'A definir')) + '</td></tr>';
     html += '</table></div>';
   });
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
   var existing = document.getElementById('printOverlay');
   if (existing) existing.remove();
@@ -11446,7 +11446,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
     }
     html += '</table></div>';
   });
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
   var existing = document.getElementById('printOverlay');
   if (existing) existing.remove();
@@ -11752,7 +11752,7 @@ function imprimerEtiquettes() {
   var labels = '';
   var labelHtml = function(nom, date, dlc, zone) {
     return '<div style="border:1px solid #0f766e;border-radius:3px;padding:4mm 3mm;display:inline-block;width:63.5mm;height:38.1mm;vertical-align:top;font-family:Arial,sans-serif;page-break-inside:avoid;box-sizing:border-box;overflow:hidden">' +
-      '<div style="font-size:6pt;color:#0f766e;font-weight:bold;border-bottom:0.5px solid #0f766e;padding-bottom:1mm;margin-bottom:1.5mm">🏷️ HACCP Pro — Étiquetage interne</div>' +
+      '<div style="font-size:6pt;color:#0f766e;font-weight:bold;border-bottom:0.5px solid #0f766e;padding-bottom:1mm;margin-bottom:1.5mm">🏷️ Nomos Traça — Étiquetage interne</div>' +
       '<div style="font-size:10pt;font-weight:bold;margin-bottom:1mm">' + nom + '</div>' +
       '<div style="font-size:8pt;color:#374151"><b>Fabrication :</b> ' + date + '</div>' +
       '<div style="font-size:9pt;color:#dc2626;font-weight:700"><b>DLC :</b> ' + dlc + '</div>' +
@@ -11774,7 +11774,7 @@ function imprimerEtiquettes() {
     for (var i = 0; i < nb; i++) { labels += labelHtml(nom, date, dlc, zone); }
   });
   if (!labels) { showToast('Aucun produit à imprimer.', 'warn'); return; }
-  var etabNom = (ETAB && ETAB.nom) ? ETAB.nom : 'HACCP Pro';
+  var etabNom = (ETAB && ETAB.nom) ? ETAB.nom : 'Nomos Traça';
   // Créer un overlay imprimable dans la page courante
   var existing = document.getElementById('printOverlay');
   if (existing) existing.remove();
@@ -14856,7 +14856,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
    }
   });
 
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:20px;border-top:1px solid #e5e7eb;padding-top:10px">HACCP Pro — Pack DDPP — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:20px;border-top:1px solid #e5e7eb;padding-top:10px">Nomos Traça — Pack DDPP — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
   html += '</div>';
 
   // Afficher dans overlay
@@ -16276,7 +16276,7 @@ function imprimerDashboard() {
     '.nc{color:#dc2626;font-weight:bold}' +
     '@media print{.no-print{display:none!important}}' +
   '</style>' +
-  '<div class="header"><h2 style="color:white;margin:0;font-size:15px">Tableau de Bord HACCP Pro</h2>' +
+  '<div class="header"><h2 style="color:white;margin:0;font-size:15px">Tableau de Bord Nomos Traça</h2>' +
   '<div style="font-size:11px;opacity:.8">' + pdfSafe(ETAB.nom||'') + ' | Secteur : ' + pdfSafe(((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + ' | ' + getNowStr() + '</div></div>' +
   '<div style="padding:16px">' +
   '<h2>Score : ' + scoreTxt + '%</h2>' +
@@ -16295,7 +16295,7 @@ function imprimerDashboard() {
     html += '<h2>Derniers controles</h2><table><tr><th>Date</th><th>Heure</th><th>Module</th><th>Signe par</th></tr>' +
     historique.slice(0,15).map(function(e){ return '<tr><td>' + (e.date||'') + '</td><td>' + (e.heure||'—') + '</td><td>' + (e.module||'') + '</td><td>' + (e.signe||'—') + '</td></tr>'; }).join('') + '</table>';
   }
-  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:12px">HACCP Pro — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div></div>';
+  html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:12px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div></div>';
 
     var _tb = document.createElement('div');
   _tb.className = 'no-print';
@@ -18232,7 +18232,7 @@ function genererMatrice() {
   if (plats.some(function(p){return p.hasManual;})) {
     html += '<div style="font-size:10px;color:#92400e;background:#fff7ed;border:1px solid #fed7aa;border-top:none;padding:8px 16px;border-radius:0 0 8px 8px">* Ingrédient(s) saisi(s) librement — vérifiez leurs allergènes et mettez à jour la matrice.</div>';
   }
-  html += '<div style="font-size:9px;color:#9ca3af;padding:6px 0;text-align:right">Généré par HACCP Pro · ' + getNowStr() + ' · ' + plats.length + ' plat(s)</div>';
+  html += '<div style="font-size:9px;color:#9ca3af;padding:6px 0;text-align:right">Généré par Nomos Traça · ' + getNowStr() + ' · ' + plats.length + ' plat(s)</div>';
   html += '</div>';
 
   document.getElementById('matriceContent').innerHTML = html;
@@ -19936,7 +19936,7 @@ function marquerChampsFacultatifsAuto() {
 
 // ════════════════════════════════════════════════════════════════════════════
 // === DEBUT MODE TEST ===
-// Mode test caché — Activation : 5 clics rapides sur le logo HACCP Pro
+// Mode test caché — Activation : 5 clics rapides sur le logo Nomos Traça
 // V85 — Activation alternative : bouton "Mode Test Léa" sur la page de connexion (raccourci direct)
 // Réservé à l'usage interne (Léa). Invisible pour les clients finaux.
 // Pour désactiver complètement : supprimer ce bloc entre les balises DEBUT/FIN MODE TEST
@@ -22405,7 +22405,7 @@ function testEffacerDonnees() {
 
 
 // ════════════════════════════════════════════════════════════════
-// HACCP Pro V114 — Sauvegarde cloud des contrôles
+// Nomos Traça V114 — Sauvegarde cloud des contrôles
 // Cette fonction envoie une copie du contrôle dans Supabase.
 // Si Supabase est indisponible, on ne casse rien : les données 
 // restent dans le navigateur comme avant.
@@ -22737,7 +22737,7 @@ var _isSyncLeader = true;
 
 
 // ════════════════════════════════════════════════════════════════
-// HACCP Pro V114 — Espion universel cloud v3
+// Nomos Traça V114 — Espion universel cloud v3
 // Surveille toutes les boîtes haccp_module_data_page-*
 // et synchronise les nouveaux contrôles vers Supabase
 // ════════════════════════════════════════════════════════════════
@@ -22830,7 +22830,7 @@ function ouvrirInfosLegales(section) {
 
   var confidentialite =
     '<h2 style="margin:0 0 10px;font-size:19px">Politique de confidentialité (RGPD)</h2>' +
-    '<p style="color:#475569;font-size:13px">HACCP Pro, édité par RTH NETGOCE, est un outil d’aide à l’autocontrôle sanitaire pour les professionnels des métiers de bouche. Nous ne vendons jamais vos données et ne les utilisons à aucune fin publicitaire. Le client reste seul responsable du respect de la réglementation dans son établissement.</p>' +
+    '<p style="color:#475569;font-size:13px">Nomos Traça, édité par RTH NETGOCE, est un outil d’aide à l’autocontrôle sanitaire pour les professionnels des métiers de bouche. Nous ne vendons jamais vos données et ne les utilisons à aucune fin publicitaire. Le client reste seul responsable du respect de la réglementation dans son établissement.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Responsable du traitement</h3>' +
     '<p style="color:#475569;font-size:13px">RTH NETGOCE — SARL, 49 rue de Douai, 75009 Paris. Contact : r.t.h@orange.fr.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Données traitées</h3>' +
@@ -22861,7 +22861,7 @@ function ouvrirInfosLegales(section) {
     '<h3 style="font-size:14px;margin:16px 0 6px">Conservation des données</h3>' +
     '<p style="color:#475569;font-size:13px">Les données de votre compte (identité de l’établissement, abonnement) sont conservées pendant la durée de la relation contractuelle, puis jusqu’à 3 ans à des fins de preuve et d’obligations légales. L’empreinte de connexion hors-ligne est conservée 7 jours.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Sauvegarde de vos contrôles — votre responsabilité</h3>' +
-    '<p style="color:#475569;font-size:13px">Vos contrôles et leurs preuves (PDF) sont VOS documents réglementaires. Il vous appartient de les télécharger, imprimer ou exporter régulièrement et de les conserver par vos propres moyens (PDF, document ou impression), notamment pour pouvoir les présenter lors d’un contrôle de la DDPP. L’hébergement proposé par HACCP Pro l’est pour votre confort : RTH NETGOCE ne garantit pas la conservation de vos données ni de vos photos, et n’est pas responsable de leur sauvegarde, de leur perte ou de leur suppression. Les photos peuvent notamment être supprimées automatiquement au-delà de 18 mois. En cas de résiliation, pensez à exporter vos données au préalable.</p>' +
+    '<p style="color:#475569;font-size:13px">Vos contrôles et leurs preuves (PDF) sont VOS documents réglementaires. Il vous appartient de les télécharger, imprimer ou exporter régulièrement et de les conserver par vos propres moyens (PDF, document ou impression), notamment pour pouvoir les présenter lors d’un contrôle de la DDPP. L’hébergement proposé par Nomos Traça l’est pour votre confort : RTH NETGOCE ne garantit pas la conservation de vos données ni de vos photos, et n’est pas responsable de leur sauvegarde, de leur perte ou de leur suppression. Les photos peuvent notamment être supprimées automatiquement au-delà de 18 mois. En cas de résiliation, pensez à exporter vos données au préalable.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Cookies et stockage local</h3>' +
     '<p style="color:#475569;font-size:13px">L’application n’utilise aucun cookie publicitaire ni traceur tiers. Elle utilise uniquement le stockage local de votre navigateur, strictement nécessaire au fonctionnement et au mode hors-ligne : aucun consentement préalable n’est requis pour ce stockage.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Sécurité</h3>' +
@@ -22876,17 +22876,17 @@ function ouvrirInfosLegales(section) {
     '<h3 style="font-size:14px;margin:16px 0 6px">Hébergeurs</h3>' +
     '<p style="color:#475569;font-size:13px"><strong>Application (interface)</strong> : GitHub, Inc. — 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis.<br><strong>Données et photos</strong> : Supabase, Inc. — infrastructure Amazon Web Services, Union européenne (région Irlande).<br><strong>E-mails</strong> : EmailJS (États-Unis).</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Propriété intellectuelle</h3>' +
-    '<p style="color:#475569;font-size:13px">L’application HACCP Pro, sa marque, son interface et ses contenus sont la propriété de RTH NETGOCE. Toute reproduction non autorisée est interdite. Vos données et vos contrôles restent votre propriété.</p>' +
+    '<p style="color:#475569;font-size:13px">L’application Nomos Traça, sa marque, son interface et ses contenus sont la propriété de RTH NETGOCE. Toute reproduction non autorisée est interdite. Vos données et vos contrôles restent votre propriété.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Responsabilité</h3>' +
-    '<p style="color:#475569;font-size:13px">HACCP Pro est un outil d’aide à l’autocontrôle ; il ne se substitue pas à la responsabilité de l’exploitant quant au respect de ses obligations sanitaires.</p>' +
+    '<p style="color:#475569;font-size:13px">Nomos Traça est un outil d’aide à l’autocontrôle ; il ne se substitue pas à la responsabilité de l’exploitant quant au respect de ses obligations sanitaires.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Droit applicable</h3>' +
     '<p style="color:#475569;font-size:13px">Droit français. Litiges : tribunaux compétents de Paris.</p>';
 
   var cgv =
     '<h2 style="margin:0 0 10px;font-size:19px">Conditions Générales de Vente</h2>' +
-    '<p style="color:#475569;font-size:13px">Les présentes CGV régissent l’abonnement au service HACCP Pro, édité par RTH NETGOCE (SARL), entre l’éditeur et le client professionnel (l’« Abonné »). La souscription vaut acceptation des présentes CGV.</p>' +
+    '<p style="color:#475569;font-size:13px">Les présentes CGV régissent l’abonnement au service Nomos Traça, édité par RTH NETGOCE (SARL), entre l’éditeur et le client professionnel (l’« Abonné »). La souscription vaut acceptation des présentes CGV.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">1. Service</h3>' +
-    '<p style="color:#475569;font-size:13px">HACCP Pro est un outil d’aide à l’autocontrôle sanitaire (relevés de température, traçabilité, preuves PDF pour la DDPP) ; l’Abonné reste seul responsable du respect de ses obligations sanitaires et réglementaires.</p>' +
+    '<p style="color:#475569;font-size:13px">Nomos Traça est un outil d’aide à l’autocontrôle sanitaire (relevés de température, traçabilité, preuves PDF pour la DDPP) ; l’Abonné reste seul responsable du respect de ses obligations sanitaires et réglementaires.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">2. Souscription et compte</h3>' +
     '<p style="color:#475569;font-size:13px">L’accès se fait par un code et un mot de passe personnels, après inscription. L’Abonné garantit l’exactitude des informations fournies et préserve la confidentialité de ses identifiants.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">3. Essai gratuit</h3>' +
@@ -22912,13 +22912,13 @@ function ouvrirInfosLegales(section) {
     '<h3 style="font-size:14px;margin:16px 0 6px">9. Données et propriété</h3>' +
     '<p style="color:#475569;font-size:13px">Le traitement des données est décrit dans la Politique de confidentialité. Les données et contrôles saisis restent la propriété de l’Abonné, qui peut les exporter (PDF). Il appartient à l’Abonné de sauvegarder régulièrement ses contrôles par ses propres moyens ; RTH NETGOCE n’assure pas cette sauvegarde et ne garantit pas la conservation des données. L’application, sa marque et son interface restent la propriété de RTH NETGOCE.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">10. Responsabilité</h3>' +
-    '<p style="color:#475569;font-size:13px">HACCP Pro étant un outil d’aide, RTH NETGOCE ne saurait être tenue responsable du non-respect par l’Abonné de ses obligations sanitaires. Sauf faute lourde, la responsabilité de l’éditeur est limitée au montant des sommes versées au titre des 12 derniers mois.</p>' +
+    '<p style="color:#475569;font-size:13px">Nomos Traça étant un outil d’aide, RTH NETGOCE ne saurait être tenue responsable du non-respect par l’Abonné de ses obligations sanitaires. Sauf faute lourde, la responsabilité de l’éditeur est limitée au montant des sommes versées au titre des 12 derniers mois.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">11. Droit applicable et litiges</h3>' +
     '<p style="color:#475569;font-size:13px">Droit français. En cas de litige, les parties rechercheront une solution amiable ; à défaut, compétence des tribunaux de Paris.</p>';
 
   var cookies =
     '<h2 style="margin:0 0 10px;font-size:19px">Gestion des cookies et du stockage</h2>' +
-    '<p style="color:#475569;font-size:13px">HACCP Pro n’utilise aucun cookie publicitaire, aucun traceur ni outil de mesure d’audience tiers. Aucune donnée n’est partagée à des fins marketing.</p>' +
+    '<p style="color:#475569;font-size:13px">Nomos Traça n’utilise aucun cookie publicitaire, aucun traceur ni outil de mesure d’audience tiers. Aucune donnée n’est partagée à des fins marketing.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">Stockage strictement nécessaire</h3>' +
     '<p style="color:#475569;font-size:13px">L’application utilise le stockage local de votre navigateur (localStorage / IndexedDB) et un jeton de session sécurisé, uniquement pour :</p>' +
     '<ul style="color:#475569;font-size:13px;padding-left:18px;line-height:1.7">' +
@@ -25455,7 +25455,7 @@ function _ttRemplirFeuille(ws, cols, jours, releves, titre, sousTitre, diag) {
   ws.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
   // Tampon de génération (date + version) + SIGNALEMENT des non-conformités en tête.
   var _ncFeuille = (releves || []).filter(function (r) { return r.isNC && r.temp != null; }).length;
-  ws.getCell('A3').value = 'Généré le ' + new Date().toLocaleString('fr-FR') + ' · HACCP Pro ' + (typeof APP_BUILD !== 'undefined' ? APP_BUILD : '?') + ' · ' + (releves ? releves.length : 0) + ' relevé(s)' + (_ncFeuille ? ' · ATTENTION : ' + _ncFeuille + ' NON CONFORME(S) — voir cases rouges et colonne Observations' : ' · aucune non-conformité');
+  ws.getCell('A3').value = 'Généré le ' + new Date().toLocaleString('fr-FR') + ' · Nomos Traça ' + (typeof APP_BUILD !== 'undefined' ? APP_BUILD : '?') + ' · ' + (releves ? releves.length : 0) + ' relevé(s)' + (_ncFeuille ? ' · ATTENTION : ' + _ncFeuille + ' NON CONFORME(S) — voir cases rouges et colonne Observations' : ' · aucune non-conformité');
   ws.mergeCells('A3:' + last + '3');
   ws.getCell('A3').font = { italic: true, bold: !!_ncFeuille, size: 8, color: { argb: _ncFeuille ? 'FFB91C1C' : 'FF15803D' } };
   // Légende des couleurs (ligne dédiée).
@@ -26351,7 +26351,7 @@ function _sqCollecterData() {
 }
 function _sqPaquet() {
   return {
-    app: 'HACCP Pro', type: 'sauvegarde-controles',
+    app: 'Nomos Traça', type: 'sauvegarde-controles',
     version: (typeof APP_BUILD !== 'undefined' ? APP_BUILD : ''),
     etab_id: _sqEtabKey(),
     etab_nom: (typeof ETAB !== 'undefined' && ETAB && ETAB.nom) ? ETAB.nom : '',

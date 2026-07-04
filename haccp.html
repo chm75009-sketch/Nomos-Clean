@@ -7,7 +7,7 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>HACCP Pro</title>
+<title>Nomos Traça</title>
 <!-- PWA — installable iPhone & Android -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#1e1b4b">
@@ -16,7 +16,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="HACCP Pro">
+<meta name="apple-mobile-web-app-title" content="Nomos Traça">
 <script>
   // Enregistrement du service worker (mode hors-ligne). Nécessite HTTPS (ex: GitHub Pages).
   // V126 — Mise à jour AUTOMATIQUE : dès qu'une nouvelle version est déployée,
@@ -182,11 +182,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=438">
-    <script src="pms_secteurs.js?v=438" defer></script>
-    <script src="script.js?v=438" defer></script>
-<script src="patch_photo_bl.js?v=438" defer></script>
-<script src="pms_generateur.js?v=438" defer></script>
+    <link rel="stylesheet" href="style.css?v=439">
+    <script src="pms_secteurs.js?v=439" defer></script>
+    <script src="script.js?v=439" defer></script>
+<script src="patch_photo_bl.js?v=439" defer></script>
+<script src="pms_generateur.js?v=439" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -214,7 +214,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div class="logo-shield">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L4 6V12C4 16.9 7.8 21.5 12 22C16.2 21.5 20 16.9 20 12V6L12 2Z" fill="white" fill-opacity=".9"/><path d="M8.5 12L11 14.5L15.5 9.5" stroke="#059669" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </div>
-      <span class="logo-name">HACCP<span>Pro</span></span>
+      <span class="logo-name">Nomos<span>Traça</span></span>
     </div>
     <div class="topbar-mid" id="topbarEtabBox" style="flex-direction:column;align-items:flex-start;gap:0;padding:5px 12px">
       <div style="display:flex;align-items:center;gap:5px;line-height:1.2"><span>📍</span><strong id="topbarEtabNom" style="font-size:12px">RESTAURANT TEST</strong><span style="color:rgba(255,255,255,.3);font-size:10px">▾</span></div>
@@ -238,161 +238,161 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- ════════════════════════════════════════════════════════════════ -->
     <!-- V90 — PAGE PRÉSENTATION (landing commerciale) — affichée avant login -->
     <!-- ════════════════════════════════════════════════════════════════ -->
-    <div class="page active" id="page-presentation" style="min-height:100vh;background:linear-gradient(160deg,#0a0e1a 0%,#0f1729 50%,#131929 100%);color:white;font-family:Outfit,sans-serif">
+    <div class="page active" id="page-presentation" style="min-height:100vh;background:linear-gradient(165deg,#ffffff 0%,#f4f8f6 55%,#eef4f1 100%);color:#0b0f1a;font-family:Outfit,sans-serif">
       <!-- HEADER STICKY avec navigation -->
-      <header style="position:sticky;top:0;z-index:100;background:rgba(10,14,26,0.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(74,222,128,0.18);padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px">
+      <header style="position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(15,118,110,0.18);padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px">
         <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px">
           <!-- Logo -->
           <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-            <div style="width:34px;height:34px;background:linear-gradient(135deg,#4ade80,#22c55e);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(74,222,128,0.3)">🛡️</div>
-            <div style="font-size:17px;font-weight:900;color:white;letter-spacing:-0.3px">HACCP<span style="color:#4ade80">Pro</span></div>
+            <div style="width:34px;height:34px;background:linear-gradient(135deg,#64748b,#3f4a5c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(15,118,110,0.3)">🛡️</div>
+            <div style="font-size:17px;font-weight:900;color:#0b0f1a;letter-spacing:-0.3px">Nomos<span style="color:#0f766e">Traça</span></div>
           </div>
           <!-- Nav desktop -->
           <nav class="nav-desktop" style="display:flex;gap:24px;align-items:center;flex:1;justify-content:center">
-            <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;text-decoration:none">Fonctionnalités</a>
-            <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;text-decoration:none">Pack DDPP</a>
-            <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;text-decoration:none">Tarifs</a>
-            <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.75);font-size:13px;font-weight:700;text-decoration:none">Démo</a>
+            <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Fonctionnalités</a>
+            <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Pack DDPP</a>
+            <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Tarifs</a>
+            <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Démo</a>
           </nav>
           <!-- CTA + burger -->
           <div style="display:flex;gap:10px;align-items:center">
-            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:9px 18px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 4px 12px rgba(74,222,128,0.3);white-space:nowrap">🔐 Se connecter</button>
-            <button class="nav-burger" onclick="document.getElementById('navMobileMenu').classList.toggle('open')" style="display:none;background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);padding:8px 11px;border-radius:9px;cursor:pointer;font-size:16px">☰</button>
+            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:9px 18px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 4px 12px rgba(15,118,110,0.3);white-space:nowrap">🔐 Se connecter</button>
+            <button class="nav-burger" onclick="document.getElementById('navMobileMenu').classList.toggle('open')" style="display:none;background:#eef2f0;color:#3f4a5c;border:1px solid #dde3e0;padding:8px 11px;border-radius:9px;cursor:pointer;font-size:16px">☰</button>
           </div>
         </div>
         <!-- Menu mobile (caché par défaut) -->
-        <div id="navMobileMenu" style="display:none;flex-direction:column;gap:8px;padding:14px 20px 4px;border-top:1px solid rgba(255,255,255,0.06);margin-top:12px">
-          <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.85);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04)">Fonctionnalités</a>
-          <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.85);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04)">Pack DDPP</a>
-          <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.85);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04)">Tarifs</a>
-          <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.85);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.04)">Démo</a>
+        <div id="navMobileMenu" style="display:none;flex-direction:column;gap:8px;padding:14px 20px 4px;border-top:1px solid #eef0ec;margin-top:12px">
+          <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Fonctionnalités</a>
+          <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Pack DDPP</a>
+          <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Tarifs</a>
+          <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Démo</a>
         </div>
       </header>
       <!-- BANDEAU OFFRE LANCEMENT (compact, en haut) -->
-      <div style="background:linear-gradient(135deg,#dc2626 0%,#ea580c 100%);padding:10px 20px;text-align:center;font-size:13px;font-weight:700;color:white">
+      <div style="background:linear-gradient(135deg,#fbe6cf,#f7dcae);border-bottom:1px solid #f0d9b8;padding:10px 20px;text-align:center;font-size:13px;font-weight:700;color:#7c2d12">
         🎁 <strong>Offre lancement</strong> jusqu'au <strong>30 juin 2026</strong> — DUERP personnalisé à <strong>400 € au lieu de 800 € (-50%)</strong> ou <strong>OFFERT pour tout abonnement annuel</strong>
-        <div style="font-size:11px;font-weight:500;margin-top:4px;color:rgba(255,255,255,0.92);line-height:1.4">⚠️ Amende de 1 500 € à 7 500 € pour absence de DUERP — qui peut aller jusqu'à 5 ans de prison et 75 000 € d'amende en cas d'accident du travail</div>
+        <div style="font-size:11px;font-weight:500;margin-top:4px;color:#8a5a2b;line-height:1.4">⚠️ Amende de 1 500 € à 7 500 € pour absence de DUERP — qui peut aller jusqu'à 5 ans de prison et 75 000 € d'amende en cas d'accident du travail</div>
       </div>
       <!-- HERO -->
       <section style="padding:30px 20px 24px;max-width:1100px;margin:0 auto">
         <div style="text-align:center">
-          <h1 style="font-size:clamp(22px,3.2vw,32px);font-weight:900;line-height:1.2;margin:0 0 12px;color:white">Votre HACCP en règle,<br><span style="background:linear-gradient(135deg,#4ade80,#22c55e);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">sans paperasse, sans stress.</span></h1>
-          <p style="font-size:clamp(13px,1.4vw,14px);color:rgba(255,255,255,0.7);max-width:580px;margin:0 auto 20px;line-height:1.5">L'application HACCP intuitive pour restaurateurs, boulangers, traiteurs et bouchers. Tous vos contrôles et votre Pack DDPP en 1 clic.</p>
+          <h1 style="font-size:clamp(22px,3.2vw,32px);font-weight:900;line-height:1.2;margin:0 0 12px;color:#0b0f1a">Votre HACCP en règle,<br><span style="background:linear-gradient(135deg,#64748b,#3f4a5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">sans paperasse, sans stress.</span></h1>
+          <p style="font-size:clamp(13px,1.4vw,14px);color:#52617a;max-width:580px;margin:0 auto 20px;line-height:1.5">L'application HACCP intuitive pour restaurateurs, boulangers, traiteurs et bouchers. Tous vos contrôles et votre Pack DDPP en 1 clic.</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
-            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">🔐 Se connecter</button>
-            <button onclick="showPage('page-inscription')" style="background:rgba(74,222,128,0.12);color:#4ade80;border:1.5px solid rgba(74,222,128,0.4);padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
-            <button onclick="document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.06);color:white;border:1.5px solid rgba(255,255,255,0.18);padding:11px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">▶️ Voir la démo</button>
+            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">🔐 Se connecter</button>
+            <button onclick="showPage('page-inscription')" style="background:rgba(15,118,110,0.12);color:#0f766e;border:1.5px solid rgba(15,118,110,0.4);padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
+            <button onclick="document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="background:#eef2f0;color:#3f4a5c;border:1.5px solid #dde3e0;padding:11px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">▶️ Voir la démo</button>
           </div>
-          <div style="display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,0.06)">
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#4ade80">19</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px">Modules HACCP</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#4ade80">5</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px">Secteurs</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#4ade80">1 clic</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px">Pack DDPP</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#4ade80">100%</div><div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px">Mobile</div></div>
+          <div style="display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding-top:14px;border-top:1px solid #eef0ec">
+            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">19</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Modules HACCP</div></div>
+            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">5</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Secteurs</div></div>
+            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">1 clic</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Pack DDPP</div></div>
+            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">100%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Mobile</div></div>
           </div>
         </div>
       </section>
       <!-- FONCTIONNALITÉS (compactée) -->
       <section id="section-fonctionnalites" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:28px">
-          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Simplicité</div>
-          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0">Fini la paperasse.</h2>
+          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Simplicité</div>
+          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Fini la paperasse.</h2>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">📱</div><div style="font-size:15px;font-weight:800;color:white;margin-bottom:4px">100% mobile</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Saisie depuis votre téléphone, en cuisine, sans installation.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">✍️</div><div style="font-size:15px;font-weight:800;color:white;margin-bottom:4px">Signature numérique</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Tracée au doigt, horodatée, infalsifiable.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">📸</div><div style="font-size:15px;font-weight:800;color:white;margin-bottom:4px">Photos intégrées</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Lots, DLC, étiquettes — preuves visuelles.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">⚡</div><div style="font-size:15px;font-weight:800;color:white;margin-bottom:4px">Alertes auto</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">Non-conformité ? Action corrective demandée immédiatement.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">🎯</div><div style="font-size:15px;font-weight:800;color:white;margin-bottom:4px">Mode guidé</div><div style="font-size:12px;color:rgba(255,255,255,0.6);line-height:1.5">L'app vous accompagne pas à pas. Aucune formation requise.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">📱</div><div style="font-size:15px;font-weight:800;color:#0b0f1a;margin-bottom:4px">100% mobile</div><div style="font-size:12px;color:#52617a;line-height:1.5">Saisie depuis votre téléphone, en cuisine, sans installation.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">✍️</div><div style="font-size:15px;font-weight:800;color:#0b0f1a;margin-bottom:4px">Signature numérique</div><div style="font-size:12px;color:#52617a;line-height:1.5">Tracée au doigt, horodatée, infalsifiable.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">📸</div><div style="font-size:15px;font-weight:800;color:#0b0f1a;margin-bottom:4px">Photos intégrées</div><div style="font-size:12px;color:#52617a;line-height:1.5">Lots, DLC, étiquettes — preuves visuelles.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">⚡</div><div style="font-size:15px;font-weight:800;color:#0b0f1a;margin-bottom:4px">Alertes auto</div><div style="font-size:12px;color:#52617a;line-height:1.5">Non-conformité ? Action corrective demandée immédiatement.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:14px;padding:18px"><div style="font-size:26px;margin-bottom:8px">🎯</div><div style="font-size:15px;font-weight:800;color:#0b0f1a;margin-bottom:4px">Mode guidé</div><div style="font-size:12px;color:#52617a;line-height:1.5">L'app vous accompagne pas à pas. Aucune formation requise.</div></div>
         </div>
       </section>
       <!-- PACK DDPP (pédagogique) -->
-      <section id="section-ddpp" style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(74,222,128,0.04) 50%,transparent 100%)">
+      <section id="section-ddpp" style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(15,118,110,0.04) 50%,transparent 100%)">
         <div style="max-width:1100px;margin:0 auto">
           <div style="text-align:center;margin-bottom:28px">
-            <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Conformité</div>
-            <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0 0 8px">Pack contrôle DDPP : votre filet de sécurité.</h2>
-            <p style="font-size:13px;color:rgba(255,255,255,0.6);max-width:620px;margin:0 auto;line-height:1.5">En cas de contrôle, fournissez en 1 clic l'ensemble de vos enregistrements HACCP au format réglementaire.</p>
+            <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Conformité</div>
+            <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">Pack contrôle DDPP : votre filet de sécurité.</h2>
+            <p style="font-size:13px;color:#52617a;max-width:620px;margin:0 auto;line-height:1.5">En cas de contrôle, fournissez en 1 clic l'ensemble de vos enregistrements HACCP au format réglementaire.</p>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:20px">
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(74,222,128,0.18);border-radius:14px;padding:20px">
-              <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Qui ?</div>
-              <div style="font-size:16px;font-weight:800;color:white;margin-bottom:8px">La DDPP</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55">La <strong>Direction Départementale de la Protection des Populations</strong> regroupe les services vétérinaires. Elle contrôle l'hygiène alimentaire dans tous les établissements de restauration.</div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
+              <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Qui ?</div>
+              <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">La DDPP</div>
+              <div style="font-size:12px;color:#52617a;line-height:1.55">La <strong>Direction Départementale de la Protection des Populations</strong> regroupe les services vétérinaires. Elle contrôle l'hygiène alimentaire dans tous les établissements de restauration.</div>
             </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(74,222,128,0.18);border-radius:14px;padding:20px">
-              <div style="font-size:11px;color:#dc2626;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Quand ?</div>
-              <div style="font-size:16px;font-weight:800;color:white;margin-bottom:8px">Sans prévenir</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55">Les contrôles sont <strong>inopinés</strong>. L'inspecteur peut arriver à tout moment et exiger immédiatement vos enregistrements HACCP.</div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
+              <div style="font-size:11px;color:#c2410c;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Quand ?</div>
+              <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">Sans prévenir</div>
+              <div style="font-size:12px;color:#52617a;line-height:1.55">Les contrôles sont <strong>inopinés</strong>. L'inspecteur peut arriver à tout moment et exiger immédiatement vos enregistrements HACCP.</div>
             </div>
-            <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(74,222,128,0.18);border-radius:14px;padding:20px">
-              <div style="font-size:11px;color:#f59e0b;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Risques</div>
-              <div style="font-size:16px;font-weight:800;color:white;margin-bottom:8px">Lourds</div>
-              <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.55">Avertissement, mise en demeure, <strong>fermeture administrative</strong>, retrait d'agrément. En cas de TIAC : poursuites pénales.</div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
+              <div style="font-size:11px;color:#b45309;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Risques</div>
+              <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">Lourds</div>
+              <div style="font-size:12px;color:#52617a;line-height:1.55">Avertissement, mise en demeure, <strong>fermeture administrative</strong>, retrait d'agrément. En cas de TIAC : poursuites pénales.</div>
             </div>
           </div>
-          <div style="background:linear-gradient(135deg,rgba(74,222,128,0.12),rgba(34,197,94,0.05));border:1.5px solid rgba(74,222,128,0.35);border-radius:16px;padding:22px;text-align:center">
+          <div style="background:linear-gradient(135deg,rgba(15,118,110,0.12),rgba(13,74,67,0.05));border:1.5px solid rgba(15,118,110,0.35);border-radius:16px;padding:22px;text-align:center">
             <div style="font-size:26px;margin-bottom:8px">📋</div>
-            <div style="font-size:17px;font-weight:900;color:white;margin-bottom:6px">Avec HACCP Pro : 1 bouton, 1 PDF complet</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.7);line-height:1.5;max-width:620px;margin:0 auto">Sélectionner la période demandée. HACCP Pro génère un Pack DDPP avec tous vos contrôles — réceptions, températures, nettoyages, hygiène, NC, signatures. Format conforme.</div>
+            <div style="font-size:17px;font-weight:900;color:#0b0f1a;margin-bottom:6px">Avec Nomos Traça : 1 bouton, 1 PDF complet</div>
+            <div style="font-size:12px;color:#52617a;line-height:1.5;max-width:620px;margin:0 auto">Sélectionner la période demandée. Nomos Traça génère un Pack DDPP avec tous vos contrôles — réceptions, températures, nettoyages, hygiène, NC, signatures. Format conforme.</div>
           </div>
         </div>
       </section>
       <!-- COFFRE-FORT DOCUMENTS -->
       <section style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:28px">
-          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Coffre-fort</div>
-          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0">Tous vos documents au même endroit.</h2>
+          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Coffre-fort</div>
+          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Tous vos documents au même endroit.</h2>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">📄</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Plan de Maîtrise Sanitaire</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Stockage central</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🎓</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Attestation HACCP</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Validité auto-vérifiée</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🐭</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Contrat dératisation</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Alerte renouvellement 30j</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">♻️</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Contrats déchets / huiles</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Loi AGEC 2024</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">📸</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Photos lots, DLC</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Preuves horodatées</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🛡️</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Bordereaux collecte</div><div style="font-size:11px;color:rgba(255,255,255,0.6)">Biodéchets, huiles</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">📄</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Plan de Maîtrise Sanitaire</div><div style="font-size:11px;color:#52617a">Stockage central</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🎓</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Attestation HACCP</div><div style="font-size:11px;color:#52617a">Validité auto-vérifiée</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🐭</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Contrat dératisation</div><div style="font-size:11px;color:#52617a">Alerte renouvellement 30j</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">♻️</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Contrats déchets / huiles</div><div style="font-size:11px;color:#52617a">Loi AGEC 2024</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">📸</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Photos lots, DLC</div><div style="font-size:11px;color:#52617a">Preuves horodatées</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:16px"><div style="font-size:22px;margin-bottom:6px">🛡️</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Bordereaux collecte</div><div style="font-size:11px;color:#52617a">Biodéchets, huiles</div></div>
         </div>
       </section>
       <!-- MULTI-SECTORIEL -->
-      <section style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(74,222,128,0.04) 50%,transparent 100%)">
+      <section style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(15,118,110,0.04) 50%,transparent 100%)">
         <div style="max-width:1100px;margin:0 auto">
           <div style="text-align:center;margin-bottom:28px">
-            <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">5 secteurs adaptés</div>
-            <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0">Une app pensée pour votre métier.</h2>
+            <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">5 secteurs adaptés</div>
+            <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Une app pensée pour votre métier.</h2>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍽️</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Restauration trad.</div><div style="font-size:10px;color:rgba(255,255,255,0.55)">Bistrots, brasseries</div></div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥖</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Boulangerie-pât.</div><div style="font-size:10px;color:rgba(255,255,255,0.55)">Cellules de pousse</div></div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍔</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Fast food</div><div style="font-size:10px;color:rgba(255,255,255,0.55)">Friteuses, remise T°</div></div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥩</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Boucherie</div><div style="font-size:10px;color:rgba(255,255,255,0.55)">Traçabilité, CF</div></div>
-            <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(74,222,128,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🏫</div><div style="font-size:13px;font-weight:800;color:white;margin-bottom:2px">Restau. collective</div><div style="font-size:10px;color:rgba(255,255,255,0.55)">Plat témoin, liaison</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍽️</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restauration trad.</div><div style="font-size:10px;color:#52617a">Bistrots, brasseries</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥖</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boulangerie-pât.</div><div style="font-size:10px;color:#52617a">Cellules de pousse</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍔</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Fast food</div><div style="font-size:10px;color:#52617a">Friteuses, remise T°</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥩</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boucherie</div><div style="font-size:10px;color:#52617a">Traçabilité, CF</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🏫</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restau. collective</div><div style="font-size:10px;color:#52617a">Plat témoin, liaison</div></div>
           </div>
         </div>
       </section>
       <!-- DÉMO (carrousel V91) -->
       <section id="section-demo" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:22px">
-          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Démo guidée</div>
-          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0 0 8px">L'application en action.</h2>
-          <p style="font-size:13px;color:rgba(255,255,255,0.6);max-width:560px;margin:0 auto">7 écrans clés pour comprendre HACCP Pro en 30 secondes.</p>
+          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Démo guidée</div>
+          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">L'application en action.</h2>
+          <p style="font-size:13px;color:#52617a;max-width:560px;margin:0 auto">7 écrans clés pour comprendre Nomos Traça en 30 secondes.</p>
         </div>
         <!-- Carrousel -->
-        <div id="demoCarousel" style="background:linear-gradient(135deg,rgba(74,222,128,0.06),rgba(34,197,94,0.02));border:1.5px solid rgba(74,222,128,0.2);border-radius:18px;padding:24px;max-width:880px;margin:0 auto">
+        <div id="demoCarousel" style="background:linear-gradient(135deg,rgba(15,118,110,0.06),rgba(13,74,67,0.02));border:1.5px solid rgba(15,118,110,0.2);border-radius:18px;padding:24px;max-width:880px;margin:0 auto">
           <!-- Titre + description (en HAUT, comme un titre) -->
           <div style="text-align:center;margin-bottom:20px;min-height:90px">
-            <div id="demoStep" style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 7</div>
-            <h3 id="demoTitle" style="font-size:22px;font-weight:900;color:white;margin:0 0 8px;line-height:1.2">Choisir votre secteur</h3>
-            <p id="demoDesc" style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin:0 auto;max-width:560px">L'application s'adapte automatiquement à votre métier.</p>
+            <div id="demoStep" style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 7</div>
+            <h3 id="demoTitle" style="font-size:22px;font-weight:900;color:#0b0f1a;margin:0 0 8px;line-height:1.2">Choisir votre secteur</h3>
+            <p id="demoDesc" style="font-size:13px;color:#52617a;line-height:1.5;margin:0 auto;max-width:560px">L'application s'adapte automatiquement à votre métier.</p>
           </div>
           <!-- Mockup phone centré -->
           <div style="display:flex;justify-content:center;margin-bottom:20px">
             <div style="position:relative;width:340px;flex-shrink:0">
-              <div style="background:#000;border-radius:36px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 2px rgba(74,222,128,0.2)">
+              <div style="background:#000;border-radius:36px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 2px rgba(15,118,110,0.2)">
                 <div style="background:#0f172a;border-radius:30px;overflow:hidden;position:relative">
                   <!-- Encoche -->
                   <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
                   <!-- Conteneur scrollable avec l'image en hauteur naturelle -->
                   <div id="demoScrollWrap" style="width:100%;overflow:hidden;position:relative">
-                    <img id="demoImg" src="" alt="Démo HACCP Pro" style="width:100%;display:block;transition:opacity 0.3s ease,transform 4s linear">
+                    <img id="demoImg" src="" alt="Démo Nomos Traça" style="width:100%;display:block;transition:opacity 0.3s ease,transform 4s linear">
                   </div>
                 </div>
               </div>
@@ -401,9 +401,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <!-- Contrôles centrés sous le mockup -->
           <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
             <div style="display:flex;align-items:center;gap:8px">
-              <button id="demoPrev" onclick="demoPrev()" style="background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">←</button>
-              <button id="demoPlay" onclick="demoTogglePlay()" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:0 16px;height:36px;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;font-family:Outfit,sans-serif">⏸ Pause</button>
-              <button id="demoNext" onclick="demoNext()" style="background:rgba(255,255,255,0.08);color:white;border:1px solid rgba(255,255,255,0.15);width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">→</button>
+              <button id="demoPrev" onclick="demoPrev()" style="background:#eef2f0;color:#3f4a5c;border:1px solid #dde3e0;width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">←</button>
+              <button id="demoPlay" onclick="demoTogglePlay()" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:0 16px;height:36px;border-radius:9px;cursor:pointer;font-weight:800;font-size:13px;font-family:Outfit,sans-serif">⏸ Pause</button>
+              <button id="demoNext" onclick="demoNext()" style="background:#eef2f0;color:#3f4a5c;border:1px solid #dde3e0;width:36px;height:36px;border-radius:9px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">→</button>
             </div>
             <!-- Indicateurs -->
             <div id="demoDots" style="display:flex;gap:6px"></div>
@@ -413,74 +413,74 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- TARIFS (refonte : comparatif détaillé, prix HT, sans choix de formule par le client) -->
       <section id="section-tarifs" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:24px">
-          <div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Nos formules</div>
-          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:white;margin:0 0 8px">Tarifs clairs, sans surprise.</h2>
-          <p style="font-size:13px;color:rgba(255,255,255,0.6);margin:0">Logiciel HACCP Pro &amp; service Audit sur place. Tous les prix sont indiqués <strong>HT</strong>.</p>
+          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Nos formules</div>
+          <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">Tarifs clairs, sans surprise.</h2>
+          <p style="font-size:13px;color:#52617a;margin:0">Logiciel Nomos Traça &amp; service Audit sur place. Tous les prix sont indiqués <strong>HT</strong>.</p>
         </div>
 
         <!-- ============ LOGICIEL HACCP PRO ============ -->
-        <h3 style="font-size:17px;font-weight:800;color:white;margin:6px 0 12px;text-align:center">📱 Logiciel HACCP&nbsp;Pro</h3>
+        <h3 style="font-size:17px;font-weight:800;color:#0b0f1a;margin:6px 0 12px;text-align:center">📱 Logiciel Nomos&nbsp;Traça</h3>
         <div style="text-align:center;margin-bottom:14px">
-          <div style="display:inline-flex;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:4px;gap:2px">
-            <button id="engTab12" onclick="setEngTarif('eng')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:9px 16px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Avec engagement 12 mois<span style="display:block;font-size:9px;font-weight:700;margin-top:1px;opacity:0.85">(jusqu'à -33%)</span></button>
-            <button id="engTabLibre" onclick="setEngTarif('libre')" style="background:transparent;color:rgba(255,255,255,0.7);border:none;padding:9px 16px;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Sans engagement</button>
+          <div style="display:inline-flex;background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:4px;gap:2px">
+            <button id="engTab12" onclick="setEngTarif('eng')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:9px 16px;border-radius:9px;font-weight:800;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Avec engagement 12 mois<span style="display:block;font-size:9px;font-weight:700;margin-top:1px;opacity:0.85">(jusqu'à -33%)</span></button>
+            <button id="engTabLibre" onclick="setEngTarif('libre')" style="background:transparent;color:#52617a;border:none;padding:9px 16px;border-radius:9px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Sans engagement</button>
           </div>
         </div>
-        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid rgba(255,255,255,0.08);border-radius:14px;margin-bottom:12px">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e7ece9;border-radius:14px;margin-bottom:12px">
           <table style="width:100%;border-collapse:collapse;min-width:0;font-size:13px">
             <thead>
-              <tr style="background:rgba(255,255,255,0.03)">
-                <th style="text-align:left;padding:11px 7px;color:rgba(255,255,255,0.6);font-weight:700;font-size:12px">Fonctionnalité</th>
-                <th onclick="openFormuleDetail('essentiel')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer">Essentiel<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
-                <th onclick="openFormuleDetail('solo')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer">Solo<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
-                <th onclick="openFormuleDetail('pro')" style="padding:11px 4px;color:white;text-align:center;cursor:pointer;background:rgba(74,222,128,0.07);border-left:1px solid rgba(74,222,128,0.2);border-right:1px solid rgba(74,222,128,0.2)">Pro<br><span class="px-eng" style="color:#4ade80;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#4ade80;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:rgba(255,255,255,0.5)">HT / mois</span><br><span style="font-size:10px;color:#4ade80;text-decoration:underline">détail&nbsp;›</span></th>
+              <tr style="background:#ffffff">
+                <th style="text-align:left;padding:11px 7px;color:#52617a;font-weight:700;font-size:12px">Fonctionnalité</th>
+                <th onclick="openFormuleDetail('essentiel')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Essentiel<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('solo')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Solo<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('pro')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer;background:rgba(15,118,110,0.07);border-left:1px solid rgba(15,118,110,0.2);border-right:1px solid rgba(15,118,110,0.2)">Pro<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
               </tr>
             </thead>
-            <tbody style="color:rgba(255,255,255,0.85)">
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Relevés température</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Réception &amp; traçabilité</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Huiles de friture</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Planning nettoyage</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Cuisson · refroidissement · remise en T°</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Étiquetage interne &amp; DLC</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Pertes &amp; invendus</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Nuisibles &amp; déchets</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Documents &amp; affichages obligatoires</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Matrice allergènes (14 INCO)</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Tableau de bord &amp; non-conformités</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900">✓</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Pack DDPP <span style="color:rgba(255,255,255,0.5);font-size:11px">(PDF inspecteur)</span></td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8)">Édition illimitée<br>des 3 contrôles</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8)">Édition illimitée<br>tous les contrôles</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.8);background:rgba(74,222,128,0.05)">Édition illimitée<br>tous les contrôles</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">Utilisateur</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;background:rgba(74,222,128,0.05)">1</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">🛡️ PMS personnalisé</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">🛡️ DUERP personnalisé</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">📌 Affiches obligatoires fournies</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:rgba(255,255,255,0.25)">—</td><td style="text-align:center;color:#4ade80;font-weight:900;background:rgba(74,222,128,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid rgba(255,255,255,0.06)"><td style="padding:9px 7px">📡 Capteurs connectés <span style="color:rgba(255,255,255,0.5);font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7)">Sur devis</td><td style="text-align:center;font-size:11px;color:rgba(255,255,255,0.7);background:rgba(74,222,128,0.05)">Sur devis</td></tr>
+            <tbody style="color:#52617a">
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Relevés température</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Réception &amp; traçabilité</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Huiles de friture</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Planning nettoyage</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Cuisson · refroidissement · remise en T°</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Étiquetage interne &amp; DLC</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pertes &amp; invendus</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Nuisibles &amp; déchets</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Documents &amp; affichages obligatoires</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Matrice allergènes (14 INCO)</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Tableau de bord &amp; non-conformités</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pack DDPP <span style="color:#64748b;font-size:11px">(PDF inspecteur)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>des 3 contrôles</td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>tous les contrôles</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(15,118,110,0.05)">Édition illimitée<br>tous les contrôles</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Utilisateur</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;background:rgba(15,118,110,0.05)">1</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ PMS personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ DUERP personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📌 Affiches obligatoires fournies</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📡 Capteurs connectés <span style="color:#64748b;font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(15,118,110,0.05)">Sur devis</td></tr>
             </tbody>
           </table>
         </div>
         <!-- ============ RELEVÉS AUTOMATIQUES — DEVIS CAPTEURS ============ -->
-        <div style="max-width:720px;margin:4px auto 26px;background:linear-gradient(135deg,rgba(74,222,128,0.10),rgba(255,255,255,0.03));border:1px solid rgba(74,222,128,0.28);border-radius:16px;padding:18px 20px">
-          <div style="font-weight:800;color:white;font-size:15px;margin-bottom:6px">🌡️ Relevés de température automatiques</div>
+        <div style="max-width:720px;margin:4px auto 26px;background:linear-gradient(135deg,rgba(15,118,110,0.10),rgba(255,255,255,0.03));border:1px solid rgba(15,118,110,0.28);border-radius:16px;padding:18px 20px">
+          <div style="font-weight:800;color:#0b0f1a;font-size:15px;margin-bottom:6px">🌡️ Relevés de température automatiques</div>
           <p style="font-size:12.5px;color:rgba(255,255,255,0.82);line-height:1.6;margin:0 0 10px">Couplée à des <strong>capteurs connectés</strong>, l'application enregistre vos températures d'enceintes <strong>automatiquement, 24h/24</strong> (même fermée), sans aucune saisie. <strong>Alertes</strong> en cas de dépassement de seuil · conformité DDPP · zéro oubli.</p>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-            <button type="button" onclick="ouvrirDevisCapteurs()" style="background:#4ade80;color:#0a1f14;border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📩 Demander un devis</button>
-            <span style="font-size:11.5px;color:rgba(255,255,255,0.6)">Devis gratuit et sans engagement · capteurs sur devis</span>
+            <button type="button" onclick="ouvrirDevisCapteurs()" style="background:#0f766e;color:#0a1f14;border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📩 Demander un devis</button>
+            <span style="font-size:11.5px;color:#52617a">Devis gratuit et sans engagement · capteurs sur devis</span>
           </div>
         </div>
-        <p style="text-align:center;font-size:12.5px;color:rgba(255,255,255,0.75);margin:0 0 30px">✨ <strong style="color:#4ade80">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
+        <p style="text-align:center;font-size:12.5px;color:#52617a;margin:0 0 30px">✨ <strong style="color:#0f766e">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
 
         <!-- ============ FAQ ============ -->
-        <h3 style="font-size:17px;font-weight:800;color:white;margin:10px 0 14px;text-align:center">Questions fréquentes</h3>
+        <h3 style="font-size:17px;font-weight:800;color:#0b0f1a;margin:10px 0 14px;text-align:center">Questions fréquentes</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;max-width:920px;margin:0 auto 8px">
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je essayer gratuitement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — 14 jours, toutes les fonctions, sans carte bancaire.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment j'obtiens ma formule ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">C'est nous qui activons votre accès selon votre besoin. Vous nous contactez, on crée votre code en quelques minutes.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Y a-t-il un engagement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Au choix : <strong>avec engagement 12 mois</strong> (tarif réduit, jusqu'à -33 %) ou <strong>sans engagement</strong>, résiliable à tout moment.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Comment se passe le paiement ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Sur facture, par virement — pas de prélèvement automatique.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Puis-je changer de formule plus tard ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — vous nous contactez et on ajuste votre accès, sans perdre vos données.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Mes données sont-elles sécurisées ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — connexion HTTPS et accès cloisonné par établissement.</div></div>
-          <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px"><div style="font-weight:800;color:white;font-size:13px;margin-bottom:5px">Dois-je sauvegarder mes contrôles ?</div><div style="font-size:12px;color:rgba(255,255,255,0.65);line-height:1.6">Oui — pensez à exporter et conserver régulièrement vos contrôles (Pack DDPP / PDF). Vous restez responsable de la conservation de vos enregistrements.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Puis-je essayer gratuitement ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Oui — 14 jours, toutes les fonctions, sans carte bancaire.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Comment j'obtiens ma formule ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">C'est nous qui activons votre accès selon votre besoin. Vous nous contactez, on crée votre code en quelques minutes.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Y a-t-il un engagement ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Au choix : <strong>avec engagement 12 mois</strong> (tarif réduit, jusqu'à -33 %) ou <strong>sans engagement</strong>, résiliable à tout moment.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Comment se passe le paiement ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Sur facture, par virement — pas de prélèvement automatique.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Puis-je changer de formule plus tard ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Oui — vous nous contactez et on ajuste votre accès, sans perdre vos données.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Mes données sont-elles sécurisées ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Oui — connexion HTTPS et accès cloisonné par établissement.</div></div>
+          <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Dois-je sauvegarder mes contrôles ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Oui — pensez à exporter et conserver régulièrement vos contrôles (Pack DDPP / PDF). Vous restez responsable de la conservation de vos enregistrements.</div></div>
         </div>
         <div style="text-align:center;margin-top:22px">
-          <button onclick="showPage('page-inscription')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">Démarrer l'essai gratuit</button>
+          <button onclick="showPage('page-inscription')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">Démarrer l'essai gratuit</button>
         </div>
         <script>
         window.setEngTarif = function(mode){
@@ -489,8 +489,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
           sec.querySelectorAll('.px-eng').forEach(function(e){ e.style.display = on ? 'none' : ''; });
           sec.querySelectorAll('.px-libre').forEach(function(e){ e.style.display = on ? '' : 'none'; });
           var t12 = document.getElementById('engTab12'), tl = document.getElementById('engTabLibre');
-          if(t12){ t12.style.background = on ? 'transparent' : 'linear-gradient(135deg,#4ade80,#22c55e)'; t12.style.color = on ? 'rgba(255,255,255,0.7)' : '#0a0e1a'; }
-          if(tl){ tl.style.background = on ? 'linear-gradient(135deg,#4ade80,#22c55e)' : 'transparent'; tl.style.color = on ? '#0a0e1a' : 'rgba(255,255,255,0.7)'; }
+          if(t12){ t12.style.background = on ? 'transparent' : 'linear-gradient(135deg,#64748b,#3f4a5c)'; t12.style.color = on ? '#52617a' : '#0a0e1a'; }
+          if(tl){ tl.style.background = on ? 'linear-gradient(135deg,#64748b,#3f4a5c)' : 'transparent'; tl.style.color = on ? '#0a0e1a' : '#52617a'; }
         };
 
         // Détail d'une formule au clic
@@ -502,7 +502,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         window._DOCS_OBL = ['Plan de Maîtrise Sanitaire (PMS) + procédures HACCP','Plan de nettoyage & désinfection','Plan de lutte contre les nuisibles (+ contrat dératisation)','Relevés de températures (frigos / congélateurs)','Traçabilité : étiquettes, bons de livraison, factures','Registre des non-conformités & actions correctives','Attestation de formation hygiène (≥ 1 personne formée)','Déclaration d\'activité auprès de la DDPP (+ agrément si concerné)','Protocole huiles de friture','Plats témoins (restauration collective)','DUERP (document unique des risques)','Contrats d\'entretien (hotte, bac à graisse…) + analyses microbio si applicable'];
         window._AFF_OBL = ['Information allergènes','Consignes de lavage des mains','Interdiction de fumer / vapoter','Mention « eau potable / eau non potable » sur les points d\'eau','Origine des viandes','Protocole de nettoyage en cuisine','Affichage des prix (clientèle)'];
         window._detailsList = function(title, arr){
-          return '<details style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:0 12px;margin-bottom:8px"><summary style="cursor:pointer;padding:11px 0;font-weight:800;font-size:12.5px;color:white;list-style:none">'+title+'</summary><ul style="margin:0 0 10px;padding:0 0 0 18px;font-size:12px;color:rgba(255,255,255,0.8);line-height:1.8">'+arr.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></details>';
+          return '<details style="background:#ffffff;border:1px solid #e7ece9;border-radius:10px;padding:0 12px;margin-bottom:8px"><summary style="cursor:pointer;padding:11px 0;font-weight:800;font-size:12.5px;color:#0b0f1a;list-style:none">'+title+'</summary><ul style="margin:0 0 10px;padding:0 0 0 18px;font-size:12px;color:#52617a;line-height:1.8">'+arr.map(function(x){return '<li>'+x+'</li>';}).join('')+'</ul></details>';
         };
         window.openFormuleDetail = function(key){
           var f = window._FORMULES[key]; if(!f) return;
@@ -510,28 +510,28 @@ html, body { max-width: 100%; overflow-x: hidden; }
           if(!m || !c) return;
           var li = f.items.map(function(t){
             var head = /,\s*plus\s*:$/.test(t);
-            return head ? '<li style="list-style:none;margin:6px 0 4px;color:rgba(255,255,255,0.55);font-size:12px;font-weight:700">'+t+'</li>'
+            return head ? '<li style="list-style:none;margin:6px 0 4px;color:#52617a;font-size:12px;font-weight:700">'+t+'</li>'
                         : '<li style="margin-bottom:5px">'+t+'</li>';
           }).join('');
           var extra = '';
           if(key === 'pro'){
-            extra = '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px">Documents &amp; affiches fournis</div>'
+            extra = '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px">Documents &amp; affiches fournis</div>'
                   + window._detailsList('📑 Documents obligatoires', window._DOCS_OBL)
                   + window._detailsList('📌 Affiches obligatoires', window._AFF_OBL)
-                  + '<p style="font-size:10.5px;color:rgba(255,255,255,0.5);font-style:italic;line-height:1.6;margin:8px 2px 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client reste responsable de la conformité de son établissement.</p>';
+                  + '<p style="font-size:10.5px;color:#64748b;font-style:italic;line-height:1.6;margin:8px 2px 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client reste responsable de la conformité de son établissement.</p>';
           }
           c.innerHTML =
-            '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
-            '<h3 style="font-size:24px;font-weight:900;color:white;margin:0 0 2px">'+f.nom+'</h3>'+
-            '<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-bottom:16px">'+f.sub+'</div>'+
+            '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
+            '<h3 style="font-size:24px;font-weight:900;color:#0b0f1a;margin:0 0 2px">'+f.nom+'</h3>'+
+            '<div style="font-size:13px;color:#52617a;margin-bottom:16px">'+f.sub+'</div>'+
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">'+
-              '<div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);border-radius:11px;padding:12px"><div style="font-size:9px;color:#4ade80;font-weight:800">ENGAGEMENT 12 MOIS</div><div style="font-size:22px;font-weight:900;color:white">'+f.eng+'<span style="font-size:11px;color:rgba(255,255,255,0.6);font-weight:600"> HT/mois</span></div></div>'+
-              '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);border-radius:11px;padding:12px"><div style="font-size:9px;color:rgba(255,255,255,0.6);font-weight:800">SANS ENGAGEMENT</div><div style="font-size:22px;font-weight:900;color:rgba(255,255,255,0.85)">'+f.libre+'<span style="font-size:11px;color:rgba(255,255,255,0.5);font-weight:600"> HT/mois</span></div></div>'+
+              '<div style="background:rgba(15,118,110,0.1);border:1px solid rgba(15,118,110,0.25);border-radius:11px;padding:12px"><div style="font-size:9px;color:#0f766e;font-weight:800">ENGAGEMENT 12 MOIS</div><div style="font-size:22px;font-weight:900;color:#0b0f1a">'+f.eng+'<span style="font-size:11px;color:#52617a;font-weight:600"> HT/mois</span></div></div>'+
+              '<div style="background:#ffffff;border:1px solid #e7ece9;border-radius:11px;padding:12px"><div style="font-size:9px;color:#52617a;font-weight:800">SANS ENGAGEMENT</div><div style="font-size:22px;font-weight:900;color:#52617a">'+f.libre+'<span style="font-size:11px;color:#64748b;font-weight:600"> HT/mois</span></div></div>'+
             '</div>'+
-            '<div style="font-size:11px;color:#4ade80;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
-            '<ul style="padding:0 0 0 18px;margin:0 0 14px;font-size:13px;color:white;line-height:1.6">'+li+'</ul>'+
+            '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
+            '<ul style="padding:0 0 0 18px;margin:0 0 14px;font-size:13px;color:#0b0f1a;line-height:1.6">'+li+'</ul>'+
             extra +
-            '<button onclick="closeFormuleDetail();showPage(\'page-inscription\')" style="width:100%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Démarrer l\'essai gratuit</button>';
+            '<button onclick="closeFormuleDetail();showPage(\'page-inscription\')" style="width:100%;background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Démarrer l\'essai gratuit</button>';
           m.style.display = 'flex';
           document.body.style.overflow = 'hidden';
         };
@@ -543,43 +543,43 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
         <!-- Fenêtre détail formule -->
         <div id="modalFormule" onclick="if(event.target===this)closeFormuleDetail()" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
-          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(74,222,128,0.3);border-radius:18px;max-width:520px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
-            <button onclick="closeFormuleDetail()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:white;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif">✕</button>
+          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(15,118,110,0.3);border-radius:18px;max-width:520px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
+            <button onclick="closeFormuleDetail()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:#ffffff;border:1px solid #e7ece9;color:#0b0f1a;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif">✕</button>
             <div id="modalFormuleContent"></div>
           </div>
         </div>
       </section>
       <!-- CTA FINAL -->
       <section style="padding:34px 20px 22px;max-width:1000px;margin:0 auto;text-align:center">
-        <h2 style="font-size:clamp(20px,2.5vw,26px);font-weight:900;color:white;margin:0 0 10px">Prêt à dire adieu à la paperasse ?</h2>
+        <h2 style="font-size:clamp(20px,2.5vw,26px);font-weight:900;color:#0b0f1a;margin:0 0 10px">Prêt à dire adieu à la paperasse ?</h2>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(74,222,128,0.3)">🔐 Se connecter</button>
-          <button onclick="showPage('page-inscription')" style="background:rgba(74,222,128,0.12);color:#4ade80;border:1.5px solid rgba(74,222,128,0.4);padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
+          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">🔐 Se connecter</button>
+          <button onclick="showPage('page-inscription')" style="background:rgba(15,118,110,0.12);color:#0f766e;border:1.5px solid rgba(15,118,110,0.4);padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
         </div>
       </section>
       <!-- FOOTER -->
-      <footer style="padding:22px 20px;border-top:1px solid rgba(255,255,255,0.06);margin-top:20px">
+      <footer style="padding:22px 20px;border-top:1px solid #eef0ec;margin-top:20px">
         <div style="max-width:1100px;margin:0 auto;text-align:center;font-size:10px;color:rgba(255,255,255,0.4);line-height:1.7">
-          <div>© 2026 HACCP Pro — Application HACCP pour professionnels de la restauration et des métiers de bouche</div>
+          <div>© 2026 Nomos Traça — Application HACCP pour professionnels de la restauration et des métiers de bouche</div>
           <div>Conformité réglementaire française — Signature numérique horodatée</div>
           <div style="margin-top:8px">
-            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('confidentialite')" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:11px;cursor:pointer">Données personnelles (RGPD)</a>
+            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('confidentialite')" style="color:#52617a;text-decoration:none;font-size:11px;cursor:pointer">Données personnelles (RGPD)</a>
             <span style="color:rgba(255,255,255,0.2);margin:0 8px">·</span>
-            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('mentions')" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:11px;cursor:pointer">Mentions légales</a>
+            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('mentions')" style="color:#52617a;text-decoration:none;font-size:11px;cursor:pointer">Mentions légales</a>
             <span style="color:rgba(255,255,255,0.2);margin:0 8px">·</span>
-            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('cgv')" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:11px;cursor:pointer">CGV</a>
+            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('cgv')" style="color:#52617a;text-decoration:none;font-size:11px;cursor:pointer">CGV</a>
             <span style="color:rgba(255,255,255,0.2);margin:0 8px">·</span>
-            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('cookies')" style="color:rgba(255,255,255,0.55);text-decoration:none;font-size:11px;cursor:pointer">Cookies</a>
+            <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('cookies')" style="color:#52617a;text-decoration:none;font-size:11px;cursor:pointer">Cookies</a>
             <span style="color:rgba(255,255,255,0.2);margin:0 8px">·</span>
-            <a href="#" onclick="event.preventDefault();showPage('page-admin')" style="color:rgba(255,255,255,0.25);text-decoration:none;font-size:10px;cursor:pointer">Admin</a>
+            <a href="#" onclick="event.preventDefault();showPage('page-admin')" style="color:#9aa7b2;text-decoration:none;font-size:10px;cursor:pointer">Admin</a>
           </div>
         </div>
       </footer>
       <!-- V92 — Bouton flottant "Haut de page" -->
-      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:84px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#4ade80,#22c55e);color:#0a0e1a;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(74,222,128,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
+      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:84px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
     </div>
     <!-- V92 — Bouton flottant "← Retour" — TOUJOURS visible (icône seule, compact), sauf sur la page-presentation (point d'entrée) -->
-    <button id="btnAppBack" onclick="appGoBack()" aria-label="Retour à la page précédente" title="Retour" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:9000;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);color:white;border:1px solid rgba(255,255,255,0.25);width:38px;height:38px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);padding:0;line-height:1">←</button>
+    <button id="btnAppBack" onclick="appGoBack()" aria-label="Retour à la page précédente" title="Retour" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:9000;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);color:#0b0f1a;border:1px solid #e7ece9;width:38px;height:38px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);padding:0;line-height:1">←</button>
     <!-- PAGE LOGIN -->
     <div class="page" id="page-login" style="min-height:100vh;background:linear-gradient(160deg,#0a0e1a,#131929);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;position:relative">
       <!-- V92 — Bouton retour vers la présentation -->
@@ -587,7 +587,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <div style="width:100%;max-width:420px">
         <div style="text-align:center;margin-bottom:36px">
           <div style="font-size:48px;margin-bottom:12px">🛡️</div>
-          <div style="font-size:26px;font-weight:900;color:white;margin-bottom:6px">HACCP Pro</div>
+          <div style="font-size:26px;font-weight:900;color:white;margin-bottom:6px">Nomos Traça</div>
           <div style="font-size:13px;color:rgba(255,255,255,.5)">Se connecter avec votre code d'accès</div>
         </div>
         <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:28px">
@@ -642,11 +642,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
           <!-- V87 — Bouton "Mode Test Léa" retiré de la page publique pour ne pas exposer aux clients
                Activation reste possible via :
-               1. 5 clics rapides sur le logo HACCPPro (une fois connecté)
+               1. 5 clics rapides sur le logo Nomos Traça (une fois connecté)
                2. Console navigateur : taper `modeTestLea()` puis Entrée -->
         </div>
         <div style="text-align:center;margin-top:20px;font-size:11px;color:rgba(255,255,255,.3)">
-          Vous n'avez pas encore de code ? Contacter votre administrateur HACCP Pro.
+          Vous n'avez pas encore de code ? Contacter votre administrateur Nomos Traça.
         </div>
         <div style="text-align:center;margin-top:24px">
           <span onclick="showPage('page-admin')" style="font-size:11px;color:rgba(255,255,255,.22);cursor:pointer;font-weight:600;letter-spacing:.3px">🔐 Administration</span>
@@ -661,7 +661,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div style="text-align:center;margin-bottom:28px">
           <div style="font-size:40px;margin-bottom:10px">🛡️</div>
-          <div style="font-size:22px;font-weight:900;color:white;margin-bottom:6px">HACCP Pro</div>
+          <div style="font-size:22px;font-weight:900;color:white;margin-bottom:6px">Nomos Traça</div>
           <div style="font-size:13px;color:rgba(255,255,255,.5)">Configuration de votre établissement</div>
         </div>
         <!-- ETAPE 1 : SECTEUR -->
@@ -733,7 +733,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             ⚠️ Remplir les champs obligatoires (*)
           </div>
           <button onclick="validerOnboarding()" style="width:100%;padding:16px;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:Outfit,sans-serif">
-            ✓ Accéder à HACCP Pro
+            ✓ Accéder à Nomos Traça
           </button>
         </div>
       </div>
@@ -3643,7 +3643,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <button class="btn-s" style="color:#dc2626;border-color:#dc2626;width:100%" onclick="if(confirm('Réinitialiser toutes les données ?')){localStorage.clear();location.reload();}">🗑️ Réinitialiser toutes les données</button>
         </div>
         <div style="text-align:center;padding:12px;color:#9ca3af;font-size:11px">
-          HACCP Pro — Version <span id="settingsVersionTxt">—</span> · Données stockées localement
+          Nomos Traça — Version <span id="settingsVersionTxt">—</span> · Données stockées localement
           <div style="margin-top:8px">
             <a href="#" onclick="event.preventDefault();ouvrirInfosLegales('confidentialite')" style="color:#6b7280;text-decoration:underline;cursor:pointer">Données personnelles (RGPD)</a>
             <span style="margin:0 6px;color:#d1d5db">·</span>
@@ -3669,7 +3669,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🏷️</div>
     <div class="modal-title">Étiquetage enregistré !</div>
     <div class="modal-desc">Vos étiquettes sont prêtes. Les imprimer depuis votre téléphone, tablette ou PC.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <div style="font-size:11.5px;color:#6b7280;margin-bottom:10px">📐 Format : <strong id="etiq_format_resume">—</strong> · modifiable dans le module (en haut)</div>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#0d6464,#0f766e);box-shadow:0 4px 16px rgba(15,118,110,.3);margin-bottom:8px" onclick="imprimerEtiquettesHTML()">🖨️ Imprimer les étiquettes</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalEtiqPdf').classList.remove('visible'); openModule('etiquetage')">← Retour au module</button>
@@ -3726,7 +3726,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">⚠️</div>
     <div class="modal-title">Registre NC enregistré !</div>
     <div class="modal-desc">Votre registre de non-conformités a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-nc','NC & Actions Correctives')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalNCPdf').classList.remove('visible'); openModule('nc')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansNCPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3738,7 +3738,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📌</div>
     <div class="modal-title">Contrôle affichages enregistré !</div>
     <div class="modal-desc">Votre contrôle d'affichage réglementaire a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-affichage','Affichages Reglementaires')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalAffPdf').classList.remove('visible'); openModule('affichage')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansAffPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3750,7 +3750,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📁</div>
     <div class="modal-title">Documents enregistrés !</div>
     <div class="modal-desc">Vos documents ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-documents','Controle Documentaire')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalDocsPdf').classList.remove('visible'); openModule('documents')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansDocsPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3762,7 +3762,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🐛</div>
     <div class="modal-title">Suivi nuisibles enregistré !</div>
     <div class="modal-desc">Votre enregistrement de suivi nuisibles a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-nuisibles','Suivi Nuisibles')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalNuisPdf').classList.remove('visible'); openModule('nuisibles')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansNuisPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3800,7 +3800,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">♻️</div>
     <div class="modal-title">Déchets enregistrés !</div>
     <div class="modal-desc">Vos enregistrements de gestion des déchets ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-dechets','Dechets & Biodechets')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalDechetsPdf').classList.remove('visible'); openModule('dechets')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansDechetsPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3812,7 +3812,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🗑️</div>
     <div class="modal-title">Pertes & Invendus enregistrés !</div>
     <div class="modal-desc">Vos enregistrements de pertes ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-pertes','Pertes & Invendus')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalPertesPdf').classList.remove('visible'); openModule('pertes')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansPertesPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3824,7 +3824,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🧽</div>
     <div class="modal-title">Nettoyage fermeture enregistré !</div>
     <div class="modal-desc">Votre plan de nettoyage fermeture a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-fermeture','Nettoyage Fermeture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalFermPdf').classList.remove('visible'); openModule('fermeture')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansFermPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3836,7 +3836,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🫙</div>
     <div class="modal-title">Contrôle huiles enregistré !</div>
     <div class="modal-desc">Vos relevés de contrôle huiles ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-huiles','Huiles de Friture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalHuilePdf').classList.remove('visible'); openModule('huiles')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansHuilePDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3848,7 +3848,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">❄️</div>
     <div class="modal-title">Refroidissement enregistré !</div>
     <div class="modal-desc">Vos relevés de refroidissement ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-refroidissement','Refroidissement Rapide')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalRefroiPdf').classList.remove('visible'); openModule('refroidissement')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansRefroiPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3860,7 +3860,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🍳</div>
     <div class="modal-title">Cuisson enregistrée !</div>
     <div class="modal-desc">Vos enregistrements de cuisson ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerCuisson()">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalCuisPdf').classList.remove('visible'); openModule('cuisson')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansCuisPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3872,7 +3872,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🌅</div>
     <div class="modal-title">Contrôle ouverture enregistré !</div>
     <div class="modal-desc">Votre vérification nettoyage ouverture a été validée et horodatée.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-ouverture','Nettoyage Ouverture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalOuvPdf').classList.remove('visible'); openModule('ouverture')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansOuvPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3884,7 +3884,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🖐️</div>
     <div class="modal-title">Contrôle hygiène enregistré !</div>
     <div class="modal-desc">Votre contrôle d'hygiène personnel a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-hygiene','Hygiene & Tenue')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalHygPdf').classList.remove('visible'); openModule('hygiene')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansHygPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3895,7 +3895,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🌡️</div>
     <div class="modal-title">Relevés enregistrés !</div>
     <div class="modal-desc">Vos relevés de températures ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="downloadTempPDF()">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalTempPdf').classList.remove('visible'); openModule('temperatures')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansTempPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3906,7 +3906,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📄</div>
     <div class="modal-title">Traçabilité enregistrée !</div>
     <div class="modal-desc">Votre enregistrement de traçabilité a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-reception','Tracabilite Produits')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalTracaPdf').classList.remove('visible'); openModule('reception')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansTracaPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3918,7 +3918,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📄</div>
     <div class="modal-title">Enregistrement validé !</div>
     <div class="modal-desc">Votre contrôle de réception a été enregistré avec succès et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. HACCP Pro ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="downloadPDF()">⬇️ Télécharger le PDF</button>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#374151,#6b7280)" onclick="imprimerReception()">🖨️ Imprimer</button>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);margin-bottom:6px" onclick="imprimerReception()">📄 Voir le document complet</button>
@@ -3934,7 +3934,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <button type="button" onclick="showPage('page-presentation')" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.9);border:1px solid rgba(255,255,255,0.18);padding:10px 18px;border-radius:10px;font-weight:700;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;margin-bottom:18px">← Retour</button>
         <div style="text-align:center;margin-bottom:28px">
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#4ade80,#22c55e);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px;box-shadow:0 8px 24px rgba(74,222,128,0.3)">📝</div>
-          <h1 style="font-size:clamp(22px,3vw,28px);font-weight:900;margin:0 0 8px;color:white">Inscription HACCP Pro</h1>
+          <h1 style="font-size:clamp(22px,3vw,28px);font-weight:900;margin:0 0 8px;color:white">Inscription Nomos Traça</h1>
           <p style="font-size:13px;color:rgba(255,255,255,0.6);max-width:480px;margin:0 auto">Remplir ce formulaire. Nous vous enverrons votre code d'accès personnel par email après validation de votre demande.</p>
         </div>
         <form id="formInscriptionHaccp" onsubmit="return submitInscriptionHaccp(event)" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:24px;display:grid;gap:14px">
@@ -4012,7 +4012,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div id="adminLoginBox" style="max-width:380px;margin:60px auto 0;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:30px;text-align:center">
           <div style="width:60px;height:60px;background:linear-gradient(135deg,#dc2626,#f59e0b);border-radius:16px;display:inline-flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px">🔒</div>
           <h2 style="font-size:20px;font-weight:900;margin:0 0 6px">Accès administrateur</h2>
-          <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:20px">Zone réservée à l'administration HACCP Pro</p>
+          <p style="font-size:12px;color:rgba(255,255,255,0.6);margin-bottom:20px">Zone réservée à l'administration Nomos Traça</p>
           <input type="password" id="adminPwd" placeholder="Mot de passe" style="width:100%;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.15);border-radius:9px;color:white;font-size:14px;font-family:Outfit,sans-serif;box-sizing:border-box;margin-bottom:12px;text-align:center">
           <button onclick="loginAdmin()" style="width:100%;background:linear-gradient(135deg,#dc2626,#f59e0b);color:white;border:none;padding:12px;border-radius:9px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Se connecter</button>
           <div id="adminLoginErr" style="display:none;color:#dc2626;font-size:12px;margin-top:10px"></div>
@@ -4021,7 +4021,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div id="adminDashboard" style="display:none">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px">
             <div>
-              <h1 style="font-size:clamp(17px,5.5vw,24px);font-weight:900;margin:0;overflow-wrap:anywhere;line-height:1.15">🛠️ Administration HACCP Pro</h1>
+              <h1 style="font-size:clamp(17px,5.5vw,24px);font-weight:900;margin:0;overflow-wrap:anywhere;line-height:1.15">🛠️ Administration Nomos Traça</h1>
               <p style="font-size:12px;color:rgba(255,255,255,0.6);margin:4px 0 0">Gestion des inscriptions et abonnements · <span id="adminVersion" style="color:#14b8a6;font-weight:700"></span></p>
             </div>
             <button onclick="logoutAdmin()" style="background:rgba(220,38,38,0.15);color:#dc2626;border:1px solid rgba(220,38,38,0.3);padding:8px 16px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">Se déconnecter</button>
@@ -4046,7 +4046,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- ════════════════════════════════════════════════════════════════ -->
 
     <!-- ══ BARRE NOMOS FIXE — toujours visible : Retour + Accueil Nomos (même principe que l'app Audit).
-         Règle le « pas de retour » : depuis n'importe où dans HACCP Pro, on revient en arrière
+         Règle le « pas de retour » : depuis n'importe où dans Nomos Traça, on revient en arrière
          ou directement à l'accueil des applications Nomos. z-index 8000 : les modales plein écran
          (9000+) passent par-dessus, donc aucun bouton de modale n'est recouvert. -->
     <style>
@@ -4062,7 +4062,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     </style>
     <div id="nomosBarHaccp">
       <button class="nb-back" onclick="(typeof appGoBack==='function')?appGoBack():history.back()" aria-label="Retour">← Retour</button>
-      <span class="nb-brand">HACCP Pro · Nomos</span>
+      <span class="nb-brand">Nomos Traça · Nomos</span>
       <button class="nb-home" onclick="location.href='accueil.html'" aria-label="Accueil Nomos">🏠 Accueil Nomos</button>
     </div>
 <!-- ============ MODAL — DEVIS CAPTEURS / RELEVÉS AUTOMATIQUES ============ -->
