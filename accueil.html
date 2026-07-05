@@ -77,6 +77,7 @@ if ('serviceWorker' in navigator) {
   .nav-btn{display:inline-flex;align-items:center;gap:7px;background:#f2f4f3;border:1px solid #dde3e0;
     color:var(--ink);font-family:inherit;font-weight:700;font-size:13.5px;padding:9px 14px;border-radius:11px;cursor:pointer;text-decoration:none}
   .nav-btn.demo{color:#fff}
+  .nav-btn.share{background:#eaf3ef;border-color:#cfe6da;color:#0d4a43}
   .nav-btn:active{transform:scale(.97)}
   .nav-brand{flex:1;text-align:center;font-weight:800;font-size:14.5px;letter-spacing:.3px}
   .nav-brand small{display:block;font-weight:600;font-size:10.5px;color:#52617a;letter-spacing:1px;text-transform:uppercase}
@@ -317,6 +318,7 @@ if ('serviceWorker' in navigator) {
     <div class="row">
       <button class="nav-btn" onclick="history.length>1?history.back():location.href='accueil.html'">← Retour</button>
       <div class="nav-brand">Nomos HACCP<small>Hygiène alimentaire</small></div>
+      <button class="nav-btn share" onclick="partagerNomos()" aria-label="Partager Nomos">📤 Partager Nomos</button>
       <button class="nav-btn" onclick="openMenu()">☰ Menu</button>
     </div>
   </div>
@@ -498,6 +500,22 @@ if ('serviceWorker' in navigator) {
   </div>
 
   <script>
+    // Partage du lien Nomos : ouvre la fenêtre de partage native du téléphone
+    // (WhatsApp, SMS, Mail…) ; sinon copie le lien dans le presse-papier.
+    function partagerNomos(){
+      var url='https://nomos-haccp.fr';
+      var data={title:'Nomos HACCP',text:'Nomos — audit & hygiène alimentaire, prêt pour vos contrôles DDPP.',url:url};
+      try{
+        if(navigator.share){ navigator.share(data).catch(function(){}); return; }
+      }catch(e){}
+      try{
+        if(navigator.clipboard&&navigator.clipboard.writeText){
+          navigator.clipboard.writeText(url).then(function(){ alert('Lien copié : '+url); }).catch(function(){ window.prompt('Copiez le lien :',url); });
+          return;
+        }
+      }catch(e){}
+      window.prompt('Copiez le lien :',url);
+    }
     function openMenu(){document.getElementById('menu').classList.add('open');document.getElementById('menuOverlay').classList.add('open');document.getElementById('menu').setAttribute('aria-hidden','false');}
     function closeMenu(){document.getElementById('menu').classList.remove('open');document.getElementById('menuOverlay').classList.remove('open');document.getElementById('menu').setAttribute('aria-hidden','true');}
     document.addEventListener('keydown',function(e){if(e.key==='Escape')closeMenu();});
