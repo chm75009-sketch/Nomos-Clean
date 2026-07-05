@@ -239,62 +239,63 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <!-- V90 — PAGE PRÉSENTATION (landing commerciale) — affichée avant login -->
     <!-- ════════════════════════════════════════════════════════════════ -->
     <div class="page active" id="page-presentation" style="min-height:100vh;background:linear-gradient(165deg,#ffffff 0%,#f4f8f6 55%,#eef4f1 100%);color:#0b0f1a;font-family:Outfit,sans-serif">
-      <!-- HEADER STICKY avec navigation -->
-      <header style="position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(14px);border-bottom:1px solid rgba(15,118,110,0.18);padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px">
-        <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px">
-          <!-- Logo -->
-          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-            <div style="width:34px;height:34px;background:linear-gradient(135deg,#64748b,#3f4a5c);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 12px rgba(15,118,110,0.3)">🛡️</div>
-            <div style="font-size:17px;font-weight:900;color:#0b0f1a;letter-spacing:-0.3px">Nomos<span style="color:#0f766e">Traça</span></div>
+      <!-- BLOC GRIS ARDOISE — identité Nomos Traça (comme la carte du site) -->
+      <div style="position:relative;background:linear-gradient(155deg,#64748b,#3f4a5c);color:#fff;overflow:hidden">
+        <div style="position:absolute;top:16px;right:-42px;transform:rotate(45deg);background:#d2ad46;color:#3b2c05;font-weight:900;font-size:10px;letter-spacing:.06em;padding:5px 50px;box-shadow:0 6px 16px -6px rgba(0,0,0,.4);z-index:6">Au quotidien</div>
+        <!-- HEADER -->
+        <header style="position:sticky;top:0;z-index:100;background:rgba(45,54,68,0.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,0.14);padding:calc(12px + env(safe-area-inset-top,0px)) 20px 12px">
+          <div style="max-width:1180px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:16px">
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+              <div style="width:34px;height:34px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.3);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px">🛡️</div>
+              <div style="font-size:17px;font-weight:900;color:#fff;letter-spacing:-0.3px">Nomos <span style="color:#e8d9a6">Traça</span></div>
+            </div>
+            <nav class="nav-desktop" style="display:flex;gap:24px;align-items:center;flex:1;justify-content:center">
+              <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;text-decoration:none">Fonctionnalités</a>
+              <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;text-decoration:none">Pack DDPP</a>
+              <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;text-decoration:none">Tarifs</a>
+              <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="color:rgba(255,255,255,0.8);font-size:13px;font-weight:700;text-decoration:none">Démo</a>
+            </nav>
+            <div style="display:flex;gap:10px;align-items:center">
+              <button onclick="showPage('page-login')" style="background:#fff;color:#3f4a5c;border:none;padding:9px 18px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;white-space:nowrap">🔐 Se connecter</button>
+              <button class="nav-burger" onclick="document.getElementById('navMobileMenu').classList.toggle('open')" style="display:none;background:rgba(255,255,255,0.14);color:white;border:1px solid rgba(255,255,255,0.3);padding:8px 11px;border-radius:9px;cursor:pointer;font-size:16px">☰</button>
+            </div>
           </div>
-          <!-- Nav desktop -->
-          <nav class="nav-desktop" style="display:flex;gap:24px;align-items:center;flex:1;justify-content:center">
-            <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Fonctionnalités</a>
-            <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Pack DDPP</a>
-            <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Tarifs</a>
-            <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="color:#52617a;font-size:13px;font-weight:700;text-decoration:none">Démo</a>
-          </nav>
-          <!-- CTA + burger -->
-          <div style="display:flex;gap:10px;align-items:center">
-            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:9px 18px;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 4px 12px rgba(15,118,110,0.3);white-space:nowrap">🔐 Se connecter</button>
-            <button class="nav-burger" onclick="document.getElementById('navMobileMenu').classList.toggle('open')" style="display:none;background:#eef2f0;color:#3f4a5c;border:1px solid #dde3e0;padding:8px 11px;border-radius:9px;cursor:pointer;font-size:16px">☰</button>
+          <div id="navMobileMenu" style="display:none;flex-direction:column;gap:8px;padding:14px 20px 4px;border-top:1px solid rgba(255,255,255,0.1);margin-top:12px">
+            <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.9);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.08)">Fonctionnalités</a>
+            <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.9);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.08)">Pack DDPP</a>
+            <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.9);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.08)">Tarifs</a>
+            <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:rgba(255,255,255,0.9);font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:rgba(255,255,255,0.08)">Démo</a>
           </div>
+        </header>
+        <!-- BANDEAU OFFRE LANCEMENT (ambre) -->
+        <div style="background:#fdf3e7;border:1px solid #f0d9b8;padding:11px 14px;text-align:center;font-size:13px;font-weight:700;color:#7c2d12;margin:14px 16px 0;border-radius:12px">
+          🎁 <strong>Offre lancement</strong> jusqu'au <strong>30 septembre 2026</strong> — DUERP personnalisé à <strong>400 € au lieu de 800 € (-50%)</strong> ou <strong>OFFERT</strong> pour <strong><u>tout abonnement annuel Solo</u></strong>
+          <div style="font-size:11px;font-weight:500;margin-top:4px;color:#8a5a2b;line-height:1.4">⚠️ Amende de 1 500 € à 7 500 € pour absence de DUERP — qui peut aller jusqu'à 5 ans de prison et 75 000 € d'amende en cas d'accident du travail</div>
         </div>
-        <!-- Menu mobile (caché par défaut) -->
-        <div id="navMobileMenu" style="display:none;flex-direction:column;gap:8px;padding:14px 20px 4px;border-top:1px solid #eef0ec;margin-top:12px">
-          <a href="#section-fonctionnalites" onclick="event.preventDefault();document.getElementById('section-fonctionnalites').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Fonctionnalités</a>
-          <a href="#section-ddpp" onclick="event.preventDefault();document.getElementById('section-ddpp').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Pack DDPP</a>
-          <a href="#section-tarifs" onclick="event.preventDefault();document.getElementById('section-tarifs').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Tarifs</a>
-          <a href="#section-demo" onclick="event.preventDefault();document.getElementById('section-demo').scrollIntoView({behavior:'smooth'});document.getElementById('navMobileMenu').classList.remove('open')" style="color:#52617a;font-size:14px;font-weight:700;text-decoration:none;padding:10px;border-radius:8px;background:#ffffff">Démo</a>
-        </div>
-      </header>
-      <!-- BANDEAU OFFRE LANCEMENT (compact, en haut) -->
-      <div style="background:linear-gradient(135deg,#fbe6cf,#f7dcae);border-bottom:1px solid #f0d9b8;padding:10px 20px;text-align:center;font-size:13px;font-weight:700;color:#7c2d12">
-        🎁 <strong>Offre lancement</strong> jusqu'au <strong>30 juin 2026</strong> — DUERP personnalisé à <strong>400 € au lieu de 800 € (-50%)</strong> ou <strong>OFFERT pour tout abonnement annuel</strong>
-        <div style="font-size:11px;font-weight:500;margin-top:4px;color:#8a5a2b;line-height:1.4">⚠️ Amende de 1 500 € à 7 500 € pour absence de DUERP — qui peut aller jusqu'à 5 ans de prison et 75 000 € d'amende en cas d'accident du travail</div>
+        <!-- HERO -->
+        <section style="padding:22px 20px 26px;max-width:1100px;margin:0 auto">
+          <div style="text-align:center">
+            <h1 style="font-size:clamp(24px,3.4vw,34px);font-weight:900;line-height:1.15;margin:0 0 12px;color:#fff">Votre HACCP en règle,<br><span style="color:#e8d9a6">sans paperasse, sans stress.</span></h1>
+            <p style="font-size:clamp(13px,1.4vw,14px);color:rgba(255,255,255,0.82);max-width:580px;margin:0 auto 20px;line-height:1.5">L'application HACCP intuitive pour restaurateurs, boulangers, traiteurs et bouchers. Tous vos contrôles et votre Pack DDPP en 1 clic.</p>
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
+              <button onclick="showPage('page-login')" style="background:#fff;color:#3f4a5c;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">🔐 Se connecter</button>
+              <button onclick="showPage('page-inscription')" style="background:rgba(255,255,255,0.1);color:#fff;border:1.5px solid rgba(255,255,255,0.4);padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
+              <button onclick="document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="background:rgba(255,255,255,0.06);color:#fff;border:1.5px solid rgba(255,255,255,0.22);padding:11px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">▶️ Voir la démo</button>
+            </div>
+            <div style="display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding-top:14px;border-top:1px solid rgba(255,255,255,0.15)">
+              <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#e8d9a6">19</div><div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px">Modules HACCP</div></div>
+              <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#e8d9a6">5</div><div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px">Secteurs</div></div>
+              <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#e8d9a6">1 clic</div><div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px">Pack DDPP</div></div>
+              <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#e8d9a6">100%</div><div style="font-size:10px;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:0.5px">Mobile</div></div>
+            </div>
+          </div>
+        </section>
       </div>
-      <!-- HERO -->
-      <section style="padding:30px 20px 24px;max-width:1100px;margin:0 auto">
-        <div style="text-align:center">
-          <h1 style="font-size:clamp(22px,3.2vw,32px);font-weight:900;line-height:1.2;margin:0 0 12px;color:#0b0f1a">Votre HACCP en règle,<br><span style="background:linear-gradient(135deg,#64748b,#3f4a5c);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">sans paperasse, sans stress.</span></h1>
-          <p style="font-size:clamp(13px,1.4vw,14px);color:#52617a;max-width:580px;margin:0 auto 20px;line-height:1.5">L'application HACCP intuitive pour restaurateurs, boulangers, traiteurs et bouchers. Tous vos contrôles et votre Pack DDPP en 1 clic.</p>
-          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px">
-            <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">🔐 Se connecter</button>
-            <button onclick="showPage('page-inscription')" style="background:rgba(15,118,110,0.12);color:#0f766e;border:1.5px solid rgba(15,118,110,0.4);padding:11px 22px;border-radius:10px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
-            <button onclick="document.getElementById('section-demo').scrollIntoView({behavior:'smooth'})" style="background:#eef2f0;color:#3f4a5c;border:1.5px solid #dde3e0;padding:11px 22px;border-radius:10px;font-weight:700;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">▶️ Voir la démo</button>
-          </div>
-          <div style="display:flex;gap:22px;justify-content:center;flex-wrap:wrap;padding-top:14px;border-top:1px solid #eef0ec">
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">19</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Modules HACCP</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">5</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Secteurs</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">1 clic</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Pack DDPP</div></div>
-            <div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#0f766e">100%</div><div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:0.5px">Mobile</div></div>
-          </div>
-        </div>
-      </section>
+
       <!-- FONCTIONNALITÉS (compactée) -->
       <section id="section-fonctionnalites" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:28px">
-          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Simplicité</div>
+          <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Simplicité</div>
           <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Fini la paperasse.</h2>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px">
@@ -306,31 +307,31 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
       </section>
       <!-- PACK DDPP (pédagogique) -->
-      <section id="section-ddpp" style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(15,118,110,0.04) 50%,transparent 100%)">
+      <section id="section-ddpp" style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(210,173,70,0.04) 50%,transparent 100%)">
         <div style="max-width:1100px;margin:0 auto">
           <div style="text-align:center;margin-bottom:28px">
-            <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Conformité</div>
+            <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Conformité</div>
             <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">Pack contrôle DDPP : votre filet de sécurité.</h2>
             <p style="font-size:13px;color:#52617a;max-width:620px;margin:0 auto;line-height:1.5">En cas de contrôle, fournissez en 1 clic l'ensemble de vos enregistrements HACCP au format réglementaire.</p>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:20px">
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
-              <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Qui ?</div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.18);border-radius:14px;padding:20px">
+              <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Qui ?</div>
               <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">La DDPP</div>
               <div style="font-size:12px;color:#52617a;line-height:1.55">La <strong>Direction Départementale de la Protection des Populations</strong> regroupe les services vétérinaires. Elle contrôle l'hygiène alimentaire dans tous les établissements de restauration.</div>
             </div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.18);border-radius:14px;padding:20px">
               <div style="font-size:11px;color:#c2410c;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Quand ?</div>
               <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">Sans prévenir</div>
               <div style="font-size:12px;color:#52617a;line-height:1.55">Les contrôles sont <strong>inopinés</strong>. L'inspecteur peut arriver à tout moment et exiger immédiatement vos enregistrements HACCP.</div>
             </div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.18);border-radius:14px;padding:20px">
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.18);border-radius:14px;padding:20px">
               <div style="font-size:11px;color:#b45309;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Risques</div>
               <div style="font-size:16px;font-weight:800;color:#0b0f1a;margin-bottom:8px">Lourds</div>
               <div style="font-size:12px;color:#52617a;line-height:1.55">Avertissement, mise en demeure, <strong>fermeture administrative</strong>, retrait d'agrément. En cas de TIAC : poursuites pénales.</div>
             </div>
           </div>
-          <div style="background:linear-gradient(135deg,rgba(15,118,110,0.12),rgba(13,74,67,0.05));border:1.5px solid rgba(15,118,110,0.35);border-radius:16px;padding:22px;text-align:center">
+          <div style="background:linear-gradient(135deg,rgba(210,173,70,0.12),rgba(150,110,20,0.05));border:1.5px solid rgba(210,173,70,0.35);border-radius:16px;padding:22px;text-align:center">
             <div style="font-size:26px;margin-bottom:8px">📋</div>
             <div style="font-size:17px;font-weight:900;color:#0b0f1a;margin-bottom:6px">Avec Nomos Traça : 1 bouton, 1 PDF complet</div>
             <div style="font-size:12px;color:#52617a;line-height:1.5;max-width:620px;margin:0 auto">Sélectionner la période demandée. Nomos Traça génère un Pack DDPP avec tous vos contrôles — réceptions, températures, nettoyages, hygiène, NC, signatures. Format conforme.</div>
@@ -340,7 +341,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- COFFRE-FORT DOCUMENTS -->
       <section style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:28px">
-          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Coffre-fort</div>
+          <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Coffre-fort</div>
           <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Tous vos documents au même endroit.</h2>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px">
@@ -353,40 +354,40 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
       </section>
       <!-- MULTI-SECTORIEL -->
-      <section style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(15,118,110,0.04) 50%,transparent 100%)">
+      <section style="padding:40px 20px;background:linear-gradient(180deg,transparent 0%,rgba(210,173,70,0.04) 50%,transparent 100%)">
         <div style="max-width:1100px;margin:0 auto">
           <div style="text-align:center;margin-bottom:28px">
-            <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">5 secteurs adaptés</div>
+            <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">5 secteurs adaptés</div>
             <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0">Une app pensée pour votre métier.</h2>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍽️</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restauration trad.</div><div style="font-size:10px;color:#52617a">Bistrots, brasseries</div></div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥖</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boulangerie-pât.</div><div style="font-size:10px;color:#52617a">Cellules de pousse</div></div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍔</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Fast food</div><div style="font-size:10px;color:#52617a">Friteuses, remise T°</div></div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥩</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boucherie</div><div style="font-size:10px;color:#52617a">Traçabilité, CF</div></div>
-            <div style="background:#ffffff;border:1px solid rgba(15,118,110,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🏫</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restau. collective</div><div style="font-size:10px;color:#52617a">Plat témoin, liaison</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍽️</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restauration trad.</div><div style="font-size:10px;color:#52617a">Bistrots, brasseries</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥖</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boulangerie-pât.</div><div style="font-size:10px;color:#52617a">Cellules de pousse</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🍔</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Fast food</div><div style="font-size:10px;color:#52617a">Friteuses, remise T°</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🥩</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Boucherie</div><div style="font-size:10px;color:#52617a">Traçabilité, CF</div></div>
+            <div style="background:#ffffff;border:1px solid rgba(210,173,70,0.2);border-radius:14px;padding:18px;text-align:center"><div style="font-size:30px;margin-bottom:8px">🏫</div><div style="font-size:13px;font-weight:800;color:#0b0f1a;margin-bottom:2px">Restau. collective</div><div style="font-size:10px;color:#52617a">Plat témoin, liaison</div></div>
           </div>
         </div>
       </section>
       <!-- DÉMO (carrousel V91) -->
       <section id="section-demo" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:22px">
-          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Démo guidée</div>
+          <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Démo guidée</div>
           <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">L'application en action.</h2>
           <p style="font-size:13px;color:#52617a;max-width:560px;margin:0 auto">7 écrans clés pour comprendre Nomos Traça en 30 secondes.</p>
         </div>
         <!-- Carrousel -->
-        <div id="demoCarousel" style="background:linear-gradient(135deg,rgba(15,118,110,0.06),rgba(13,74,67,0.02));border:1.5px solid rgba(15,118,110,0.2);border-radius:18px;padding:24px;max-width:880px;margin:0 auto">
+        <div id="demoCarousel" style="background:linear-gradient(135deg,rgba(210,173,70,0.06),rgba(150,110,20,0.02));border:1.5px solid rgba(210,173,70,0.2);border-radius:18px;padding:24px;max-width:880px;margin:0 auto">
           <!-- Titre + description (en HAUT, comme un titre) -->
           <div style="text-align:center;margin-bottom:20px;min-height:90px">
-            <div id="demoStep" style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 7</div>
+            <div id="demoStep" style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 7</div>
             <h3 id="demoTitle" style="font-size:22px;font-weight:900;color:#0b0f1a;margin:0 0 8px;line-height:1.2">Choisir votre secteur</h3>
             <p id="demoDesc" style="font-size:13px;color:#52617a;line-height:1.5;margin:0 auto;max-width:560px">L'application s'adapte automatiquement à votre métier.</p>
           </div>
           <!-- Mockup phone centré -->
           <div style="display:flex;justify-content:center;margin-bottom:20px">
             <div style="position:relative;width:340px;flex-shrink:0">
-              <div style="background:#000;border-radius:36px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 2px rgba(15,118,110,0.2)">
+              <div style="background:#000;border-radius:36px;padding:8px;box-shadow:0 16px 48px rgba(0,0,0,0.6),0 0 0 2px rgba(210,173,70,0.2)">
                 <div style="background:#0f172a;border-radius:30px;overflow:hidden;position:relative">
                   <!-- Encoche -->
                   <div style="position:absolute;top:0;left:50%;transform:translateX(-50%);width:90px;height:20px;background:#000;border-radius:0 0 14px 14px;z-index:3"></div>
@@ -413,7 +414,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <!-- TARIFS (refonte : comparatif détaillé, prix HT, sans choix de formule par le client) -->
       <section id="section-tarifs" style="padding:40px 20px;max-width:1100px;margin:0 auto">
         <div style="text-align:center;margin-bottom:24px">
-          <div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Nos formules</div>
+          <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Nos formules</div>
           <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">Tarifs clairs, sans surprise.</h2>
           <p style="font-size:13px;color:#52617a;margin:0">Logiciel Nomos Traça &amp; service Audit sur place. Tous les prix sont indiqués <strong>HT</strong>.</p>
         </div>
@@ -431,42 +432,42 @@ html, body { max-width: 100%; overflow-x: hidden; }
             <thead>
               <tr style="background:#ffffff">
                 <th style="text-align:left;padding:11px 7px;color:#52617a;font-weight:700;font-size:12px">Fonctionnalité</th>
-                <th onclick="openFormuleDetail('essentiel')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Essentiel<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
-                <th onclick="openFormuleDetail('solo')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Solo<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
-                <th onclick="openFormuleDetail('pro')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer;background:rgba(15,118,110,0.07);border-left:1px solid rgba(15,118,110,0.2);border-right:1px solid rgba(15,118,110,0.2)">Pro<br><span class="px-eng" style="color:#0f766e;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#0f766e;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#0f766e;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('essentiel')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Essentiel<br><span class="px-eng" style="color:#9a7518;font-size:15px;font-weight:900">9,90 €</span><span class="px-libre" style="color:#9a7518;font-size:15px;font-weight:900;display:none">14,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#9a7518;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('solo')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer">Solo<br><span class="px-eng" style="color:#9a7518;font-size:15px;font-weight:900">29,90 €</span><span class="px-libre" style="color:#9a7518;font-size:15px;font-weight:900;display:none">39,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#9a7518;text-decoration:underline">détail&nbsp;›</span></th>
+                <th onclick="openFormuleDetail('pro')" style="padding:11px 4px;color:#0b0f1a;text-align:center;cursor:pointer;background:rgba(210,173,70,0.07);border-left:1px solid rgba(210,173,70,0.2);border-right:1px solid rgba(210,173,70,0.2)">Pro<br><span class="px-eng" style="color:#9a7518;font-size:15px;font-weight:900">79,90 €</span><span class="px-libre" style="color:#9a7518;font-size:15px;font-weight:900;display:none">99,90 €</span><br><span style="font-size:10px;color:#64748b">HT / mois</span><br><span style="font-size:10px;color:#9a7518;text-decoration:underline">détail&nbsp;›</span></th>
               </tr>
             </thead>
             <tbody style="color:#52617a">
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Relevés température</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Réception &amp; traçabilité</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Huiles de friture</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Planning nettoyage</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Cuisson · refroidissement · remise en T°</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Étiquetage interne &amp; DLC</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pertes &amp; invendus</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Nuisibles &amp; déchets</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Documents &amp; affichages obligatoires</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Matrice allergènes (14 INCO)</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Tableau de bord &amp; non-conformités</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900">✓</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pack DDPP <span style="color:#64748b;font-size:11px">(PDF inspecteur)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>des 3 contrôles</td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>tous les contrôles</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(15,118,110,0.05)">Édition illimitée<br>tous les contrôles</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Utilisateur</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;background:rgba(15,118,110,0.05)">1</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ PMS personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ DUERP personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📌 Affiches obligatoires fournies</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#0f766e;font-weight:900;background:rgba(15,118,110,0.05)">✓</td></tr>
-              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📡 Capteurs connectés <span style="color:#64748b;font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(15,118,110,0.05)">Sur devis</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Relevés température</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Réception &amp; traçabilité</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Huiles de friture</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Planning nettoyage</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Cuisson · refroidissement · remise en T°</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Étiquetage interne &amp; DLC</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pertes &amp; invendus</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Nuisibles &amp; déchets</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Documents &amp; affichages obligatoires</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Matrice allergènes (14 INCO)</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Tableau de bord &amp; non-conformités</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900">✓</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Pack DDPP <span style="color:#64748b;font-size:11px">(PDF inspecteur)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>des 3 contrôles</td><td style="text-align:center;font-size:11px;color:#52617a">Édition illimitée<br>tous les contrôles</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(210,173,70,0.05)">Édition illimitée<br>tous les contrôles</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">Utilisateur</td><td style="text-align:center">1</td><td style="text-align:center">1</td><td style="text-align:center;background:rgba(210,173,70,0.05)">1</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ PMS personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">🛡️ DUERP personnalisé</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📌 Affiches obligatoires fournies</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9aa7b2">—</td><td style="text-align:center;color:#9a7518;font-weight:900;background:rgba(210,173,70,0.05)">✓</td></tr>
+              <tr style="border-top:1px solid #eef0ec"><td style="padding:9px 7px">📡 Capteurs connectés <span style="color:#64748b;font-size:11px">(option)</span></td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a">Sur devis</td><td style="text-align:center;font-size:11px;color:#52617a;background:rgba(210,173,70,0.05)">Sur devis</td></tr>
             </tbody>
           </table>
         </div>
         <!-- ============ RELEVÉS AUTOMATIQUES — DEVIS CAPTEURS ============ -->
-        <div style="max-width:720px;margin:4px auto 26px;background:linear-gradient(135deg,rgba(15,118,110,0.10),rgba(255,255,255,0.03));border:1px solid rgba(15,118,110,0.28);border-radius:16px;padding:18px 20px">
+        <div style="max-width:720px;margin:4px auto 26px;background:linear-gradient(135deg,rgba(210,173,70,0.10),rgba(255,255,255,0.03));border:1px solid rgba(210,173,70,0.28);border-radius:16px;padding:18px 20px">
           <div style="font-weight:800;color:#0b0f1a;font-size:15px;margin-bottom:6px">🌡️ Relevés de température automatiques</div>
           <p style="font-size:12.5px;color:rgba(255,255,255,0.82);line-height:1.6;margin:0 0 10px">Couplée à des <strong>capteurs connectés</strong>, l'application enregistre vos températures d'enceintes <strong>automatiquement, 24h/24</strong> (même fermée), sans aucune saisie. <strong>Alertes</strong> en cas de dépassement de seuil · conformité DDPP · zéro oubli.</p>
           <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
-            <button type="button" onclick="ouvrirDevisCapteurs()" style="background:#0f766e;color:#0a1f14;border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📩 Demander un devis</button>
+            <button type="button" onclick="ouvrirDevisCapteurs()" style="background:#9a7518;color:#0a1f14;border:none;border-radius:999px;padding:11px 22px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit">📩 Demander un devis</button>
             <span style="font-size:11.5px;color:#52617a">Devis gratuit et sans engagement · capteurs sur devis</span>
           </div>
         </div>
-        <p style="text-align:center;font-size:12.5px;color:#52617a;margin:0 0 30px">✨ <strong style="color:#0f766e">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
+        <p style="text-align:center;font-size:12.5px;color:#52617a;margin:0 0 30px">✨ <strong style="color:#9a7518">Essai gratuit 14 jours</strong> sur toutes les formules — sans carte bancaire.</p>
 
         <!-- ============ FAQ ============ -->
         <h3 style="font-size:17px;font-weight:800;color:#0b0f1a;margin:10px 0 14px;text-align:center">Questions fréquentes</h3>
@@ -480,7 +481,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div style="background:#ffffff;border:1px solid #e7ece9;border-radius:12px;padding:14px"><div style="font-weight:800;color:#0b0f1a;font-size:13px;margin-bottom:5px">Dois-je sauvegarder mes contrôles ?</div><div style="font-size:12px;color:#52617a;line-height:1.6">Oui — pensez à exporter et conserver régulièrement vos contrôles (Pack DDPP / PDF). Vous restez responsable de la conservation de vos enregistrements.</div></div>
         </div>
         <div style="text-align:center;margin-top:22px">
-          <button onclick="showPage('page-inscription')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">Démarrer l'essai gratuit</button>
+          <button onclick="showPage('page-inscription')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(210,173,70,0.3)">Démarrer l'essai gratuit</button>
         </div>
         <script>
         window.setEngTarif = function(mode){
@@ -515,20 +516,20 @@ html, body { max-width: 100%; overflow-x: hidden; }
           }).join('');
           var extra = '';
           if(key === 'pro'){
-            extra = '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px">Documents &amp; affiches fournis</div>'
+            extra = '<div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin:2px 0 8px">Documents &amp; affiches fournis</div>'
                   + window._detailsList('📑 Documents obligatoires', window._DOCS_OBL)
                   + window._detailsList('📌 Affiches obligatoires', window._AFF_OBL)
                   + '<p style="font-size:10.5px;color:#64748b;font-style:italic;line-height:1.6;margin:8px 2px 14px">Listes indicatives, non exhaustives, selon la réglementation en vigueur. Le client reste responsable de la conformité de son établissement.</p>';
           }
           c.innerHTML =
-            '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
+            '<div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px">Formule</div>'+
             '<h3 style="font-size:24px;font-weight:900;color:#0b0f1a;margin:0 0 2px">'+f.nom+'</h3>'+
             '<div style="font-size:13px;color:#52617a;margin-bottom:16px">'+f.sub+'</div>'+
             '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px">'+
-              '<div style="background:rgba(15,118,110,0.1);border:1px solid rgba(15,118,110,0.25);border-radius:11px;padding:12px"><div style="font-size:9px;color:#0f766e;font-weight:800">ENGAGEMENT 12 MOIS</div><div style="font-size:22px;font-weight:900;color:#0b0f1a">'+f.eng+'<span style="font-size:11px;color:#52617a;font-weight:600"> HT/mois</span></div></div>'+
+              '<div style="background:rgba(210,173,70,0.1);border:1px solid rgba(210,173,70,0.25);border-radius:11px;padding:12px"><div style="font-size:9px;color:#9a7518;font-weight:800">ENGAGEMENT 12 MOIS</div><div style="font-size:22px;font-weight:900;color:#0b0f1a">'+f.eng+'<span style="font-size:11px;color:#52617a;font-weight:600"> HT/mois</span></div></div>'+
               '<div style="background:#ffffff;border:1px solid #e7ece9;border-radius:11px;padding:12px"><div style="font-size:9px;color:#52617a;font-weight:800">SANS ENGAGEMENT</div><div style="font-size:22px;font-weight:900;color:#52617a">'+f.libre+'<span style="font-size:11px;color:#64748b;font-weight:600"> HT/mois</span></div></div>'+
             '</div>'+
-            '<div style="font-size:11px;color:#0f766e;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
+            '<div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Inclus dans la formule</div>'+
             '<ul style="padding:0 0 0 18px;margin:0 0 14px;font-size:13px;color:#0b0f1a;line-height:1.6">'+li+'</ul>'+
             extra +
             '<button onclick="closeFormuleDetail();showPage(\'page-inscription\')" style="width:100%;background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">Démarrer l\'essai gratuit</button>';
@@ -543,7 +544,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
 
         <!-- Fenêtre détail formule -->
         <div id="modalFormule" onclick="if(event.target===this)closeFormuleDetail()" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto">
-          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(15,118,110,0.3);border-radius:18px;max-width:520px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
+          <div style="background:linear-gradient(160deg,#0f1729,#131929);border:1.5px solid rgba(210,173,70,0.3);border-radius:18px;max-width:520px;width:100%;padding:24px;position:relative;box-shadow:0 24px 80px rgba(0,0,0,0.6);margin:auto">
             <button onclick="closeFormuleDetail()" aria-label="Fermer" style="position:absolute;top:14px;right:14px;background:#ffffff;border:1px solid #e7ece9;color:#0b0f1a;width:34px;height:34px;border-radius:50%;font-size:16px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif">✕</button>
             <div id="modalFormuleContent"></div>
           </div>
@@ -553,8 +554,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
       <section style="padding:34px 20px 22px;max-width:1000px;margin:0 auto;text-align:center">
         <h2 style="font-size:clamp(20px,2.5vw,26px);font-weight:900;color:#0b0f1a;margin:0 0 10px">Prêt à dire adieu à la paperasse ?</h2>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px">
-          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(15,118,110,0.3)">🔐 Se connecter</button>
-          <button onclick="showPage('page-inscription')" style="background:rgba(15,118,110,0.12);color:#0f766e;border:1.5px solid rgba(15,118,110,0.4);padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
+          <button onclick="showPage('page-login')" style="background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 8px 24px rgba(210,173,70,0.3)">🔐 Se connecter</button>
+          <button onclick="showPage('page-inscription')" style="background:rgba(210,173,70,0.12);color:#9a7518;border:1.5px solid rgba(210,173,70,0.4);padding:14px 32px;border-radius:12px;font-weight:800;font-size:15px;cursor:pointer;font-family:Outfit,sans-serif">📝 S'inscrire</button>
         </div>
       </section>
       <!-- FOOTER -->
@@ -576,7 +577,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
       </footer>
       <!-- V92 — Bouton flottant "Haut de page" -->
-      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:84px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(15,118,110,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
+      <button id="btnScrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Retour en haut" style="position:fixed;bottom:84px;right:24px;z-index:90;width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#64748b,#3f4a5c);color:#fff;border:none;font-size:20px;font-weight:900;cursor:pointer;box-shadow:0 8px 24px rgba(210,173,70,0.4);display:none;align-items:center;justify-content:center;font-family:Outfit,sans-serif">↑</button>
     </div>
     <!-- V92 — Bouton flottant "← Retour" — TOUJOURS visible (icône seule, compact), sauf sur la page-presentation (point d'entrée) -->
     <button id="btnAppBack" onclick="appGoBack()" aria-label="Retour à la page précédente" title="Retour" style="position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:12px;z-index:9000;background:rgba(0,0,0,0.75);backdrop-filter:blur(10px);color:#0b0f1a;border:1px solid #e7ece9;width:38px;height:38px;border-radius:50%;font-size:18px;font-weight:900;cursor:pointer;font-family:Outfit,sans-serif;display:none;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,0.4);padding:0;line-height:1">←</button>
