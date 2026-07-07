@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v441';
+var APP_BUILD = 'v442';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16359,13 +16359,38 @@ function _baroArc(cx, cy, r, t0, t1) {
          ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + e.x.toFixed(1) + ' ' + e.y.toFixed(1);
 }
 
+// Libellés courts pour les pastilles du baromètre (Option C).
+var _BARO_SHORT = { reception:'Réception', temperatures:'Températures', hygiene:'Hygiène', nettoyage:'Nettoyage', cuisson:'Cuisson', refroidissement:'Refroidiss.', huiles:'Huiles', etiquetage:'Étiquettes', pertes:'Pertes', 'plat-temoin':'Plat témoin', 'liaison-thermique':'Liaison th.', 'registre-convives':'Convives' };
+function _baroShortNom(m){
+  if (!m) return 'Contrôle';
+  if (_BARO_SHORT[m.id]) return _BARO_SHORT[m.id];
+  var n = m.name ? String(m.name) : 'Contrôle';
+  n = n.replace(/^[^—\-]*[—\-]\s*/, '').split('&')[0].trim();
+  return n || 'Contrôle';
+}
+// Nombre total de RELEVÉS du jour pour les modules quotidiens (peut dépasser le nb de
+// modules : c'est justement ce qu'on distingue). Sert à la petite note « X relevés ».
+function _baroRelevesJour(taches){
+  var n = 0;
+  try {
+    var today = new Date().toISOString().split('T')[0];
+    var hist = JSON.parse(lsGet('haccp_historique') || '[]');
+    if (!Array.isArray(hist)) hist = [];
+    if (typeof _secteurActifMatch === 'function') hist = hist.filter(function(en){ return _secteurActifMatch(en); });
+    var lbls = {};
+    (taches || []).forEach(function(m){ (_TDB_LABELS[m.id] || [m.name]).forEach(function(l){ if (l) lbls[l] = true; }); });
+    hist.forEach(function(en){ if (en && en.date === today && en.module && lbls[en.module]) n++; });
+  } catch(e){}
+  return n;
+}
+
+// BAROMÈTRE « Contrôles du jour » — Option C : une pastille par module QUOTIDIEN du
+// secteur actif. Vert = fait, rouge clignotant = à faire. Chaque module compte UNE
+// seule fois (10 relevés de température = 1 module fait). Périodiques/ponctuels exclus.
 function renderBarometre() {
   var host = document.getElementById('barometreHaccp');
   if (!host) return;
-  // Si le cache cloud n'est pas encore chargé (ex. on arrive direct sur l'écran
-  // Modules sans passer par le tableau de bord ni « Mes rapports »), on le charge
-  // puis on redessine — sinon le compteur reste à 0 sur un appareil sans données
-  // locales (typiquement le PC alors que les contrôles ont été faits au téléphone).
+  // Précharge le cache cloud si vide (ex. PC arrivé direct sur l'écran Modules) puis redessine.
   try {
     var _cc = window._cloudCache || {};
     var _vide = !Object.keys(_cc).some(function(k){ return (_cc[k] || []).length; });
@@ -16376,102 +16401,66 @@ function renderBarometre() {
         .catch(function(){ window._baroCloudEnCours = false; });
     }
   } catch(eCC) {}
+
   try {
-    var today = new Date().toISOString().split('T')[0];
-    var historique = [];
-    try { historique = JSON.parse(lsGet('haccp_historique') || '[]'); } catch(e) {}
-    if (!Array.isArray(historique)) historique = [];
-    // Isolation par secteur actif (cohérent avec le tableau de bord)
-    if (typeof _secteurActifMatch === 'function') {
-      historique = historique.filter(function(en){ return _secteurActifMatch(en); });
+    // Animation « clignotement rouge » injectée une seule fois.
+    if (!document.getElementById('baroStyle')) {
+      var stEl = document.createElement('style');
+      stEl.id = 'baroStyle';
+      stEl.textContent = '@keyframes baroBlink{0%,50%{opacity:1}50.01%,100%{opacity:.2}}.baro-todo{animation:baroBlink 1.1s infinite}';
+      document.head.appendChild(stEl);
     }
-    var jour = historique.filter(function(en){ return en && en.date === today; });
-    // Compteur du jour depuis les données SYNCHRONISÉES (cloud + local) pour que
-    // le baromètre soit IDENTIQUE sur tous les appareils (téléphone 2 / PC 0 avant).
-    // getDonneesPeriode fusionne le cloud et filtre par secteur.
-    var nb = 0, modulesCouverts = {};
-    var _pagesB = ['page-reception','page-temperatures','page-hygiene','page-ouverture','page-cuisson','page-refroidissement','page-huiles','page-etiquetage','page-fermeture','page-pertes','page-dechets','page-nuisibles','page-documents','page-affichage','page-audits'];
-    _pagesB.forEach(function(pid){
-      try { (getDonneesPeriode(pid, today, today) || []).forEach(function(){ nb++; modulesCouverts[pid] = true; }); } catch(e){}
+
+    // Source UNIQUE = celle de la carte « Contrôles du jour » : modules quotidiens du secteur.
+    var taches = (typeof _tdbTaches === 'function') ? _tdbTaches() : [];
+    var set    = (typeof _tdbFaitsSet === 'function') ? _tdbFaitsSet() : {};
+    var total  = taches.length;
+    if (!total) {
+      host.innerHTML = '';
+      try { if (typeof renderTdbAfaire === 'function') renderTdbAfaire(); } catch(e){}
+      try { if (typeof renderTdbPerio === 'function') renderTdbPerio(); } catch(e){}
+      try { if (typeof _tdbMajGuide === 'function') _tdbMajGuide(); } catch(e){}
+      return;
+    }
+
+    var faits = 0, items = '';
+    taches.forEach(function(m){
+      var fait = (typeof _tdbEstFait === 'function') ? _tdbEstFait(m, set) : false;
+      var nom = _baroShortNom(m);
+      if (fait) {
+        faits++;
+        items += '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:#16a34a">' +
+          '<span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">✓</span>' +
+          _baroEsc(nom) + '</div>';
+      } else {
+        items += '<div class="baro-todo" style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#dc2626">' +
+          '<span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#dc2626"></span>' +
+          _baroEsc(nom) + '</div>';
+      }
     });
-    // Repli sur le journal local si le cloud n'a encore rien renvoyé.
-    if (nb === 0 && jour.length) {
-      nb = jour.length;
-      jour.forEach(function(en){ if (en && en.module) modulesCouverts[en.module] = true; });
-    }
-    var nbModules = Object.keys(modulesCouverts).length;
-
-    var pct = Math.max(0, Math.min(1, nb / BAROMETRE_OBJECTIF));
-    var couleur = nb === 0 ? '#94a3b8' : (pct < 0.34 ? '#dc2626' : pct < 0.67 ? '#f59e0b' : '#16a34a');
-    var etat = nb === 0 ? 'Aucun contrôle' : (pct < 0.34 ? 'À compléter' : pct < 0.67 ? 'En bonne voie' : 'Journée à jour');
-
-    // Jauge SVG demi-cercle — épurée : chiffres du cadran à l'EXTÉRIEUR de l'arc,
-    // grand chiffre central seul (sans sous-texte tassé), aiguille courte qui ne
-    // traverse pas le chiffre. Le détail « X/6 objectif » reste affiché dessous.
-    var cx = 130, cy = 132, r = 96;
-    var needle = _baroPoint(cx, cy, r - 30, pct);
-    var grads = '';
-    for (var gk = 1; gk <= BAROMETRE_OBJECTIF; gk++) {
-      var gt = gk / BAROMETRE_OBJECTIF;
-      var gIn  = _baroPoint(cx, cy, r - 8,  gt);   // bord intérieur de l'arc
-      var gOut = _baroPoint(cx, cy, r + 8,  gt);   // bord extérieur de l'arc
-      var gLbl = _baroPoint(cx, cy, r + 19, gt);   // chiffre POSÉ à l'extérieur de l'arc
-      var gOn  = gk <= nb;                          // chiffre déjà atteint ?
-      grads +=
-        '<line x1="' + gIn.x.toFixed(1) + '" y1="' + gIn.y.toFixed(1) + '" x2="' + gOut.x.toFixed(1) + '" y2="' + gOut.y.toFixed(1) + '" stroke="#ffffff" stroke-width="2"/>' +
-        '<text x="' + gLbl.x.toFixed(1) + '" y="' + (gLbl.y + 4).toFixed(1) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="800" font-size="11.5" fill="' + (gOn ? couleur : '#cbd5e1') + '">' + gk + '</text>';
-    }
-    var svg = '<svg viewBox="0 0 260 150" width="100%" style="max-width:248px;display:block;margin:0 auto">' +
-      '<path d="' + _baroArc(cx, cy, r, 0, 1) + '" fill="none" stroke="#e5e7eb" stroke-width="15" stroke-linecap="round"/>' +
-      '<path d="' + _baroArc(cx, cy, r, 0, pct < 0.02 ? 0.02 : pct) + '" fill="none" stroke="' + couleur + '" stroke-width="15" stroke-linecap="round"/>' +
-      grads +
-      '<line x1="' + cx + '" y1="' + cy + '" x2="' + needle.x.toFixed(1) + '" y2="' + needle.y.toFixed(1) + '" stroke="#1f2937" stroke-width="3" stroke-linecap="round"/>' +
-      '<circle cx="' + cx + '" cy="' + cy + '" r="6" fill="#1f2937"/>' +
-      '<text x="' + cx + '" y="' + (cy - 22) + '" text-anchor="middle" font-family="Outfit,sans-serif" font-weight="900" font-size="46" fill="' + couleur + '">' + nb + '</text>' +
-      '</svg>';
-
-    // Fil temps réel : 4 derniers contrôles
-    var fil = '';
-    var derniers = jour.slice(-4).reverse();
-    if (derniers.length === 0) {
-      fil = '<div style="font-size:11.5px;color:#9ca3af;text-align:center;padding:8px 0">Valider un module — il apparaîtra ici en direct.</div>';
-    } else {
-      derniers.forEach(function(en){
-        var qui = (en.signe && String(en.signe).trim()) ? String(en.signe).trim() : '—';
-        var mod = en.module ? String(en.module) : 'Contrôle';
-        var heure = en.heure ? String(en.heure) : '';
-        fil += '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid #f1f5f9">' +
-          '<div style="width:7px;height:7px;border-radius:50%;background:#16a34a;flex-shrink:0"></div>' +
-          '<div style="flex:1;min-width:0">' +
-            '<div style="font-size:12px;font-weight:700;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + _baroEsc(mod) + '</div>' +
-            '<div style="font-size:10.5px;color:#6b7280">signé par ' + _baroEsc(qui) + '</div>' +
-          '</div>' +
-          '<div style="font-size:11px;font-weight:700;color:#9ca3af;flex-shrink:0">' + _baroEsc(heure) + '</div>' +
-        '</div>';
-      });
-    }
+    var reste = total - faits;
+    var pct = Math.round(faits / total * 100);
+    var couleur = reste === 0 ? '#16a34a' : (faits === 0 ? '#dc2626' : '#f59e0b');
+    var txtEtat = reste === 0 ? 'tous faits 🎉' : (reste + ' à faire');
+    var releves = _baroRelevesJour(taches);
 
     host.innerHTML =
       '<div style="background:white;border-radius:16px;padding:14px 16px 12px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #eef2ff">' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">' +
-          '<div style="font-size:13px;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:6px">🌡️ Baromètre du jour</div>' +
-          '<div style="font-size:10px;font-weight:800;color:' + couleur + ';background:' + couleur + '1a;padding:3px 9px;border-radius:20px">● ' + etat + '</div>' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
+          '<div style="font-size:13px;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:6px">🌡️ Contrôles du jour</div>' +
+          '<div style="font-size:11px;font-weight:800;color:' + couleur + ';background:' + couleur + '1a;padding:4px 11px;border-radius:20px">● ' + faits + '/' + total + ' — ' + _baroEsc(txtEtat) + '</div>' +
         '</div>' +
-        svg +
-        '<div style="text-align:center;font-size:11px;font-weight:700;color:#9ca3af;margin:-6px 0 8px">contrôle' + (nb > 1 ? 's' : '') + ' aujourd\'hui</div>' +
-        '<div style="display:flex;justify-content:center;gap:18px;margin:2px 0 10px">' +
-          '<div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#1f2937">' + nbModules + '</div><div style="font-size:10px;color:#9ca3af;font-weight:700">modules couverts</div></div>' +
-          '<div style="width:1px;background:#e5e7eb"></div>' +
-          '<div style="text-align:center"><div style="font-size:18px;font-weight:900;color:#1f2937">' + nb + '/' + BAROMETRE_OBJECTIF + '</div><div style="font-size:10px;color:#9ca3af;font-weight:700">objectif jour</div></div>' +
+        '<div style="height:12px;border-radius:8px;background:#eef2f7;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:' + pct + '%;border-radius:8px;background:linear-gradient(90deg,#f59e0b,#16a34a)"></div></div>' +
+        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:4px">' + items + '</div>' +
+        '<div style="display:flex;justify-content:center;gap:20px;margin:12px 0 2px;padding-top:11px;border-top:1px solid #f1f5f9">' +
+          '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#334155"><span style="width:15px;height:15px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</span>Fait</div>' +
+          '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#334155"><span style="width:15px;height:15px;border-radius:50%;background:#dc2626"></span>À faire</div>' +
         '</div>' +
-        '<div style="font-size:10px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:#9ca3af;margin-bottom:2px">⚡ En temps réel</div>' +
-        fil +
+        (releves > faits ? '<div style="font-size:10.5px;color:#94a3b8;text-align:center;margin-top:6px;font-weight:600">↻ ' + releves + ' relevés au total — chaque module compte une seule fois</div>' : '') +
       '</div>';
   } catch(e) {
     host.innerHTML = '';
   }
-  // TDB — rafraîchir le résumé du jour + les rappels périodiques + les pastilles de
-  // statut sur les boutons du mode guidé (la grille experte est décorée par renderMods).
   try { if (typeof renderTdbAfaire === 'function') renderTdbAfaire(); } catch (eTdb) {}
   try { if (typeof renderTdbPerio === 'function') renderTdbPerio(); } catch (eTdb2) {}
   try { if (typeof _tdbMajGuide === 'function') _tdbMajGuide(); } catch (eTdb3) {}
