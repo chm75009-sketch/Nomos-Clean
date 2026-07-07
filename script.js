@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v442';
+var APP_BUILD = 'v443';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16383,6 +16383,28 @@ function _baroRelevesJour(taches){
   } catch(e){}
   return n;
 }
+// Page(s) de contrôle correspondant à un module (pour lire les données CLOUD+local via
+// getDonneesPeriode). Le nettoyage est éclaté en ouverture/fermeture.
+var _BARO_PAGES = {
+  reception:['page-reception'], temperatures:['page-temperatures'], hygiene:['page-hygiene'],
+  nettoyage:['page-ouverture','page-fermeture'], cuisson:['page-cuisson'],
+  refroidissement:['page-refroidissement'], huiles:['page-huiles'], etiquetage:['page-etiquetage'],
+  pertes:['page-pertes'], 'plat-temoin':['page-plat-temoin'], 'liaison-thermique':['page-liaison-thermique'],
+  'registre-convives':['page-registre-convives']
+};
+// Un module est-il fait AUJOURD'HUI selon les données SYNCHRONISÉES (cloud + local) ?
+// getDonneesPeriode fusionne le cloud (autorité tous appareils) et filtre par secteur,
+// donc un relevé fait sur le téléphone est vu sur le PC (et inversement).
+function _baroFaitSync(m, today){
+  try {
+    var pages = _BARO_PAGES[m.id] || ['page-' + m.id];
+    for (var i = 0; i < pages.length; i++) {
+      var d = (typeof getDonneesPeriode === 'function') ? getDonneesPeriode(pages[i], today, today) : null;
+      if (d && d.length) return true;
+    }
+  } catch(e){}
+  return false;
+}
 
 // BAROMÈTRE « Contrôles du jour » — Option C : une pastille par module QUOTIDIEN du
 // secteur actif. Vert = fait, rouge clignotant = à faire. Chaque module compte UNE
@@ -16423,9 +16445,12 @@ function renderBarometre() {
       return;
     }
 
+    var today = new Date().toISOString().split('T')[0];
     var faits = 0, items = '';
     taches.forEach(function(m){
-      var fait = (typeof _tdbEstFait === 'function') ? _tdbEstFait(m, set) : false;
+      // Fait = présent dans l'historique local (libellé) OU dans les données synchronisées
+      // cloud+local (couvre le relevé fait sur un autre appareil / pas encore en local).
+      var fait = ((typeof _tdbEstFait === 'function') && _tdbEstFait(m, set)) || _baroFaitSync(m, today);
       var nom = _baroShortNom(m);
       if (fait) {
         faits++;
