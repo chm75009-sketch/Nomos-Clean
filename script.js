@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v443';
+var APP_BUILD = 'v444';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16409,10 +16409,43 @@ function _baroFaitSync(m, today){
 // BAROMÈTRE « Contrôles du jour » — Option C : une pastille par module QUOTIDIEN du
 // secteur actif. Vert = fait, rouge clignotant = à faire. Chaque module compte UNE
 // seule fois (10 relevés de température = 1 module fait). Périodiques/ponctuels exclus.
+// Socle réellement QUOTIDIEN (tous secteurs) : ces modules se font CHAQUE jour.
+// Tout autre module quotidien est « selon l'activité » (bouton « Pas prévu ce jour »).
+// Une seule etiquette = 0 reglage par secteur ; le barometre range tout seul.
+var _BARO_SOCLE = { temperatures:1, hygiene:1, nettoyage:1, 'plat-temoin':1, 'liaison-thermique':1, 'registre-convives':1 };
+function _baroEstSocle(m){ return !!(m && _BARO_SOCLE[m.id]); }
+
+// Declarations « Pas prevu ce jour » — stockage minimal : { "date|moduleId|secteur": {h:"HH:MM"} }.
+// N'entre PAS dans les controles reels / rapports DDPP : simple note horodatee, annulable.
+function _baroPPKey(mid){
+  var today = new Date().toISOString().split('T')[0];
+  var sect = (typeof SECTEUR_ACTIF !== 'undefined' && SECTEUR_ACTIF) ? SECTEUR_ACTIF : '';
+  return today + '|' + mid + '|' + sect;
+}
+function _baroPPMap(){
+  try { var m = JSON.parse(lsGet('haccp_pasprevu') || '{}'); return (m && typeof m === 'object') ? m : {}; }
+  catch(e){ return {}; }
+}
+function _baroEstPasPrevu(mid){ return !!_baroPPMap()[_baroPPKey(mid)]; }
+// Bascule la declaration « Pas prevu ce jour » (annulable) puis redessine le barometre.
+function baroTogglePasPrevu(mid){
+  try {
+    var m = _baroPPMap(), k = _baroPPKey(mid);
+    if (m[k]) delete m[k];
+    else m[k] = { h: (typeof getNowStr === 'function' ? getNowStr() : '') };
+    lsSet('haccp_pasprevu', JSON.stringify(m));
+  } catch(e){}
+  try { renderBarometre(); } catch(e){}
+}
+
+// BAROMÈTRE « Contrôles du jour » — 2 GROUPES :
+//  • SOCLE (tous les jours) : pastille verte = fait, rouge clignotant = à faire ; compte X/N.
+//  • SELON L'ACTIVITÉ : fait -> vert auto ; sinon bouton « Pas prevu ce jour » (clic horodate,
+//    annulable). Ce groupe ne clignote jamais et ne compte pas comme « en retard ».
 function renderBarometre() {
   var host = document.getElementById('barometreHaccp');
   if (!host) return;
-  // Précharge le cache cloud si vide (ex. PC arrivé direct sur l'écran Modules) puis redessine.
+  // Precharge le cache cloud si vide (ex. PC arrive direct sur l'ecran Modules) puis redessine.
   try {
     var _cc = window._cloudCache || {};
     var _vide = !Object.keys(_cc).some(function(k){ return (_cc[k] || []).length; });
@@ -16425,7 +16458,6 @@ function renderBarometre() {
   } catch(eCC) {}
 
   try {
-    // Animation « clignotement rouge » injectée une seule fois.
     if (!document.getElementById('baroStyle')) {
       var stEl = document.createElement('style');
       stEl.id = 'baroStyle';
@@ -16433,11 +16465,9 @@ function renderBarometre() {
       document.head.appendChild(stEl);
     }
 
-    // Source UNIQUE = celle de la carte « Contrôles du jour » : modules quotidiens du secteur.
     var taches = (typeof _tdbTaches === 'function') ? _tdbTaches() : [];
     var set    = (typeof _tdbFaitsSet === 'function') ? _tdbFaitsSet() : {};
-    var total  = taches.length;
-    if (!total) {
+    if (!taches.length) {
       host.innerHTML = '';
       try { if (typeof renderTdbAfaire === 'function') renderTdbAfaire(); } catch(e){}
       try { if (typeof renderTdbPerio === 'function') renderTdbPerio(); } catch(e){}
@@ -16446,42 +16476,71 @@ function renderBarometre() {
     }
 
     var today = new Date().toISOString().split('T')[0];
-    var faits = 0, items = '';
-    taches.forEach(function(m){
-      // Fait = présent dans l'historique local (libellé) OU dans les données synchronisées
-      // cloud+local (couvre le relevé fait sur un autre appareil / pas encore en local).
-      var fait = ((typeof _tdbEstFait === 'function') && _tdbEstFait(m, set)) || _baroFaitSync(m, today);
+    function _estFait(m){ return ((typeof _tdbEstFait === 'function') && _tdbEstFait(m, set)) || _baroFaitSync(m, today); }
+
+    var socle = [], activite = [];
+    taches.forEach(function(m){ (_baroEstSocle(m) ? socle : activite).push(m); });
+
+    // ---- Groupe SOCLE (pastilles) ----
+    var faitsSocle = 0, pillsSocle = '';
+    socle.forEach(function(m){
       var nom = _baroShortNom(m);
-      if (fait) {
-        faits++;
-        items += '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:#16a34a">' +
-          '<span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">✓</span>' +
-          _baroEsc(nom) + '</div>';
+      if (_estFait(m)) {
+        faitsSocle++;
+        pillsSocle += '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:700;color:#16a34a"><span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">✓</span>' + _baroEsc(nom) + '</div>';
       } else {
-        items += '<div class="baro-todo" style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#dc2626">' +
-          '<span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#dc2626"></span>' +
-          _baroEsc(nom) + '</div>';
+        pillsSocle += '<div class="baro-todo" style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#dc2626"><span style="width:17px;height:17px;border-radius:50%;flex-shrink:0;background:#dc2626"></span>' + _baroEsc(nom) + '</div>';
       }
     });
-    var reste = total - faits;
-    var pct = Math.round(faits / total * 100);
-    var couleur = reste === 0 ? '#16a34a' : (faits === 0 ? '#dc2626' : '#f59e0b');
-    var txtEtat = reste === 0 ? 'tous faits 🎉' : (reste + ' à faire');
-    var releves = _baroRelevesJour(taches);
+    var totS = socle.length, resteS = totS - faitsSocle;
+    var pct = totS ? Math.round(faitsSocle / totS * 100) : 100;
+    var couleur = resteS === 0 ? '#16a34a' : (faitsSocle === 0 ? '#dc2626' : '#f59e0b');
+    var txtEtat = totS === 0 ? '—' : (resteS === 0 ? 'tous faits 🎉' : (resteS + ' à faire'));
+
+    // ---- Groupe ACTIVITÉ (lignes avec bouton « Pas prevu ce jour ») ----
+    var rowsAct = '';
+    activite.forEach(function(m){
+      var nom = _baroShortNom(m);
+      if (_estFait(m)) {
+        rowsAct += '<div style="display:flex;align-items:center;gap:9px;padding:8px 2px;border-top:1px solid #f4f5f9">' +
+          '<span style="width:16px;height:16px;border-radius:50%;flex-shrink:0;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff">✓</span>' +
+          '<span style="flex:1;font-size:12.5px;font-weight:800;color:#16a34a">' + _baroEsc(nom) + '</span>' +
+          '<span style="font-size:11px;font-weight:800;color:#16a34a">✓ Fait</span></div>';
+      } else if (_baroEstPasPrevu(m.id)) {
+        rowsAct += '<div onclick="baroTogglePasPrevu(\'' + m.id + '\')" title="Appuyer pour annuler" style="display:flex;align-items:center;gap:9px;padding:8px 2px;border-top:1px solid #f4f5f9;cursor:pointer">' +
+          '<span style="width:16px;height:16px;border-radius:50%;flex-shrink:0;background:#cbd5e1"></span>' +
+          '<span style="flex:1;font-size:12.5px;font-weight:800;color:#94a3b8">' + _baroEsc(nom) + '</span>' +
+          '<span style="font-size:11px;font-weight:800;color:#94a3b8">Pas prévu ce jour ✓</span></div>';
+      } else {
+        rowsAct += '<div style="display:flex;align-items:center;gap:9px;padding:8px 2px;border-top:1px solid #f4f5f9">' +
+          '<span style="width:16px;height:16px;border-radius:50%;flex-shrink:0;background:#f59e0b"></span>' +
+          '<span style="flex:1;font-size:12.5px;font-weight:800;color:#475569">' + _baroEsc(nom) + '</span>' +
+          '<button onclick="baroTogglePasPrevu(\'' + m.id + '\')" style="font-size:10.5px;font-weight:800;color:#64748b;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:5px 10px;white-space:nowrap;cursor:pointer;font-family:inherit">Pas prévu ce jour</button></div>';
+      }
+    });
+
+    var htmlSocle = totS ? (
+      '<div style="font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;margin:2px 0 8px;color:#1f2937">🟢 Tous les jours <span style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:none;letter-spacing:0">— obligatoires</span></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:' + (activite.length ? '14px' : '4px') + '">' + pillsSocle + '</div>'
+    ) : '';
+    var htmlAct = activite.length ? (
+      '<div style="font-size:11px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;margin:2px 0 4px;color:#1f2937">🟠 Selon l\'activité <span style="font-size:10px;font-weight:700;color:#94a3b8;text-transform:none;letter-spacing:0">— si concerné</span></div>' +
+      rowsAct
+    ) : '';
 
     host.innerHTML =
       '<div style="background:white;border-radius:16px;padding:14px 16px 12px;box-shadow:0 2px 10px rgba(0,0,0,.07);border:1px solid #eef2ff">' +
         '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">' +
           '<div style="font-size:13px;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:6px">🌡️ Contrôles du jour</div>' +
-          '<div style="font-size:11px;font-weight:800;color:' + couleur + ';background:' + couleur + '1a;padding:4px 11px;border-radius:20px">● ' + faits + '/' + total + ' — ' + _baroEsc(txtEtat) + '</div>' +
+          '<div style="font-size:11px;font-weight:800;color:' + couleur + ';background:' + couleur + '1a;padding:4px 11px;border-radius:20px">● ' + faitsSocle + '/' + totS + ' — ' + _baroEsc(txtEtat) + '</div>' +
         '</div>' +
-        '<div style="height:12px;border-radius:8px;background:#eef2f7;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:' + pct + '%;border-radius:8px;background:linear-gradient(90deg,#f59e0b,#16a34a)"></div></div>' +
-        '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:4px">' + items + '</div>' +
-        '<div style="display:flex;justify-content:center;gap:20px;margin:12px 0 2px;padding-top:11px;border-top:1px solid #f1f5f9">' +
-          '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#334155"><span style="width:15px;height:15px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</span>Fait</div>' +
-          '<div style="display:flex;align-items:center;gap:7px;font-size:11.5px;font-weight:800;color:#334155"><span style="width:15px;height:15px;border-radius:50%;background:#dc2626"></span>À faire</div>' +
+        '<div style="height:12px;border-radius:8px;background:#eef2f7;overflow:hidden;margin-bottom:12px"><div style="height:100%;width:' + pct + '%;border-radius:8px;background:linear-gradient(90deg,#f59e0b,#16a34a)"></div></div>' +
+        htmlSocle + htmlAct +
+        '<div style="display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin:14px 0 2px;padding-top:11px;border-top:1px solid #f1f5f9">' +
+          '<div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#334155"><span style="width:14px;height:14px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;font-size:8px;color:#fff">✓</span>Fait</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#334155"><span style="width:14px;height:14px;border-radius:50%;background:#dc2626"></span>À faire (socle)</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#334155"><span style="width:14px;height:14px;border-radius:50%;background:#cbd5e1"></span>Pas prévu</div>' +
         '</div>' +
-        (releves > faits ? '<div style="font-size:10.5px;color:#94a3b8;text-align:center;margin-top:6px;font-weight:600">↻ ' + releves + ' relevés au total — chaque module compte une seule fois</div>' : '') +
       '</div>';
   } catch(e) {
     host.innerHTML = '';
@@ -16597,10 +16656,13 @@ function renderTdbAfaire() {
   var host = document.getElementById('tdbAfaire');
   if (!host) return;
   try {
-    var taches = _tdbTaches();
+    // Cohérent avec le baromètre : on résume le SOCLE (contrôles vraiment quotidiens),
+    // détection « fait » sur données synchronisées (cloud + local, multi-appareils).
+    var taches = _tdbTaches().filter(function (m) { return (typeof _baroEstSocle === 'function') ? _baroEstSocle(m) : true; });
     if (!taches.length) { host.innerHTML = ''; return; }
     var set = _tdbFaitsSet();
-    var faits = taches.filter(function (m) { return _tdbEstFait(m, set); }).length;
+    var _tdbToday = new Date().toISOString().split('T')[0];
+    var faits = taches.filter(function (m) { return _tdbEstFait(m, set) || (typeof _baroFaitSync === 'function' && _baroFaitSync(m, _tdbToday)); }).length;
     var total = taches.length, reste = total - faits;
     var couleur = reste === 0 ? '#16a34a' : (faits === 0 ? '#dc2626' : '#f59e0b');
     var txt = reste === 0 ? 'tous faits 🎉' : (reste + ' à faire');
