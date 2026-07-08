@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v447';
+var APP_BUILD = 'v448';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -7577,7 +7577,7 @@ async function validerReception() {
 
 // MODULES
 var CAT_CONFIG = {
-  quotidien:{cls:'cb-q',ico:'🔁',title:'Contrôles Quotidiens',sub:'À effectuer chaque jour — réception, températures, hygiène, production, nettoyage'},
+  quotidien:{cls:'cb-q',ico:'🔁',title:'Contrôles Quotidiens',sub:'Le socle du jour + les contrôles selon l\'activité'},
   periodique:{cls:'cb-p',ico:'📅',title:'Contrôles Périodiques',sub:'À intervalles réguliers selon la fréquence de chaque établissement'},
   ponctuel:{cls:'cb-u',ico:'📌',title:'Contrôles Ponctuels',sub:'Conformité réglementaire — documents obligatoires et affichages'},
   pilotage:{cls:'cb-s',ico:'🔎',title:'Suivi & Pilotage',sub:'Supervision, analytics, non-conformités et exports'},
@@ -7628,7 +7628,7 @@ function renderMods(cat) {
   // « Auj. 3 / OK » qui étaient trompeurs). Seuls les contrôles quotidiens suivis ont
   // un statut ; les autres modules n'affichent plus de badge factice.
   var _statut = (typeof _tdbStatutMap === 'function') ? _tdbStatutMap() : {};
-  grid.innerHTML = mods.map(function(m, i) {
+  function _btn(m, i) {
     var st = _statut[m.id];
     var badge = st ? ('<div class="mod-badge' + (st === 'afaire' ? ' alert' : '') + '" style="background:' + (st === 'fait' ? '#dcfce7' : '#fee2e2') + ';color:' + (st === 'fait' ? '#15803d' : '#dc2626') + '">' + (st === 'fait' ? '✅ Fait' : '⬜ À faire') + '</div>') : '';
     return '<button class="mod ' + m.color + '" onclick="openModule(\'' + m.id + '\')" style="animation-delay:' + (i*0.04) + 's">' +
@@ -7639,7 +7639,24 @@ function renderMods(cat) {
       (m.ddpp ? '<div class="mod-ddpp">🔴 DDPP</div>' : '') +
       '<div class="mod-freq">' + m.freq + '</div>' +
       '</button>';
-  }).join('');
+  }
+  function _sousTitre(txt, sub, coul) {
+    return '<div style="grid-column:1/-1;margin:4px 2px 0;font-size:12px;font-weight:900;letter-spacing:.03em;text-transform:uppercase;color:#1f2937;display:flex;align-items:center;gap:8px">' +
+      '<span style="width:11px;height:11px;border-radius:50%;background:' + coul + ';flex-shrink:0"></span>' + txt +
+      '<span style="font-weight:600;font-size:11px;text-transform:none;letter-spacing:0;color:#6b7280">— ' + sub + '</span></div>';
+  }
+  // Famille QUOTIDIENS : 2 sous-groupes (socle « Tous les jours » / « Selon l'activité »),
+  // cohérent avec le baromètre. Les autres familles restent affichées à plat.
+  if (cat === 'quotidien' && typeof _baroEstSocle === 'function') {
+    var socle = mods.filter(function(m){ return _baroEstSocle(m); });
+    var acti  = mods.filter(function(m){ return !_baroEstSocle(m); });
+    var html = '', idx = 0;
+    if (socle.length) { html += _sousTitre('Tous les jours', 'obligatoires chaque jour', '#22c55e'); html += socle.map(function(m){ return _btn(m, idx++); }).join(''); }
+    if (acti.length)  { html += _sousTitre('Selon l\'activité', 'si concerné ce jour', '#f59e0b'); html += acti.map(function(m){ return _btn(m, idx++); }).join(''); }
+    grid.innerHTML = html;
+    return;
+  }
+  grid.innerHTML = mods.map(_btn).join('');
 }
 
 // V122 — Masque, dans les listes « Export par module » (Guide + Expert), les boutons
