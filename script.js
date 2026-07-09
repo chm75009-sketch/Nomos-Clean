@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v449';
+var APP_BUILD = 'v450';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -26709,3 +26709,15 @@ try{(function(){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',tag); else tag();
 })();}catch(e){}
 
+
+// ── Deep-link « essai » : accueil.html → haccp.html?essai=1 ouvre directement la fiche
+//    d'essai gratuit (code DÉCOUVERTE). Le client vient de la page d'accueil (2 apps),
+//    tape « Activer », et arrive ici avec le formulaire déjà ouvert. Additif — ne touche
+//    à rien d'autre.
+try {
+  if (/[?&]essai=1(&|$)/.test(location.search)) {
+    var _openEssai = function(){ try { if (typeof activerEssaiUniversel === 'function') activerEssaiUniversel(); } catch(e){} };
+    if (document.readyState === 'complete') { setTimeout(_openEssai, 700); }
+    else { window.addEventListener('load', function(){ setTimeout(_openEssai, 700); }); }
+  }
+} catch(e){}
