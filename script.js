@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v448';
+var APP_BUILD = 'v449';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1814,8 +1814,8 @@ try {
 // Anti-fraude : contact obligatoire + plafond d'activations + 1 essai
 // par e-mail. Réutilise etablissements + date_expiration (blocage natif).
 // ══════════════════════════════════════════════════════════════
-var ESSAI_UNIVERSEL_CODE = 'HACCP7J';   // code à imprimer sur le flyer
-var ESSAI_UNIVERSEL_JOURS = 7;          // durée offerte
+var ESSAI_UNIVERSEL_CODE = 'DÉCOUVERTE'; // code imprimé sur le flyer
+var ESSAI_UNIVERSEL_JOURS = 10;          // durée offerte
 var ESSAI_UNIVERSEL_MAX = 500;          // plafond d'activations par défaut (modifiable depuis l'admin)
 
 // Lit l'état de la campagne (actif/suspendu + plafond) depuis le serveur.
@@ -1953,6 +1953,28 @@ window.validerEssaiUniversel = async function() {
       }]);
     } catch(e){}
 
+    // Notification e-mail à Léa à chaque nouvel essai (best-effort via EmailJS, ne bloque jamais).
+    try {
+      if (window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN) {
+        window.emailjs.send(
+          window.HACCP_CONFIG.EMAILJS_SERVICE,
+          window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN,
+          {
+            to_email: 'lea@nomos-haccp.fr',
+            etablissement: etab,
+            secteur: sect,
+            responsable: resp,
+            email_client: mail,
+            telephone: tel,
+            formule: 'Essai DÉCOUVERTE ' + ESSAI_UNIVERSEL_JOURS + ' j',
+            engagement: '—',
+            nb_repas: '—',
+            message: 'Nouvel essai gratuit activé — code ' + code + ' — expire le ' + new Date(dateExp).toLocaleDateString('fr-FR')
+          }
+        );
+      }
+    } catch(eMail) { console.warn('Essai — notif e-mail échec:', eMail); }
+
     var modal = document.getElementById('essaiUnivModal');
     if (modal) modal.classList.remove('visible');
     // Pré-remplir les identifiants et connecter directement
@@ -2083,8 +2105,10 @@ async function connexion() {
   var errEl = document.getElementById('login_error');
   var btn = document.getElementById('login_btn');
   if (!code) { errEl.textContent = 'Saisir votre code d\'accès.'; errEl.style.display='block'; return; }
-  // Code universel d'essai (flyer) : pas de mot de passe, on ouvre le formulaire de contact
-  if (code === ESSAI_UNIVERSEL_CODE || code === 'HACCP3J') { errEl.style.display = 'none'; activerEssaiUniversel(); return; }
+  // Code universel d'essai (flyer) : pas de mot de passe, on ouvre le formulaire de contact.
+  // Tolérant à l'accent et à la casse : « DÉCOUVERTE », « decouverte », « Découverte »… tout marche.
+  var _codeSansAccent = code.normalize ? code.normalize('NFD').replace(/[\u0300-\u036f]/g, '') : code;
+  if (_codeSansAccent === 'DECOUVERTE' || code === ESSAI_UNIVERSEL_CODE || code === 'HACCP7J' || code === 'HACCP3J') { errEl.style.display = 'none'; activerEssaiUniversel(); return; }
   if (!pwd) { errEl.textContent = 'Saisir votre mot de passe.'; errEl.style.display='block'; return; }
   errEl.style.display = 'none';
   btn.textContent = '⏳ Connexion en cours...'; btn.disabled = true;
