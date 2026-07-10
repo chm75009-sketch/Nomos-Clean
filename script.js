@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v454';
+var APP_BUILD = 'v455';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1919,8 +1919,11 @@ window.validerEssaiUniversel = async function() {
       show('L\'offre d\'essai gratuite est terminée (limite atteinte). Nous contacter pour un accès.');
       reset(); return;
     }
-    // 1 essai par e-mail
-    if (stats.email_exists) {
+    // 1 essai par e-mail — SAUF les adresses de test perso, qui peuvent être
+    // réutilisées autant de fois que voulu pour tester le parcours d'inscription.
+    var _mailTest = String(mail || '').trim().toLowerCase();
+    var _ESSAI_EMAILS_TEST = ['chikhaoui.lea@gmail.com', 'r.t.h@orange.fr', 'lea@nomos-haccp.fr', 'mounir@nomos-haccp.fr'];
+    if (stats.email_exists && _ESSAI_EMAILS_TEST.indexOf(_mailTest) === -1) {
       show('Un essai a déjà été activé avec cet e-mail.');
       reset(); return;
     }
