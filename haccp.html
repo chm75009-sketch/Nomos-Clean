@@ -182,11 +182,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=453">
-    <script src="pms_secteurs.js?v=453" defer></script>
-    <script src="script.js?v=453" defer></script>
-<script src="patch_photo_bl.js?v=453" defer></script>
-<script src="pms_generateur.js?v=453" defer></script>
+    <link rel="stylesheet" href="style.css?v=454">
+    <script src="pms_secteurs.js?v=454" defer></script>
+    <script src="script.js?v=454" defer></script>
+<script src="patch_photo_bl.js?v=454" defer></script>
+<script src="pms_generateur.js?v=454" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -991,7 +991,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- HORODATAGE -->
         <div class="fblock" id="blk_mains" gb">
-          <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_aff_cuisine')">✅ Tout conforme</button></div>
+          <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="auto-field">🔒 <span id="r_timestamp"></span></div>
         </div>
         <!-- FOURNISSEUR -->
@@ -1136,7 +1136,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <button onclick="toggleAdvanced()" id="btn_advanced_temperatures" class="btn-toggle-adv" data-adv-label="facultatifs" style="background:#f3f4f6;border:1px solid #d1d5db;color:#374151;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer">⚙️ Afficher champs facultatifs</button>
         </div>
         <div class="fblock" id="blk_aff_salle" gb">
-          <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_aff_salle')">✅ Tout conforme</button></div>
+          <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="auto-field">🔒 <span id="temp_timestamp"></span></div>
         </div>
         <!-- ENCEINTES PRÉCONFIGURÉES -->
@@ -1205,7 +1205,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- TENUE -->
         <div class="fblock" id="blk_tenue"" style="border-left:4px solid #db2777">
-          <div class="fblock-title">👔 Tenue vestimentaire <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_tenue')">✅ Tout conforme</button></div>
+          <div class="fblock-title">👔 Tenue vestimentaire <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Veste / tablier propre (changement quotidien obligatoire)</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Conforme</button>
@@ -1233,7 +1233,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- BIJOUX -->
         <div class="fblock" id="blk_bijoux" rb">
-          <div class="fblock-title">💍 Bijoux & accessoires — Interdits en cuisine <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_bijoux')">✅ Tout conforme</button></div>
+          <div class="fblock-title">💍 Bijoux & accessoires — Interdits en cuisine <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div style="background:#fff8f8;border-radius:9px;padding:10px 12px;font-size:12px;color:#dc2626;font-weight:500;margin-bottom:12px;line-height:1.4">⚠️ Bagues, bracelets, montres, vernis et faux ongles sont interdits lors de la manipulation de denrées alimentaires.</div>
           <div class="frow"><div class="flabel">Absence de bagues et bracelets</div>
             <div class="status-group">
@@ -1262,7 +1262,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- BLESSURES -->
         <div class="fblock" id="blk_sante" ob">
-          <div class="fblock-title">🩹 Blessures & état de santé <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_sante')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🩹 Blessures & état de santé <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Blessures couvertes (pansement bleu détectable + gant)</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Oui / Aucune blessure</button>
@@ -1303,7 +1303,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- LAVAGE MAINS -->
         <div class="fblock gb">
-          <div class="fblock-title">🖐️ Hygiène des mains — Points critiques <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_mains')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🖐️ Hygiène des mains — Points critiques <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div style="background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:12px;color:#15803d;font-weight:500;margin-bottom:12px;line-height:1.4">✅ Technique conforme : 30 secondes minimum, savon bactéricide, essuie-mains à usage unique</div>
           <div class="frow"><div class="flabel">Lavage à l'arrivée en cuisine</div>
             <div class="status-group">
@@ -1408,7 +1408,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="auto-field">🔒 <span id="ouv_timestamp"></span></div>
         </div>
         <div class="fblock" id="blk_zones_ouv"" style="border-left:4px solid #16a34a">
-          <div class="fblock-title">🔍 Vérification visuelle — Zones et équipements <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_zones_ouv')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🔍 Vérification visuelle — Zones et équipements <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div style="background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:12px;color:#15803d;font-weight:500;margin-bottom:14px;line-height:1.4">Vérifier que chaque zone a bien été nettoyée et désinfectée la veille. En cas de doute, procédez à un nettoyage immédiat avant toute manipulation.</div>
           <div id="ouverture_zones">
           <div class="frow"><div class="flabel">Plans de travail cuisine</div>
@@ -1985,7 +1985,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- ZONES -->
         <div class="fblock">
-          <div class="fblock-title">🗺️ Zones nettoyées & désinfectées <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_zones_ferm')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🗺️ Zones nettoyées & désinfectées <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div id="fermeture_zones">
           <div class="frow"><div class="flabel">Plans de travail cuisine</div>
             <div class="status-group">
@@ -2234,7 +2234,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- ZONES CONTRÔLÉES -->
         <div class="fblock">
-          <div class="fblock-title">🗺️ Zones contrôlées <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_zones_nuis')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🗺️ Zones contrôlées <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Cuisine</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ RAS</button>
@@ -2655,7 +2655,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- FORMATIONS -->
         <div class="fblock" id="blk_formations"" style="border-left:4px solid #4c1d95">
-          <div class="fblock-title">🎓 Formations & Habilitations <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_formations')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🎓 Formations & Habilitations <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Formation HACCP 14h — Attestation</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Présente</button>
@@ -2700,7 +2700,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- DOCUMENTS SANITAIRES -->
         <div class="fblock rb">
-          <div class="fblock-title">🏥 Documents sanitaires obligatoires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_docs_san')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🏥 Documents sanitaires obligatoires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Déclaration d'activité (Cerfa 13984) — DDPP</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Présente</button>
@@ -2755,7 +2755,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- PLAN HACCP & PMS -->
         <div class="fblock ob">
-          <div class="fblock-title">📋 Plan HACCP & Plan de Maîtrise Sanitaire (PMS) <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_pms')">✅ Tout conforme</button></div>
+          <div class="fblock-title">📋 Plan HACCP & Plan de Maîtrise Sanitaire (PMS) <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Plan HACCP formalisé</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Présent & à jour</button>
@@ -2789,7 +2789,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- CONTRATS DE MAINTENANCE -->
         <div class="fblock" id="blk_contrats"" style="border-left:4px solid #0891b2">
-          <div class="fblock-title">🔧 Contrats de maintenance & prestataires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_contrats')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🔧 Contrats de maintenance & prestataires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Contrat prestataire nuisibles</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Valide</button>
@@ -2982,7 +2982,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- ZONE SÉCURITÉ -->
         <div class="fblock bb">
-          <div class="fblock-title">🚨 Zone Sécurité — Affichages obligatoires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme('blk_aff_secu')">✅ Tout conforme</button></div>
+          <div class="fblock-title">🚨 Zone Sécurité — Affichages obligatoires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Plan d'évacuation</div>
             <div class="status-group">
               <button class="status-btn" onclick="selHyg(this,'ok')">✅ Présent & lisible</button>

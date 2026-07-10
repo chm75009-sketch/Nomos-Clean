@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v453';
+var APP_BUILD = 'v454';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -3938,6 +3938,12 @@ document.getElementById('heroDate').textContent = ds.charAt(0).toUpperCase()+ds.
         // soient bien initialisées au moment de l'appel.
         setTimeout(function(){
           try {
+            // FIX secteur — la déclaration globale « var SECTEUR_ACTIF='resto' » située plus bas
+            // dans le fichier s'exécute APRÈS cet initApp et écrase le secteur restauré. Comme ce
+            // setTimeout se déclenche après le parse complet du fichier, on re-pose ici le bon
+            // secteur avant de choisir les catalogues/modules (sinon un compte boulangerie,
+            // boucherie ou collective repart avec les réglages « restauration »).
+            SECTEUR_ACTIF = (ETAB && ETAB.secteur) || lsGet('haccp_secteur_actif_' + _eid) || 'resto';
             INGREDIENTS_DB = (SECTEUR_ACTIF === 'bp') ? INGREDIENTS_BP : INGREDIENTS_RESTO;
             var _hero = document.getElementById('heroEtab'); if (_hero) _hero.textContent = (ETAB && ETAB.nom) || '';
             if (typeof updateTopbarEtab === 'function') updateTopbarEtab();
@@ -4607,7 +4613,7 @@ function estProduitARisque(nom) {
 function ajouterCategorie() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('tempCategoriesContainer');
-  if (container) tempCatCount = container.children.length + 1;
+  if (container) tempCatCount = _nextBlocId(container);
   else tempCatCount++;
   var id = tempCatCount;
   var div = document.createElement('div');
@@ -4682,6 +4688,20 @@ function ajouterCategorie() {
     '</div>';
 
   container.appendChild(div);
+}
+
+// FIX blocs dupliqués — prochain numéro = (plus grand numéro existant + 1).
+// Avant, « children.length + 1 » réutilisait un numéro déjà pris après suppression d'un
+// bloc du milieu (ex. deux « friteuse_3 » → inputs en double, getElementById renvoyait le
+// 1er, et les mesures du nouveau bloc étaient ignorées dans le PDF / le cloud).
+function _nextBlocId(container) {
+  if (!container) return 1;
+  var max = 0, enfants = container.children;
+  for (var i = 0; i < enfants.length; i++) {
+    var m = String(enfants[i].id || '').match(/(\d+)$/);
+    if (m) { var n = parseInt(m[1], 10); if (n > max) max = n; }
+  }
+  return max + 1;
 }
 
 // V80 — Helper de renumérotation : recompte les blocs après suppression et met à jour les titres "Catégorie 2" / "Compartiment 2" / "Produit N°2" / etc.
@@ -4890,19 +4910,24 @@ function filtrerProduits(inputEl, selectEl) {
     select.dispatchEvent(new Event('change'));
   }
 }
-function toutConforme(blockId) {
-  var block = document.getElementById(blockId);
+function toutConforme(arg) {
+  // FIX — On agit TOUJOURS sur le bloc où se trouve le bouton (appel toutConforme(this)).
+  // Les anciens id de bloc « blk_… » avaient été mélangés lors d'une édition : le bouton
+  // cochait un AUTRE module (ou rien du tout) tout en affichant « enregistré ✅ ».
+  // On accepte encore un id en chaîne pour compatibilité.
+  var block = (arg && arg.nodeType)
+    ? (arg.closest ? arg.closest('.fblock') : null)
+    : document.getElementById(arg);
   if (!block) return;
-  // Trouver tous les boutons "Conforme" / "ok" dans ce bloc
-  var btns = block.querySelectorAll('.status-btn');
-  btns.forEach(function(btn) {
+  // Cliquer uniquement les boutons "Conforme" (pas "Abîmé", "NC", "Non conforme"…)
+  var n = 0;
+  block.querySelectorAll('.status-btn').forEach(function(btn) {
     var txt = btn.textContent.toLowerCase();
-    // Cliquer uniquement les boutons "Conforme" (pas "Abîmé", "NC", etc.)
-    if (txt.indexOf('conforme') > -1 && txt.indexOf('non') === -1) {
-      btn.click();
-    }
+    if (txt.indexOf('conforme') > -1 && txt.indexOf('non') === -1) { btn.click(); n++; }
   });
-  showToast('Tout conforme enregistré ✅', 'ok');
+  // N'annoncer le succès que si on a réellement coché quelque chose.
+  if (n > 0) showToast('Tout conforme enregistré ✅', 'ok');
+  else showToast('Rien à cocher dans ce bloc', 'info');
 }
 function selVehHyg(ok) {
   var okBtn = document.getElementById('veh_hyg_ok');
@@ -4957,7 +4982,7 @@ function selTypeCamion(type) {
 function ajouterCompartiment() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('compartimentsContainer');
-  if (container) compartCount = container.children.length + 1;
+  if (container) compartCount = _nextBlocId(container);
   else compartCount++;
   var id = compartCount;
   var div = document.createElement('div');
@@ -6729,8 +6754,11 @@ function selMention2(prodId, mentionIdx, type) {
   if (type === 'ok' && okBtn) okBtn.classList.add('active-ok');
   if (type === 'bad' && badBtn) badBtn.classList.add('active-bad');
 
-  // NC globale
-  var ncEl = document.getElementById('nc_mentions_' + prodId);
+  // NC globale — FIX : le bandeau réel du bloc réception a l'id « men_nc_<pid> »
+  // (créé à la génération du bloc). L'ancien « nc_mentions_<pid> » n'existait pas,
+  // donc le bandeau « ⚡ NC — mention(s) manquante(s) » ne s'affichait jamais et la NC
+  // n'était pas comptée dans les récaps / le Pack DDPP.
+  var ncEl = document.getElementById('men_nc_' + prodId);
   var hasBad = false;
   var allMentions = getMentions ? getMentions() : (typeof MENTIONS_OBLIGATOIRES !== 'undefined' ? MENTIONS_OBLIGATOIRES : []);
   for (var i = 0; i < allMentions.length; i++) {
@@ -7153,9 +7181,16 @@ function collecterDonnees() {
     var typeTxt = typeEl ? typeEl.options[typeEl.selectedIndex].text : 'Non renseigné';
     var tempEl = document.getElementById('temp_' + id);
     var confEl = document.getElementById('conf_status_' + id);
-    var embBtn = block.querySelector('.status-btn.active-ok') ? 'Intact' :
-                 block.querySelector('.status-btn.active-warn') ? 'Abîmé' :
-                 block.querySelector('.status-btn.active-bad') ? 'Refusé' : 'Non renseigné';
+    // FIX emballage — on lit UNIQUEMENT les boutons emballage (emb_ok/warn/bad_<id>).
+    // Avant, querySelector('.status-btn.active-ok') scannait tout le bloc et tombait sur le
+    // bouton « Conforme » de la T° (créé avec active-ok par défaut, placé plus haut dans le DOM)
+    // → l'emballage était rapporté « Intact » même après un clic « Refusé ».
+    var embOk = document.getElementById('emb_ok_' + id);
+    var embWarn = document.getElementById('emb_warn_' + id);
+    var embBad = document.getElementById('emb_bad_' + id);
+    var embBtn = (embOk && embOk.classList.contains('active-ok')) ? 'Intact' :
+                 (embWarn && embWarn.classList.contains('active-warn')) ? 'Abîmé' :
+                 (embBad && embBad.classList.contains('active-bad')) ? 'Refusé' : 'Non renseigné';
     // V80 — Action corrective T° produit : 4 champs séparés (nc_temp_type / detail / resp / heure)
     var ncTempTypeEl = document.getElementById('nc_temp_type_' + id);
     var ncTempDetailEl = document.getElementById('nc_temp_detail_' + id);
@@ -8947,7 +8982,7 @@ function getMentions() {
 function ajouterTracaProduit() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('tracaProduitsContainer');
-  if (container) tracaCount = container.children.length + 1;
+  if (container) tracaCount = _nextBlocId(container);
   else tracaCount++;
   var id = tracaCount;
   var div = document.createElement('div');
@@ -10439,7 +10474,7 @@ function getViandOptions() {
 function ajouterPlat() {
   // V80 — Numérotation basée sur le DOM réel pour éviter les sauts (N°5 après suppression de tous)
   var container = document.getElementById('cuisPlatContainer');
-  platCount = container.children.length + 1;
+  platCount = _nextBlocId(container);
   var id = platCount;
   var div = document.createElement('div');
   div.className = 'fblock produit-block';
@@ -10672,7 +10707,7 @@ function showPlatsTemoins() {
 function ajouterPlatTemoin() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('platsTemoinsContainer');
-  if (container) platTemoinCount = container.children.length + 1;
+  if (container) platTemoinCount = _nextBlocId(container);
   else platTemoinCount++;
   var id = platTemoinCount;
   var div = document.createElement('div');
@@ -10889,7 +10924,7 @@ function onRefroiType(id) {
 function ajouterProduitRefroi() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('refroiContainer');
-  if (container) refroiCount = container.children.length + 1;
+  if (container) refroiCount = _nextBlocId(container);
   else refroiCount++;
   var id = refroiCount;
   var div = document.createElement('div');
@@ -11223,7 +11258,7 @@ function attachAutocompleteLocalisation(inputEl) {
 function ajouterFriteuse() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('huileContainer');
-  friteusCount = container.children.length + 1;
+  friteusCount = _nextBlocId(container);
   var id = friteusCount;
   var div = document.createElement('div');
   div.className = 'fblock';
@@ -11699,7 +11734,7 @@ var TYPES_ETIQ_COLLECTIVE = [
 function ajouterEtiquette() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('etiqContainer');
-  if (container) etiqCount = container.children.length + 1;
+  if (container) etiqCount = _nextBlocId(container);
   else etiqCount++;
   var id = etiqCount;
   var div = document.createElement('div');
@@ -12181,7 +12216,7 @@ var TYPES_DECHETS = TYPES_DECHETS_BASE; // alias pour compatibilité
 function ajouterDechet() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('dechetsContainer');
-  if (container) dechetCount = container.children.length + 1;
+  if (container) dechetCount = _nextBlocId(container);
   else dechetCount++;
   var id = dechetCount;
   var div = document.createElement('div');
@@ -12400,7 +12435,7 @@ var pertesCount = 0;
 function ajouterPerte() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('pertesContainer');
-  if (container) pertesCount = container.children.length + 1;
+  if (container) pertesCount = _nextBlocId(container);
   else pertesCount++;
   var id = pertesCount;
   var div = document.createElement('div');
@@ -18008,7 +18043,7 @@ var allergCount = 0;
 function ajouterPlatAllerg() {
   // V80 — Numérotation DOM réel
   var container = document.getElementById('allergContainer');
-  if (container) allergCount = container.children.length + 1;
+  if (container) allergCount = _nextBlocId(container);
   else allergCount++;
   var id = allergCount;
   var div = document.createElement('div');
