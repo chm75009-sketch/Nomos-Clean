@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v455';
+var APP_BUILD = 'v456';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1973,8 +1973,10 @@ window.validerEssaiUniversel = async function() {
             engagement: '—',
             nb_repas: '—',
             message: 'Nouvel essai gratuit activé — code ' + code + ' — expire le ' + new Date(dateExp).toLocaleDateString('fr-FR')
-          }
-        );
+          },
+          { publicKey: window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY }
+        ).then(function(){ console.log('[EmailJS] notif admin envoyée'); })
+         .catch(function(err){ console.warn('[EmailJS] notif admin échec:', err); });
       }
     } catch(eMail) { console.warn('Essai — notif e-mail échec:', eMail); }
 
@@ -1993,8 +1995,10 @@ window.validerEssaiUniversel = async function() {
             mot_de_passe: pwd,
             formule: 'Essai gratuit ' + ESSAI_UNIVERSEL_JOURS + ' jours',
             message: 'Bienvenue chez Nomos Traça ! Voici vos identifiants pour vous reconnecter pendant votre essai gratuit de ' + ESSAI_UNIVERSEL_JOURS + ' jours (valable jusqu\'au ' + new Date(dateExp).toLocaleDateString('fr-FR') + ' inclus).'
-          }
-        );
+          },
+          { publicKey: window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY }
+        ).then(function(){ console.log('[EmailJS] e-mail client envoyé'); })
+         .catch(function(err){ console.warn('[EmailJS] e-mail client échec:', err); });
       }
     } catch(eMailC) { console.warn('Essai — e-mail client échec:', eMailC); }
 
