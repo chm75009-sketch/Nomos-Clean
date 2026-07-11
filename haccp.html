@@ -182,11 +182,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=457">
-    <script src="pms_secteurs.js?v=457" defer></script>
-    <script src="script.js?v=457" defer></script>
-<script src="patch_photo_bl.js?v=457" defer></script>
-<script src="pms_generateur.js?v=457" defer></script>
+    <link rel="stylesheet" href="style.css?v=458">
+    <script src="pms_secteurs.js?v=458" defer></script>
+    <script src="script.js?v=458" defer></script>
+<script src="patch_photo_bl.js?v=458" defer></script>
+<script src="pms_generateur.js?v=458" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -374,13 +374,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div style="text-align:center;margin-bottom:22px">
           <div style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px">Démo guidée</div>
           <h2 style="font-size:clamp(22px,3vw,30px);font-weight:900;color:#0b0f1a;margin:0 0 8px">L'application en action.</h2>
-          <p style="font-size:13px;color:#52617a;max-width:560px;margin:0 auto">7 écrans clés pour comprendre Nomos Traça en 30 secondes.</p>
+          <p style="font-size:13px;color:#52617a;max-width:560px;margin:0 auto">8 écrans clés pour comprendre Nomos Traça en 30 secondes.</p>
         </div>
         <!-- Carrousel -->
         <div id="demoCarousel" style="background:linear-gradient(135deg,rgba(210,173,70,0.06),rgba(150,110,20,0.02));border:1.5px solid rgba(210,173,70,0.2);border-radius:18px;padding:24px;max-width:880px;margin:0 auto">
           <!-- Titre + description (en HAUT, comme un titre) -->
           <div style="text-align:center;margin-bottom:20px;min-height:90px">
-            <div id="demoStep" style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 7</div>
+            <div id="demoStep" style="font-size:11px;color:#9a7518;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Écran 1 / 8</div>
             <h3 id="demoTitle" style="font-size:22px;font-weight:900;color:#0b0f1a;margin:0 0 8px;line-height:1.2">Choisir votre secteur</h3>
             <p id="demoDesc" style="font-size:13px;color:#52617a;line-height:1.5;margin:0 auto;max-width:560px">L'application s'adapte automatiquement à votre métier.</p>
           </div>
@@ -990,12 +990,12 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <button onclick="toggleAdvanced()" id="btn_advanced_reception" class="btn-toggle-adv" data-adv-label="facultatifs" style="background:#f3f4f6;border:1px solid #d1d5db;color:#374151;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer">⚙️ Afficher champs facultatifs</button>
         </div>
         <!-- HORODATAGE -->
-        <div class="fblock" id="blk_mains" gb">
+        <div class="fblock gb" id="blk_mains">
           <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="auto-field">🔒 <span id="r_timestamp"></span></div>
         </div>
         <!-- FOURNISSEUR -->
-        <div class="fblock" id="blk_zones_ferm"">
+        <div class="fblock" id="blk_zones_ferm">
           <div class="fblock-title">🏭 Informations livraison</div>
           <div class="frow"><div class="flabel req">Fournisseur</div><input class="finput" id="r_fournisseur" placeholder="Nom du fournisseur"/>
             <div id="fournisseursChips" style="display:none;flex-wrap:wrap;gap:6px;margin-top:8px"></div>
@@ -1091,7 +1091,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="frow"><textarea class="ftextarea" id="r_obs" placeholder="Remarques générales sur la livraison..."></textarea></div>
         </div>
         <!-- SIGNATURE -->
-        <div class="fblock" id="blk_aff_cuisine" gb">
+        <div class="fblock gb" id="blk_aff_cuisine">
           <div class="fblock-title">✍️ Émargement numérique — Obligatoire</div>
           <p style="font-size:12px;color:var(--dim);margin-bottom:14px;line-height:1.5">Tracer votre signature avec le doigt. La validation est impossible sans signature.</p>
           <div class="sig-zone">
@@ -1135,7 +1135,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <div style="text-align:right;padding:0 4px 8px">
           <button onclick="toggleAdvanced()" id="btn_advanced_temperatures" class="btn-toggle-adv" data-adv-label="facultatifs" style="background:#f3f4f6;border:1px solid #d1d5db;color:#374151;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:8px;cursor:pointer">⚙️ Afficher champs facultatifs</button>
         </div>
-        <div class="fblock" id="blk_aff_salle" gb">
+        <div class="fblock gb" id="blk_aff_salle">
           <div class="fblock-title">⏱️ Horodatage automatique <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="auto-field">🔒 <span id="temp_timestamp"></span></div>
         </div>
@@ -1204,7 +1204,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="auto-field">🔒 <span id="hyg_timestamp"></span></div>
         </div>
         <!-- TENUE -->
-        <div class="fblock" id="blk_tenue"" style="border-left:4px solid #db2777">
+        <div class="fblock" id="blk_tenue" style="border-left:4px solid #db2777">
           <div class="fblock-title">👔 Tenue vestimentaire <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Veste / tablier propre (changement quotidien obligatoire)</div>
             <div class="status-group">
@@ -1232,7 +1232,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
         </div>
         <!-- BIJOUX -->
-        <div class="fblock" id="blk_bijoux" rb">
+        <div class="fblock rb" id="blk_bijoux">
           <div class="fblock-title">💍 Bijoux & accessoires — Interdits en cuisine <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div style="background:#fff8f8;border-radius:9px;padding:10px 12px;font-size:12px;color:#dc2626;font-weight:500;margin-bottom:12px;line-height:1.4">⚠️ Bagues, bracelets, montres, vernis et faux ongles sont interdits lors de la manipulation de denrées alimentaires.</div>
           <div class="frow"><div class="flabel">Absence de bagues et bracelets</div>
@@ -1261,7 +1261,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
         </div>
         <!-- BLESSURES -->
-        <div class="fblock" id="blk_sante" ob">
+        <div class="fblock ob" id="blk_sante">
           <div class="fblock-title">🩹 Blessures & état de santé <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Blessures couvertes (pansement bleu détectable + gant)</div>
             <div class="status-group">
@@ -1407,7 +1407,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="fblock-title">⏱️ Horodatage automatique</div>
           <div class="auto-field">🔒 <span id="ouv_timestamp"></span></div>
         </div>
-        <div class="fblock" id="blk_zones_ouv"" style="border-left:4px solid #16a34a">
+        <div class="fblock" id="blk_zones_ouv" style="border-left:4px solid #16a34a">
           <div class="fblock-title">🔍 Vérification visuelle — Zones et équipements <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div style="background:#f0fdf4;border-radius:9px;padding:10px 12px;font-size:12px;color:#15803d;font-weight:500;margin-bottom:14px;line-height:1.4">Vérifier que chaque zone a bien été nettoyée et désinfectée la veille. En cas de doute, procédez à un nettoyage immédiat avant toute manipulation.</div>
           <div id="ouverture_zones">
@@ -1461,7 +1461,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
           </div>
         </div>
-        <div class="fblock" id="blk_pms" ob">
+        <div class="fblock ob" id="blk_pms">
           <div class="fblock-title">⚠️ En cas de non-conformité détectée</div>
           <div style="background:#fff7ed;border-radius:9px;padding:10px 12px;font-size:12px;color:#c2410c;font-weight:500;margin-bottom:12px;line-height:1.4">Si une zone est non conforme, le nettoyage et la désinfection doivent être effectués immédiatement avant toute production. Aucune exception.</div>
           <div class="frow"><div class="flabel">Non-conformité constatée</div>
@@ -1514,7 +1514,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
                   <option>Autre action (préciser)</option>
                 </select>
               </div>
-              <div class="frow"><div class="flabel">Précisions</div><input type="text" id="nc_act_ouv_detail" placeholder="Décrire l'action corrective effectuee..."/></div>
+              <div class="frow"><div class="flabel">Précisions</div><input type="text" id="nc_act_ouv_detail" placeholder="Décrire l'action corrective effectuée..."/></div>
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
                 <div class="frow"><div class="flabel">Responsable</div><input type="text" id="nc_act_ouv_resp" placeholder="Nom & prénom"/></div>
                 <div class="frow"><div class="flabel">Heure</div><input type="time" id="nc_act_ouv_heure"/></div>
@@ -1695,7 +1695,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <div id="mesFriteusesHint" style="font-size:11px;color:#b45309;margin-top:8px;text-align:center"></div>
         <!-- COLLECTE HUILE USAGÉE -->
-        <div class="fblock" id="blk_docs_san" rb">
+        <div class="fblock rb" id="blk_docs_san">
           <div class="fblock-title">♻️ Collecte huile usagée — Obligatoire</div>
           <div style="background:#fff8f8;border-radius:9px;padding:10px 12px;font-size:12px;color:#dc2626;font-weight:500;margin-bottom:12px;line-height:1.4">⚠️ L'huile usagée ne doit jamais être jetée dans les égouts. Elle doit être collectée par un prestataire agréé.</div>
           <div class="frow"><div class="flabel">Huile usagée versée dans le conteneur dédié</div>
@@ -2195,7 +2195,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
         <!-- PRESTATAIRE EXTÉRIEUR -->
         <div id="nuis_zone_ext" style="display:none">
-          <div class="fblock" id="blk_aff_secu" bb">
+          <div class="fblock bb" id="blk_aff_secu">
             <div class="fblock-title">🏢 Prestataire extérieur agréé</div>
             <div class="frow"><div class="flabel">Nom de la société</div><input class="finput" id="nuis_soc" placeholder="Ex : Rentokil, Anticimex..."/></div>
             <div class="frow haccp-adv" style="display:none"><div class="flabel">Contact (tél / email)</div><input class="finput" id="nuis_contact" placeholder="Coordonnées du prestataire"/></div>
@@ -2654,7 +2654,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div id="coffreContainer"></div>
         </div>
         <!-- FORMATIONS -->
-        <div class="fblock" id="blk_formations"" style="border-left:4px solid #4c1d95">
+        <div class="fblock" id="blk_formations" style="border-left:4px solid #4c1d95">
           <div class="fblock-title">🎓 Formations & Habilitations <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Formation HACCP 14h — Attestation</div>
             <div class="status-group">
@@ -2788,7 +2788,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           </div>
         </div>
         <!-- CONTRATS DE MAINTENANCE -->
-        <div class="fblock" id="blk_contrats"" style="border-left:4px solid #0891b2">
+        <div class="fblock" id="blk_contrats" style="border-left:4px solid #0891b2">
           <div class="fblock-title">🔧 Contrats de maintenance & prestataires <button style="float:right;background:#dcfce7;border:1px solid #16a34a;color:#15803d;font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;margin-top:-2px" onclick="toutConforme(this)">✅ Tout conforme</button></div>
           <div class="frow"><div class="flabel">Contrat prestataire nuisibles</div>
             <div class="status-group">
@@ -3079,7 +3079,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div class="fblock rb" style="border-left:4px solid #dc2626">
             <div class="fblock-title" style="color:#dc2626">🚨 Suspicion TIAC — Toxi-Infection Alimentaire Collective</div>
             <div style="background:#fff8f8;border-radius:9px;padding:10px 12px;font-size:12px;color:#dc2626;font-weight:500;margin-bottom:14px;line-height:1.5">
-              Une TIAC est déclarée si <b>2 personnes ou plus</b> présentent les mêmes symptômes après avoir mangé dans votre établissement. <b>Déclaration obligatoire dans les 24h</b> auprès de l\u2019ARS et de la DDPP.
+              Une TIAC est déclarée si <b>2 personnes ou plus</b> présentent les mêmes symptômes après avoir mangé dans votre établissement. <b>Déclaration obligatoire dans les 24h</b> auprès de l'ARS et de la DDPP.
             </div>
             <div class="frow"><div class="flabel">Suspicion de TIAC en cours</div>
               <div class="status-group">
@@ -3089,13 +3089,13 @@ html, body { max-width: 100%; overflow-x: hidden; }
             </div>
             <div id="tiac_procedure" style="display:none">
               <div style="background:#fee2e2;border-radius:9px;padding:12px;margin:10px 0;font-size:12px;line-height:1.8">
-                <b>Procédure d\u2019urgence TIAC :</b><br>
+                <b>Procédure d'urgence TIAC :</b><br>
                 ✅ 1. Conserver <b>tous les plats témoins</b> (ne pas ouvrir ni toucher)<br>
                 ✅ 2. Bloquer et conserver les <b>denrées suspectes</b> en chambre froide<br>
-                ✅ 3. Lister les personnes atteintes (nom, symptômes, heure d\u2019apparition)<br>
-                ✅ 4. Appeler l\u2019<b>ARS</b> : 0800 13 00 00 (numéro gratuit)<br>
+                ✅ 3. Lister les personnes atteintes (nom, symptômes, heure d'apparition)<br>
+                ✅ 4. Appeler l'<b>ARS</b> : 0800 13 00 00 (numéro gratuit)<br>
                 ✅ 5. Appeler la <b>DDPP</b> de votre département<br>
-                ✅ 6. NE PAS nettoyer ni désinfecter tant que les autorités n\u2019ont pas prélevé
+                ✅ 6. NE PAS nettoyer ni désinfecter tant que les autorités n'ont pas prélevé
               </div>
               <div class="frow"><div class="flabel">Nombre de personnes atteintes</div>
                 <input class="finput" type="number" id="tiac_nb" placeholder="Nombre estimé" min="2"/>
@@ -3670,7 +3670,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🏷️</div>
     <div class="modal-title">Étiquetage enregistré !</div>
     <div class="modal-desc">Vos étiquettes sont prêtes. Les imprimer depuis votre téléphone, tablette ou PC.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <div style="font-size:11.5px;color:#6b7280;margin-bottom:10px">📐 Format : <strong id="etiq_format_resume">—</strong> · modifiable dans le module (en haut)</div>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#0d6464,#0f766e);box-shadow:0 4px 16px rgba(15,118,110,.3);margin-bottom:8px" onclick="imprimerEtiquettesHTML()">🖨️ Imprimer les étiquettes</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalEtiqPdf').classList.remove('visible'); openModule('etiquetage')">← Retour au module</button>
@@ -3683,7 +3683,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🍽️</div>
     <div class="modal-title">Plat Témoin enregistré !</div>
     <div class="modal-desc">Vos échantillons témoins ont été enregistrés. Les conserver 72h à +4°C.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document — preuve légale en cas de TIAC.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document — preuve légale en cas de TIAC.</div>
     <button class="modal-btn-dl" onclick="imprimerPlatTemoin()">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalPTpdf').classList.remove('visible'); openModule('plat-temoin')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="document.getElementById('modalPTpdf').classList.remove('visible'); goHome()">Fermer</button>
@@ -3727,7 +3727,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">⚠️</div>
     <div class="modal-title">Registre NC enregistré !</div>
     <div class="modal-desc">Votre registre de non-conformités a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-nc','NC & Actions Correctives')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalNCPdf').classList.remove('visible'); openModule('nc')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansNCPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3739,7 +3739,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📌</div>
     <div class="modal-title">Contrôle affichages enregistré !</div>
     <div class="modal-desc">Votre contrôle d'affichage réglementaire a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-affichage','Affichages Reglementaires')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalAffPdf').classList.remove('visible'); openModule('affichage')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansAffPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3751,7 +3751,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📁</div>
     <div class="modal-title">Documents enregistrés !</div>
     <div class="modal-desc">Vos documents ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-documents','Controle Documentaire')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalDocsPdf').classList.remove('visible'); openModule('documents')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansDocsPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3763,7 +3763,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🐛</div>
     <div class="modal-title">Suivi nuisibles enregistré !</div>
     <div class="modal-desc">Votre enregistrement de suivi nuisibles a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-nuisibles','Suivi Nuisibles')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalNuisPdf').classList.remove('visible'); openModule('nuisibles')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansNuisPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3801,7 +3801,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">♻️</div>
     <div class="modal-title">Déchets enregistrés !</div>
     <div class="modal-desc">Vos enregistrements de gestion des déchets ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-dechets','Dechets & Biodechets')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalDechetsPdf').classList.remove('visible'); openModule('dechets')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansDechetsPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3813,7 +3813,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🗑️</div>
     <div class="modal-title">Pertes & Invendus enregistrés !</div>
     <div class="modal-desc">Vos enregistrements de pertes ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-pertes','Pertes & Invendus')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalPertesPdf').classList.remove('visible'); openModule('pertes')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansPertesPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3825,7 +3825,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🧽</div>
     <div class="modal-title">Nettoyage fermeture enregistré !</div>
     <div class="modal-desc">Votre plan de nettoyage fermeture a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-fermeture','Nettoyage Fermeture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalFermPdf').classList.remove('visible'); openModule('fermeture')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansFermPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3837,7 +3837,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🫙</div>
     <div class="modal-title">Contrôle huiles enregistré !</div>
     <div class="modal-desc">Vos relevés de contrôle huiles ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-huiles','Huiles de Friture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalHuilePdf').classList.remove('visible'); openModule('huiles')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansHuilePDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3849,7 +3849,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">❄️</div>
     <div class="modal-title">Refroidissement enregistré !</div>
     <div class="modal-desc">Vos relevés de refroidissement ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-refroidissement','Refroidissement Rapide')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalRefroiPdf').classList.remove('visible'); openModule('refroidissement')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansRefroiPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3861,7 +3861,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🍳</div>
     <div class="modal-title">Cuisson enregistrée !</div>
     <div class="modal-desc">Vos enregistrements de cuisson ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerCuisson()">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalCuisPdf').classList.remove('visible'); openModule('cuisson')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansCuisPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3873,7 +3873,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🌅</div>
     <div class="modal-title">Contrôle ouverture enregistré !</div>
     <div class="modal-desc">Votre vérification nettoyage ouverture a été validée et horodatée.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-ouverture','Nettoyage Ouverture')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalOuvPdf').classList.remove('visible'); openModule('ouverture')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansOuvPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3885,7 +3885,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🖐️</div>
     <div class="modal-title">Contrôle hygiène enregistré !</div>
     <div class="modal-desc">Votre contrôle d'hygiène personnel a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-hygiene','Hygiene & Tenue')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalHygPdf').classList.remove('visible'); openModule('hygiene')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansHygPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3896,7 +3896,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">🌡️</div>
     <div class="modal-title">Relevés enregistrés !</div>
     <div class="modal-desc">Vos relevés de températures ont été validés et horodatés.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="downloadTempPDF()">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalTempPdf').classList.remove('visible'); openModule('temperatures')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansTempPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3907,7 +3907,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📄</div>
     <div class="modal-title">Traçabilité enregistrée !</div>
     <div class="modal-desc">Votre enregistrement de traçabilité a été validé et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="imprimerModule('page-reception','Tracabilite Produits')">🖨️ Imprimer / PDF</button>
     <button class="modal-btn-skip" style="color:#374151;border:1.5px solid #e5e7eb;margin-bottom:4px" onclick="document.getElementById('modalTracaPdf').classList.remove('visible'); openModule('reception')">← Retour au module</button>
     <button class="modal-btn-skip" onclick="confirmerSansTracaPDF()">Fermer sans imprimer (non recommandé)</button>
@@ -3919,7 +3919,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
     <div class="modal-ico">📄</div>
     <div class="modal-title">Enregistrement validé !</div>
     <div class="modal-desc">Votre contrôle de réception a été enregistré avec succès et horodaté.</div>
-    <div class="modal-warning">⚠️ SAUVEGARDER IMPERATIVEMENT ce document ou imprimez-le. C'est votre seule preuve legale. Nomos Traça ne peut etre tenu responsable de la perte de vos enregistrements.</div>
+    <div class="modal-warning">⚠️ SAUVEGARDER IMPÉRATIVEMENT ce document ou imprimez-le. C'est votre seule preuve légale. Nomos Traça ne peut être tenu responsable de la perte de vos enregistrements.</div>
     <button class="modal-btn-dl" onclick="downloadPDF()">⬇️ Télécharger le PDF</button>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#374151,#6b7280)" onclick="imprimerReception()">🖨️ Imprimer</button>
     <button class="modal-btn-dl" style="background:linear-gradient(135deg,#1d4ed8,#3b82f6);margin-bottom:6px" onclick="imprimerReception()">📄 Voir le document complet</button>

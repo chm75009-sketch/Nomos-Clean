@@ -122,6 +122,7 @@ body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--dark);min-
 .fblock.gb{border-left:4px solid var(--green)}
 .fblock.ob{border-left:4px solid var(--orange)}
 .fblock.rb{border-left:4px solid var(--red)}
+.fblock.bb{border-left:4px solid var(--blue)}
 .fblock.produit-block{border-left:4px solid var(--orange);position:relative}
 .fblock-title{font-weight:800;font-size:13px;color:var(--dark);margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .frow{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
