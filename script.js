@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v456';
+var APP_BUILD = 'v457';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -1933,8 +1933,8 @@ window.validerEssaiUniversel = async function() {
     var code = 'EU3J-' + part + '-' + new Date().getFullYear();
     var pwd=''; for (var j=0;j<6;j++) pwd += Math.floor(Math.random()*10);
     var now = new Date();
-    var dateDebut = now.toISOString().slice(0,10);
-    var dateExp = new Date(now.getTime() + ESSAI_UNIVERSEL_JOURS*86400000).toISOString().slice(0,10);
+    var dateDebut = _dateLoc(now);
+    var dateExp = _dateLoc(new Date(now.getTime() + ESSAI_UNIVERSEL_JOURS*86400000));
 
     var ins = await window._supabase.from('etablissements').insert([{
       code_acces: code,
@@ -4709,6 +4709,16 @@ function _nextBlocId(container) {
     if (m) { var n = parseInt(m[1], 10); if (n > max) max = n; }
   }
   return max + 1;
+}
+
+// FIX dates — renvoie la date LOCALE (heure française) au format AAAA-MM-JJ.
+// Avant, de nombreux endroits utilisaient toISOString() (heure UTC) : entre minuit
+// et 1h-2h du matin, la date obtenue était celle de la VEILLE → contrôles, baromètre
+// et « aujourd'hui » datés du mauvais jour lors du service du soir. _dateLoc(d) formate
+// en heure locale (d = l'instant présent par défaut).
+function _dateLoc(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 }
 
 // V80 — Helper de renumérotation : recompte les blocs après suppression et met à jour les titres "Catégorie 2" / "Compartiment 2" / "Produit N°2" / etc.
@@ -8221,7 +8231,7 @@ function openModule(id) {
     var ptDate = document.getElementById('pt_date_repas');
     var ptHeure = document.getElementById('pt_heure_repas');
     var now = new Date();
-    if (ptDate) ptDate.value = now.toISOString().split('T')[0];
+    if (ptDate) ptDate.value = _dateLoc(now);
     if (ptHeure) ptHeure.value = now.toTimeString().slice(0,5);
     ptCalculerDestruction();
     ptAjouterPlat();
@@ -8252,7 +8262,7 @@ function openModule(id) {
     document.getElementById('ltFroidsContainer').innerHTML = '';
     document.getElementById('lt_timestamp').textContent = getNowStr();
     var ltDate = document.getElementById('lt_date');
-    if (ltDate) ltDate.value = new Date().toISOString().split('T')[0];
+    if (ltDate) ltDate.value = _dateLoc();
     showPage('page-liaison-thermique');
     updateModuleHeader('page-liaison-thermique','liaison-thermique');
     setTimeout(function() { initSigCanvas('sigCanvasLT', function(v){hasSigLT=v;}); }, 150);
@@ -8263,7 +8273,7 @@ function openModule(id) {
     document.getElementById('rcGrammagesContainer').innerHTML = '';
     document.getElementById('rc_timestamp').textContent = getNowStr();
     var rcDate = document.getElementById('rc_date');
-    if (rcDate) rcDate.value = new Date().toISOString().split('T')[0];
+    if (rcDate) rcDate.value = _dateLoc();
     showPage('page-registre-convives');
     updateModuleHeader('page-registre-convives','registre-convives');
     setTimeout(function() { initSigCanvas('sigCanvasRC', function(v){hasSigRC=v;}); }, 150);
@@ -10724,7 +10734,7 @@ function ajouterPlatTemoin() {
   // Calculer la DLC J+5
   var dlcDate = new Date();
   dlcDate.setDate(dlcDate.getDate() + 5);
-  var dlcStr = dlcDate.toISOString().split('T')[0];
+  var dlcStr = _dateLoc(dlcDate);
   var now = new Date();
   var heureNow = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
   var delBtn = id > 1 ? '<button class="btn-delete" onclick="supprimerPlatTemoin(' + id + ')">✕</button>' : '';
@@ -11839,7 +11849,7 @@ function calcDLC(id) {
   if (!found || found.dlcJours === 0) return;
   var fab = new Date(dateEl.value);
   fab.setDate(fab.getDate() + found.dlcJours);
-  dlcEl.value = fab.toISOString().split('T')[0];
+  dlcEl.value = _dateLoc(fab);
 }
 
 function changeNbEtiq(id, delta) {
@@ -15419,7 +15429,7 @@ function chargerHistoriqueControles() {
       {id:'page-dechets', titre:'Déchets & Biodéchets', code:'dechets'},
       {id:'page-nuisibles', titre:'Suivi Nuisibles', code:'nuisibles'}
     ];
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var entries = [];
     modules.forEach(function(m) {
       var sess = [];
@@ -15440,7 +15450,7 @@ function chargerHistoriqueControles() {
         var d = new Date(e.ts);
         var ok = !isNaN(d.getTime());
         var dateStr = ok ? (d.toLocaleDateString('fr-FR') + ' à ' + String(d.getHours()).padStart(2, '0') + 'h' + String(d.getMinutes()).padStart(2, '0')) : '';
-        var dateISO = ok ? d.toISOString().split('T')[0] : today;
+        var dateISO = ok ? _dateLoc(d) : today;
         html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 12px;border:1px solid #e5e7eb;border-radius:12px;margin-bottom:8px;background:#fff">' +
                   '<div style="font-size:13px"><strong style="color:#1e293b">' + e.titre + '</strong><br><span style="color:#64748b;font-size:12px">' + dateStr + (e.sig ? ' — ' + e.sig : '') + '</span></div>' +
                   '<button class="btn-p" style="white-space:nowrap;padding:8px 14px;font-size:13px" onclick="reimprimerControle(\'' + e.code + '\',\'' + e.ts + '\')">Voir / Imprimer</button>' +
@@ -15937,7 +15947,7 @@ function reimprimerControle(code, ts) {
       dechets:'Déchets & Biodéchets', nuisibles:'Suivi Nuisibles'
     };
     var titre = titres[code] || code;
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var entries = [];
     try { entries = getDonneesPeriode(pageId, '2000-01-01', today) || []; } catch(e) {}
     // Retrouver le contrôle exact par son horodatage
@@ -16057,16 +16067,16 @@ function setDashPeriode(periode) {
 }
 
 function getDashDates() {
-  var today = new Date().toISOString().split('T')[0];
+  var today = _dateLoc();
   switch(_dashPeriode) {
     case 'today': return { from: today, to: today, label: "Aujourd'hui" };
-    case '7j':    return { from: new Date(Date.now()-7*86400000).toISOString().split('T')[0], to: today, label: '7 derniers jours' };
-    case '30j':   return { from: new Date(Date.now()-30*86400000).toISOString().split('T')[0], to: today, label: '30 derniers jours' };
-    case '3m':    return { from: new Date(Date.now()-90*86400000).toISOString().split('T')[0], to: today, label: '3 derniers mois' };
+    case '7j':    return { from: _dateLoc(new Date(Date.now()-7*86400000)), to: today, label: '7 derniers jours' };
+    case '30j':   return { from: _dateLoc(new Date(Date.now()-30*86400000)), to: today, label: '30 derniers jours' };
+    case '3m':    return { from: _dateLoc(new Date(Date.now()-90*86400000)), to: today, label: '3 derniers mois' };
     case 'custom': {
       var f = document.getElementById('db_date_from');
       var t = document.getElementById('db_date_to');
-      var from = f && f.value ? f.value : new Date(Date.now()-30*86400000).toISOString().split('T')[0];
+      var from = f && f.value ? f.value : _dateLoc(new Date(Date.now()-30*86400000));
       var to = t && t.value ? t.value : today;
       return { from: from, to: to, label: 'Du ' + from + ' au ' + to };
     }
@@ -16076,7 +16086,7 @@ function getDashDates() {
 function rafraichirHistorique() { initDashboard(); }
 function initDashboard() {
   try {
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var periode = getDashDates ? getDashDates() : { from: today, to: today, label: "Aujourd'hui" };
     var etabKey = ETAB_ID || 'local';
 
@@ -16091,8 +16101,8 @@ function initDashboard() {
     // ── Filtrer sur la période sélectionnée ──
     var entriesPeriode = historique.filter(function(e){ return e.date >= periode.from && e.date <= periode.to; });
     var todayEntries = historique.filter(function(e){ return e.date === today; });
-    var last7 = new Date(Date.now() - 7*86400000).toISOString().split('T')[0];
-    var last30 = new Date(Date.now() - 30*86400000).toISOString().split('T')[0];
+    var last7 = _dateLoc(new Date(Date.now() - 7*86400000));
+    var last30 = _dateLoc(new Date(Date.now() - 30*86400000));
     var entries7j = historique.filter(function(e){ return e.date >= last7; }); // V110 — vrai filtre 7 jours
     var entries30j = entriesPeriode;
 
@@ -16177,7 +16187,7 @@ function initDashboard() {
     var days30 = [];
     var scores30 = [];
     for (var d = daysN-1; d >= 0; d--) {
-      var dt = new Date(toDate.getTime() - d*86400000).toISOString().split('T')[0];
+      var dt = _dateLoc(new Date(toDate.getTime() - d*86400000));
       days30.push(dt.substring(5));
       var dayEntries = historique.filter(function(e){ return e.date === dt; });
       scores30.push(dayEntries.length > 0 ? Math.min(100, 70 + dayEntries.length * 5) : null);
@@ -16431,7 +16441,7 @@ function sauvegarderHistorique(module, signe) {
     if (stored) historique = JSON.parse(stored);
     historique.push({
       module: module,
-      date: new Date().toISOString().split('T')[0],
+      date: _dateLoc(),
       heure: getNowStr(),
       signe: signe,
       etab: ETAB.nom || '',
@@ -16476,7 +16486,7 @@ function _baroShortNom(m){
 function _baroRelevesJour(taches){
   var n = 0;
   try {
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var hist = JSON.parse(lsGet('haccp_historique') || '[]');
     if (!Array.isArray(hist)) hist = [];
     if (typeof _secteurActifMatch === 'function') hist = hist.filter(function(en){ return _secteurActifMatch(en); });
@@ -16521,7 +16531,7 @@ function _baroEstSocle(m){ return !!(m && _BARO_SOCLE[m.id]); }
 // Declarations « Pas prevu ce jour » — stockage minimal : { "date|moduleId|secteur": {h:"HH:MM"} }.
 // N'entre PAS dans les controles reels / rapports DDPP : simple note horodatee, annulable.
 function _baroPPKey(mid){
-  var today = new Date().toISOString().split('T')[0];
+  var today = _dateLoc();
   var sect = (typeof SECTEUR_ACTIF !== 'undefined' && SECTEUR_ACTIF) ? SECTEUR_ACTIF : '';
   return today + '|' + mid + '|' + sect;
 }
@@ -16578,7 +16588,7 @@ function renderBarometre() {
       return;
     }
 
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     function _estFait(m){ return ((typeof _tdbEstFait === 'function') && _tdbEstFait(m, set)) || _baroFaitSync(m, today); }
 
     var socle = [], activite = [];
@@ -16697,7 +16707,7 @@ function _tdbTaches() {
 function _tdbFaitsSet() {
   var set = {};
   try {
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var hist = JSON.parse(lsGet('haccp_historique') || '[]');
     if (!Array.isArray(hist)) hist = [];
     if (typeof _secteurActifMatch === 'function') hist = hist.filter(function (en) { return _secteurActifMatch(en); });
@@ -16764,7 +16774,7 @@ function renderTdbAfaire() {
     var taches = _tdbTaches().filter(function (m) { return (typeof _baroEstSocle === 'function') ? _baroEstSocle(m) : true; });
     if (!taches.length) { host.innerHTML = ''; return; }
     var set = _tdbFaitsSet();
-    var _tdbToday = new Date().toISOString().split('T')[0];
+    var _tdbToday = _dateLoc();
     var faits = taches.filter(function (m) { return _tdbEstFait(m, set) || (typeof _baroFaitSync === 'function' && _baroFaitSync(m, _tdbToday)); }).length;
     var total = taches.length, reste = total - faits;
     var couleur = reste === 0 ? '#16a34a' : (faits === 0 ? '#dc2626' : '#f59e0b');
@@ -16821,7 +16831,7 @@ function _tdbPerioConf() {
   try { var c = JSON.parse(lsGet(_TDB_PERIO_KEY) || '{}'); return (c && typeof c === 'object') ? c : {}; } catch (e) { return {}; }
 }
 function _tdbPerioSaveConf(c) { try { lsSet(_TDB_PERIO_KEY, JSON.stringify(c || {})); } catch (e) {} }
-function _tdbAddDays(iso, n) { var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return d.toISOString().split('T')[0]; }
+function _tdbAddDays(iso, n) { var d = new Date(iso + 'T00:00:00'); d.setDate(d.getDate() + n); return _dateLoc(d); }
 function _tdbDateFr(iso) { if (!iso) return '—'; var p = String(iso).split('-'); return p.length === 3 ? (p[2] + '/' + p[1] + '/' + p[0]) : iso; }
 // Dernier « fait » d'une tâche reliée à un module (date max dans l'historique, secteur actif).
 function _tdbPerioLastModule(moduleId) {
@@ -16849,7 +16859,7 @@ function _tdbPerioStatut(lastDone, freq, today) {
 function _tdbPerioFait(id) {
   var c = _tdbPerioConf();
   c[id] = c[id] || {};
-  c[id].lastDone = new Date().toISOString().split('T')[0];
+  c[id].lastDone = _dateLoc();
   _tdbPerioSaveConf(c);
   renderTdbPerio();
 }
@@ -16867,7 +16877,7 @@ function renderTdbPerio() {
   if (!host) return;
   try {
     var conf = _tdbPerioConf();
-    var today = new Date().toISOString().split('T')[0];
+    var today = _dateLoc();
     var taches = _tdbPerioDefaut().map(function (t) {
       var cf = conf[t.id] || {};
       var freq = cf.freq || t.freq;
@@ -19910,7 +19920,7 @@ function chargerHistorique() {
     if (h.secteur && _curSecteur && h.secteur !== _curSecteur) return false;
     if (_histFilter === 'all') return true;
     var d = new Date(h.date);
-    if (_histFilter === 'today') return h.date === now.toISOString().split('T')[0];
+    if (_histFilter === 'today') return h.date === _dateLoc(now);
     if (_histFilter === 'week') { var wk = new Date(now); wk.setDate(wk.getDate()-7); return d >= wk; }
     if (_histFilter === 'month') { var mo = new Date(now); mo.setMonth(mo.getMonth()-1); return d >= mo; }
     return true;
@@ -20962,7 +20972,7 @@ function testLancerPackDDPP() {
   }
 
   var today = new Date();
-  var d = today.toISOString().slice(0,10);
+  var d = _dateLoc(today);
   console.log('[TEST] Appel lancerPackDDPPAvecPhotos avec date=', d);
   try {
     lancerPackDDPPAvecPhotos(d, d, null);
@@ -21003,10 +21013,10 @@ function testLancerPackDDPP7j() {
     return;
   }
   var today = new Date();
-  var dTo = today.toISOString().slice(0,10);
+  var dTo = _dateLoc(today);
   var dFromObj = new Date(today);
   dFromObj.setDate(dFromObj.getDate() - 6);
-  var dFrom = dFromObj.toISOString().slice(0,10);
+  var dFrom = _dateLoc(dFromObj);
   console.log('[TEST] Pack DDPP du', dFrom, 'au', dTo);
   try {
     lancerPackDDPP(dFrom, dTo, null);
@@ -22149,9 +22159,9 @@ function testEffacerDonnees() {
 
         var code = genererCodeAcces();
         var pwd = genererMotDePasse();
-        var dateDebut = new Date().toISOString().slice(0,10);
+        var dateDebut = _dateLoc();
         var d = new Date(); d.setMonth(d.getMonth() + (mois>0?mois:12));
-        var dateExp = d.toISOString().slice(0,10);
+        var dateExp = _dateLoc(d);
 
         var btn = document.getElementById('btnCreerClient');
         if (btn) { btn.disabled = true; btn.textContent = '\u23f3 Cr\u00e9ation\u2026'; }
