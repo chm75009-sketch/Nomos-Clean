@@ -26453,6 +26453,14 @@ function _sqFermer(valide) {
   if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
   if (valide) { try { lsSet('haccp_last_backup_' + _sqEtabKey(), _sqDateJour()); } catch(e){} }
 }
+// Le bouton « J'ai sauvegardé, continuer » n'est plus jamais grisé : il fonctionne
+// toujours. Si l'utilisateur n'a encore rien sauvegardé, on lui demande simplement
+// une confirmation avant de fermer la fenêtre (au lieu de rester bloqué sur un bouton
+// désactivé qui ne réagit pas).
+function _sqContinuerSansSauv() {
+  if (typeof _sqDownloadFait !== 'undefined' && _sqDownloadFait) { _sqFermer(true); return; }
+  if (confirm('Vous n\'avez pas encore sauvegardé vos contrôles sur cet appareil.\n\nContinuer quand même ?')) _sqFermer(true);
+}
 function _ouvrirModalSauvegardeQuot() {
   if (document.getElementById('sqOverlay')) return;
   var ov = document.createElement('div');
@@ -26469,7 +26477,7 @@ function _ouvrirModalSauvegardeQuot() {
     + '<button onclick="_sqTelechargerJSON()" style="width:100%;background:#0891b2;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:4px">💾 Sauvegarde complète (restauration) <span id="sq_json_ok" style="display:none">✅</span></button>'
     + '<div style="font-size:10px;color:#94a3b8;text-align:center;margin-bottom:12px">Fichier de secours, à réimporter pour tout récupérer si vous perdez ou changez d\'appareil (ne se lit pas).</div>'
     + (_sqFsSupporte() ? '<button onclick="choisirDossierSauvegarde()" style="width:100%;background:#0f766e;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:14px">📁 Sauvegarder automatiquement dans un dossier <span id="sq_dossier_ok" style="display:none">✅</span></button>' : '')
-    + '<button id="sqBtnTermine" onclick="_sqFermer(true)" disabled style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:not-allowed;opacity:.5;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
+    + '<button id="sqBtnTermine" onclick="_sqContinuerSansSauv()" style="width:100%;background:#16a34a;color:#fff;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:10px">✅ J\'ai sauvegardé, continuer</button>'
     + '<div style="text-align:center"><a href="#" onclick="event.preventDefault();_sqFermer(true)" style="font-size:11px;color:#94a3b8;text-decoration:underline">Je l\'ai déjà fait / Plus tard</a></div>'
     + '</div>';
   document.body.appendChild(ov);
