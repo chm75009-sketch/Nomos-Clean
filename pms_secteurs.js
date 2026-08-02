@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════════════
    PMS_SECTEURS — Contenu du Plan de Maîtrise Sanitaire, adapté précisément
-   à chaque secteur d'activité (HACCP Pro / HACCP17-FACILE).
+   à chaque secteur d'activité (Nomos Traça / HACCP17-FACILE).
 
    Sources réglementaires communes :
    - Règlement (CE) n° 178/2002 (traçabilité, retrait/rappel)
@@ -17,7 +17,7 @@
      III. Mesures de gestion (traçabilité, non-conformités, retrait/rappel)
 
    ⚠️ Ce contenu est un MODÈLE pré-rempli. Le client reste seul responsable
-   de l'adapter à son établissement et de le tenir à jour. HACCP Pro est un
+   de l'adapter à son établissement et de le tenir à jour. Nomos Traça est un
    outil d'aide à l'autocontrôle, et non un organisme de certification.
    ════════════════════════════════════════════════════════════════════════ */
 (function () {

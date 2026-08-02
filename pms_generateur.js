@@ -164,12 +164,12 @@
       '<div class="etab">' + (nom ? esc(nom) : '<span style="color:#9ca3af">[ Nom de l\'établissement ]</span>') + '</div>' +
       '<div class="rule"></div>' +
       '<div class="base">Document établi d\'après le Règlement (CE) n° 852/2004 et le Guide de Bonnes Pratiques d\'Hygiène (GBPH) du secteur.</div>' +
-      '<div class="foot">Établi le ' + dateStr + ' · Généré avec HACCP Pro</div>' +
+      '<div class="foot">Établi le ' + dateStr + ' · Généré avec Nomos Traça</div>' +
       '</div>';
 
     html += '<div class="avert">⚠️ <b>Avertissement :</b> le présent Plan de Maîtrise Sanitaire est un modèle. Il doit être ' +
       'complété, adapté et validé par l\'exploitant en fonction de l\'activité réelle, puis fait vivre au quotidien (relevés, ' +
-      'plan de nettoyage émargé, fiches de réception et de non-conformité…). HACCP Pro est un outil d\'aide à l\'autocontrôle ; ' +
+      'plan de nettoyage émargé, fiches de réception et de non-conformité…). Nomos Traça est un outil d\'aide à l\'autocontrôle ; ' +
       'l\'exploitant reste seul responsable de la conformité de son établissement et de la sauvegarde de ses documents.</div>';
 
     // ── Outils de mise en forme locaux ──
@@ -341,7 +341,7 @@
     // ════ VALIDATION ════
     html += chap('✓', 'Validation du PMS');
     html += '<table class="info">' +
-      infoRow('Rédigé / proposé par', 'HACCP Pro (RTH NETGOCE)') +
+      infoRow('Rédigé / proposé par', 'Nomos Traça (RTH NETGOCE)') +
       infoRow('Validé par (exploitant)', E.responsable) +
       '<tr><td>Date de mise en application</td><td></td></tr>' +
       '<tr><td>Signature de l\'exploitant</td><td style="height:34px"></td></tr>' +
@@ -484,7 +484,7 @@
     html += '<div class="disclaimer"><b>Note importante :</b> ce Plan de Maîtrise Sanitaire est un modèle pré-rempli, ' +
       'généré automatiquement à partir des informations de votre établissement et du Guide de Bonnes Pratiques d\'Hygiène de votre secteur. ' +
       'Il doit être relu, complété (plans des locaux, fiches techniques de vos produits, coordonnées de vos prestataires) et tenu à jour. ' +
-      'L\'éditeur de HACCP Pro fournit un outil d\'aide à l\'autocontrôle ; l\'exploitant reste seul responsable de la conformité de son établissement et de la sauvegarde de ses documents.</div>';
+      'L\'éditeur de Nomos Traça fournit un outil d\'aide à l\'autocontrôle ; l\'exploitant reste seul responsable de la conformité de son établissement et de la sauvegarde de ses documents.</div>';
 
     return html;
   }
