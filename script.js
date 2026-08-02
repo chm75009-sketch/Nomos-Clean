@@ -2963,11 +2963,11 @@ function imprimerCuisson() {
   var html = '<div style="padding:0 16px 20px;font-family:Arial,sans-serif">';
   // Header
   html += '<div style="background:linear-gradient(135deg,#dc2626,#f87171);color:white;padding:14px 16px;border-radius:10px;margin-bottom:14px">';
-  html += '<div style="font-weight:800;font-size:15px">Cuisson & Remise en Temperature</div>';
+  html += '<div style="font-weight:800;font-size:15px">Cuisson & Remise en température</div>';
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + _echap(ETAB.nom||'') + ' — ' + getNowStr() + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Émargement : ' + _echap(signataire || '—') + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
-  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(0,0,0,.25);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformite(s)</div>';
+  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(0,0,0,.25);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
 
   filled.forEach(function(plat, i) {
@@ -2979,23 +2979,23 @@ function imprimerCuisson() {
     html += '</div>';
     // Infos
     html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
-    if (plat.qte) html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;width:45%;font-weight:600">Quantite</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + _echap(plat.qte) + '</td></tr>';
+    if (plat.qte) html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;width:45%;font-weight:600">Quantité</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + _echap(plat.qte) + '</td></tr>';
     if (plat.mode) html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">Mode de cuisson</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + _echap(plat.mode) + '</td></tr>';
     html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">Type produit</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + _echap(plat.type) + '</td></tr>';
     // Temperature cuisson
-    html += '<tr style="background:#fff8f8"><td colspan="2" style="padding:6px 10px;border-bottom:1px solid #fee2e2;font-weight:800;color:#dc2626;font-size:11px">Temperature a coeur</td></tr>';
-    html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° mesuree</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.temp ? plat.temp + '°C' : '—') + (plat.temp ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + (function(){ var pp=String(plat.type||'').toLowerCase(); if(pp.indexOf('volaille')>-1||pp.indexOf('poulet')>-1||pp.indexOf('dinde')>-1)return '74°C min à cœur'; if(pp.indexOf('hach')>-1)return '70°C min à cœur'; return '63°C min à cœur'; })() + ')</span>' : '') + '</td></tr>';
+    html += '<tr style="background:#fff8f8"><td colspan="2" style="padding:6px 10px;border-bottom:1px solid #fee2e2;font-weight:800;color:#dc2626;font-size:11px">Température à cœur</td></tr>';
+    html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° mesurée</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.temp ? plat.temp + '°C' : '—') + (plat.temp ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + (function(){ var pp=String(plat.type||'').toLowerCase(); if(pp.indexOf('volaille')>-1||pp.indexOf('poulet')>-1||pp.indexOf('dinde')>-1)return '74°C min à cœur'; if(pp.indexOf('hach')>-1)return '70°C min à cœur'; return '63°C min à cœur'; })() + ')</span>' : '') + '</td></tr>';
     var confColor = plat.isNC ? '#dc2626' : '#16a34a';
-    html += '<tr><td style="padding:5px 10px;' + (plat.isNC?'border-bottom:1px solid #fee2e2;':'') + 'font-weight:600">Conformite</td><td style="padding:5px 10px;' + (plat.isNC?'border-bottom:1px solid #fee2e2;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(plat.conf) + '</td></tr>';
-    if (plat.isNC) html += '<tr style="background:#fff0f0"><td style="padding:5px 10px;color:#dc2626;font-weight:700' + (plat.remiseT0?';border-bottom:1px solid #fee2e2':'') + '">Action corrective</td><td style="padding:5px 10px;color:#dc2626;font-weight:700' + (plat.remiseT0?';border-bottom:1px solid #fee2e2':'') + '">' + (_echap(plat.action||'A definir')) + '</td></tr>';
-    // Remise en temperature
+    html += '<tr><td style="padding:5px 10px;' + (plat.isNC?'border-bottom:1px solid #fee2e2;':'') + 'font-weight:600">Conformité</td><td style="padding:5px 10px;' + (plat.isNC?'border-bottom:1px solid #fee2e2;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(plat.conf) + '</td></tr>';
+    if (plat.isNC) html += '<tr style="background:#fff0f0"><td style="padding:5px 10px;color:#dc2626;font-weight:700' + (plat.remiseT0?';border-bottom:1px solid #fee2e2':'') + '">Action corrective</td><td style="padding:5px 10px;color:#dc2626;font-weight:700' + (plat.remiseT0?';border-bottom:1px solid #fee2e2':'') + '">' + (_echap(plat.action||'À définir')) + '</td></tr>';
+    // Remise en température
     if (plat.remiseT0 || plat.remiseTf) {
-      html += '<tr style="background:#fff8f8"><td colspan="2" style="padding:6px 10px;border-top:1px solid #fee2e2;border-bottom:1px solid #fee2e2;font-weight:800;color:#dc2626;font-size:11px">Remise en temperature</td></tr>';
+      html += '<tr style="background:#fff8f8"><td colspan="2" style="padding:6px 10px;border-top:1px solid #fee2e2;border-bottom:1px solid #fee2e2;font-weight:800;color:#dc2626;font-size:11px">Remise en température</td></tr>';
       html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° initiale</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.remiseT0 ? plat.remiseT0 + '°C' : '—') + '</td></tr>';
       html += '<tr><td style="padding:5px 10px;border-bottom:1px solid #fee2e2;font-weight:600">T° finale</td><td style="padding:5px 10px;border-bottom:1px solid #fee2e2">' + (plat.remiseTf ? plat.remiseTf + '°C' : '—') + ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : 63°C min)</span></td></tr>';
       var remiseConfColor = plat.isRemiseNC ? '#dc2626' : '#16a34a';
-      html += '<tr><td style="padding:5px 10px;font-weight:600">Conformite</td><td style="padding:5px 10px;color:' + remiseConfColor + ';font-weight:700">' + (_echap(plat.remiseConf||'—')) + '</td></tr>';
-      if (plat.isRemiseNC) html += '<tr style="background:#fff0f0"><td style="padding:5px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:5px 10px;color:#dc2626;font-weight:700">' + (_echap(plat.remiseAction||'A definir')) + '</td></tr>';
+      html += '<tr><td style="padding:5px 10px;font-weight:600">Conformité</td><td style="padding:5px 10px;color:' + remiseConfColor + ';font-weight:700">' + (_echap(plat.remiseConf||'—')) + '</td></tr>';
+      if (plat.isRemiseNC) html += '<tr style="background:#fff0f0"><td style="padding:5px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:5px 10px;color:#dc2626;font-weight:700">' + (_echap(plat.remiseAction||'À définir')) + '</td></tr>';
     }
     html += '</table></div>';
   });
@@ -3155,7 +3155,7 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + _echap(ETAB.nom||'') + ' — ' + (tsOverride || getNowStr()) + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Émargement : ' + _echap(_enteteEmarg) + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
-  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformite(s)</div>';
+  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
   filled.forEach(function(enc, i) {
     var borderColor = enc.isNC ? '#dc2626' : '#0891b2';
@@ -3183,8 +3183,8 @@ function imprimerTemperatures(dataOverride, signataireOverride, tsOverride) {
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + _echap(enc.type) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T relevee</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (enc.temp ? enc.temp + '°C' : '—') + '</td></tr>';
     if (seuilTxt && seuilTxt !== '—') html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">Norme (seuil)</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#0891b2;font-weight:700">' + _echap(seuilTxt) + '</td></tr>';
-    html += '<tr><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformite</td><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(enc.conf) + '</td></tr>';
-    if (enc.isNC) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(enc.action||'A definir')) + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformité</td><td style="padding:6px 10px;' + (enc.isNC?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(enc.conf) + '</td></tr>';
+    if (enc.isNC) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(enc.action||'À définir')) + '</td></tr>';
     html += '</table></div>';
   });
   html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
@@ -3734,7 +3734,7 @@ function imprimerModuleAplat(pageId, titre, dataOverride) {
         }
         if (!found && actIdx2.length>0) found=actIdx2.shift();
         if (found) actionTxt=(found.type||'')+(found.detail?' — '+found.detail:'')+(found.responsable?' ('+found.responsable+')':'')+(found.heure?' '+found.heure:'');
-        else actionTxt='A definir';
+        else actionTxt='À définir';
       }
       var rs=s.nc?' style="background-color:#fff8f8"':'';
       html+='<tr'+rs+'>';
@@ -5373,7 +5373,7 @@ function ajouterProduit(skipScroll, compartId) {
       '<div class="frow"><div class="flabel">Seuil réglementaire</div>' +
       '<span id="seuil_val_' + id + '" style="font-weight:800;font-size:16px;color:#f97316;margin-right:8px">—</span>' +
       '<span id="seuil_lbl_' + id + '" style="font-size:11px;color:#92400e">Sélectionner la catégorie</span></div>' +
-      '<div class="frow"><div class="flabel">Conformite</div><div class="status-group" id="conf_status_' + id + '"><button class="status-btn active-ok" onclick="setConfStatus(' + id + ', `ok`)">✅ Conforme</button><button class="status-btn" onclick="setConfStatus(' + id + ', `bad`)">✗ Non conforme</button></div></div>' +
+      '<div class="frow"><div class="flabel">Conformité</div><div class="status-group" id="conf_status_' + id + '"><button class="status-btn active-ok" onclick="setConfStatus(' + id + ', `ok`)">✅ Conforme</button><button class="status-btn" onclick="setConfStatus(' + id + ', `bad`)">✗ Non conforme</button></div></div>' +
       '<div class="frow"><div class="flabel">Seuil</div><input type="text" id="conf_seuil_' + id + '" readonly style="background:#f3f4f6;cursor:not-allowed"/></div>' +
       '<div class="frow"><div class="flabel">Valeur relevee</div><input type="text" id="conf_val_' + id + '" readonly style="background:#f3f4f6;cursor:not-allowed"/></div>' +
       '<div class="nc-auto" id="nc_temp_' + id + '" style="display:none">⚡ NC automatique — T° hors seuil</div>' +
@@ -11156,7 +11156,7 @@ function imprimerRefroidissementData(prods, signataire, ts) {
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + (_echap(ETAB.nom || '')) + ' — ' + (ts || getNowStr()) + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Émargement : ' + (signataire || '—') + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
-  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformite(s)</div>';
+  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
   filled.forEach(function(p, i) {
     var nc = !!p.isNC;
@@ -11172,8 +11172,8 @@ function imprimerRefroidissementData(prods, signataire, ts) {
     html += '<table style="width:100%;border-collapse:collapse;font-size:10pt">';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:45%;font-weight:600">T° de depart</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t0 ? p.t0 + '°C' : '—') + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T° apres 2h</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t2 ? p.t2 + '°C' : '—') + ' <span style="color:#0e7490;font-weight:600;font-size:9px">(seuil : +10°C en 2h max)</span></td></tr>';
-    html += '<tr><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformite</td><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + (p.conf || (nc?'Non conforme':'Conforme')) + '</td></tr>';
-    if (nc) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(p.action || 'A definir')) + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformité</td><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + (p.conf || (nc?'Non conforme':'Conforme')) + '</td></tr>';
+    if (nc) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(p.action || 'À définir')) + '</td></tr>';
     html += '</table></div>';
   });
   html += '<div style="font-size:8pt;color:#9ca3af;text-align:center;margin-top:16px;border-top:1px solid #e5e7eb;padding-top:8px">Nomos Traça — À conserver par vos soins 3 ans minimum — Preuve légale en cas de contrôle DDPP</div>';
@@ -11535,7 +11535,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + (_echap(ETAB.nom || '')) + ' — ' + (ts || getNowStr()) + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Émargement : ' + (signataire || '—') + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
-  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformite(s)</div>';
+  if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
   filled.forEach(function(f, i) {
     var nc = estNC(f);
@@ -11552,7 +11552,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type d\'huile</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (_echap(f.type || '—')) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">Temperature</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (f.temp && f.temp !== '—' ? f.temp + '°C' : '—') + ' <span style="color:#b45309;font-weight:600;font-size:9px">(seuil : 175°C max)</span></td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">TPM</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (f.tpm && f.tpm !== '—' ? f.tpm + '%' : '—') + ' <span style="color:#b45309;font-weight:600;font-size:9px">(seuil : 25% max)</span></td></tr>';
-    html += '<tr><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';font-weight:600">Conformite</td><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';color:' + confColor + ';font-weight:700">' + (f.conformite || (nc ? 'Non conforme' : 'Conforme')) + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';font-weight:600">Conformité</td><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';color:' + confColor + ';font-weight:700">' + (f.conformite || (nc ? 'Non conforme' : 'Conforme')) + '</td></tr>';
     if (nc) {
       // Action corrective : valeur saisie sinon déduite du dépassement (comme le Pack DDPP)
       var _actH = f.action || '';
@@ -16208,7 +16208,7 @@ function initDashboard() {
         data: {
           labels: days30,
           datasets: [{
-            label: 'Conformite %',
+            label: 'Conformité %',
             data: scores30,
             borderColor: '#16a34a',
             backgroundColor: '#16a34a22',
