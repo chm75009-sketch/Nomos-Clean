@@ -941,9 +941,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <button onclick="ouvrirReglages()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;padding:8px 12px;color:white;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;flex-shrink:0;margin-top:4px">⚙️ Réglages</button>
         </div>
         <div class="kpi-row">
-          <div class="kpi"><div class="kpi-val">14</div><div class="kpi-lbl">Contrôles aujourd'hui</div><span class="kpi-tag ok">✓ À jour</span></div>
-          <div class="kpi"><div class="kpi-val">2</div><div class="kpi-lbl">NC en cours</div><span class="kpi-tag warn">⚠ Actives</span></div>
-          <div class="kpi"><div class="kpi-val">96%</div><div class="kpi-lbl">Score conformité</div><span class="kpi-tag ok">↑ +3%</span></div>
+          <div class="kpi"><div class="kpi-val">—</div><div class="kpi-lbl">Contrôles aujourd'hui</div></div>
+          <div class="kpi"><div class="kpi-val">—</div><div class="kpi-lbl">NC en cours</div></div>
+          <div class="kpi"><div class="kpi-val">—</div><div class="kpi-lbl">Score conformité</div></div>
         </div>
         <div role="button" tabindex="0" aria-label="Un contrôle ? Présenter ma conformité" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();this.click();}" onclick="ouvrirModeInspecteur('page-home')" style="background:linear-gradient(135deg,#dc2626,#ef4444);border-radius:14px;padding:14px;margin-top:12px;display:flex;align-items:center;gap:10px;cursor:pointer;box-shadow:0 6px 22px rgba(220,38,38,.4)">
           <div style="font-size:26px;flex-shrink:0">🚨</div>
@@ -952,9 +952,9 @@ html, body { max-width: 100%; overflow-x: hidden; }
         </div>
       </div>
       <div class="alert-wrap">
-        <div class="alert">
-          <div class="alert-ico">🌡️</div>
-          <div><div class="alert-title">Alerte — Chambre froide N°2</div><div class="alert-desc">T° relevée +6°C · Seuil dépassé (+4°C max) · NC générée automatiquement</div></div>
+        <div class="alert" style="opacity:.75">
+          <div class="alert-ico">✅</div>
+          <div><div class="alert-title">Aucune alerte pour le moment</div><div class="alert-desc">Vos non-conformités et dépassements de seuil s'afficheront ici automatiquement.</div></div>
         </div>
       </div>
       <div class="legal-banner">

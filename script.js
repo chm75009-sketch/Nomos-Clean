@@ -10645,13 +10645,24 @@ function checkCuissonConf(id) {
       ncEl.style.display = 'flex'; showNCAction(ncEl.id); tempEl.style.borderColor = 'var(--red)';
     }
   } else {
-    // Resto & rapide : T° cœur minimum
+    // T° cœur minimum. Seule obligation LÉGALE = ≥ 63°C (arrêté 21/12/2009).
+    // Les seuils par produit (74/70/63…) sont des RECOMMANDATIONS (ANSES/GBPH),
+    // pas des obligations : entre +63°C et le seuil conseillé = conforme + conseil,
+    // seul < +63°C déclenche une vraie non-conformité.
+    var SEUIL_LEGAL_CUISSON = 63;
     if (temp >= seuil) {
       confEl.className = 'conformite-badge ok'; confEl.textContent = '✓ T° cœur conforme';
       ncEl.style.display = 'none'; hideNCAction(ncEl.id); tempEl.style.borderColor = '';
+      confEl.style.borderColor = ''; confEl.style.color = '';
+    } else if (temp >= SEUIL_LEGAL_CUISSON) {
+      confEl.className = 'conformite-badge pending';
+      confEl.style.borderColor = 'var(--orange)'; confEl.style.color = 'var(--orange)';
+      confEl.textContent = '✓ Conforme (≥63°C) — recommandé ' + seuil + '°C pour ce produit';
+      ncEl.style.display = 'none'; hideNCAction(ncEl.id); tempEl.style.borderColor = 'var(--orange)';
     } else {
-      confEl.className = 'conformite-badge bad'; confEl.textContent = '✗ NC — ' + (seuil - temp).toFixed(1) + '°C manquants';
+      confEl.className = 'conformite-badge bad'; confEl.textContent = '✗ NC — sous +63°C (' + (SEUIL_LEGAL_CUISSON - temp).toFixed(1) + '°C manquants)';
       ncEl.style.display = 'flex'; showNCAction(ncEl.id); tempEl.style.borderColor = 'var(--red)';
+      confEl.style.borderColor = ''; confEl.style.color = '';
     }
   }
 }
