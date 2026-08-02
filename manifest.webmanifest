@@ -1,7 +1,8 @@
 {
+  "id": "/",
   "name": "Nomos HACCP",
   "short_name": "Nomos HACCP",
-  "description": "Nomos HACCP — hygiène alimentaire : audit & mise en conformité (ExpertAudit) + gestion HACCP au quotidien (HACCP Pro). Une seule installation.",
+  "description": "Nomos HACCP — hygiène alimentaire : audit & mise en conformité (Nomos Audit) + gestion HACCP au quotidien (Nomos Traça). Une seule installation.",
   "lang": "fr",
   "dir": "ltr",
   "start_url": "./accueil.html",

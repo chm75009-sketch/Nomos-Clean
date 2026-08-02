@@ -26,3 +26,20 @@
     # Liste blanche auditée : jsdelivr + cdnjs.cloudflare (docx) + unpkg (scripts),
     # Google Fonts (style/police), Supabase x2 + EmailJS + Ubibot (connexions).
     Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://kiknaxuzpovvivkjqzss.supabase.co wss://kiknaxuzpovvivkjqzss.supabase.co https://zdwdeavcwivvdtrjqwme.supabase.co wss://zdwdeavcwivvdtrjqwme.supabase.co https://api.ubibot.com https://api.emailjs.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; worker-src 'self' blob:; frame-src 'self' blob: data:; object-src 'none'; base-uri 'self'"
+
+# ── Cache des ressources statiques (images, icônes) ─────────────────────────
+# Actif uniquement si le site est servi par Netlify. Le HTML et le JS applicatif
+# ne sont volontairement PAS mis en cache long (le service worker + le versioning
+# ?v=NNN gèrent déjà les mises à jour de l'app).
+[[headers]]
+  for = "*.png"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+[[headers]]
+  for = "*.webp"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
+[[headers]]
+  for = "*.svg"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000"
