@@ -2711,6 +2711,32 @@ function collectPageDataUniversel(pageId) {
     } catch(e) {}
   }
 
+  // NC saisies MANUELLEMENT dans le module « Récap NC » (blocs nc_item_* avec une
+  // description libre nc_desc_*). On les enregistre dans data.manualNCs pour qu'elles
+  // remontent dans le Pack DDPP consolidé (sinon elles n'apparaissaient que dans le
+  // rapport du module NC lui-même, jamais dans le Pack).
+  try {
+    if (pageId === 'page-nc') {
+      var _mNCs = [];
+      var _mScope = (typeof page !== 'undefined' && page && page.querySelectorAll) ? page : document;
+      _mScope.querySelectorAll('[id^="nc_desc_"]').forEach(function(_descEl) {
+        var _mid = _descEl.id.replace('nc_desc_', '');
+        var _mdesc = (_descEl.value || '').trim();
+        if (!_mdesc) return;
+        var _msel = document.getElementById('nc_module_' + _mid);
+        var _mact = document.getElementById('nc_action_' + _mid);
+        var _mresp = document.getElementById('nc_resp_' + _mid);
+        _mNCs.push({
+          module: (_msel && _msel.value) ? _msel.value : 'Non-conformité signalée',
+          desc: _mdesc,
+          action: _mact ? (_mact.value || '').trim() : '',
+          responsable: _mresp ? (_mresp.value || '').trim() : ''
+        });
+      });
+      if (_mNCs.length) data.manualNCs = _mNCs;
+    }
+  } catch(eMNC) {}
+
   return data;
 }
 
@@ -14543,6 +14569,24 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
           totalNCs.push({module:moduleName, label:ncLabelStr, action:action, responsable:responsable, heure:heure, seuil:(nc&&nc.seuil)||'', valeur:(nc&&nc.valeur)||''});
         });
       });
+
+      // NC saisies MANUELLEMENT dans le module « Récap NC » (page-nc) — exclues des
+      // modules ci-dessus par conception. On les ajoute explicitement depuis leurs
+      // sessions archivées de la période, sinon elles n'apparaissent pas dans le Pack DDPP.
+      try {
+        var _ncManPer = (typeof getDonneesPeriode === 'function') ? (getDonneesPeriode('page-nc', dateFrom, dateTo) || []) : [];
+        _ncManPer.forEach(function(_sess) {
+          if (!_sess || !_sess.data || !Array.isArray(_sess.data.manualNCs)) return;
+          var _mts = _sess.timestamp || _sess.data.timestamp || '';
+          var _md = '', _mh = '';
+          try { var _mo = new Date(_mts); if (!isNaN(_mo.getTime())) { _md = _mo.toLocaleDateString('fr-FR'); _mh = _mo.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }); } } catch(e) {}
+          _sess.data.manualNCs.forEach(function(_m) {
+            if (!_m || !_m.desc) return;
+            totalNCs.push({ module: _m.module || 'Non-conformité signalée', uid: 'man' + (_uidSeq++), label: _m.desc, action: _m.action || '', responsable: _m.responsable || _sess.data.signe || _sess.data.signataire || '', heure: _mh, date: _md, seuil: '', valeur: '' });
+          });
+        });
+      } catch(eNCMan) {}
+
       // V85/V86 — Dédupliquer les NCs par module+label+date : la même NC peut être remontée
       // depuis data.statuts (avec action) ET data.ncs (sans action) → on garde la version
       // la plus complète (avec action et responsable)
