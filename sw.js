@@ -68,15 +68,11 @@ self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim()).then(() =>
-      // AUTO-PURGE : des qu'une nouvelle version du SW s'active, on recharge
-      // toutes les fenetres ouvertes pour qu'elles abandonnent immediatement
-      // l'ancien HTML/JS encore affiche (sinon l'utilisateur reste bloque sur
-      // la vieille page tant qu'il ne ferme pas l'app a la main).
-      self.clients.matchAll({ type: 'window' }).then((cl) =>
-        cl.forEach((c) => { try { c.navigate(c.url); } catch (e) {} })
-      )
-    )
+    ).then(() => self.clients.claim())
+    // Ne PLUS forcer le rechargement de toutes les fenetres a l'activation du SW :
+    // cela ejectait l'utilisateur EN PLEINE SAISIE (perte du champ/du controle en cours).
+    // La page (haccp.html) gere elle-meme une mise a jour DOUCE : elle ne recharge que
+    // sur un ecran neutre, sinon elle propose un bouton « Mettre a jour ».
   );
 });
 

@@ -5407,7 +5407,7 @@ function ajouterProduit(skipScroll, compartId) {
       // V80 — Photo conservée UNIQUEMENT si N° de lot ET DLC sont tous deux cochés comme lisibles
       '<div style="font-size:11px;color:#7c3aed;background:#faf5ff;border:1px dashed #c4b5fd;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.45">★ <strong>N° de lot ET DLC obligatoires.</strong> Vous pouvez les saisir manuellement, OU photographier l\'étiquette — dans ce cas la photo n\'est conservée que si les deux cases (lot ET DLC lisibles) sont cochées.</div>' +
       '<div class="frow"><div class="flabel" id="lbl_lot_' + id + '">N° de Lot</div><input class="finput" id="lot_' + id + '" placeholder="Numéro de lot fournisseur"/></div>' +
-      '<div class="frow"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DLUO</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
+      '<div class="frow"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DDM</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
       '<div class="frow"><div class="flabel">📸 Photo étiquette</div>' +
         '<button class="photo-btn" onclick="takePhoto(' + id + ')">📷 Photographier l\'étiquette</button>' +
         // V80 — Wrapper photo : bandeau rouge AU-DESSUS + cadre rouge autour (photo reste lisible pour vérification)
@@ -5423,7 +5423,7 @@ function ajouterProduit(skipScroll, compartId) {
             '<input type="checkbox" id="ph_lot_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" disabled style="width:18px;height:18px"/> N° de lot lisible sur la photo' +
           '</label>' +
           '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;cursor:pointer">' +
-            '<input type="checkbox" id="ph_dlc_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" disabled style="width:18px;height:18px"/> DLC / DLUO lisible sur la photo' +
+            '<input type="checkbox" id="ph_dlc_ok_' + id + '" onchange="verifierPhotoLotDLC(' + id + ')" disabled style="width:18px;height:18px"/> DLC / DDM lisible sur la photo' +
           '</label>' +
           '<div id="photo_status_' + id + '" style="display:none;font-size:11px;font-weight:700;border-radius:6px;padding:6px 8px;margin-top:6px;line-height:1.4"></div>' +
         '</div>' +
@@ -6794,7 +6794,7 @@ function selMention2(prodId, mentionIdx, type) {
       var mentionLabels = [
         'Denomination absente/illisible',
         'N de lot absent/illisible',
-        'DLC/DLUO absente ou illisible',
+        'DLC/DDM absente ou illisible',
         'Origine non mentionnee',
         'Allergenes non identifies'
       ];
@@ -7401,7 +7401,7 @@ function imprimerReception(dataOverride, photosOverride) {
         html += '<div class="produit-body">';
         html += '<div class="produit-data"><table>';
         html += '<tr><td>N° de lot</td><td><strong>' + (_echap(p.lot||'—')) + '</strong></td></tr>';
-        html += '<tr><td>DLC / DLUO</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
+        html += '<tr><td>DLC / DDM</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
         var _pSeuil = p.seuil || _seuilReceptionProduit(p.type);
         html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (_pSeuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(_pSeuil) + ')</span>' : '') + '</td></tr>';
         html += '<tr><td>Conformité T°</td><td style="color:' + confColor + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
@@ -7444,7 +7444,7 @@ function imprimerReception(dataOverride, photosOverride) {
         html += '<span style="font-size:11px;color:#9a3412">' + _echap(data.timestamp) + '</span></div>';
         html += '<div class="produit-body"><div class="produit-data"><table>';
         html += '<tr><td>N° de lot</td><td><strong>' + (_echap(p.lot||'—')) + '</strong></td></tr>';
-        html += '<tr><td>DLC / DLUO</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
+        html += '<tr><td>DLC / DDM</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
         var _pSeuil = p.seuil || _seuilReceptionProduit(p.type);
         html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (_pSeuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(_pSeuil) + ')</span>' : '') + '</td></tr>';
         html += '<tr><td>Conformité T°</td><td style="color:' + confColor + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
@@ -7468,7 +7468,7 @@ function imprimerReception(dataOverride, photosOverride) {
       html += '<div class="produit-body">';
       html += '<div class="produit-data"><table>';
       html += '<tr><td>N° de lot</td><td><strong>' + (_echap(p.lot||'—')) + '</strong></td></tr>';
-      html += '<tr><td>DLC / DLUO</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
+      html += '<tr><td>DLC / DDM</td><td>' + (_echap(p.dlc||'—')) + '</td></tr>';
       html += '<tr><td>T° relevée</td><td>' + (p.temp !== '—' ? p.temp + '°C' : '—') + (p.seuil ? ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _echap(p.seuil) + ')</span>' : '') + '</td></tr>';
       html += '<tr><td>Conformité T°</td><td style="color:' + confColor + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
       if (p.nc && p.actionCorrective) {
@@ -7906,8 +7906,8 @@ var BOUCHERIE_HEADERS = {
   refroidissement: {title:'Contrôle Refroidissement — Boucherie & Charcuterie', intro:'Refroidir rapidement vos préparations cuites : pâté, rillettes, charcuterie cuite, plats traiteur. Règle : passer de +63°C à +10°C en 2h maximum.'},
   etiquetage: {title:'Étiquetage Produits — Boucherie & Charcuterie', intro:'Étiqueter chaque produit : viande hachée (J+1 obligatoire), préparations (J+3), charcuterie cuite maison (J+5). Mention origine bovine obligatoire. DLC réglementaire selon le Règlement CE 853/2004.'},
   fermeture: {title:'Nettoyage & Désinfection — Fin de Service Boucherie', intro:'En fin de journée, nettoyez et désinfectez intégralement : billot, couteaux, scie à os, hachoir, salle de découpe, bacs, crochets, vitrine. Respect des 5 étapes réglementaires.'},
-  documents: {title:'Vérification Documents — Boucherie & Charcuterie', intro:'Vérifier vos documents obligatoires : formation HACCP, déclaration DDPP, registre traçabilité bovine (CERFA 11111), analyses micro semestrielles, agrément sanitaire si applicable.'},
-  affichage: {title:'Contrôle Affichages — Boucherie & Charcuterie', intro:'Vérifier les affichages obligatoires : origine des viandes bovines (OBLIGATOIRE), prix TTC, allergènes, interdiction de fumer. Affichage origine porc et volaille recommandé.'},
+  documents: {title:'Vérification Documents — Boucherie & Charcuterie', intro:'Vérifier vos documents obligatoires : formation HACCP, déclaration DDPP, registre de traçabilité bovine, analyses micro semestrielles, agrément sanitaire si applicable.'},
+  affichage: {title:'Contrôle Affichages — Boucherie & Charcuterie', intro:'Vérifier les affichages obligatoires : origine des viandes bovines (OBLIGATOIRE), prix TTC, allergènes, interdiction de fumer. Affichage origine porc, volaille et ovins OBLIGATOIRE (Règl. UE 1337/2013).'},
 };
 
 // ── HEADERS RESTAURATION COLLECTIVE ──
@@ -7920,7 +7920,7 @@ var COLLECTIVE_HEADERS = {
   refroidissement: {title:'Contrôle Refroidissement — Restauration collective', intro:'Refroidissement obligatoire pour liaison froide. Règle : passer de +63°C à +10°C en 2h maximum. Utilisation de la cellule de refroidissement rapide recommandée. Enregistrement obligatoire.'},
   etiquetage: {title:'Étiquetage — Restauration collective', intro:'Étiqueter chaque préparation : plats cuisinés (J+3), viandes cuites (J+3), sauces (J+3), salades (J+1). En liaison froide : mention de la date de remise en température obligatoire.'},
   fermeture: {title:'Nettoyage & Désinfection — Fin de Service Collectif', intro:'En fin de service, nettoyez et désinfectez l’intégralité de la cuisine : plans de travail, équipements de cuisson, matériel de distribution, sols, éviers. Respect des 5 étapes réglementaires.'},
-  documents: {title:'Vérification Documents — Restauration collective', intro:'Vérifier vos documents : agrément sanitaire, PMS à jour, analyses micro mensuelles (si > 200 repas/jour), plan HACCP, registres températures, contrats prestataires. Documents DDPP obligatoires.'},
+  documents: {title:'Vérification Documents — Restauration collective', intro:'Vérifier vos documents : agrément sanitaire, PMS à jour, analyses microbiologiques (fréquence définie dans votre PMS), plan HACCP, registres températures, contrats prestataires. Documents DDPP obligatoires.'},
   affichage: {title:'Contrôle Affichages — Restauration collective', intro:'Vérifier les affichages obligatoires selon le type de structure (scolaire, EHPAD, hospitalier, entreprise). Menus affichés, allergènes, numéros d’urgence, règlement intérieur.'},
 };
 
@@ -8023,8 +8023,8 @@ var AFF_SALLE_ITEMS = {
 var DOCS_SPECIFIQUES = {
   bp: ['Registre de traçabilité farines & matières premières','Fiches techniques recettes (si laboratoire)','Agrément laboratoire si vente en gros (si applicable)','Contrat collecte déchets organiques / biodéchets','Registre maintenance fours & pétrins'],
   rapide: ['Registre de traçabilité viandes & préparations','Fiches techniques allergènes par produit vendu','Contrat collecte huiles usagées (prestataire agréé)','Plan de maîtrise allergènes formalisé','Autorisation enseigne / Kiosque (si applicable)'],
-  boucherie: ['Registre de traçabilité bovine — Cerfa 11111 obligatoire','Fiche de réception par carcasse (numéro de lot + origine)','Agrément sanitaire (si vente en gros ou livraison hors département)','Contrat collecte déchets de découpe (os, graisses) — prestataire agréé','Registre de maintenance équipements (hachoir, scie à os...)','Analyses microbiologiques semestrielles (viandes hachées + préparations)'],
-  collective: ['Agrement sanitaire (obligatoire si > 500 repas/jour ou livraison)','Plan de Maitrise Sanitaire (PMS) valide et a jour','Registre des autocontroles (temperatures, NC, actions correctives)','Plan de nettoyage & desinfection avec emargement quotidien','Contrat de liaison froide (si applicable)','Analyses microbiologiques mensuelles (si > 200 repas/jour)','Attestation de formation HACCP de l’ensemble du personnel','Fiches techniques allergenes par plat servi'],
+  boucherie: ['Registre de traçabilité bovine (obligatoire)','Fiche de réception par carcasse (numéro de lot + origine)','Agrément sanitaire (si vente en gros ou livraison hors département)','Contrat collecte déchets de découpe (os, graisses) — prestataire agréé','Registre de maintenance équipements (hachoir, scie à os...)','Analyses microbiologiques semestrielles (viandes hachées + préparations)'],
+  collective: ['Agrement sanitaire (obligatoire en cas de livraison a des tiers au-dela des seuils de derogation)','Plan de Maitrise Sanitaire (PMS) valide et a jour','Registre des autocontroles (temperatures, NC, actions correctives)','Plan de nettoyage & desinfection avec emargement quotidien','Contrat de liaison froide (si applicable)','Analyses microbiologiques (frequence definie dans le PMS)','Attestation de formation HACCP de l’ensemble du personnel','Fiches techniques allergenes par plat servi'],
 };
 
 function buildAffItems(items) {
@@ -8944,7 +8944,7 @@ var tracaPdfData = {};
 var MENTIONS_OBLIGATOIRES = [
   'Dénomination du produit présente et lisible',
   'Numéro de lot visible et lisible',
-  'DLC / DLUO clairement indiquée',
+  'DLC / DDM clairement indiquée',
   'Origine du produit mentionnée (pays)',
   'Allergènes identifiés sur l\'étiquette',
   'Conditions de conservation indiquées',
@@ -8964,7 +8964,7 @@ var MENTIONS_BP = [
 var MENTIONS_RAPIDE = [
   'Dénomination du produit présente et lisible',
   'Numéro de lot visible et lisible',
-  'DLC / DLUO clairement indiquée',
+  'DLC / DDM clairement indiquée',
   'Allergènes identifiés (gluten, sésame, moutarde, lait...)',
   'Conditions de conservation indiquées',
   'Coordonnées du fournisseur présentes',
@@ -9046,7 +9046,7 @@ function ajouterTracaProduit() {
       '<input class="finput" id="t_origine_' + id + '" placeholder="Ex : France, Espagne, Pays-Bas..."/>' +
     '</div>' +
 
-    '<div class="frow"><div class="flabel">DLC / DLUO</div>' +
+    '<div class="frow"><div class="flabel">DLC / DDM</div>' +
       '<input class="finput" type="date" id="t_dlc_' + id + '"/>' +
     '</div>' +
 
@@ -9063,7 +9063,7 @@ function ajouterTracaProduit() {
           '<input type="checkbox" id="ph_lot_ok_traca_' + id + '" style="width:18px;height:18px"/> N° de lot lisible sur la photo' +
         '</label>' +
         '<label style="display:flex;align-items:center;gap:6px;font-size:12px;color:#374151;cursor:pointer">' +
-          '<input type="checkbox" id="ph_dlc_ok_traca_' + id + '" style="width:18px;height:18px"/> DLC / DLUO lisible sur la photo' +
+          '<input type="checkbox" id="ph_dlc_ok_traca_' + id + '" style="width:18px;height:18px"/> DLC / DDM lisible sur la photo' +
         '</label>' +
       '</div>' +
     '</div>' +
@@ -10537,7 +10537,7 @@ function ajouterPlat() {
       '</div>' +
       '<div id="plat_custom_' + id + '" style="display:none">' +
         '<div class="frow"><div class="flabel">Nom du produit</div><input class="finput" id="plat_custom_nom_' + id + '" placeholder="Nom"/></div>' +
-        '<div class="frow"><div class="flabel">' + getBySection('Seuil T° cœur minimum (°C)', 'T° four cible (°C)', 'Seuil T° cœur minimum (°C)') + '</div><input class="finput" type="number" id="plat_custom_seuil_' + id + '" placeholder="Ex : 65"/></div>' +
+        '<div class="frow"><div class="flabel">' + getBySection('Seuil T° cœur minimum (°C)', 'T° four cible (°C)', 'Seuil T° cœur minimum (°C)') + '</div><input class="finput" type="number" id="plat_custom_seuil_' + id + '" placeholder="Ex : 65" oninput="checkCuissonConf(' + id + ')"/></div>' +
       '</div>' +
       '<div id="plat_seuil_display_' + id + '" style="display:none" class="seuil-display">' +
         '<span>T° cœur minimum requise</span><span class="seuil-val" id="plat_seuil_val_' + id + '"></span>' +
@@ -10622,11 +10622,13 @@ function checkCuissonConf(id) {
   var tempEl = document.getElementById('plat_temp_' + id);
   var confEl = document.getElementById('plat_conf_' + id);
   var ncEl = document.getElementById('plat_nc_' + id);
-  if (!typeVal || typeVal === '' || typeVal === 'custom' || !tempEl.value) {
+  var estCustom = (typeVal === 'custom');
+  var customSeuilEl = estCustom ? document.getElementById('plat_custom_seuil_' + id) : null;
+  if (!typeVal || typeVal === '' || !tempEl.value || (estCustom && (!customSeuilEl || customSeuilEl.value === ''))) {
     confEl.className = 'conformite-badge pending'; confEl.textContent = 'Saisir la T°';
     ncEl.style.display = 'none'; hideNCAction(ncEl.id); return;
   }
-  var seuil = parseFloat(typeVal);
+  var seuil = estCustom ? parseFloat(customSeuilEl.value) : parseFloat(typeVal);
   var temp = parseFloat(tempEl.value);
   if (SECTEUR_ACTIF === 'bp') {
     // Pour la boulangerie : T° four, on vérifie que c'est dans la plage
@@ -11292,7 +11294,7 @@ function ajouterFriteuse() {
     '<div class="tgrid" style="margin-top:10px">' +
 '<div class="tcard">' +
         '<div class="tcard-lbl">Température</div>' +        '<div class="tinput-wrap"><input type="number" id="fr_temp_' + id + '" placeholder="0" step="1" oninput="checkHuile(' + id + ')"/><div class="tunit">°C</div></div>' +
-        '<div style="font-size:10px;color:#dc2626;font-weight:600;margin-top:4px;text-align:center">Max 175°C</div>' +
+        '<div style="font-size:10px;color:#f97316;font-weight:600;margin-top:4px;text-align:center">Conseillé ≤ 175°C</div>' +
       '</div>' +
       '<div class="tcard">' +
         '<div class="tcard-lbl">TPM%</div>' +
@@ -11367,23 +11369,28 @@ function checkHuile(id) {
     return;
   }
 
-  var tempNC = tempEl.value && parseFloat(tempEl.value) > 175;
+  // Seul critère RÉGLEMENTAIRE opposable = composés polaires (TPM) > 25 % (Décret 2008-184).
+  // La température (> 175°C) n'a AUCUNE base légale : c'est une recommandation de bonne
+  // pratique → simple alerte « à surveiller », et PAS une non-conformité.
+  var tempAlerte = tempEl.value && parseFloat(tempEl.value) > 175;
   var tpmNC  = tpmEl.value  && parseFloat(tpmEl.value)  > 25;
 
   // Couleur bordure
-  if (tempEl.value) tempEl.style.borderColor = tempNC ? 'var(--red)' : '';
+  if (tempEl.value) tempEl.style.borderColor = tempAlerte ? 'var(--orange)' : '';
   if (tpmEl.value)  tpmEl.style.borderColor  = tpmNC  ? 'var(--red)' : '';
 
   // Afficher les zones d'action appropriées
-  if (actionTemp) actionTemp.style.display = tempNC ? 'block' : 'none';
+  if (actionTemp) actionTemp.style.display = tempAlerte ? 'block' : 'none';
   if (actionTpm)  actionTpm.style.display  = tpmNC  ? 'block' : 'none';
 
-  if (tempNC || tpmNC) {
-    var msgs = [];
-    if (tempNC) msgs.push('T° > 175°C → baisser thermostat');
-    if (tpmNC)  msgs.push('TPM > 25% → changer l\'huile');
+  confEl.style.borderColor = ''; confEl.style.color = '';
+  if (tpmNC) {
     confEl.className='conformite-badge bad';
-    confEl.textContent='✗ NC — ' + msgs.join(' | ');
+    confEl.textContent='✗ NC — TPM > 25% → changer l\'huile' + (tempAlerte ? ' (+ T° élevée à surveiller)' : '');
+  } else if (tempAlerte) {
+    confEl.className='conformite-badge pending';
+    confEl.style.borderColor = 'var(--orange)'; confEl.style.color = 'var(--orange)';
+    confEl.textContent='⚠️ T° élevée — à surveiller (recommandé ≤175°C, sans valeur légale)';
   } else {
     confEl.className='conformite-badge ok';
     confEl.textContent='✓ Conforme';
@@ -12469,7 +12476,7 @@ function ajouterPerte() {
     '<div id="perte_autre_' + id + '" style="display:none"><div class="frow"><div class="flabel">Nom du produit</div><input class="finput" id="perte_autre_nom_' + id + '" placeholder="Préciser"/></div></div>' +
     '<div class="frow"><div class="flabel req">Quantité perdue</div><input class="finput" id="perte_qte_' + id + '" placeholder="Ex : 2kg, 5 portions..."/></div>' +
     '<div class="frow"><div class="flabel">N° de lot</div><input class="finput" id="perte_lot_' + id + '" placeholder="N° lot — traçabilité"/></div>' +
-    '<div class="frow"><div class="flabel">DLC / DLUO</div><input class="finput" type="date" id="perte_dlc_' + id + '"/></div>' +
+    '<div class="frow"><div class="flabel">DLC / DDM</div><input class="finput" type="date" id="perte_dlc_' + id + '"/></div>' +
     '<div class="frow"><div class="flabel">Motif de la perte</div>' +
       '<select class="fselect" id="perte_motif_' + id + '">' +
         '<option>DLC dépassée</option>' +
@@ -13027,7 +13034,7 @@ var GRILLE_AUDIT = {
     'Registres de contrôle (réception carcasses, T°, NC) à jour et signés',
     'Températures chambres froides viandes et charcuterie dans les seuils',
     'DLC respectées (viande hachée J+1, découpe J+3 à J+5)',
-    'Traçabilité bovine conforme (Cerfa 11111, n° lots)',
+    'Traçabilité bovine conforme (n° de lots)',
     'Hygiène du personnel (tablier, charlotte, gants, cotte de mailles)',
     'Nettoyage et désinfection salle de découpe et billots',
     'Documents obligatoires (agrément sanitaire si applicable, analyses micro)',
@@ -13042,7 +13049,7 @@ var GRILLE_AUDIT = {
     'Étiquetage des préparations et remises en température',
     'Hygiène complète du personnel (tenue, mains, évictions si gastro)',
     'Plan HACCP et PMS à jour et connus du personnel',
-    'Documents obligatoires (agrément si > 500 repas, analyses micro mensuelles)',
+    'Documents obligatoires (agrément si livraison à des tiers, analyses micro selon PMS)',
     'Affichages (menus semaine, allergènes, numéros urgence)',
     'Gestion des biodéchets et tri sélectif conforme',
     'Procédure TIAC documentée et connue du responsable',
@@ -14770,7 +14777,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
               html += '<div style="background:#f9fafb;padding:3px 8px;font-weight:700;font-size:10px;color:#374151">Produit N°' + (pi+1) + ' — ' + esc(p.type||'—') + '</div>';
               html += '<table style="width:100%;border-collapse:collapse;font-size:10px">';
               html += '<tr><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;width:35%;font-weight:600">N° lot</td><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6">' + esc(p.lot||'—') + '</td></tr>';
-              html += '<tr><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;font-weight:600">DLC / DLUO</td><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6">' + esc(p.dlc||'—') + '</td></tr>';
+              html += '<tr><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;font-weight:600">DLC / DDM</td><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6">' + esc(p.dlc||'—') + '</td></tr>';
               html += '<tr><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;font-weight:600">T° relevée</td><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6">' + (p.temp !== '—' ? p.temp + '°C' : '—') + ' <span style="color:#0891b2;font-weight:600;font-size:9px">(seuil : ' + _seuilProduit(p.type) + ')</span></td></tr>';
               html += '<tr><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;font-weight:600">Conformité</td><td style="padding:3px 8px;border-bottom:1px solid #f3f4f6;color:' + bcP + ';font-weight:700">' + (_echap(p.conformite||'—')) + '</td></tr>';
               html += '<tr><td style="padding:3px 8px;font-weight:600">Emballage</td><td style="padding:3px 8px">' + esc(p.emballage||'—') + '</td></tr>';
@@ -14798,7 +14805,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
             html += '<div style="background:#f9fafb;padding:3px 8px;font-weight:700;font-size:10px;color:#374151">Produit N°' + (pi+1) + ' — ' + (_echap(p.type||'—')) + '</div>';
             html += '<table style="width:100%;border-collapse:collapse;font-size:10px">';
             html += '<tr><td style="padding:3px 8px;width:35%;font-weight:600">N° lot</td><td style="padding:3px 8px">' + (_echap(p.lot||'—')) + '</td></tr>';
-            html += '<tr><td style="padding:3px 8px;font-weight:600">DLC / DLUO</td><td style="padding:3px 8px">' + (_echap(p.dlc||'—')) + '</td></tr>';
+            html += '<tr><td style="padding:3px 8px;font-weight:600">DLC / DDM</td><td style="padding:3px 8px">' + (_echap(p.dlc||'—')) + '</td></tr>';
             html += '<tr><td style="padding:3px 8px;font-weight:600">T° relevée</td><td style="padding:3px 8px">' + (p.temp !== '—' ? p.temp + '°C' : '—') + '</td></tr>';
             html += '</table></div>';
           });
@@ -18920,6 +18927,34 @@ function collectNCGlobales() {
               });
             }
           }
+        });
+        // V-fix — Ajoute aussi les NC « seuil dépassé » (température, cuisson, huiles,
+        // refroidissement…) stockées dans entry.data.ncs. Sans ça, un dépassement de
+        // température disparaissait du registre consolidé au rechargement (l'inspecteur
+        // voyait « 0 NC » alors qu'il y avait eu des excursions).
+        var ncsSeuil = entry.data.ncs || [];
+        ncsSeuil.forEach(function(ncS) {
+          if (!ncS) return;
+          var descNc = (typeof ncS === 'string') ? ncS : (ncS.desc || '');
+          if (!descNc) return;
+          var descNcFull = 'Non conforme : ' + descNc;
+          var sigNc = modName + '|' + descNcFull + '|' + dateStr;
+          if (ncs.find(function(n){ return (n._sig || '') === sigNc; })) return;
+          var actNc = '';
+          if (ncS.action) {
+            actNc = ncS.action;
+            if (ncS.responsable) actNc += ' (' + ncS.responsable + (ncS.heureAction ? ' à ' + ncS.heureAction : '') + ')';
+          }
+          ncs.push({
+            module: modName,
+            desc: descNcFull,
+            gravite: classerGraviteNC(descNc, modName, 'Non conforme'),
+            heure: dateStr,
+            source: 'storage',
+            signataire: signe,
+            action: actNc,
+            _sig: sigNc
+          });
         });
       });
     });
@@ -23079,7 +23114,7 @@ function ouvrirInfosLegales(section) {
     '<h3 style="font-size:14px;margin:16px 0 6px">2. Souscription et compte</h3>' +
     '<p style="color:#475569;font-size:13px">L’accès se fait par un code et un mot de passe personnels, après inscription. L’Abonné garantit l’exactitude des informations fournies et préserve la confidentialité de ses identifiants.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">3. Essai gratuit</h3>' +
-    '<p style="color:#475569;font-size:13px">Un essai gratuit de 3 jours peut être accordé sur demande (il n’est pas automatique), sans engagement, afin d’évaluer le service avant souscription.</p>' +
+    '<p style="color:#475569;font-size:13px">Un essai gratuit de 10 jours peut être accordé sur demande (il n’est pas automatique), sans engagement, afin d’évaluer le service avant souscription.</p>' +
     '<h3 style="font-size:14px;margin:16px 0 6px">4. Formules et tarifs</h3>' +
     '<ul style="color:#475569;font-size:13px;padding-left:18px;line-height:1.7">' +
       '<li><strong>Formule sans engagement</strong> : abonnement mensuel, sans durée minimale, résiliable à tout moment.</li>' +

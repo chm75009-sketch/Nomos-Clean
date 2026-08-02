@@ -341,7 +341,7 @@ if ('serviceWorker' in navigator) {
       </a>
       <a class="mcard m-pro" href="haccp.html">
         <span class="ico">⚡</span>
-        <span class="tx"><b>HACCP Pro</b><em>Gérer &amp; prouver la conformité au quotidien</em></span>
+        <span class="tx"><b>Nomos Traça</b><em>Gérer &amp; prouver la conformité au quotidien</em></span>
       </a>
 
       <div class="mlabel">Découvrir</div>
@@ -438,7 +438,7 @@ if ('serviceWorker' in navigator) {
         <div class="ti">🛡️</div>
         <div class="tt">
           <h3>Le combo qui vous met à l'abri</h3>
-          <p>Faire l'<strong>audit</strong> pour savoir où vous en êtes, puis laissez <strong>HACCP&nbsp;Pro</strong> entretenir et prouver votre conformité jour après jour. Vous êtes prêt en permanence.</p>
+          <p>Faire l'<strong>audit</strong> pour savoir où vous en êtes, puis laissez <strong>Nomos Traça</strong> entretenir et prouver votre conformité jour après jour. Vous êtes prêt en permanence.</p>
         </div>
       </div>
       <p class="choice">Utiliser <b>l'une</b> ou <b>l'autre</b> ou <b>les deux</b>.</p>
@@ -492,7 +492,7 @@ if ('serviceWorker' in navigator) {
           <input type="text" id="rdvCp" placeholder="Code postal" inputmode="numeric" autocomplete="postal-code">
           <textarea id="rdvMsg" rows="2" placeholder="Un message ? (facultatif)"></textarea>
           <button class="send" id="rdvSend" onclick="sendRdv()">Réserver ma démo →</button>
-          <div class="note">Vos coordonnées servent uniquement à vous recontacter. Aucune donnée revendue.</div>
+          <div class="note">Vos coordonnées servent uniquement à vous recontacter. Aucune donnée revendue. En validant, vos données sont traitées conformément à notre <a href="politique-confidentialite.html" style="color:#6ee7b7;text-decoration:underline">politique de confidentialité</a>.</div>
         </div>
       </div>
       <div id="rdvOk" class="ok" style="display:none">
@@ -601,7 +601,7 @@ if ('serviceWorker' in navigator) {
           // Repli : ouvrir le client mail pré-rempli pour ne jamais perdre la demande.
           var sujet = encodeURIComponent('Demande de démo Nomos — ' + nom);
           var body = encodeURIComponent('Nom : ' + nom + '\nEmail : ' + email + '\nTéléphone : ' + tel + '\n' + corps);
-          window.location.href = 'mailto:r.t.h@orange.fr?subject=' + sujet + '&body=' + body;
+          window.location.href = 'mailto:lea@nomos-haccp.fr?subject=' + sujet + '&body=' + body;
         }
         btn.disabled = false; btn.textContent = 'Réserver ma démo →';
       }
@@ -614,8 +614,8 @@ if ('serviceWorker' in navigator) {
         var _to = setTimeout(function(){ _terminer(false); }, 12000);
         emailjs.send('service_84lz31w','template_ti43bkh',{
           to_name:'Administrateur Nomos',
-          to_email:'r.t.h@orange.fr',
-          email:'r.t.h@orange.fr',
+          to_email:'lea@nomos-haccp.fr',
+          email:'lea@nomos-haccp.fr',
           code:blocInfos,
           service:corps,
           business:nom,
