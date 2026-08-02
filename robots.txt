@@ -1,0 +1,8 @@
+# robots.txt — nomos-haccp.fr
+User-agent: *
+Allow: /
+
+# L'application et l'espace audit sont accessibles mais sans intérêt pour l'index.
+Disallow: /audit/documents.html
+
+Sitemap: https://nomos-haccp.fr/sitemap.xml
