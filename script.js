@@ -3074,17 +3074,25 @@ function collecterDonneesRefroidissement() {
     var typeEl = document.getElementById('refroi_type_' + id);
     var t0El = document.getElementById('refroi_t0_' + id);
     var t2El = document.getElementById('refroi_t2_' + id);
+    var h0El = document.getElementById('refroi_h0_' + id);
+    var h2El = document.getElementById('refroi_h2_' + id);
     var confEl = document.getElementById('refroi_conf_' + id);
     var ncEl = document.getElementById('refroi_nc_' + id);
     var actEl = document.getElementById('nc_act_type_refroi_nc_' + id);
     var typeTxt = typeEl && typeEl.selectedIndex > 0 ? typeEl.options[typeEl.selectedIndex].text : '—';
     var isNC = ncEl ? ncEl.style.display !== 'none' : false;
     var action = actEl && actEl.selectedIndex > 0 ? actEl.options[actEl.selectedIndex].text : '';
+    var h0v = h0El ? h0El.value || '' : '';
+    var h2v = h2El ? h2El.value || '' : '';
+    var dureeMin = (typeof _refroiDuree === 'function') ? _refroiDuree(h0v, h2v) : null;
     prods.push({
       id: id,
       type: typeTxt,
       t0: t0El ? t0El.value || '' : '',
       t2: t2El ? t2El.value || '' : '',
+      h0: h0v,
+      h2: h2v,
+      dureeMin: dureeMin,
       conf: confEl ? confEl.textContent.trim() : '—',
       isNC: isNC,
       action: action,
@@ -11011,6 +11019,19 @@ function ajouterProduitRefroi() {
         '<div style="font-size:10px;color:#dc2626;margin-top:3px;font-weight:600">⚠️ NC automatique si > +10°C</div>' +
       '</div>' +
     '</div>' +
+    '<div class="tgrid">' +
+      '<div class="tcard">' +
+        '<div class="tcard-lbl">Heure sortie cuisson (T0)</div>' +
+        '<div class="tinput-wrap"><input type="time" id="refroi_h0_' + id + '" oninput="checkRefroi(' + id + ')"/></div>' +
+        '<div style="font-size:10px;color:#6b7280;margin-top:3px">Départ du refroidissement (+63°C)</div>' +
+      '</div>' +
+      '<div class="tcard">' +
+        '<div class="tcard-lbl">Heure du relevé (T+2h max)</div>' +
+        '<div class="tinput-wrap"><input type="time" id="refroi_h2_' + id + '" value="' + _nowHM() + '" oninput="checkRefroi(' + id + ')"/></div>' +
+        '<div style="font-size:10px;color:#dc2626;margin-top:3px;font-weight:600">⚠️ NC si durée > 2h</div>' +
+      '</div>' +
+    '</div>' +
+    '<div id="refroi_duree_' + id + '" style="font-size:11px;font-weight:600;margin:4px 0 2px;padding:4px 8px;border-radius:6px;display:none"></div>' +
     '<div class="conformite-badge pending" id="refroi_conf_' + id + '" style="margin-top:8px">Sélectionner un produit puis saisissez les températures</div>' +
     '<div class="nc-auto" id="refroi_nc_' + id + '" style="display:none">⚡ NC automatique — Refroidissement insuffisant</div>' +
     buildNCAction('refroi_nc_' + id);
@@ -11032,6 +11053,23 @@ function supprimerRefroi(id) {
   renumeroterBlocs('#refroiContainer', 'Préparation N°');
 }
 
+// Heure courante au format HH:MM (pour pré-remplir l'heure du relevé)
+function _nowHM() {
+  var d = new Date();
+  return ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
+}
+// Durée écoulée en minutes entre deux heures "HH:MM" (gère le passage de minuit).
+// Renvoie null si l'une des deux heures est absente/invalide.
+function _refroiDuree(h0, h2) {
+  if (!h0 || !h2) return null;
+  var a = /^(\d{1,2}):(\d{2})$/.exec(h0), b = /^(\d{1,2}):(\d{2})$/.exec(h2);
+  if (!a || !b) return null;
+  var m0 = (+a[1]) * 60 + (+a[2]), m2 = (+b[1]) * 60 + (+b[2]);
+  var d = m2 - m0;
+  if (d < 0) d += 1440; // relevé le lendemain (refroidissement de nuit)
+  return d;
+}
+
 function checkRefroi(id) {
   var t0El = document.getElementById('refroi_t0_' + id);
   var t2El = document.getElementById('refroi_t2_' + id);
@@ -11041,6 +11079,8 @@ function checkRefroi(id) {
   if (!t2El || t2El.value === '') {
     confEl.className='conformite-badge pending';
     confEl.textContent='Saisir les deux températures';
+    var _dEl = document.getElementById('refroi_duree_' + id);
+    if (_dEl) _dEl.style.display = 'none';
     ncEl.style.display='none'; hideNCAction(ncEl.id); return;
   }
 
@@ -11066,24 +11106,59 @@ function checkRefroi(id) {
 
   var t2 = parseFloat(t2El.value);
 
-  if (t2 <= 10) {
-    // Conforme pour le refroidissement
+  // ── Durée écoulée entre la sortie cuisson (T0) et le relevé ──
+  var h0El = document.getElementById('refroi_h0_' + id);
+  var h2El = document.getElementById('refroi_h2_' + id);
+  var dureeMin = _refroiDuree(h0El && h0El.value, h2El && h2El.value);
+  var dureeEl = document.getElementById('refroi_duree_' + id);
+  var tempOk = t2 <= 10;
+  var tempsDepasse = (dureeMin !== null && dureeMin > 120);
+  var dureeStr = dureeMin === null ? '' : (Math.floor(dureeMin / 60) + 'h' + ('0' + (dureeMin % 60)).slice(-2));
+
+  if (dureeEl) {
+    if (dureeMin === null) {
+      dureeEl.style.display = 'none';
+    } else {
+      dureeEl.style.display = 'block';
+      if (tempsDepasse) {
+        dureeEl.style.background = '#fff8f8'; dureeEl.style.color = '#dc2626';
+        dureeEl.textContent = '⏱️ Durée du refroidissement : ' + dureeStr + ' — dépasse la limite réglementaire de 2h';
+      } else {
+        dureeEl.style.background = '#f0fdf4'; dureeEl.style.color = '#16a34a';
+        dureeEl.textContent = '⏱️ Durée du refroidissement : ' + dureeStr + ' — dans la limite de 2h';
+      }
+    }
+  }
+
+  if (tempOk && !tempsDepasse) {
+    // Température OK — et durée OK (ou non renseignée)
     if (SECTEUR_ACTIF === 'bp' && t2 > 4) {
       // BP : conforme refroidissement mais stockage final insuffisant
       confEl.className='conformite-badge pending';
       confEl.textContent='⚠️ Refroidissement OK (+10°C atteint) — Mais stocker à +4°C max pour crèmes/entremets';
       t2El.style.borderColor='var(--yellow)';
+    } else if (dureeMin === null) {
+      // +10°C atteint mais durée non tracée → conforme avec réserve (incite à saisir les heures)
+      confEl.className='conformite-badge pending';
+      confEl.textContent='✓ +10°C atteint — renseignez les heures pour prouver la durée < 2h';
+      t2El.style.borderColor='';
     } else {
       confEl.className='conformite-badge ok';
-      confEl.textContent='✓ Conforme — Refroidissement atteint en 2h';
+      confEl.textContent='✓ Conforme — +10°C atteint en ' + dureeStr + ' (< 2h)';
       t2El.style.borderColor='';
     }
     ncEl.style.display='none'; hideNCAction(ncEl.id);
-  } else {
-    // Non conforme — seuil +10°C non atteint
+  } else if (!tempOk) {
+    // NC — seuil +10°C non atteint
     confEl.className='conformite-badge bad';
     confEl.textContent='✗ NC — Refroidissement insuffisant : ' + t2.toFixed(1) + '°C relevé (max +10°C requis)';
     ncEl.textContent = '⚡ NC automatique — Refroidissement insuffisant : +' + t2.toFixed(1) + '°C à T+2h (seuil +10°C dépassé)';
+    ncEl.style.display='flex'; showNCAction(ncEl.id); t2El.style.borderColor='var(--red)';
+  } else {
+    // Température OK mais durée > 2h → NC (temps)
+    confEl.className='conformite-badge bad';
+    confEl.textContent='✗ NC — +10°C atteint mais en ' + dureeStr + ' (> 2h) : refroidissement trop lent';
+    ncEl.textContent = '⚡ NC automatique — Refroidissement trop long : ' + dureeStr + ' (> 2h, seuil réglementaire) — risque microbiologique';
     ncEl.style.display='flex'; showNCAction(ncEl.id); t2El.style.borderColor='var(--red)';
   }
 }
@@ -11129,21 +11204,22 @@ async function validerRefroi() {
     var id = block.id.replace('refroi_','');
     var a = document.getElementById('refroi_t0_' + id);
     var b = document.getElementById('refroi_t2_' + id);
-    var av = a && String(a.value).trim() !== '' && !isNaN(parseFloat(a.value));
     var bv = b && String(b.value).trim() !== '' && !isNaN(parseFloat(b.value));
-    if (av || bv) { _pleines++; }
+    // Une préparation n'est complète que si la T° FINALE (T+2h) est renseignée :
+    // sans elle, l'atteinte du +10°C n'est pas prouvée (preuve HACCP invalide).
+    if (bv) { _pleines++; }
     else {
       var typeEl = document.getElementById('refroi_type_' + id);
       _vides.push((typeEl && typeEl.value) ? typeEl.value : ('Préparation N°' + id));
     }
   });
   if (_pleines === 0) {
-    if (typeof showToast === 'function') showToast('Contrôle vide : aucune température saisie. Renseigner au moins une préparation (T° départ ou après 2h) avant de valider.', 'err', 6000);
+    if (typeof showToast === 'function') showToast('Contrôle invalide : aucune température finale (+10°C) saisie. Renseignez la T° à T+2h d\'au moins une préparation avant de valider.', 'err', 6000);
     return;
   }
   if (_vides.length > 0) {
     showConfirm('❄️', 'Mesures incomplètes',
-      'Sans température : ' + _vides.join(', ') + '.\n\nComplétez-les, ou validez quand même — ces préparations ne seront PAS enregistrées dans le contrôle.',
+      'Sans température finale (+10°C) : ' + _vides.join(', ') + '.\n\nComplétez la T° à T+2h, ou validez quand même — ces préparations ne seront PAS enregistrées (pas de preuve d\'atteinte du +10°C).',
       'Valider sans elles', '', function(ok){ if (ok) _finaliserRefroi(prenom, nom); });
     return;
   }
@@ -11156,13 +11232,12 @@ async function _finaliserRefroi(prenom, nom) {
   Array.prototype.slice.call(document.querySelectorAll('[id^="refroi_"]')).forEach(function(block){
     if (!/^refroi_\d+$/.test(block.id)) return;
     var id = block.id.replace('refroi_','');
-    var a = document.getElementById('refroi_t0_' + id);
     var b = document.getElementById('refroi_t2_' + id);
-    var av = a && String(a.value).trim() !== '' && !isNaN(parseFloat(a.value));
     var bv = b && String(b.value).trim() !== '' && !isNaN(parseFloat(b.value));
-    if (!av && !bv) { nbRetires++; block.remove(); }
+    // Sans température finale (T+2h) : preuve du +10°C absente → non enregistrée
+    if (!bv) { nbRetires++; block.remove(); }
   });
-  if (nbRetires && typeof showToast === 'function') showToast(nbRetires + ' préparation(s) sans température non enregistrée(s).', 'warn', 5000);
+  if (nbRetires && typeof showToast === 'function') showToast(nbRetires + ' préparation(s) sans température finale (+10°C) non enregistrée(s).', 'warn', 5000);
   // V113 — D : Sauvegarde Supabase AVANT PDF (awaited, après check signature)
   if (SB_READY && ETAB_ID) {
     try {
@@ -11209,6 +11284,13 @@ function imprimerRefroidissementData(prods, signataire, ts) {
     html += '<table style="width:100%;border-collapse:collapse;font-size:10pt">';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:45%;font-weight:600">T° de depart</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t0 ? p.t0 + '°C' : '—') + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T° apres 2h</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t2 ? p.t2 + '°C' : '—') + ' <span style="color:#0e7490;font-weight:600;font-size:9px">(seuil : +10°C en 2h max)</span></td></tr>';
+    if (p.h0 || p.h2 || (p.dureeMin != null)) {
+      var _dm = (p.dureeMin != null) ? p.dureeMin : ((typeof _refroiDuree === 'function') ? _refroiDuree(p.h0, p.h2) : null);
+      var _dtxt = (_dm != null) ? (Math.floor(_dm / 60) + 'h' + ('0' + (_dm % 60)).slice(-2)) : '—';
+      var _dcol = (_dm != null && _dm > 120) ? '#dc2626' : '#16a34a';
+      var _hor = (p.h0 || '—') + ' → ' + (p.h2 || '—');
+      html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">Durée (sortie cuisson → relevé)</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;color:' + _dcol + ';font-weight:700">' + _echap(_dtxt) + ' <span style="color:#6b7280;font-weight:600;font-size:9px">(' + _echap(_hor) + ' — max 2h)</span></td></tr>';
+    }
     html += '<tr><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformité</td><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(p.conf || (nc?'Non conforme':'Conforme')) + '</td></tr>';
     if (nc) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(p.action || 'À définir')) + '</td></tr>';
     html += '</table></div>';
@@ -11826,11 +11908,13 @@ function ajouterEtiquette() {
     '</div>' +
     '<div class="frow no-adv"><div class="flabel">Nom du produit</div><input class="finput" id="etiq_nom_' + id + '" placeholder="' + getBySection('Ex : Crème brûlée, Sauce tomate...', 'Ex : Tarte fraises, Croissant, Entremets...', 'Ex : Burger préparé, Sauce maison, Wrap...', 'Ex : Viande hachée, Saucisse fraîche, Côte...', 'Ex : Plat cuisiné, Gratin, Sauce...') + '"/></div>' +
     '<div class="frow"><div class="flabel">Date de fabrication / ouverture</div><input class="finput" type="date" id="etiq_date_' + id + '" onchange="calcDLC(' + id + ')"/></div>' +
+    '<div class="frow"><div class="flabel">DLC primaire fabricant <span style="color:#9ca3af;font-weight:400">(facultatif)</span></div><input class="finput" type="date" id="etiq_primaire_' + id + '" onchange="calcDLC(' + id + ')"/></div>' +
     '<div class="frow no-adv"><div class="flabel">DLC attribuée</div>' +
       '<div style="display:flex;gap:8px;align-items:center">' +
-        '<input class="finput" type="date" id="etiq_dlc_' + id + '" style="flex:1"/>' +
+        '<input class="finput" type="date" id="etiq_dlc_' + id + '" style="flex:1" onchange="_checkDlcPrimaire(' + id + ')"/>' +
         '<button onclick="calcDLC(' + id + ')" style="padding:8px 12px;background:#0f766e;color:white;border:none;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📅 Auto</button>' +
       '</div>' +
+      '<div id="etiq_dlc_warn_' + id + '" style="display:none;font-size:11px;font-weight:700;margin-top:6px;padding:5px 9px;border-radius:7px;background:#fff8f8;color:#dc2626"></div>' +
     '</div>' +
     '<div class="frow"><div class="flabel">Zone de stockage</div><input class="finput" id="etiq_zone_' + id + '" placeholder="Ex : Chambre froide 1 / Rayon A"/></div>' +
     (SECTEUR_ACTIF === 'collective' ? '<div class="frow"><div class="flabel" style="color:#0891b2;font-weight:700">⚖️ Grammage portion (Gemrcn)</div>' +
@@ -11894,6 +11978,36 @@ function calcDLC(id) {
   var fab = new Date(dateEl.value);
   fab.setDate(fab.getDate() + found.dlcJours);
   dlcEl.value = _dateLoc(fab);
+  // H7 — une DLC secondaire ne peut jamais dépasser la DLC primaire fabricant
+  _checkDlcPrimaire(id, true);
+}
+
+// Contrôle DLC secondaire vs DLC primaire fabricant.
+// autoClamp=true (appel depuis calcDLC) : ramène la DLC à la primaire.
+// autoClamp absent (édition manuelle) : avertit sans écraser la saisie.
+function _checkDlcPrimaire(id, autoClamp) {
+  var dlcEl = document.getElementById('etiq_dlc_' + id);
+  var primEl = document.getElementById('etiq_primaire_' + id);
+  var warnEl = document.getElementById('etiq_dlc_warn_' + id);
+  if (!dlcEl || !warnEl) return;
+  var prim = (primEl && primEl.value) ? primEl.value : '';
+  var sec = dlcEl.value || '';
+  // Les inputs type="date" renvoient "AAAA-MM-JJ" → comparaison lexicographique fiable
+  if (prim && sec && sec > prim) {
+    var pf = prim.split('-');
+    var primFR = pf.length === 3 ? (pf[2] + '/' + pf[1] + '/' + pf[0]) : prim;
+    warnEl.style.display = 'block';
+    if (autoClamp) {
+      dlcEl.value = prim;
+      warnEl.style.background = '#fffbeb'; warnEl.style.color = '#b45309';
+      warnEl.textContent = '⚠️ DLC ramenée à la DLC fabricant (' + primFR + ') : une DLC secondaire ne peut pas la dépasser.';
+    } else {
+      warnEl.style.background = '#fff8f8'; warnEl.style.color = '#dc2626';
+      warnEl.textContent = '⛔ DLC postérieure à la DLC fabricant (' + primFR + '). Une DLC secondaire ne peut jamais dépasser la DLC primaire.';
+    }
+  } else {
+    warnEl.style.display = 'none';
+  }
 }
 
 function changeNbEtiq(id, delta) {
@@ -15327,7 +15441,16 @@ var key = 'haccp_module_data_' + pageId + '_' + (ETAB_ID || 'local');
         stored.sort(function(a, b){ return String((b && b.timestamp) || '').localeCompare(String((a && a.timestamp) || '')); });
       }
     }
-    lsSet(key, JSON.stringify(stored));
+    var _persisted = lsSet(key, JSON.stringify(stored));
+    // M6 — si la persistance locale a échoué (mémoire pleine) ET qu'on est hors-ligne,
+    // le relevé n'est NI en local NI au cloud : on le signale explicitement à l'agent
+    // (sinon l'échec était silencieux et le relevé perdu sans avertissement).
+    if (_persisted === false) {
+      var _online = (typeof navigator === 'undefined') || navigator.onLine !== false;
+      if (!_online && typeof showToast === 'function') {
+        showToast('⛔ Hors-ligne + mémoire pleine : ce relevé n\'a PAS pu être enregistré. Libérez de l\'espace (Réglages → « Libérer de l\'espace ») puis revalidez, ou reconnectez-vous pour synchroniser.', 'err', 10000);
+      }
+    }
     // ENVOI CLOUD IMMÉDIAT vers controles_haccp (la table lue par les rapports).
     // On ne dépend plus du seul « espion » 3s, dont l'instantané de démarrage
     // ignore les contrôles antérieurs et qui ne retente jamais après un échec.
