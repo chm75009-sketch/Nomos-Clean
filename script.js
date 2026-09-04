@@ -3001,7 +3001,7 @@ function imprimerCuisson() {
     html += '<div style="border:2px solid #dc2626;border-radius:10px;margin-bottom:14px;overflow:hidden">';
     // Header plat
     html += '<div style="background:#dc2626;color:white;padding:8px 12px;font-weight:800;font-size:13px">';
-    html += 'Plat N' + (i+1) + ' — ' + plat.nom;
+    html += 'Plat N' + (i+1) + ' — ' + _echap(plat.nom);
     html += '</div>';
     // Infos
     html += '<table style="width:100%;border-collapse:collapse;font-size:11px">';
@@ -11191,7 +11191,7 @@ function imprimerRefroidissementData(prods, signataire, ts) {
   html += '<div style="background:linear-gradient(135deg,#0e7490,#06b6d4);color:white;padding:14px 16px;border-radius:10px;margin-bottom:14px">';
   html += '<div style="font-weight:800;font-size:15px">Refroidissement Rapide</div>';
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + (_echap(ETAB.nom || '')) + ' — ' + (ts || getNowStr()) + '</div>';
-  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + (signataire || '—') + '</div>';
+  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + _echap(signataire || '—') + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
   if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
@@ -11202,14 +11202,14 @@ function imprimerRefroidissementData(prods, signataire, ts) {
     html += '<div style="border:2px solid ' + borderColor + ';border-radius:10px;margin-bottom:12px;overflow:hidden">';
     html += '<div style="background:' + borderColor + ';color:white;padding:8px 12px;display:flex;justify-content:space-between">';
     var label = 'Produit N' + (i + 1);
-    if (p.type && p.type !== '—') label += ' — ' + p.type;
+    if (p.type && p.type !== '—') label += ' — ' + _echap(p.type);
     html += '<span style="font-weight:800;font-size:13px">' + label + '</span>';
     if (nc) html += '<span style="font-size:11px;font-weight:700">NC</span>';
     html += '</div>';
     html += '<table style="width:100%;border-collapse:collapse;font-size:10pt">';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:45%;font-weight:600">T° de depart</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t0 ? p.t0 + '°C' : '—') + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">T° apres 2h</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (p.t2 ? p.t2 + '°C' : '—') + ' <span style="color:#0e7490;font-weight:600;font-size:9px">(seuil : +10°C en 2h max)</span></td></tr>';
-    html += '<tr><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformité</td><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + (p.conf || (nc?'Non conforme':'Conforme')) + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'font-weight:600">Conformité</td><td style="padding:6px 10px;' + (nc?'border-bottom:1px solid #e5e7eb;':'') + 'color:' + confColor + ';font-weight:700">' + _echap(p.conf || (nc?'Non conforme':'Conforme')) + '</td></tr>';
     if (nc) html += '<tr style="background:#fff8f8"><td style="padding:6px 10px;color:#dc2626;font-weight:700">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + (_echap(p.action || 'À définir')) + '</td></tr>';
     html += '</table></div>';
   });
@@ -11570,7 +11570,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
   html += '<div style="background:linear-gradient(135deg,#b45309,#f59e0b);color:white;padding:14px 16px;border-radius:10px;margin-bottom:14px">';
   html += '<div style="font-weight:800;font-size:15px">Huiles de Friture</div>';
   html += '<div style="font-size:11px;opacity:.85;margin-top:4px">' + (_echap(ETAB.nom || '')) + ' — ' + (ts || getNowStr()) + '</div>';
-  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + (signataire || '—') + '</div>';
+  html += '<div style="font-size:11px;opacity:.85">Émargement : ' + _echap(signataire || '—') + '</div>';
   html += '<div style="font-size:11px;opacity:.85">Secteur : ' + (((typeof SECTEURS_CONFIG!=='undefined' && SECTEURS_CONFIG[SECTEUR_ACTIF] && SECTEURS_CONFIG[SECTEUR_ACTIF].label)) || SECTEUR_ACTIF || '—') + '</div>';
   if (ncCount > 0) html += '<div style="margin-top:6px;background:rgba(220,38,38,.3);border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700">' + ncCount + ' non-conformité(s)</div>';
   html += '</div>';
@@ -11581,7 +11581,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
     html += '<div style="border:2px solid ' + borderColor + ';border-radius:10px;margin-bottom:12px;overflow:hidden">';
     html += '<div style="background:' + borderColor + ';color:white;padding:8px 12px;display:flex;justify-content:space-between">';
     var label = 'Friteuse N' + (f.num || (i + 1));
-    if (f.nom) label += ' — ' + f.nom;
+    if (f.nom) label += ' — ' + _echap(f.nom);
     html += '<span style="font-weight:800;font-size:13px">' + label + '</span>';
     if (nc) html += '<span style="font-size:11px;font-weight:700">NC</span>';
     html += '</div>';
@@ -11589,7 +11589,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;width:40%;font-weight:600">Type d\'huile</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (_echap(f.type || '—')) + '</td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">Temperature</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (f.temp && f.temp !== '—' ? f.temp + '°C' : '—') + ' <span style="color:#b45309;font-weight:600;font-size:9px">(seuil : 175°C max)</span></td></tr>';
     html += '<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;font-weight:600">TPM</td><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">' + (f.tpm && f.tpm !== '—' ? f.tpm + '%' : '—') + ' <span style="color:#b45309;font-weight:600;font-size:9px">(seuil : 25% max)</span></td></tr>';
-    html += '<tr><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';font-weight:600">Conformité</td><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';color:' + confColor + ';font-weight:700">' + (f.conformite || (nc ? 'Non conforme' : 'Conforme')) + '</td></tr>';
+    html += '<tr><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';font-weight:600">Conformité</td><td style="padding:6px 10px;border-bottom:' + (nc ? '1px solid #e5e7eb' : 'none') + ';color:' + confColor + ';font-weight:700">' + _echap(f.conformite || (nc ? 'Non conforme' : 'Conforme')) + '</td></tr>';
     if (nc) {
       // Action corrective : valeur saisie sinon déduite du dépassement (comme le Pack DDPP)
       var _actH = f.action || '';
@@ -11599,7 +11599,7 @@ function imprimerHuilesData(friteuses, signataire, ts) {
         _actH = (_tH && _pH) ? "Thermostat baissé + changement d'huile"
               : (_tH ? 'Thermostat baissé' : (_pH ? "Changement d'huile" : 'Action corrective à définir'));
       }
-      html += '<tr><td style="padding:6px 10px;font-weight:700;color:#dc2626">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + _actH + '</td></tr>';
+      html += '<tr><td style="padding:6px 10px;font-weight:700;color:#dc2626">Action corrective</td><td style="padding:6px 10px;color:#dc2626;font-weight:700">' + _echap(_actH) + '</td></tr>';
     }
     html += '</table></div>';
   });
@@ -11910,10 +11910,10 @@ function imprimerEtiquettes() {
   var labelHtml = function(nom, date, dlc, zone) {
     return '<div style="border:1px solid #0f766e;border-radius:3px;padding:4mm 3mm;display:inline-block;width:63.5mm;height:38.1mm;vertical-align:top;font-family:Arial,sans-serif;page-break-inside:avoid;box-sizing:border-box;overflow:hidden">' +
       '<div style="font-size:6pt;color:#0f766e;font-weight:bold;border-bottom:0.5px solid #0f766e;padding-bottom:1mm;margin-bottom:1.5mm">🏷️ Nomos Traça — Étiquetage interne</div>' +
-      '<div style="font-size:10pt;font-weight:bold;margin-bottom:1mm">' + nom + '</div>' +
-      '<div style="font-size:8pt;color:#374151"><b>Fabrication :</b> ' + date + '</div>' +
-      '<div style="font-size:9pt;color:#dc2626;font-weight:700"><b>DLC :</b> ' + dlc + '</div>' +
-      '<div style="font-size:8pt;color:#374151"><b>Stockage :</b> ' + zone + '</div>' +
+      '<div style="font-size:10pt;font-weight:bold;margin-bottom:1mm">' + _echap(nom) + '</div>' +
+      '<div style="font-size:8pt;color:#374151"><b>Fabrication :</b> ' + _echap(date) + '</div>' +
+      '<div style="font-size:9pt;color:#dc2626;font-weight:700"><b>DLC :</b> ' + _echap(dlc) + '</div>' +
+      '<div style="font-size:8pt;color:#374151"><b>Stockage :</b> ' + _echap(zone) + '</div>' +
       '<div style="font-size:6pt;color:#9ca3af;margin-top:1.5mm">' + getNowStr() + '</div>' +
       '</div>';
   };
@@ -12133,10 +12133,10 @@ function imprimerEtiquettesHTML() {
     html = css;
     allEtiq.forEach(function (etiq) {
       html += '<div class="etiq-roll"><div class="etiq-etab">' + _echap(etiq.etab) + '</div>'
-        + '<div class="etiq-nom">' + etiq.nom + '</div>'
-        + '<div class="etiq-row">Fab : ' + etiq.dateFab + '</div>'
-        + '<div class="etiq-row etiq-dlc">DLC : ' + etiq.dlc + '</div>'
-        + '<div class="etiq-row">' + etiq.conservation + '</div></div>';
+        + '<div class="etiq-nom">' + _echap(etiq.nom) + '</div>'
+        + '<div class="etiq-row">Fab : ' + _echap(etiq.dateFab) + '</div>'
+        + '<div class="etiq-row etiq-dlc">DLC : ' + _echap(etiq.dlc) + '</div>'
+        + '<div class="etiq-row">' + _echap(etiq.conservation) + '</div></div>';
     });
   } else {
     // Planche A4 : grille selon le format choisi.
@@ -12161,10 +12161,10 @@ function imprimerEtiquettesHTML() {
     html = css2 + '<div class="etiq-page"><div class="etiq-grid">';
     allEtiq.forEach(function (etiq) {
       html += '<div class="etiq"><div class="etiq-header">' + _echap(etiq.etab) + '</div><div class="etiq-body">'
-        + '<div class="etiq-nom">' + etiq.nom + '</div><hr class="etiq-sep">'
-        + '<div class="etiq-row"><span class="etiq-lbl">Fabrication :</span><span class="etiq-val">' + etiq.dateFab + '</span></div>'
-        + '<div class="etiq-row etiq-dlc"><span class="etiq-lbl">DLC :</span><span class="etiq-val">' + etiq.dlc + '</span></div>'
-        + '<div class="etiq-row"><span class="etiq-lbl">Conservation :</span><span class="etiq-val">' + etiq.conservation + '</span></div>'
+        + '<div class="etiq-nom">' + _echap(etiq.nom) + '</div><hr class="etiq-sep">'
+        + '<div class="etiq-row"><span class="etiq-lbl">Fabrication :</span><span class="etiq-val">' + _echap(etiq.dateFab) + '</span></div>'
+        + '<div class="etiq-row etiq-dlc"><span class="etiq-lbl">DLC :</span><span class="etiq-val">' + _echap(etiq.dlc) + '</span></div>'
+        + '<div class="etiq-row"><span class="etiq-lbl">Conservation :</span><span class="etiq-val">' + _echap(etiq.conservation) + '</span></div>'
         + '</div></div>';
     });
     html += '</div></div>';
@@ -18464,7 +18464,7 @@ function genererMatrice() {
     var hasAllerg = p.allergSet.some(function(v){return v;});
     html += '<tr style="background:' + rowBg + '">' +
       '<td style="border:1px solid #e5e7eb;padding:8px 12px;font-weight:700;font-size:11px;color:#1a1a2e;position:sticky;left:0;background:' + rowBg + '">' +
-        p.nom + (p.hasManual ? ' <span style="color:#ca8a04;font-size:10px">*</span>' : '') +
+        _echap(p.nom) + (p.hasManual ? ' <span style="color:#ca8a04;font-size:10px">*</span>' : '') +
       '</td>';
     p.allergSet.forEach(function(has) {
       html += '<td style="border:1px solid #e5e7eb;padding:6px 4px;text-align:center;background:' +
