@@ -6,3 +6,6 @@ test/
 # Maquettes / rapports de travail (ne pas publier sur le site)
 maquette-*.html
 audit-*.html
+
+# Rapport de visite (travail — ne pas publier)
+rapport-*.html
