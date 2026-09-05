@@ -95,6 +95,10 @@ var _SB_AUTH_ETAB = null; // establishment_id lu dans le JWT (vérification)
 // (l'utilisateur continue de se connecter avec son code, l'e-mail est interne).
 var SB_AUTH_EMAIL_DOMAIN = '@haccp-pro.app';
 function _codeVersEmailAuth(code){ return String(code || '').trim().toLowerCase() + SB_AUTH_EMAIL_DOMAIN; }
+// Option 2 (photos privees) : compte Auth dedie a l'admin. Lui donne une vraie
+// session "authenticated" pour lire les photos quand le bucket est prive.
+// Son mot de passe doit rester identique au mot de passe admin (Vault admin_password).
+var ADMIN_AUTH_EMAIL = 'admin' + SB_AUTH_EMAIL_DOMAIN;
 
 
 // ── SUPABASE CONFIG ──
@@ -21457,6 +21461,17 @@ function testEffacerDonnees() {
         function deny(msg) { if (err) { err.style.display = 'block'; err.textContent = msg || 'Mot de passe incorrect'; } }
         function grant() {
           _adminPwd = pwd;
+          // Option 2 (photos privees) : ouvre AUSSI une vraie session Auth pour l'admin,
+          // afin que le panneau affiche les photos quand le bucket est prive (la policy
+          // de lecture des photos exige le role "authenticated"). Additif : un echec
+          // ne bloque PAS l'acces admin (log console uniquement).
+          try {
+            if (window._supabase && window._supabase.auth) {
+              window._supabase.auth.signInWithPassword({ email: ADMIN_AUTH_EMAIL, password: pwd })
+                .then(function(r){ if (r && r.error) console.warn('[Admin Auth] session non ouverte : ' + r.error.message); })
+                .catch(function(e){ console.warn('[Admin Auth] exception : ' + (e && e.message)); });
+            }
+          } catch(e){}
           var box = document.getElementById('adminLoginBox');
           var dash = document.getElementById('adminDashboard');
           if (box) box.style.display = 'none';
@@ -21499,6 +21514,8 @@ function testEffacerDonnees() {
         if (pwd) pwd.value = '';
         _adminPwd = '';
         try { sessionStorage.removeItem('haccp_admin_ok'); lsRemove('haccp_admin_ok'); } catch(e){}
+        // Option 2 : ferme la session Auth admin ouverte au login.
+        try { if (window._supabase && window._supabase.auth) window._supabase.auth.signOut(); } catch(e){}
         showPage('page-presentation');
       };
 
