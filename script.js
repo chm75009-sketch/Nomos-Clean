@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v461';
+var APP_BUILD = 'v462';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -22088,6 +22088,10 @@ function testEffacerDonnees() {
               html += '<button onclick="reactiverEssai(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(74,222,128,0.15);color:#4ade80;' + bs + '">✅ Réactiver</button>';
             }
             html += '<button onclick="prolongerEssai(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\',\'' + (r.date_expiration || '') + '\')" style="background:rgba(59,130,246,0.15);color:#93c5fd;' + bs + '">➕ Prolonger</button>';
+            // Convertir en client payant — proposé uniquement pour un ESSAI (pas déjà un CLIENT-).
+            if (String(r.code_acces || '').indexOf('CLIENT-') !== 0) {
+              html += '<button onclick="convertirEnClient(\'' + r.id + '\',\'' + attrJs(r.code_acces) + '\')" style="background:rgba(234,179,8,0.18);color:#fde047;' + bs + '">⭐ Convertir en client</button>';
+            }
             html += '<button onclick="modifierEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(168,85,247,0.18);color:#d8b4fe;' + bs + '">✏️ Modifier</button>';
             html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(16,185,129,0.15);color:#6ee7b7;' + bs + '">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(127,29,29,0.3);color:#fca5a5;' + bs + '">🗑️ Supprimer</button>';
@@ -22145,6 +22149,69 @@ function testEffacerDonnees() {
           alert('✅ Essai prolongé.\nNouvelle date d\'expiration : ' + new Date(confExp).toLocaleDateString('fr-FR'));
           _refreshAdminListe();
         }, function(err) { alert('Échec réseau/serveur : ' + ((err && err.message) || err) + '\n\nLa prolongation n\'a pas été enregistrée.'); });
+      };
+
+      // ── CONVERTIR UN ESSAI EN CLIENT PAYANT ──
+      // NE TOUCHE PAS à la connexion : le code d'accès, le mot de passe et TOUTES
+      // les données du compte restent INCHANGÉS (la connexion est vérifiée côté
+      // serveur sur `etablissements` via login_etab ; les contrôles sont rattachés
+      // à l'ID interne de l'établissement, pas au code). On se contente de :
+      //   1) prolonger l'abonnement à 1 an (patch ciblé, sans le mot de passe) ;
+      //   2) créer la FICHE `comptes_clients` → le compte apparaît dans l'onglet
+      //      « Clients ». Le mot de passe de cette fiche N'EST PAS utilisé pour la
+      //      connexion (login_etab lit `etablissements`), donc aucun impact client.
+      window.convertirEnClient = function(id, code) {
+        if (!window._supabase) return;
+        code = String(code || '');
+        if (!confirm('Convertir « ' + code + ' » en CLIENT payant ?\n\n'
+          + '• Son code et son mot de passe restent INCHANGÉS\n'
+          + '• Toutes ses données sont conservées\n'
+          + '• L\'abonnement est fixé à 1 an\n'
+          + '• Il apparaîtra dans l\'onglet « Clients »')) return;
+        window._supabase.rpc('admin_get_etab', { p_pwd: _adminPwd, p_id: String(id), p_code: null }).then(function(res){
+          if (res.error || !res.data || !res.data.found) {
+            alert('Impossible de charger le compte : ' + ((res.error && res.error.message) || 'compte introuvable'));
+            return;
+          }
+          var r = res.data.data || {};
+          var nom = r.nom || code;
+          var email = r.email || '';
+          var dateDebut = r.date_debut || new Date().toISOString().slice(0, 10);
+          var dNow = new Date();
+          var nouvelleExp = new Date(dNow.getFullYear() + 1, dNow.getMonth(), dNow.getDate()).toISOString().slice(0, 10);
+          // 1) Prolonger l'accès à 1 an — patch ciblé, le mot de passe n'est PAS touché.
+          window._supabase.rpc('admin_update_etab', { p_pwd: _adminPwd, p_code: code, p_patch: { actif: true, date_expiration: nouvelleExp } }).then(function(u){
+            if (u.error) { alert('Erreur lors de la prolongation : ' + u.error.message); return; }
+            // 2) Créer la fiche client (comptes_clients) → visible dans l'onglet Clients.
+            //    Mot de passe de fiche fictif : la connexion ne l'utilise jamais.
+            var pwdFiche = (typeof genererMotDePasse === 'function') ? genererMotDePasse() : ('' + Math.floor(100000 + Math.random() * 900000));
+            window._supabase.rpc('admin_creer_compte', {
+              p_pwd: _adminPwd, p_code_acces: code, p_mot_de_passe: pwdFiche,
+              p_etablissement: nom, p_email: email,
+              p_formule: 'Standard', p_engagement: 'Annuel', p_date_debut: dateDebut
+            }).then(function(rc){
+              var dejaClient = rc.error && /duplicate|unique|existe|already|violates/i.test(rc.error.message || '');
+              try { window._supabase.from('historique_admin').insert([{
+                action: 'Conversion essai → client',
+                code_concerne: code,
+                motif: nom + ' — abonnement 1 an — exp. ' + nouvelleExp
+              }]).then(function(){}); } catch(e){}
+              if (rc.error && !dejaClient) {
+                alert('⚠️ Abonnement prolongé à 1 an, mais la fiche client n\'a pas pu être créée :\n' + rc.error.message
+                  + '\n\nLe compte reste pleinement fonctionnel (le client peut travailler normalement).');
+              } else {
+                alert('✅ ' + nom + ' est converti en CLIENT.\n\n'
+                  + '• Code et mot de passe INCHANGÉS (le client n\'a rien à refaire)\n'
+                  + '• Toutes ses données sont conservées\n'
+                  + '• Abonnement valable jusqu\'au ' + new Date(nouvelleExp).toLocaleDateString('fr-FR') + '\n'
+                  + '• Il apparaît maintenant dans l\'onglet « Clients »'
+                  + (dejaClient ? '\n\n(La fiche client existait déjà — abonnement mis à jour.)' : ''));
+              }
+              _refreshAdminListe();
+              try { loadAdminClients(); } catch(e){}
+            });
+          });
+        });
       };
 
       // — SUPPRESSION DÉFINITIVE d'un compte (essai ou client) —

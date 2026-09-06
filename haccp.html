@@ -183,11 +183,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=461">
-    <script src="pms_secteurs.js?v=461" defer></script>
-    <script src="script.js?v=461" defer></script>
-<script src="patch_photo_bl.js?v=461" defer></script>
-<script src="pms_generateur.js?v=461" defer></script>
+    <link rel="stylesheet" href="style.css?v=462">
+    <script src="pms_secteurs.js?v=462" defer></script>
+    <script src="script.js?v=462" defer></script>
+<script src="patch_photo_bl.js?v=462" defer></script>
+<script src="pms_generateur.js?v=462" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -630,7 +630,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
             🔑 Se connecter
           </button>
           <div style="text-align:center;margin-top:14px">
-            <span onclick="motDePasseOublie()" style="font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;text-decoration:underline">Mot de passe oublié ?</span>
+            <span onclick="motDePasseOublie()" style="display:inline-block;font-size:14px;color:#5eead4;font-weight:700;cursor:pointer;text-decoration:underline;padding:6px 4px">🔑 Mot de passe oublié ?</span>
             <span id="login_changer_compte_sep" style="display:none;color:rgba(255,255,255,.3);margin:0 8px">·</span>
             <span id="login_changer_compte" onclick="changerDeCompte()" style="display:none;font-size:12px;color:rgba(255,255,255,.5);cursor:pointer;text-decoration:underline">Changer de compte</span>
           </div>
