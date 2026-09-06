@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v462';
+var APP_BUILD = 'v463';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21695,6 +21695,12 @@ function testEffacerDonnees() {
         if (!c || !window._supabase) return;
         c.innerHTML = '<div style="text-align:center;color:rgba(255,255,255,0.5);padding:40px">Chargement…</div>';
 
+        // La date d'expiration (durée de l'abonnement) est stockée dans la table
+        // `etablissements` (l'accès), PAS dans `comptes_clients` (la fiche). On la
+        // récupère d'abord pour pouvoir l'afficher en face de chaque client.
+        window._supabase.rpc('admin_list_etablissements', { p_pwd: _adminPwd }).then(function(reEt){
+          var _expMap = {};
+          try { ((reEt && reEt.data) || []).forEach(function(e){ if (e && e.code_acces) _expMap[String(e.code_acces).toUpperCase()] = e.date_expiration || ''; }); } catch(eMap){}
         window._supabase.rpc('admin_list_comptes', { p_pwd: _adminPwd }).then(function(res) {
           if (res.error) { c.innerHTML = _formCreerClient() + '<div style="color:#fca5a5;padding:20px">Erreur: ' + escapeHtml(res.error.message) + '</div>'; return; }
           var rows = res.data || [];
@@ -21738,6 +21744,18 @@ function testEffacerDonnees() {
             html += '<div>📧 ' + escapeHtml(r.email) + '</div>';
             html += '<div>💰 ' + escapeHtml(r.formule) + ' / ' + escapeHtml(r.engagement) + '</div>';
             html += '<div>📅 Depuis ' + dateDebut + '</div>';
+            // Durée de l'abonnement : date de fin (depuis la table accès) + jours restants.
+            var _exp = _expMap[String(r.code_acces || '').toUpperCase()] || '';
+            if (_exp) {
+              var _expD = new Date(_exp); _expD.setHours(23, 59, 59, 999);
+              var _jRest = Math.ceil((_expD.getTime() - Date.now()) / 86400000);
+              var _expTxt = _expD.toLocaleDateString('fr-FR');
+              var _col = _jRest < 0 ? '#fca5a5' : (_jRest <= 30 ? '#fbbf24' : '#6ee7b7');
+              var _lbl = _jRest < 0 ? ('⏳ Expiré le ' + _expTxt) : ('⏳ Jusqu\'au ' + _expTxt + ' (' + _jRest + ' j restants)');
+              html += '<div style="color:' + _col + ';font-weight:700">' + _lbl + '</div>';
+            } else {
+              html += '<div style="color:rgba(255,255,255,0.4)">⏳ Durée non renseignée</div>';
+            }
             html += '</div>';
             if (r.actif) {
               html += '<button onclick="desactiverClient(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(220,38,38,0.15);color:#fca5a5;border:1px solid rgba(220,38,38,0.3);padding:8px 16px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;margin-right:6px">⛔ Désactiver</button>';
@@ -21754,6 +21772,7 @@ function testEffacerDonnees() {
             html += '</div>';
           });
           c.innerHTML = html;
+        });
         });
       }
 
