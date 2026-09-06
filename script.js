@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v460';
+var APP_BUILD = 'v461';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -98,7 +98,7 @@ function _codeVersEmailAuth(code){ return String(code || '').trim().toLowerCase(
 // Option 2 (photos privees) : compte Auth dedie a l'admin. Lui donne une vraie
 // session "authenticated" pour lire les photos quand le bucket est prive.
 // Son mot de passe doit rester identique au mot de passe admin (Vault admin_password).
-var ADMIN_AUTH_EMAIL = 'lea@nomos-haccp.fr';
+var ADMIN_AUTH_EMAIL = 'mounir@nomos-haccp.fr';
 
 
 // ── SUPABASE CONFIG ──
