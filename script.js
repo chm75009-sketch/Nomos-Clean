@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v463';
+var APP_BUILD = 'v464';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21766,6 +21766,7 @@ function testEffacerDonnees() {
             }
             html += '<div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">';
             html += '<button onclick="modifierClient(\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✏️ Modifier</button>';
+            html += '<button onclick="previenirClient(\'' + attrJs(r.code_acces) + '\')" style="background:rgba(20,184,166,0.14);color:#5eead4;border:1px solid rgba(20,184,166,0.35);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✉️ Prévenir</button>';
             html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📄 Pack DDPP</button>';
             html += '<button onclick="supprimerClient(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(220,38,38,0.12);color:#fca5a5;border:1px solid rgba(220,38,38,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">🗑️ Supprimer</button>';
             html += '</div>';
@@ -22168,6 +22169,48 @@ function testEffacerDonnees() {
           alert('✅ Essai prolongé.\nNouvelle date d\'expiration : ' + new Date(confExp).toLocaleDateString('fr-FR'));
           _refreshAdminListe();
         }, function(err) { alert('Échec réseau/serveur : ' + ((err && err.message) || err) + '\n\nLa prolongation n\'a pas été enregistrée.'); });
+      };
+
+      // ── PRÉVENIR LE CLIENT PAR E-MAIL : « votre compte est actif jusqu'au … » ──
+      // N'expose JAMAIS le mot de passe. Réutilise le modèle EmailJS existant, avec
+      // un message personnalisé. Envoie à l'e-mail ENREGISTRÉ du compte (anti-fraude).
+      window.previenirClient = function(code) {
+        if (!window._supabase) return;
+        code = String(code || '');
+        window._supabase.rpc('admin_get_etab', { p_pwd: _adminPwd, p_id: null, p_code: code }).then(function(res){
+          if (res.error || !res.data || !res.data.found) {
+            alert('Fiche introuvable pour ' + code + (res.error ? ' (' + res.error.message + ')' : '')); return;
+          }
+          var r = res.data.data || {};
+          var nom = r.nom || code;
+          var email = (r.email || '').trim();
+          if (!email) { alert('Aucune adresse e-mail enregistrée pour ce client.\nRenseignez-la via « ✏️ Modifier » avant d\'envoyer.'); return; }
+          var expTxt = r.date_expiration ? new Date(r.date_expiration).toLocaleDateString('fr-FR') : '';
+          if (!confirm('Envoyer un e-mail à ' + email + ' ?\n\n'
+            + 'Objet : le compte « ' + nom + ' » est actif' + (expTxt ? ' jusqu\'au ' + expTxt : ' pour un an') + '.\n'
+            + '(Le mot de passe n\'est PAS communiqué.)')) return;
+          if (!(window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT)) {
+            alert('L\'envoi d\'e-mail (EmailJS) n\'est pas disponible ici.\nRéessayez depuis un appareil connecté, ou prévenez le client directement.');
+            return;
+          }
+          var msg = 'Bonne nouvelle : votre compte Nomos Traça (« ' + nom + ' ») est actif'
+            + (expTxt ? ' jusqu\'au ' + expTxt : ' pour un an')
+            + '. Vos identifiants de connexion restent INCHANGÉS (même code d\'accès et même mot de passe). Bonne utilisation !';
+          window.emailjs.send(
+            window.HACCP_CONFIG.EMAILJS_SERVICE,
+            window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
+            { to_email: email, etablissement: nom, responsable: r.responsable || '', code_acces: code, mot_de_passe: '(inchangé)', formule: '', message: msg }
+          ).then(function(){
+            try { window._supabase.from('historique_admin').insert([{
+              action: 'E-mail « compte actif » envoyé',
+              code_concerne: code,
+              motif: 'vers ' + email.replace(/^(.).*(@.*)$/, '$1***$2') + (expTxt ? ' — actif jusqu\'au ' + expTxt : '')
+            }]).then(function(){}); } catch(e){}
+            alert('✅ E-mail envoyé à ' + email + '.\n\nLe client est informé que son compte est actif' + (expTxt ? ' jusqu\'au ' + expTxt : '') + '.');
+          }, function(err){
+            alert('❌ L\'envoi a échoué : ' + ((err && (err.text || err.message)) || err) + '\n\nVous pouvez prévenir le client directement (e-mail / SMS).');
+          });
+        });
       };
 
       // ── CONVERTIR UN ESSAI EN CLIENT PAYANT ──
