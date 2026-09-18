@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v464';
+var APP_BUILD = 'v465';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -559,10 +559,11 @@ async function _restInsert(table, rows, prefer) {
 }
 
 async function sbLoginTentative(codeAcces, pwd) {
-  // SEC — connexion via la fonction serveur sécurisée login_etab : le mot de passe est
+  // SEC — connexion via la fonction serveur sécurisée login_etab_rl : le mot de passe est
   // vérifié CÔTÉ SERVEUR et la table des comptes (ni les mots de passe) n'est jamais
-  // exposée à la clé publique.
-  var url = SUPABASE_URL + '/rest/v1/rpc/login_etab';
+  // exposée à la clé publique. login_etab_rl = enveloppe anti-force-brute (verrouillage
+  // temporaire après trop d'échecs) autour de login_etab, réponse au format identique.
+  var url = SUPABASE_URL + '/rest/v1/rpc/login_etab_rl';
   var response;
   try {
     response = await fetch(url, {
