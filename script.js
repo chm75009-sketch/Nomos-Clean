@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v466';
+var APP_BUILD = 'v467';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -17207,26 +17207,48 @@ window._scanSaisieManuelle = function(id) {
   var el = document.getElementById('lot_' + id);
   if (el) { try { el.focus(); } catch(e){} }
 };
-function _appliquerScanProduit(id, p) {
-  var lotEl = document.getElementById('lot_' + id);
-  var dlcEl = document.getElementById('dlc_' + id);
+// Après un scan réussi : petit panneau de confirmation VISIBLE (lot + DLC éditables)
+// avec « Valider » — l'utilisateur voit tout de suite les valeurs lues, les confirme,
+// les corrige ou les complète, avant qu'elles soient écrites dans la fiche produit.
+window._confirmerScanProduit = function(id, p) {
+  window._fermerConfirmScan();
+  var lotVal = p.lot || ((document.getElementById('lot_' + id) || {}).value || '');
+  var dlcVal = p.dlc || p.ddm || ((document.getElementById('dlc_' + id) || {}).value || '');
+  var ov = document.createElement('div');
+  ov.id = 'scanConfirmOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100001;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:18px;box-sizing:border-box';
+  ov.innerHTML =
+    '<div style="background:#fff;border-radius:16px;max-width:420px;width:100%;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.4)">' +
+      '<div style="font-size:17px;font-weight:800;color:#166534;margin-bottom:2px">✅ Code lu</div>' +
+      '<div style="font-size:12.5px;color:#64748b;margin-bottom:16px">Vérifiez, corrigez ou complétez, puis validez.</div>' +
+      '<label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:5px">N° de lot</label>' +
+      '<input id="scanLotInput" placeholder="Numéro de lot" style="width:100%;box-sizing:border-box;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:16px;margin-bottom:14px">' +
+      '<label style="font-size:12px;font-weight:700;color:#334155;display:block;margin-bottom:5px">DLC / DDM</label>' +
+      '<input id="scanDlcInput" type="date" style="width:100%;box-sizing:border-box;padding:13px;border:1.5px solid #cbd5e1;border-radius:10px;font-size:16px;margin-bottom:20px">' +
+      '<div style="display:flex;gap:10px">' +
+        '<button type="button" onclick="_fermerConfirmScan()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;border-radius:11px;padding:14px;font-weight:800;font-size:15px;cursor:pointer">Annuler</button>' +
+        '<button type="button" onclick="_validerScanProduit(' + id + ')" style="flex:1.5;background:#16a34a;color:#fff;border:none;border-radius:11px;padding:14px;font-weight:800;font-size:16px;cursor:pointer">✅ Valider</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  var li = document.getElementById('scanLotInput'); if (li) li.value = lotVal;
+  var di = document.getElementById('scanDlcInput'); if (di) di.value = dlcVal;
+};
+window._fermerConfirmScan = function() {
+  var o = document.getElementById('scanConfirmOverlay'); if (o && o.parentNode) o.parentNode.removeChild(o);
+};
+window._validerScanProduit = function(id) {
+  var lot = (document.getElementById('scanLotInput') || {}).value || '';
+  var dlc = (document.getElementById('scanDlcInput') || {}).value || '';
+  window._fermerConfirmScan();
+  var lotEl = document.getElementById('lot_' + id), dlcEl = document.getElementById('dlc_' + id);
   var champs = [];
-  if (p.lot && lotEl) {
-    lotEl.value = p.lot;
-    try { lotEl.dispatchEvent(new Event('input', {bubbles:true})); } catch(e){}
-    lotEl.style.background = '#fef9c3'; champs.push('N° de lot');
-  }
-  var dateVal = p.dlc || p.ddm;
-  if (dateVal && dlcEl) {
-    dlcEl.value = dateVal;
-    try { dlcEl.dispatchEvent(new Event('input', {bubbles:true})); } catch(e){}
-    dlcEl.style.background = '#fef9c3'; champs.push('DLC / DDM');
-  }
-  var msg = champs.length
-    ? ('✅ ' + champs.join(' + ') + ' pré-rempli' + (champs.length>1?'s':'') + ' — vérifiez avant de valider.')
-    : 'Code lu, mais aucun lot/DLC exploitable — saisie manuelle.';
-  if (typeof showToast === 'function') showToast(msg, champs.length?'ok':'warn', 5000); else alert(msg);
-}
+  if (lotEl) { lotEl.value = lot; try { lotEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (lot) { lotEl.style.background = '#fef9c3'; champs.push('N° de lot'); } }
+  if (dlcEl) { dlcEl.value = dlc; try { dlcEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (dlc) { dlcEl.style.background = '#fef9c3'; champs.push('DLC / DDM'); } }
+  try { if (lotEl && lotEl.scrollIntoView) lotEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+  var msg = champs.length ? ('✅ ' + champs.join(' + ') + ' enregistré' + (champs.length>1?'s':'') + '.') : 'Champs mis à jour.';
+  if (typeof showToast === 'function') showToast(msg, 'ok', 3500);
+};
 // Démarre la caméra + décodage (ZXing, compatible iPhone). onResult(text, format).
 function _startScanCam(video, onResult, onError) {
   _loadZXing().then(function(){
@@ -17266,7 +17288,7 @@ window.scannerCodeProduit = function(id) {
     var isRetail = /ean|upc/.test(fmtName);
     var parsed = isRetail ? {} : _parseGS1(text);
     if (parsed.lot || parsed.dlc || parsed.ddm) {
-      done = true; window._fermerScanProduit(); _appliquerScanProduit(id, parsed);
+      done = true; window._fermerScanProduit(); _confirmerScanProduit(id, parsed);
     } else {
       var h = document.getElementById('scanHint');
       if (h) h.textContent = isRetail
