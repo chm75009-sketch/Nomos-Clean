@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v471';
+var APP_BUILD = 'v472';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -17280,9 +17280,10 @@ window.scannerCodeProduit = function(id) {
     '</div>';
   document.body.appendChild(ov);
   var video = document.getElementById('scanVideo');
-  var done = false;
+  var done = false, readSomething = false;
   _startScanCam(video, function(text, fmt){
     if (done) return;
+    readSomething = true;
     var fmtName = (fmt && fmt.toString) ? fmt.toString().toLowerCase() : String(fmt||'');
     var isRetail = /ean|upc/.test(fmtName);
     var parsed = isRetail ? {} : _parseGS1(text);
@@ -17302,6 +17303,17 @@ window.scannerCodeProduit = function(id) {
       : 'Caméra/lecteur indisponible : ' + ((err && err.message) || 'erreur') + '.\nSaisie manuelle possible.';
     alert(msg);
   });
+  // Aide progressive si RIEN n'est lu (code flou / abîmé / absent).
+  setTimeout(function(){
+    if (done || readSomething) return;
+    var h = document.getElementById('scanHint');
+    if (h) h.innerHTML = '🔦 Code difficile à lire — rapprochez-vous (~15 cm), stabilisez, bonne lumière. Sinon touchez <b>« Saisie manuelle »</b>.';
+  }, 8000);
+  setTimeout(function(){
+    if (done || readSomething) return;
+    var h = document.getElementById('scanHint');
+    if (h) h.innerHTML = '⚠️ Toujours pas lu — ce produit n\'a peut-être pas de code lot/DLC. Touchez <b>« Saisie manuelle »</b> pour saisir à la main.';
+  }, 16000);
 };
 
 var EQUIPE_KEY = 'haccp_equipe';
