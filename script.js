@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v467';
+var APP_BUILD = 'v468';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5451,6 +5451,7 @@ function ajouterProduit(skipScroll, compartId) {
       '<div class="frow"><div class="flabel">🔍 Lecture auto</div>' +
         '<button type="button" class="photo-btn" onclick="scannerCodeProduit(' + id + ')" style="background:#eef2ff;color:#3730a3;border:1.5px dashed #a5b4fc">🔍 Scanner le code produit <span style="font-weight:600">(remplit lot + DLC)</span></button>' +
         '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4">Scanne le code-barres du carton (viande, poisson, produits tracés) et remplit automatiquement le N° de lot et la DLC. Sinon, saisie manuelle.</div>' +
+        '<div id="scanResult_' + id + '" style="display:none;margin-top:8px;background:#ecfdf5;border:1.5px solid #6ee7b7;border-radius:10px;padding:11px 13px;font-size:13.5px;color:#065f46;font-weight:800;line-height:1.5"></div>' +
       '</div>' +
       '<div class="frow"><div class="flabel">📸 Photo étiquette</div>' +
         '<button class="photo-btn" onclick="takePhoto(' + id + ')">📷 Photographier l\'étiquette</button>' +
@@ -17242,12 +17243,19 @@ window._validerScanProduit = function(id) {
   var dlc = (document.getElementById('scanDlcInput') || {}).value || '';
   window._fermerConfirmScan();
   var lotEl = document.getElementById('lot_' + id), dlcEl = document.getElementById('dlc_' + id);
-  var champs = [];
-  if (lotEl) { lotEl.value = lot; try { lotEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (lot) { lotEl.style.background = '#fef9c3'; champs.push('N° de lot'); } }
-  if (dlcEl) { dlcEl.value = dlc; try { dlcEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (dlc) { dlcEl.style.background = '#fef9c3'; champs.push('DLC / DDM'); } }
-  try { if (lotEl && lotEl.scrollIntoView) lotEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-  var msg = champs.length ? ('✅ ' + champs.join(' + ') + ' enregistré' + (champs.length>1?'s':'') + '.') : 'Champs mis à jour.';
-  if (typeof showToast === 'function') showToast(msg, 'ok', 3500);
+  if (lotEl) { lotEl.value = lot; try { lotEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (lot) lotEl.style.background = '#fef9c3'; }
+  if (dlcEl) { dlcEl.value = dlc; try { dlcEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (dlc) dlcEl.style.background = '#fef9c3'; }
+  // Récap VISIBLE juste sous le bouton de scan (là où l'utilisateur regarde).
+  var rEl = document.getElementById('scanResult_' + id);
+  if (rEl) {
+    var lotTxt = lot ? (typeof _echap === 'function' ? _echap(lot) : lot) : '—';
+    var dlcTxt = dlc ? dlc.split('-').reverse().join('/') : '—';
+    rEl.innerHTML = '✅ Enregistré &nbsp;·&nbsp; <b>Lot :</b> ' + lotTxt + ' &nbsp;·&nbsp; <b>DLC :</b> ' + dlcTxt +
+      '<div style="font-weight:600;color:#047857;font-size:11px;margin-top:3px">Modifiable dans les champs « N° de Lot » / « DLC » plus haut si besoin.</div>';
+    rEl.style.display = 'block';
+    try { rEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+  }
+  if (typeof showToast === 'function') showToast('✅ Lot + DLC enregistrés.', 'ok', 2500);
 };
 // Démarre la caméra + décodage (ZXing, compatible iPhone). onResult(text, format).
 function _startScanCam(video, onResult, onError) {
