@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v468';
+var APP_BUILD = 'v469';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5445,14 +5445,13 @@ function ajouterProduit(skipScroll, compartId) {
       '</div>' +
       // V80 — Photo conservée UNIQUEMENT si N° de lot ET DLC sont tous deux cochés comme lisibles
       '<div style="font-size:11px;color:#7c3aed;background:#faf5ff;border:1px dashed #c4b5fd;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.45">★ <strong>N° de lot ET DLC obligatoires.</strong> Vous pouvez les saisir manuellement, OU photographier l\'étiquette — dans ce cas la photo n\'est conservée que si les deux cases (lot ET DLC lisibles) sont cochées.</div>' +
+      // SCAN GS1 — le scan pré-remplit les 2 champs N° de Lot / DLC juste EN DESSOUS.
+      '<div class="frow"><div class="flabel">🔍 Lecture auto (scan)</div>' +
+        '<button type="button" class="photo-btn" onclick="scannerCodeProduit(' + id + ')" style="background:#eef2ff;color:#3730a3;border:1.5px dashed #a5b4fc">🔍 Scanner le code produit <span style="font-weight:600">(remplit lot + DLC ci-dessous)</span></button>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4">Scanne le code-barres du carton (viande, poisson, produits tracés) → remplit les 2 champs ci-dessous. Sinon, saisie manuelle.</div>' +
+      '</div>' +
       '<div class="frow"><div class="flabel" id="lbl_lot_' + id + '">N° de Lot</div><input class="finput" id="lot_' + id + '" placeholder="Numéro de lot fournisseur"/></div>' +
       '<div class="frow"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DDM</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
-      // SCAN GS1 — lecture gratuite du code-barres (carton) → pré-remplit lot + DLC. Repli manuel.
-      '<div class="frow"><div class="flabel">🔍 Lecture auto</div>' +
-        '<button type="button" class="photo-btn" onclick="scannerCodeProduit(' + id + ')" style="background:#eef2ff;color:#3730a3;border:1.5px dashed #a5b4fc">🔍 Scanner le code produit <span style="font-weight:600">(remplit lot + DLC)</span></button>' +
-        '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4">Scanne le code-barres du carton (viande, poisson, produits tracés) et remplit automatiquement le N° de lot et la DLC. Sinon, saisie manuelle.</div>' +
-        '<div id="scanResult_' + id + '" style="display:none;margin-top:8px;background:#ecfdf5;border:1.5px solid #6ee7b7;border-radius:10px;padding:11px 13px;font-size:13.5px;color:#065f46;font-weight:800;line-height:1.5"></div>' +
-      '</div>' +
       '<div class="frow"><div class="flabel">📸 Photo étiquette</div>' +
         '<button class="photo-btn" onclick="takePhoto(' + id + ')">📷 Photographier l\'étiquette</button>' +
         // V80 — Wrapper photo : bandeau rouge AU-DESSUS + cadre rouge autour (photo reste lisible pour vérification)
@@ -17245,17 +17244,10 @@ window._validerScanProduit = function(id) {
   var lotEl = document.getElementById('lot_' + id), dlcEl = document.getElementById('dlc_' + id);
   if (lotEl) { lotEl.value = lot; try { lotEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (lot) lotEl.style.background = '#fef9c3'; }
   if (dlcEl) { dlcEl.value = dlc; try { dlcEl.dispatchEvent(new Event('input',{bubbles:true})); } catch(e){} if (dlc) dlcEl.style.background = '#fef9c3'; }
-  // Récap VISIBLE juste sous le bouton de scan (là où l'utilisateur regarde).
-  var rEl = document.getElementById('scanResult_' + id);
-  if (rEl) {
-    var lotTxt = lot ? (typeof _echap === 'function' ? _echap(lot) : lot) : '—';
-    var dlcTxt = dlc ? dlc.split('-').reverse().join('/') : '—';
-    rEl.innerHTML = '✅ Enregistré &nbsp;·&nbsp; <b>Lot :</b> ' + lotTxt + ' &nbsp;·&nbsp; <b>DLC :</b> ' + dlcTxt +
-      '<div style="font-weight:600;color:#047857;font-size:11px;margin-top:3px">Modifiable dans les champs « N° de Lot » / « DLC » plus haut si besoin.</div>';
-    rEl.style.display = 'block';
-    try { rEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
-  }
-  if (typeof showToast === 'function') showToast('✅ Lot + DLC enregistrés.', 'ok', 2500);
+  // Les champs N° de Lot / DLC sont juste sous le bouton de scan : on y défile pour
+  // que l'utilisateur les voie remplis (surlignés) et puisse encore les corriger.
+  try { if (lotEl && lotEl.scrollIntoView) lotEl.scrollIntoView({behavior:'smooth', block:'center'}); } catch(e){}
+  if (typeof showToast === 'function') showToast('✅ Lot + DLC remplis ci-dessous — vérifiez.', 'ok', 3500);
 };
 // Démarre la caméra + décodage (ZXing, compatible iPhone). onResult(text, format).
 function _startScanCam(video, onResult, onError) {
