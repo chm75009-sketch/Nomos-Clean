@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v465';
+var APP_BUILD = 'v466';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5447,6 +5447,11 @@ function ajouterProduit(skipScroll, compartId) {
       '<div style="font-size:11px;color:#7c3aed;background:#faf5ff;border:1px dashed #c4b5fd;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.45">★ <strong>N° de lot ET DLC obligatoires.</strong> Vous pouvez les saisir manuellement, OU photographier l\'étiquette — dans ce cas la photo n\'est conservée que si les deux cases (lot ET DLC lisibles) sont cochées.</div>' +
       '<div class="frow"><div class="flabel" id="lbl_lot_' + id + '">N° de Lot</div><input class="finput" id="lot_' + id + '" placeholder="Numéro de lot fournisseur"/></div>' +
       '<div class="frow"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DDM</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
+      // SCAN GS1 — lecture gratuite du code-barres (carton) → pré-remplit lot + DLC. Repli manuel.
+      '<div class="frow"><div class="flabel">🔍 Lecture auto</div>' +
+        '<button type="button" class="photo-btn" onclick="scannerCodeProduit(' + id + ')" style="background:#eef2ff;color:#3730a3;border:1.5px dashed #a5b4fc">🔍 Scanner le code produit <span style="font-weight:600">(remplit lot + DLC)</span></button>' +
+        '<div style="font-size:11px;color:#6b7280;margin-top:4px;line-height:1.4">Scanne le code-barres du carton (viande, poisson, produits tracés) et remplit automatiquement le N° de lot et la DLC. Sinon, saisie manuelle.</div>' +
+      '</div>' +
       '<div class="frow"><div class="flabel">📸 Photo étiquette</div>' +
         '<button class="photo-btn" onclick="takePhoto(' + id + ')">📷 Photographier l\'étiquette</button>' +
         // V80 — Wrapper photo : bandeau rouge AU-DESSUS + cadre rouge autour (photo reste lisible pour vérification)
@@ -17129,6 +17134,155 @@ function renderTdbPerio() {
 }
 
 // ══════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+// SCAN CODE PRODUIT (GS1) — lecture gratuite, hors-ligne, SUR L'APPAREIL.
+// Lit un code-barres GS1 (DataMatrix / Code-128) présent sur les cartons et
+// étiquettes tracées, et pré-remplit le N° de lot (AI 10) et la DLC/DDM (AI 17
+// ou 15). AUCUNE donnée n'est envoyée : tout se décode dans le navigateur (ZXing,
+// chargé à la demande depuis un CDN autorisé par la CSP). Repli saisie manuelle
+// si le code n'est pas un GS1 (ex. EAN-13 de détail) ou illisible. Validation
+// humaine conservée (champs surlignés « à vérifier »).
+// ══════════════════════════════════════════════════════════════════
+var _ZXING_URL = 'https://cdn.jsdelivr.net/npm/@zxing/library@0.20.0/umd/index.min.js';
+var _zxingPromise = null;
+function _loadZXing() {
+  if (window.ZXing && window.ZXing.BrowserMultiFormatReader) return Promise.resolve();
+  if (_zxingPromise) return _zxingPromise;
+  _zxingPromise = new Promise(function(resolve, reject){
+    var s = document.createElement('script');
+    s.src = _ZXING_URL; s.async = true;
+    s.onload = function(){ (window.ZXing && window.ZXing.BrowserMultiFormatReader) ? resolve() : reject(new Error('Lecteur indisponible')); };
+    s.onerror = function(){ _zxingPromise = null; reject(new Error('Chargement du lecteur impossible (réseau ?)')); };
+    document.head.appendChild(s);
+  });
+  return _zxingPromise;
+}
+// AAMMJJ (GS1) → 'AAAA-MM-JJ'. JJ=00 → dernier jour du mois.
+function _gs1DateToISO(d) {
+  if (!/^\d{6}$/.test(d)) return '';
+  var yy = parseInt(d.substr(0,2),10), mm = parseInt(d.substr(2,2),10), dd = parseInt(d.substr(4,2),10);
+  var year = 2000 + yy;
+  if (mm < 1 || mm > 12) return '';
+  if (dd === 0) { dd = new Date(year, mm, 0).getDate(); }
+  if (dd < 1 || dd > 31) return '';
+  return year + '-' + ('0'+mm).slice(-2) + '-' + ('0'+dd).slice(-2);
+}
+// Parse une chaîne GS1 → { lot, dlc, ddm, gtin }. Gère le séparateur FNC1 (GS=29)
+// pour que le lot (longueur variable) n'avale pas les chiffres suivants.
+function _parseGS1(raw) {
+  if (!raw) return {};
+  var GS = String.fromCharCode(29);
+  var s = String(raw).replace(/^\][A-Za-z]\d/, ''); // retire préfixe symbologie AIM (]C1, ]d2…)
+  if (s.charCodeAt(0) === 29) s = s.slice(1);
+  var fixed = { '00':18,'01':14,'02':14,'11':6,'12':6,'13':6,'15':6,'16':6,'17':6,'20':2 };
+  var out = {}, i = 0, guard = 0;
+  while (i < s.length && guard++ < 40) {
+    if (s.charCodeAt(i) === 29) { i++; continue; }
+    var ai = s.substr(i, 2);
+    if (!/^\d{2}$/.test(ai)) break;
+    i += 2;
+    var val;
+    if (fixed[ai]) { val = s.substr(i, fixed[ai]); i += fixed[ai]; }
+    else {
+      var gsPos = s.indexOf(GS, i);
+      if (gsPos === -1) { val = s.substr(i); i = s.length; }
+      else { val = s.substr(i, gsPos - i); i = gsPos + 1; }
+    }
+    out[ai] = val;
+  }
+  var res = {};
+  if (out['10']) res.lot = out['10'];
+  if (out['01']) res.gtin = out['01'];
+  if (out['17']) res.dlc = _gs1DateToISO(out['17']);
+  if (out['15']) res.ddm = _gs1DateToISO(out['15']);
+  return res;
+}
+window._fermerScanProduit = function() {
+  try { if (window._scanStop) { window._scanStop(); window._scanStop = null; } } catch(e){}
+  var ov = document.getElementById('scanProduitOverlay');
+  if (ov && ov.parentNode) ov.parentNode.removeChild(ov);
+};
+window._scanSaisieManuelle = function(id) {
+  window._fermerScanProduit();
+  var el = document.getElementById('lot_' + id);
+  if (el) { try { el.focus(); } catch(e){} }
+};
+function _appliquerScanProduit(id, p) {
+  var lotEl = document.getElementById('lot_' + id);
+  var dlcEl = document.getElementById('dlc_' + id);
+  var champs = [];
+  if (p.lot && lotEl) {
+    lotEl.value = p.lot;
+    try { lotEl.dispatchEvent(new Event('input', {bubbles:true})); } catch(e){}
+    lotEl.style.background = '#fef9c3'; champs.push('N° de lot');
+  }
+  var dateVal = p.dlc || p.ddm;
+  if (dateVal && dlcEl) {
+    dlcEl.value = dateVal;
+    try { dlcEl.dispatchEvent(new Event('input', {bubbles:true})); } catch(e){}
+    dlcEl.style.background = '#fef9c3'; champs.push('DLC / DDM');
+  }
+  var msg = champs.length
+    ? ('✅ ' + champs.join(' + ') + ' pré-rempli' + (champs.length>1?'s':'') + ' — vérifiez avant de valider.')
+    : 'Code lu, mais aucun lot/DLC exploitable — saisie manuelle.';
+  if (typeof showToast === 'function') showToast(msg, champs.length?'ok':'warn', 5000); else alert(msg);
+}
+// Démarre la caméra + décodage (ZXing, compatible iPhone). onResult(text, format).
+function _startScanCam(video, onResult, onError) {
+  _loadZXing().then(function(){
+    var reader = new ZXing.BrowserMultiFormatReader();
+    window._scanStop = function(){ try { reader.reset(); } catch(e){} };
+    reader.decodeFromConstraints(
+      { audio:false, video:{ facingMode:{ ideal:'environment' } } },
+      video,
+      function(result){ if (result) { try { onResult(result.getText(), result.getBarcodeFormat && result.getBarcodeFormat()); } catch(e){} } }
+    ).catch(function(e){ onError(e); });
+  }).catch(function(e){ onError(e); });
+}
+window.scannerCodeProduit = function(id) {
+  window._fermerScanProduit();
+  var ov = document.createElement('div');
+  ov.id = 'scanProduitOverlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:100000;background:#000;display:flex;flex-direction:column';
+  ov.innerHTML =
+    '<div style="color:#fff;padding:14px 16px;font-weight:800;font-size:15px;text-align:center;background:#0f172a">🔍 Scanner le code du produit</div>' +
+    '<div style="flex:1;position:relative;overflow:hidden">' +
+      '<video id="scanVideo" playsinline muted autoplay style="width:100%;height:100%;object-fit:cover;background:#000"></video>' +
+      '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none">' +
+        '<div style="width:80%;max-width:320px;height:170px;border:3px solid #4ade80;border-radius:14px;box-shadow:0 0 0 2000px rgba(0,0,0,.35)"></div>' +
+      '</div>' +
+      '<div id="scanHint" style="position:absolute;left:0;right:0;bottom:16px;text-align:center;color:#e5e7eb;font-size:13px;font-weight:600;text-shadow:0 1px 3px #000;padding:0 16px">Visez le code-barres / DataMatrix du carton…</div>' +
+    '</div>' +
+    '<div style="padding:12px 16px;background:#0f172a;display:flex;gap:10px">' +
+      '<button type="button" onclick="_fermerScanProduit()" style="flex:1;background:#374151;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;font-size:15px;cursor:pointer">Annuler</button>' +
+      '<button type="button" onclick="_scanSaisieManuelle(' + id + ')" style="flex:1;background:#1d4ed8;color:#fff;border:none;border-radius:10px;padding:13px;font-weight:800;font-size:15px;cursor:pointer">Saisie manuelle</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+  var video = document.getElementById('scanVideo');
+  var done = false;
+  _startScanCam(video, function(text, fmt){
+    if (done) return;
+    var fmtName = (fmt && fmt.toString) ? fmt.toString().toLowerCase() : String(fmt||'');
+    var isRetail = /ean|upc/.test(fmtName);
+    var parsed = isRetail ? {} : _parseGS1(text);
+    if (parsed.lot || parsed.dlc || parsed.ddm) {
+      done = true; window._fermerScanProduit(); _appliquerScanProduit(id, parsed);
+    } else {
+      var h = document.getElementById('scanHint');
+      if (h) h.textContent = isRetail
+        ? '⚠️ Code produit lu (sans lot/DLC) → touchez « Saisie manuelle ».'
+        : '⚠️ Code lu, mais sans lot/DLC → touchez « Saisie manuelle ».';
+    }
+  }, function(err){
+    window._fermerScanProduit();
+    var name = (err && (err.name || '')) + ' ' + (err && (err.message || ''));
+    var msg = /denied|NotAllowed|Permission/i.test(name)
+      ? 'Accès caméra refusé. Autorisez la caméra (réglages du navigateur), ou saisissez à la main.'
+      : 'Caméra/lecteur indisponible : ' + ((err && err.message) || 'erreur') + '.\nSaisie manuelle possible.';
+    alert(msg);
+  });
+};
+
 var EQUIPE_KEY = 'haccp_equipe';
 var EQUIPE_MAJ_KEY = 'haccp_equipe_maj';      // horodatage de la dernière modif locale (pour la fusion cloud)
 var EQUIPE_MODULE = '__equipe_registre__';    // « module » réservé dans controles_haccp pour stocker l'équipe
