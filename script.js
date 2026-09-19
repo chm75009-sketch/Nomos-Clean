@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v472';
+var APP_BUILD = 'v473';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -17251,7 +17251,20 @@ window._validerScanProduit = function(id) {
 // Démarre la caméra + décodage (ZXing, compatible iPhone). onResult(text, format).
 function _startScanCam(video, onResult, onError) {
   _loadZXing().then(function(){
-    var reader = new ZXing.BrowserMultiFormatReader();
+    // Mode « effort maximal » : ZXing insiste plus pour décoder les codes difficiles
+    // (linéaires flous, écrans, faible contraste). Formats ciblés = codes GS1 utiles.
+    var reader;
+    try {
+      var hints = new Map();
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.DATA_MATRIX, ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.QR_CODE, ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.EAN_13, ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.UPC_A, ZXing.BarcodeFormat.ITF
+      ]);
+      reader = new ZXing.BrowserMultiFormatReader(hints);
+    } catch(e) { reader = new ZXing.BrowserMultiFormatReader(); }
     window._scanStop = function(){ try { reader.reset(); } catch(e){} };
     reader.decodeFromConstraints(
       { audio:false, video:{ facingMode:{ ideal:'environment' } } },
