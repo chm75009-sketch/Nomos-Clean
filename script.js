@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v470';
+var APP_BUILD = 'v471';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -5445,8 +5445,8 @@ function ajouterProduit(skipScroll, compartId) {
       '</div>' +
       // V80 — Photo conservée UNIQUEMENT si N° de lot ET DLC sont tous deux cochés comme lisibles
       '<div style="font-size:11px;color:#7c3aed;background:#faf5ff;border:1px dashed #c4b5fd;border-radius:8px;padding:8px 10px;margin:8px 0;line-height:1.45">★ <strong>N° de lot ET DLC obligatoires.</strong> Vous pouvez les saisir manuellement, OU photographier l\'étiquette — dans ce cas la photo n\'est conservée que si les deux cases (lot ET DLC lisibles) sont cochées.</div>' +
-      '<div class="frow"><div class="flabel" id="lbl_lot_' + id + '">N° de Lot</div><input class="finput" id="lot_' + id + '" placeholder="Numéro de lot fournisseur"/></div>' +
-      '<div class="frow"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DDM</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
+      '<div class="frow no-adv"><div class="flabel" id="lbl_lot_' + id + '">N° de Lot</div><input class="finput" id="lot_' + id + '" placeholder="Numéro de lot fournisseur"/></div>' +
+      '<div class="frow no-adv"><div class="flabel" id="lbl_dlc_' + id + '">DLC / DDM</div><input class="finput" type="date" id="dlc_' + id + '"/></div>' +
       // SCAN GS1 (bouton discret sous les champs) — remplit N° de Lot / DLC ci-dessus.
       '<div class="frow" style="margin-top:-4px">' +
         '<button type="button" class="photo-btn" onclick="scannerCodeProduit(' + id + ')" style="background:#eef2ff;color:#3730a3;border:1.5px dashed #a5b4fc;font-size:13px">🔍 Scanner le code produit (remplit lot + DLC)</button>' +
