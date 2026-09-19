@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v474';
+var APP_BUILD = 'v475';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2251,7 +2251,7 @@ async function connexion() {
   // sur tous les appareils. Sans risque de doublon (dédup par signature).
   try { if (typeof synchroniserControlesManquants === 'function') setTimeout(function(){ synchroniserControlesManquants(true); }, 3500); } catch(e){}
   // Sauvegarde quotidienne : invite le client à enregistrer ses contrôles sur son appareil.
-  try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){}
+  try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){} try { setTimeout(function(){ if (typeof verifierRappelExportMensuel==='function') verifierRappelExportMensuel(); }, 6000); } catch(e){}
   // V102 — Mettre à jour le bandeau du haut avec les vraies infos client
   try { if (typeof updateTopbarEtab === 'function') updateTopbarEtab(); } catch(e){}
   // Indicateur mode local — V106 : bandeau retiré côté client (visible uniquement en console)
@@ -3978,7 +3978,7 @@ document.getElementById('heroDate').textContent = ds.charAt(0).toUpperCase()+ds.
         if (typeof MODE_LOCAL !== 'undefined' && String(_eid).indexOf('local-') === 0) MODE_LOCAL = true;
         var _expert = (lsGet('haccp_mode') === 'expert');
         showPage(_expert ? 'page-home' : 'page-guide');
-        try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){}
+        try { setTimeout(function(){ if (typeof verifierSauvegardeQuotidienne==='function') verifierSauvegardeQuotidienne(); }, 2800); } catch(e){} try { setTimeout(function(){ if (typeof verifierRappelExportMensuel==='function') verifierRappelExportMensuel(); }, 6000); } catch(e){}
         // Le RESTE dépend de variables/fonctions définies plus loin dans le fichier
         // (INGREDIENTS_*, renderMods, pulls cloud, topbar) : on diffère pour qu'elles
         // soient bien initialisées au moment de l'appel.
@@ -13295,6 +13295,7 @@ function _tempSourceSelectorHTML(titre){
 }
 
 function genererPackDDPP() {
+  try { if (typeof lsSet === 'function') lsSet('haccp_last_ddpp_export', String(Date.now())); } catch(e){}
   // Afficher le sélecteur de période
   var existing = document.getElementById('ddppPeriodeModal');
   if (existing) { existing.classList.add('visible'); return; }
@@ -27070,6 +27071,46 @@ function _sqStatuer(eid) {
     _ouvrirModalSauvegardeQuot();
   } catch(e) { /* silencieux */ }
 }
+// ── RAPPEL MENSUEL D'EXPORT DU PACK DDPP ──
+// Les preuves HACCP doivent être conservées plusieurs années HORS de l'app.
+// Une fois par mois (si aucun export ce mois-ci), on incite à exporter le Pack DDPP.
+function verifierRappelExportMensuel() {
+  try {
+    if (typeof ETAB_ID === 'undefined' || !ETAB_ID) return;
+    var now = new Date();
+    var moisCourant = now.getFullYear() + '-' + ('0' + (now.getMonth() + 1)).slice(-2);
+    if ((lsGet('haccp_export_rappel_mois') || '') === moisCourant) return; // déjà rappelé ce mois
+    var lastExport = parseInt(lsGet('haccp_last_ddpp_export') || '0', 10);
+    if (lastExport) {
+      var d = new Date(lastExport);
+      var moisExport = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2);
+      if (moisExport === moisCourant) return; // déjà exporté ce mois → pas de rappel
+    }
+    if (document.querySelector('.modal-overlay.visible')) return; // ne pas empiler sur une modale
+    lsSet('haccp_export_rappel_mois', moisCourant);
+    _afficherRappelExport();
+  } catch(e) {}
+}
+function _fermerRappelExport() { var m = document.getElementById('rappelExportModal'); if (m && m.parentNode) m.parentNode.removeChild(m); }
+window._rappelExportMaintenant = function() { _fermerRappelExport(); try { if (typeof openModule === 'function') openModule('exports'); } catch(e) {} };
+window._rappelExportDejaFait = function() { try { lsSet('haccp_last_ddpp_export', String(Date.now())); } catch(e) {} _fermerRappelExport(); if (typeof showToast === 'function') showToast('👍 Parfait — gardez bien votre PDF en lieu sûr.', 'ok', 3500); };
+function _afficherRappelExport() {
+  var ov = document.createElement('div');
+  ov.id = 'rappelExportModal';
+  ov.className = 'modal-overlay visible';
+  ov.style.zIndex = '99997';
+  ov.innerHTML =
+    '<div class="modal-box" style="max-width:420px;text-align:left">' +
+      '<div class="modal-ico" style="text-align:center">📄</div>' +
+      '<div class="modal-title" style="text-align:center">Sauvegardez vos preuves du mois</div>' +
+      '<div class="modal-desc" style="line-height:1.5">Vos relevés HACCP doivent être <b>conservés plusieurs années</b> et présentés en cas de contrôle. Exportez votre <b>Pack Contrôle DDPP</b> ce mois-ci et gardez le PDF en lieu sûr (e-mail, cloud, impression).</div>' +
+      '<button type="button" style="width:100%;margin-top:14px;background:#16a34a;color:#fff;border:none;padding:13px;border-radius:10px;font-weight:800;font-size:15px;cursor:pointer" onclick="_rappelExportMaintenant()">📄 Exporter mon Pack DDPP</button>' +
+      '<button type="button" style="width:100%;margin-top:8px;background:#eef2ff;color:#3730a3;border:none;padding:11px;border-radius:10px;font-weight:700;cursor:pointer" onclick="_rappelExportDejaFait()">✓ Déjà fait ce mois-ci</button>' +
+      '<button type="button" class="modal-btn-skip" style="width:100%;margin-top:6px" onclick="_fermerRappelExport()">Plus tard</button>' +
+    '</div>';
+  document.body.appendChild(ov);
+}
+
 function verifierSauvegardeQuotidienne() {
   try {
     var eid = _sqEtabKey();
