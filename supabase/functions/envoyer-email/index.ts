@@ -1,28 +1,5 @@
-// ────────────────────────────────────────────────────────────────────────────
-// Nomos — Edge Function « envoyer-email »
-// Envoi des e-mails de service via le SMTP OVH (serveurs en Union européenne),
-// en remplacement d'EmailJS (USA) pour la conformité RGPD.
-//
-// SÉCURITÉ :
-//   • Le mot de passe SMTP OVH n'est JAMAIS dans le code client.
-//     Il est lu depuis les secrets Supabase (Deno.env) : SMTP_PASS.
-//   • Les e-mails « admin » sont toujours envoyés à l'adresse fixe ADMIN_EMAIL
-//     (le client ne peut pas détourner le destinataire).
-//   • Filtrage par Origin : seules les pages nomos-haccp.fr peuvent appeler.
-//
-// SECRETS À DÉFINIR (Supabase → Edge Functions → envoyer-email → Secrets) :
-//   SMTP_HOST       = ssl0.ovh.net
-//   SMTP_PORT       = 465
-//   SMTP_USER       = <l'adresse OVH complète, ex. contact@nomos-haccp.fr>
-//   SMTP_PASS       = <mot de passe de la boîte OVH>
-//   SMTP_FROM       = <l'adresse expéditrice affichée, ex. contact@nomos-haccp.fr>
-//   SMTP_FROM_NAME  = Nomos HACCP
-//   ADMIN_EMAIL     = lea@nomos-haccp.fr
-// ────────────────────────────────────────────────────────────────────────────
+import nodemailer from "npm:nodemailer@6.9.16";
 
-import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
-
-// Origines autorisées à appeler la fonction (le site en production + tests locaux).
 const ALLOWED_ORIGINS = [
   "https://nomos-haccp.fr",
   "https://www.nomos-haccp.fr",
@@ -46,7 +23,6 @@ function esc(v: unknown): string {
     .replace(/"/g, "&quot;");
 }
 
-// ── Rendu des 2 modèles d'e-mail (HTML sobre, compatible messageries) ─────────
 function renderClient(p: Record<string, string>): { subject: string; html: string } {
   const subject = "Vos identifiants Nomos — " + (p.etablissement || "votre établissement");
   const html = `
@@ -119,12 +95,11 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "smtp_not_configured" }), { status: 500, headers: { ...cors, "content-type": "application/json" } });
     }
 
-    // Choix du destinataire et du contenu selon le type.
     let to = "";
     let subject = "";
     let html = "";
     if (type === "admin") {
-      to = ADMIN_EMAIL; // destinataire fixe — non détournable par le client
+      to = ADMIN_EMAIL;
       ({ subject, html } = renderAdmin(params));
     } else if (type === "client") {
       to = String(params.to_email || "").trim();
@@ -133,28 +108,24 @@ Deno.serve(async (req: Request) => {
       return new Response(JSON.stringify({ error: "invalid_type" }), { status: 400, headers: { ...cors, "content-type": "application/json" } });
     }
 
-    // Validation minimale de l'adresse.
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) {
       return new Response(JSON.stringify({ error: "invalid_recipient" }), { status: 400, headers: { ...cors, "content-type": "application/json" } });
     }
 
-    const client = new SMTPClient({
-      connection: {
-        hostname: HOST,
-        port: PORT,
-        tls: true, // port 465 = SSL/TLS implicite
-        auth: { username: USER, password: PASS },
-      },
+    const transporter = nodemailer.createTransport({
+      host: HOST,
+      port: PORT,
+      secure: PORT === 465, // 465 = SSL/TLS implicite
+      auth: { user: USER, pass: PASS },
     });
 
-    await client.send({
+    await transporter.sendMail({
       from: `${FROM_NAME} <${FROM}>`,
       to,
       replyTo: ADMIN_EMAIL,
       subject,
       html,
     });
-    await client.close();
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...cors, "content-type": "application/json" } });
   } catch (e) {
