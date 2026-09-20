@@ -35,7 +35,7 @@
 
     <h2>Registre des activités de traitement</h2>
     <div class="intro">
-      <p style="margin:0">Établi conformément à l'<strong>article 30 du RGPD</strong>. Couvre les applications <strong>Nomos Traça et Nomos Audit</strong>, éditées par RTH NETGOCE. Dernière mise à jour : 21/06/2026.</p><p style="margin:8px 0 0"><strong>Récapitulatif des transferts hors UE :</strong> toutes les données de compte, relevés d'autocontrôle et photos restent hébergés dans l'Union européenne (Supabase / AWS Irlande). Seuls les <strong>e-mails de service</strong> transitent par EmailJS (États-Unis), encadrés par des garanties appropriées (CCT / Data Privacy Framework).</p>
+      <p style="margin:0">Établi conformément à l'<strong>article 30 du RGPD</strong>. Couvre les applications <strong>Nomos Traça et Nomos Audit</strong>, éditées par RTH NETGOCE. Dernière mise à jour : 21/06/2026.</p><p style="margin:8px 0 0"><strong>Récapitulatif des transferts hors UE :</strong> toutes les données de compte, relevés d'autocontrôle et photos restent hébergés dans l'Union européenne (Supabase / AWS Irlande). Les <strong>e-mails de service</strong> sont désormais acheminés via <strong>OVH (serveurs en Union européenne)</strong>. Un système de <strong>secours</strong> (EmailJS, États-Unis, garanties appropriées — CCT / Data Privacy Framework) n'est utilisé qu'en cas d'indisponibilité ponctuelle d'OVH.</p>
     </div>
 
     <h3>Responsable de traitement</h3>
@@ -76,8 +76,8 @@
       <tr><th>Base légale</th><td>Mesures précontractuelles à la demande de la personne (art. 6.1.b) ; intérêt légitime (art. 6.1.f) pour le suivi commercial.</td></tr>
       <tr><th>Personnes concernées</th><td>Prospects professionnels.</td></tr>
       <tr><th>Catégories de données</th><td>Responsable, établissement, secteur, e-mail, téléphone, adresse, SIRET, effectif, message.</td></tr>
-      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase (stockage) et EmailJS (envoi des e-mails).</td></tr>
-      <tr><th>Transferts hors UE</th><td>EmailJS (États-Unis) pour l'acheminement des e-mails, encadré par garanties appropriées (CCT / Data Privacy Framework).</td></tr>
+      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase (stockage), OVH (acheminement des e-mails, UE) et EmailJS (secours d'envoi).</td></tr>
+      <tr><th>Transferts hors UE</th><td>Aucun en fonctionnement normal : e-mails acheminés via OVH (Union européenne). Un secours ponctuel via EmailJS (États-Unis) reste possible, encadré par garanties appropriées (CCT / Data Privacy Framework).</td></tr>
       <tr><th>Durée de conservation</th><td>3 ans à compter du dernier contact en l'absence de souscription.</td></tr>
       <tr><th>Mesures de sécurité</th><td>Table en écriture seule via l'API publique (insertion uniquement), lecture réservée à l'admin via fonctions sécurisées.</td></tr>
     </table>
@@ -88,8 +88,8 @@
       <tr><th>Base légale</th><td>Exécution du contrat (art. 6.1.b) ; intérêt légitime (art. 6.1.f) pour la sécurité.</td></tr>
       <tr><th>Personnes concernées</th><td>Clients et utilisateurs.</td></tr>
       <tr><th>Catégories de données</th><td>E-mail, identifiant de session, empreinte de connexion (hachée), journaux techniques d'accès.</td></tr>
-      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase et EmailJS.</td></tr>
-      <tr><th>Transferts hors UE</th><td>EmailJS (États-Unis), garanties appropriées.</td></tr>
+      <tr><th>Destinataires</th><td>Personnel habilité de RTH NETGOCE ; sous-traitants Supabase, OVH (acheminement des e-mails, UE) et EmailJS (secours).</td></tr>
+      <tr><th>Transferts hors UE</th><td>Aucun en fonctionnement normal : e-mails via OVH (UE). Secours ponctuel possible via EmailJS (États-Unis), garanties appropriées.</td></tr>
       <tr><th>Durée de conservation</th><td>Empreinte de connexion : 7 jours. Journaux techniques : durée limitée définie par l'hébergeur.</td></tr>
       <tr><th>Mesures de sécurité</th><td>HTTPS, hachage des empreintes, accès restreint.</td></tr>
     </table>
