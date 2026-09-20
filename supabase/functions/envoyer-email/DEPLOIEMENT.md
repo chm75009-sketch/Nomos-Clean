@@ -18,9 +18,14 @@ Supabase → projet **kiknaxuzpovvivkjqzss** → **Edge Functions** → **Create
 | `SMTP_FROM_NAME` | `Nomos HACCP` |
 | `ADMIN_EMAIL` | `lea@nomos-haccp.fr` |
 
-## 3. Désactiver la vérification JWT (fonction appelée depuis le site public)
-Fonction `envoyer-email` → **Details / Settings** → décocher **Verify JWT**.
-(La fonction se protège elle-même par filtrage d'`Origin` + destinataire admin fixe.)
+## 3. Vérification JWT — LAISSER ACTIVÉE
+Fonction `envoyer-email` → **Settings** → laisser **Verify JWT** **activé**.
+L'application envoie sa clé publique Supabase (anon), qui satisfait la vérification.
+Cela bloque les appels non autorisés. La fonction se protège en plus par filtrage
+d'`Origin` + destinataire admin fixe pour les notifications.
+
+> Librairie d'envoi : **`npm:nodemailer`** (denomailer faisait planter l'isolate
+> Supabase pendant l'envoi SMTP → 503).
 
 ## 4. Tester (depuis un terminal ou la console)
 ```bash

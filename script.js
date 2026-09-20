@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v475';
+var APP_BUILD = 'v476';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -834,6 +834,49 @@ async function sbSauvegarderEtab(etabData) {
     ADMIN_EMAIL: 'r.t.h@orange.fr'
     // SÉCURITÉ : le mot de passe admin n'est PLUS stocké dans l'app. Il est validé
     // côté serveur via la RPC `admin_check` (secret Vault « admin_password »).
+  };
+
+  // ── ENVOI D'E-MAILS — OVH (RGPD, serveurs UE) avec repli EmailJS ────────────
+  // Tous les e-mails de service passent par ici. On tente d'abord la fonction
+  // Supabase « envoyer-email » qui expédie via le SMTP OVH (Europe). En cas
+  // d'échec (réseau, indisponibilité), repli automatique sur EmailJS pour ne
+  // jamais perdre un e-mail. `kind` = 'admin' | 'client' ; `params` = mêmes
+  // champs que les anciens modèles EmailJS (to_email, etablissement, ...).
+  window.sendMailNomos = async function(kind, params) {
+    params = params || {};
+    // 1) OVH (Edge Function Supabase) — voie principale, conforme RGPD.
+    try {
+      if (typeof SUPABASE_URL !== 'undefined' && typeof SUPABASE_ANON !== 'undefined') {
+        var resp = await fetch(SUPABASE_URL + '/functions/v1/envoyer-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + SUPABASE_ANON,
+            'apikey': SUPABASE_ANON
+          },
+          body: JSON.stringify({ type: kind, params: params })
+        });
+        if (resp.ok) {
+          var j = await resp.json().catch(function(){ return {}; });
+          if (j && j.ok) { console.log('[Mail] OVH OK (' + kind + ')'); return true; }
+        }
+        console.warn('[Mail] OVH indisponible (HTTP ' + resp.status + ') — repli EmailJS');
+      }
+    } catch(eOvh) { console.warn('[Mail] OVH exception — repli EmailJS:', eOvh); }
+
+    // 2) Repli EmailJS (ancien système) — n'agit que si OVH a échoué.
+    try {
+      if (window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY) {
+        var tpl = (kind === 'admin')
+          ? window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN
+          : window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT;
+        await window.emailjs.send(window.HACCP_CONFIG.EMAILJS_SERVICE, tpl, params,
+          { publicKey: window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY });
+        console.log('[Mail] EmailJS (repli) OK (' + kind + ')');
+        return true;
+      }
+    } catch(eEjs) { console.warn('[Mail] EmailJS repli échec:', eEjs); }
+    return false;
   };
   // Initialisation Supabase
   window._supabase = null;
@@ -1963,48 +2006,32 @@ window.validerEssaiUniversel = async function() {
 
     // Notification e-mail à Léa à chaque nouvel essai (best-effort via EmailJS, ne bloque jamais).
     try {
-      if (window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN) {
-        window.emailjs.send(
-          window.HACCP_CONFIG.EMAILJS_SERVICE,
-          window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN,
-          {
-            to_email: 'lea@nomos-haccp.fr',
-            etablissement: etab,
-            secteur: sect,
-            responsable: resp,
-            email_client: mail,
-            telephone: tel,
-            formule: 'Essai DÉCOUVERTE ' + ESSAI_UNIVERSEL_JOURS + ' j',
-            engagement: '—',
-            nb_repas: '—',
-            message: 'Nouvel essai gratuit activé — code ' + code + ' — expire le ' + new Date(dateExp).toLocaleDateString('fr-FR')
-          },
-          { publicKey: window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY }
-        ).then(function(){ console.log('[EmailJS] notif admin envoyée'); })
-         .catch(function(err){ console.warn('[EmailJS] notif admin échec:', err); });
-      }
+      sendMailNomos('admin', {
+        to_email: 'lea@nomos-haccp.fr',
+        etablissement: etab,
+        secteur: sect,
+        responsable: resp,
+        email_client: mail,
+        telephone: tel,
+        formule: 'Essai DÉCOUVERTE ' + ESSAI_UNIVERSEL_JOURS + ' j',
+        engagement: '—',
+        nb_repas: '—',
+        message: 'Nouvel essai gratuit activé — code ' + code + ' — expire le ' + new Date(dateExp).toLocaleDateString('fr-FR')
+      });
     } catch(eMail) { console.warn('Essai — notif e-mail échec:', eMail); }
 
     // E-mail AU CLIENT : ses identifiants d'accès (code + mot de passe) via le modèle client.
     // Best-effort : ne bloque jamais l'activation même si l'envoi échoue.
     try {
-      if (window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT) {
-        window.emailjs.send(
-          window.HACCP_CONFIG.EMAILJS_SERVICE,
-          window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
-          {
-            to_email: mail,
-            etablissement: etab,
-            responsable: resp,
-            code_acces: code,
-            mot_de_passe: pwd,
-            formule: 'Essai gratuit ' + ESSAI_UNIVERSEL_JOURS + ' jours',
-            message: 'Bienvenue chez Nomos Traça ! Voici vos identifiants pour vous reconnecter pendant votre essai gratuit de ' + ESSAI_UNIVERSEL_JOURS + ' jours (valable jusqu\'au ' + new Date(dateExp).toLocaleDateString('fr-FR') + ' inclus).'
-          },
-          { publicKey: window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY }
-        ).then(function(){ console.log('[EmailJS] e-mail client envoyé'); })
-         .catch(function(err){ console.warn('[EmailJS] e-mail client échec:', err); });
-      }
+      sendMailNomos('client', {
+        to_email: mail,
+        etablissement: etab,
+        responsable: resp,
+        code_acces: code,
+        mot_de_passe: pwd,
+        formule: 'Essai gratuit ' + ESSAI_UNIVERSEL_JOURS + ' jours',
+        message: 'Bienvenue chez Nomos Traça ! Voici vos identifiants pour vous reconnecter pendant votre essai gratuit de ' + ESSAI_UNIVERSEL_JOURS + ' jours (valable jusqu\'au ' + new Date(dateExp).toLocaleDateString('fr-FR') + ' inclus).'
+      });
     } catch(eMailC) { console.warn('Essai — e-mail client échec:', eMailC); }
 
     var modal = document.getElementById('essaiUnivModal');
@@ -2059,24 +2086,17 @@ window.motDePasseOublie = async function() {
 
     // Envoi e-mail via EmailJS (modèle client existant)
     var envoye = false;
-    if (window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT) {
-      try {
-        await window.emailjs.send(
-          window.HACCP_CONFIG.EMAILJS_SERVICE,
-          window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
-          {
-            to_email: email,
-            etablissement: etab.nom || '',
-            responsable: '',
-            code_acces: etab.code_acces,
-            mot_de_passe: etab.mot_de_passe || '',
-            formule: '',
-            message: 'Voici votre NOUVEAU mot de passe Nomos Traça (l\'ancien ne fonctionne plus).' + infoEssai
-          }
-        );
-        envoye = true;
-      } catch(e) { console.warn('Mot de passe oublié — envoi e-mail échec:', e); }
-    }
+    try {
+      envoye = await sendMailNomos('client', {
+        to_email: email,
+        etablissement: etab.nom || '',
+        responsable: '',
+        code_acces: etab.code_acces,
+        mot_de_passe: etab.mot_de_passe || '',
+        formule: '',
+        message: 'Voici votre NOUVEAU mot de passe Nomos Traça (l\'ancien ne fonctionne plus).' + infoEssai
+      });
+    } catch(e) { console.warn('Mot de passe oublié — envoi e-mail échec:', e); }
 
     // Trace systématique dans l'historique admin (e-mail masqué partiellement)
     var emailMasque = email.replace(/^(.).*(@.*)$/, '$1***$2');
@@ -21616,26 +21636,20 @@ function testEffacerDonnees() {
           }
 
           // Notification email à l'admin (best-effort, ne bloque pas si EmailJS pas configuré)
-          if (window.emailjs && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN) {
-            try {
-              window.emailjs.send(
-                window.HACCP_CONFIG.EMAILJS_SERVICE,
-                window.HACCP_CONFIG.EMAILJS_TEMPLATE_ADMIN,
-                {
-                  to_email: window.HACCP_CONFIG.ADMIN_EMAIL,
-                  etablissement: data.etablissement,
-                  secteur: data.secteur,
-                  responsable: data.responsable,
-                  email_client: data.email,
-                  telephone: data.telephone,
-                  formule: data.formule,
-                  engagement: data.engagement,
-                  nb_repas: data.nb_repas_jour || '?',
-                  message: data.message || '(aucun)'
-                }
-              );
-            } catch(e) { console.warn('[V95] EmailJS admin échec:', e); }
-          }
+          try {
+            sendMailNomos('admin', {
+              to_email: window.HACCP_CONFIG.ADMIN_EMAIL,
+              etablissement: data.etablissement,
+              secteur: data.secteur,
+              responsable: data.responsable,
+              email_client: data.email,
+              telephone: data.telephone,
+              formule: data.formule,
+              engagement: data.engagement,
+              nb_repas: data.nb_repas_jour || '?',
+              message: data.message || '(aucun)'
+            });
+          } catch(e) { console.warn('[V95] Notif admin échec:', e); }
 
           showStatus('✅ Demande envoyée ! Vous recevrez votre code d\'accès par email après validation (sous 24h ouvrées).', 'ok');
           var form = document.getElementById('formInscriptionHaccp');
@@ -22391,26 +22405,22 @@ function testEffacerDonnees() {
           if (!confirm('Envoyer un e-mail à ' + email + ' ?\n\n'
             + 'Objet : le compte « ' + nom + ' » est actif' + (expTxt ? ' jusqu\'au ' + expTxt : ' pour un an') + '.\n'
             + '(Le mot de passe n\'est PAS communiqué.)')) return;
-          if (!(window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT)) {
-            alert('L\'envoi d\'e-mail (EmailJS) n\'est pas disponible ici.\nRéessayez depuis un appareil connecté, ou prévenez le client directement.');
+          if (typeof SUPABASE_URL === 'undefined' && !(window.emailjs && window.HACCP_CONFIG && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY)) {
+            alert('L\'envoi d\'e-mail n\'est pas disponible ici.\nRéessayez depuis un appareil connecté, ou prévenez le client directement.');
             return;
           }
           var msg = 'Bonne nouvelle : votre compte Nomos Traça (« ' + nom + ' ») est actif'
             + (expTxt ? ' jusqu\'au ' + expTxt : ' pour un an')
             + '. Vos identifiants de connexion restent INCHANGÉS (même code d\'accès et même mot de passe). Bonne utilisation !';
-          window.emailjs.send(
-            window.HACCP_CONFIG.EMAILJS_SERVICE,
-            window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
-            { to_email: email, etablissement: nom, responsable: r.responsable || '', code_acces: code, mot_de_passe: '(inchangé)', formule: '', message: msg }
-          ).then(function(){
+          sendMailNomos('client', { to_email: email, etablissement: nom, responsable: r.responsable || '', code_acces: code, mot_de_passe: '(inchangé)', formule: '', message: msg })
+          .then(function(ok){
+            if (!ok) { alert('❌ L\'envoi a échoué.\n\nVous pouvez prévenir le client directement (e-mail / SMS).'); return; }
             try { window._supabase.from('historique_admin').insert([{
               action: 'E-mail « compte actif » envoyé',
               code_concerne: code,
               motif: 'vers ' + email.replace(/^(.).*(@.*)$/, '$1***$2') + (expTxt ? ' — actif jusqu\'au ' + expTxt : '')
             }]).then(function(){}); } catch(e){}
             alert('✅ E-mail envoyé à ' + email + '.\n\nLe client est informé que son compte est actif' + (expTxt ? ' jusqu\'au ' + expTxt : '') + '.');
-          }, function(err){
-            alert('❌ L\'envoi a échoué : ' + ((err && (err.text || err.message)) || err) + '\n\nVous pouvez prévenir le client directement (e-mail / SMS).');
           });
         });
       };
@@ -22617,22 +22627,16 @@ function testEffacerDonnees() {
           }
           var d = res.data;
           // Email au client (EmailJS, côté client — le mot de passe vient d'être généré)
-          if (window.emailjs && window.HACCP_CONFIG.EMAILJS_PUBLIC_KEY && window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT) {
-            try {
-              window.emailjs.send(
-                window.HACCP_CONFIG.EMAILJS_SERVICE,
-                window.HACCP_CONFIG.EMAILJS_TEMPLATE_CLIENT,
-                {
-                  to_email: d.email,
-                  etablissement: d.etablissement,
-                  responsable: d.responsable,
-                  code_acces: codeAcces,
-                  mot_de_passe: motDePasse,
-                  formule: d.formule
-                }
-              );
-            } catch(e) { console.warn('Email client échec:', e); }
-          }
+          try {
+            sendMailNomos('client', {
+              to_email: d.email,
+              etablissement: d.etablissement,
+              responsable: d.responsable,
+              code_acces: codeAcces,
+              mot_de_passe: motDePasse,
+              formule: d.formule
+            });
+          } catch(e) { console.warn('Email client échec:', e); }
           alert('✅ Validation réussie !\n\nCode généré : ' + codeAcces + '\nMot de passe : ' + motDePasse + '\n\nUn email est envoyé au client.');
           loadAdminDemandes();
         });
