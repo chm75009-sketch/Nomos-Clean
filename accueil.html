@@ -608,27 +608,37 @@ if ('serviceWorker' in navigator) {
         }
         btn.disabled = false; btn.textContent = 'Réserver ma démo →';
       }
+      // Anti-blocage (réseau faible) : si rien ne répond en 12 s, on bascule sur le
+      // repli mailto au lieu de rester bloqué sur « Envoi… ».
+      var _fini = false;
+      var _terminer = function(ok){ if(_fini) return; _fini = true; done(ok); };
+      var _to = setTimeout(function(){ _terminer(false); }, 12000);
+      // Repli EmailJS (ancien système) — n'est utilisé que si OVH échoue.
+      var _repliEmailJS = function(){
+        try{
+          if(typeof emailjs === 'undefined' || !emailjs.send){ clearTimeout(_to); _terminer(false); return; }
+          emailjs.send('service_84lz31w','template_ti43bkh',{
+            to_name:'Administrateur Nomos', to_email:'lea@nomos-haccp.fr', email:'lea@nomos-haccp.fr',
+            code:blocInfos, service:corps, business:nom, resp:nom, tel:tel,
+            client_email:email, lien_site:location.href, date:new Date().toLocaleDateString('fr-FR')
+          }).then(function(){ clearTimeout(_to); _terminer(true); }, function(err){ console.warn('RDV email KO',err); clearTimeout(_to); _terminer(false); });
+        }catch(e){ clearTimeout(_to); _terminer(false); }
+      };
+      // 1) OVH (fonction Supabase « envoyer-email ») — voie principale, UE / RGPD.
       try{
-        if(typeof emailjs === 'undefined' || !emailjs.send){ done(false); return; }
-        // Anti-blocage (réseau faible) : si l'envoi ne répond pas en 12 s, on bascule
-        // sur le repli mailto au lieu de rester bloqué sur « Envoi… ».
-        var _fini = false;
-        var _terminer = function(ok){ if(_fini) return; _fini = true; done(ok); };
-        var _to = setTimeout(function(){ _terminer(false); }, 12000);
-        emailjs.send('service_84lz31w','template_ti43bkh',{
-          to_name:'Administrateur Nomos',
-          to_email:'lea@nomos-haccp.fr',
-          email:'lea@nomos-haccp.fr',
-          code:blocInfos,
-          service:corps,
-          business:nom,
-          resp:nom,
-          tel:tel,
-          client_email:email,
-          lien_site:location.href,
-          date:new Date().toLocaleDateString('fr-FR')
-        }).then(function(){ clearTimeout(_to); _terminer(true); }, function(err){ console.warn('RDV email KO',err); clearTimeout(_to); _terminer(false); });
-      }catch(e){ done(false); }
+        var NOMOS_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imtpa25heHV6cG92dml2a2pxenNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY4NjQ3OTcsImV4cCI6MjA5MjQ0MDc5N30._LY5my720EJOo-9byuA65zVbUv7PsGeXUK_R2kzkxHA';
+        fetch('https://kiknaxuzpovvivkjqzss.supabase.co/functions/v1/envoyer-email', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+NOMOS_ANON, 'apikey':NOMOS_ANON },
+          body: JSON.stringify({ type:'admin', params:{
+            etablissement: nom, responsable: nom, email_client: email, telephone: tel,
+            formule: 'Demande de démo (site)',
+            message: 'Nouvelle demande de démo depuis le site.\n\n' + corps + '\n\n' + blocInfos
+          }})
+        }).then(function(r){ return r.ok ? r.json() : null; }).then(function(j){
+          if(j && j.ok){ clearTimeout(_to); _terminer(true); } else { _repliEmailJS(); }
+        }).catch(function(){ _repliEmailJS(); });
+      }catch(e){ _repliEmailJS(); }
     }
   </script>
 
