@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v479';
+var APP_BUILD = 'v480';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -9541,6 +9541,36 @@ function buildEnceinteBlock(id, nom, type, seuil) {
 function onTypeEnceinteChange(selectEl) {
   var id = selectEl.getAttribute('data-enc-id');
   var type = selectEl.value;
+  // ── Garde-fou : changer le type d'une enceinte qui a DÉJÀ un relevé aujourd'hui
+  // crée deux configurations mélangées (ex. Congélateur -18 puis Réfrigérateur +4).
+  // On prévient l'opérateur ; s'il annule, on revient au type d'origine. (Best-effort,
+  // ne bloque jamais la saisie en cas d'erreur.)
+  try {
+    if (type) {
+      var _newTxt = (selectEl.selectedIndex > 0 && selectEl.options[selectEl.selectedIndex]) ? selectEl.options[selectEl.selectedIndex].text : '';
+      var _blk = document.getElementById('enc_block_' + id);
+      var _ts = _blk ? _blk.querySelector('.fblock-title span') : null;
+      var _nom = _ts ? _ts.textContent.replace(/^[^0-9A-Za-zÀ-ÿ]+/, '').trim() : '';
+      if (_nom && _newTxt && typeof getDonneesPeriode === 'function') {
+        var _d = new Date();
+        var _today = _d.getFullYear() + '-' + String(_d.getMonth()+1).padStart(2,'0') + '-' + String(_d.getDate()).padStart(2,'0');
+        var _autreType = '';
+        (getDonneesPeriode('page-temperatures', _today, _today) || []).forEach(function(s){
+          var _arr = (s.data && Array.isArray(s.data.temperatures)) ? s.data.temperatures : [];
+          _arr.forEach(function(e){
+            if (e && e.temp && String(e.nom||'').trim() === _nom && e.type && e.type !== '—' && e.type !== _newTxt) _autreType = e.type;
+          });
+        });
+        if (_autreType) {
+          var _go = confirm('⚠️ Un relevé a déjà été enregistré aujourd\'hui pour « ' + _nom + ' » en tant que :\n« ' + _autreType + ' ».\n\nSi c\'est une AUTRE enceinte, ne changez pas le type ici — ajoutez plutôt une nouvelle enceinte.\nSinon, sur le rapport, cette enceinte apparaîtra en deux configurations séparées.\n\nChanger quand même le type ?');
+          if (!_go) {
+            for (var _oi=0; _oi<selectEl.options.length; _oi++){ if (selectEl.options[_oi].text === _autreType) { selectEl.selectedIndex = _oi; break; } }
+            type = selectEl.value;
+          }
+        }
+      }
+    }
+  } catch(_eW) {}
   var cfg = SEUILS_ENCEINTE[type] || {seuil:null, label:'Manuel', ico:'🔧'};
 
   // Mettre à jour l'affichage du seuil
