@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v478';
+var APP_BUILD = 'v479';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13945,7 +13945,11 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
           // Identité de l'enceinte = son NOM (relevé manuel) ou son type (capteur auto).
           // → toutes les cartes portent le numéro/nom d'enceinte, pas seulement celles
           //   sous capteur (avant : groupées par type → « Réfrigérateur » sans n°).
-          var key = (e.nom || e.type || '—') + '|' + (e.precision || '');
+          // Clé = nom + précision + TYPE : si le client change le type d'une enceinte
+          // en cours de journée (ex. Congélateur -18 → Réfrigérateur +4), les relevés
+          // ne sont PLUS fusionnés sous un seul en-tête (qui prenait le type du 1er relevé
+          // et affichait un seuil faux). Chaque configuration a sa propre carte cohérente.
+          var key = (e.nom || e.type || '—') + '|' + (e.precision || '') + '|' + (e.type || '');
           if (!_grp[key]) { _grp[key] = []; _ord.push(key); }
           _grp[key].push(e);
         });
