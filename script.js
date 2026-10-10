@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v480';
+var APP_BUILD = 'v481';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -565,6 +565,11 @@ async function sbLoginTentative(codeAcces, pwd) {
   // temporaire après trop d'échecs) autour de login_etab, réponse au format identique.
   var url = SUPABASE_URL + '/rest/v1/rpc/login_etab_rl';
   var response;
+  // Timeout réseau : sur un WiFi « ouvert mais sans vraie connexion » (avion, portail
+  // captif, zone blanche), un fetch sans limite reste bloqué → l'app « tourne ». On coupe
+  // à 7 s et on bascule en repli hors-ligne (retry:true).
+  var _ctrl = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var _to = _ctrl ? setTimeout(function(){ try { _ctrl.abort(); } catch(e){} }, 7000) : null;
   try {
     response = await fetch(url, {
       method: 'POST',
@@ -573,9 +578,12 @@ async function sbLoginTentative(codeAcces, pwd) {
         'Authorization': 'Bearer ' + _sbBearer(),
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ p_code: String(codeAcces || ''), p_pwd: String(pwd || '') })
+      body: JSON.stringify({ p_code: String(codeAcces || ''), p_pwd: String(pwd || '') }),
+      signal: _ctrl ? _ctrl.signal : undefined
     });
+    if (_to) { clearTimeout(_to); _to = null; }
   } catch(fetchErr) {
+    if (_to) { clearTimeout(_to); _to = null; }
     var emsg = (fetchErr && fetchErr.message) ? fetchErr.message : String(fetchErr);
     console.error('Supabase rpc erreur réseau:', emsg);
     return { ok: false, msg: 'Erreur réseau.', retry: true };
@@ -632,18 +640,29 @@ async function sbLogin(codeAcces, pwd) {
   if (CODES_LOCAUX[code] && !localResult.ok) {
     return localResult; // Mauvais mot de passe local
   }
-  // Code inconnu localement → tenter Supabase
+  // Code inconnu localement.
+  // HORS-LIGNE DIRECT : si l'appareil se déclare sans réseau (mode avion, zone
+  // blanche), inutile d'attendre un fetch qui va échouer → on tente tout de suite
+  // la connexion hors-ligne (instantané : plus de « ça tourne »).
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    var offNow = await _tryOfflineLogin(code, pwd);
+    if (offNow.ok) { MODE_LOCAL = false; return offNow; }
+    if (offNow.subExpired) return { ok: false, msg: 'Abonnement expiré. Contacter Nomos Traça.' };
+    if (offNow.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 30 jours). Se reconnecter avec du réseau au moins une fois.' };
+    return { ok: false, msg: 'Pas de réseau, et aucune connexion récente sur cet appareil. Connectez-vous une fois avec du réseau pour activer l\'accès hors-ligne.' };
+  }
+  // Sinon → tenter Supabase (avec repli hors-ligne si le réseau est en fait coupé)
   try {
     var result = await sbLoginTentative(code, pwd);
     if (result.ok) { MODE_LOCAL = false; return result; }
     if (result.retry) {
       console.info('Supabase inaccessible — tentative de connexion hors-ligne');
       // DATA-5 : réseau indisponible → autoriser l'entrée si une empreinte locale
-      // valide (< 7 jours) correspond. Sinon message clair selon le cas.
+      // valide (< 30 jours) correspond. Sinon message clair selon le cas.
       var off = await _tryOfflineLogin(code, pwd);
       if (off.ok) { MODE_LOCAL = false; return off; }
       if (off.subExpired) return { ok: false, msg: 'Abonnement expiré. Contacter Nomos Traça.' };
-      if (off.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 7 jours). Rese connecter avec du réseau au moins une fois.' };
+      if (off.expired) return { ok: false, msg: 'Connexion hors-ligne expirée (plus de 30 jours). Se reconnecter avec du réseau au moins une fois.' };
       return { ok: false, msg: 'Pas de réseau et aucune connexion récente sur cet appareil. Se connecter une fois avec du réseau.' };
     }
     return result;
@@ -674,12 +693,12 @@ function sbLoginLocal(code, pwd) {
   return { ok: true, data: { id: 'local-' + code, nom: etab.nom, secteur: etab.secteur, actif: true, multi_secteur: true, formule: etab.formule || 'complet' }, local: true };
 }
 
-// ── DATA-5 — CONNEXION HORS-LIGNE (jusqu'à 7 jours) ──
+// ── DATA-5 — CONNEXION HORS-LIGNE (jusqu'à 30 jours) ──
 // Un client déjà connecté récemment doit pouvoir rouvrir l'app SANS réseau (cuisine
 // en zone blanche, réveil de veille). On ne stocke JAMAIS le mot de passe en clair :
 // seulement une empreinte SHA-256 de (code::mot de passe), comparée hors-ligne.
 var OFFLINE_CRED_KEY = 'haccp_offline_cred_v1';
-var OFFLINE_CRED_MAX_MS = 7 * 24 * 60 * 60 * 1000; // 7 jours
+var OFFLINE_CRED_MAX_MS = 30 * 24 * 60 * 60 * 1000; // 30 jours (usage terrain : avion, sous-sol, zones sans réseau). L'expiration d'abonnement reste vérifiée hors-ligne.
 async function _sha256Hex(str) {
   try {
     if (!(window.crypto && window.crypto.subtle)) return null;
@@ -2183,7 +2202,7 @@ async function connexion() {
   var d = result.data;
   // V105 — Mémoriser le code d'accès pour la prochaine session (pas le mot de passe)
   try { lsSet('haccp_last_code', code); } catch(e) {}
-  // DATA-5 — empreinte hors-ligne (7 j) : permet de rouvrir l'app sans réseau.
+  // DATA-5 — empreinte hors-ligne (30 j) : permet de rouvrir l'app sans réseau.
   // Pas de mot de passe en clair (uniquement un hash). Ignoré si connexion locale.
   try { if (!result.local && !result.offline) _saveOfflineCred(code, pwd, d); } catch(e) {}
   // Essais (EU3J-/ESSAI-) : on garde le client connecté pendant toute la durée.
@@ -4042,7 +4061,7 @@ document.getElementById('heroDate').textContent = ds.charAt(0).toUpperCase()+ds.
       var estEssaiChk = (lastCodeChk.indexOf('EU3J-') === 0 || lastCodeChk.indexOf('ESSAI-') === 0) && lsGet('haccp_trial_pwd');
       // MIN-10 — fenêtre de session d'essai dérivée de la durée réelle d'essai
       // (au lieu d'un « 16 j » arbitraire) : durée d'essai + marge, cohérente avec
-      // la fenêtre de login hors-ligne (7 j). L'expiration en base reste l'autorité.
+      // la fenêtre de login hors-ligne (30 j). L'expiration en base reste l'autorité.
       var essaiSessionJours = (typeof ESSAI_UNIVERSEL_JOURS === 'number' ? ESSAI_UNIVERSEL_JOURS : 3) + 4;
       var maxAge = estEssaiChk ? (essaiSessionJours * 24 * 60 * 60 * 1000) : (12 * 60 * 60 * 1000); // essai: durée+marge / payant: 12h
       if (age > maxAge) {
