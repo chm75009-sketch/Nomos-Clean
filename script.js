@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v481';
+var APP_BUILD = 'v482';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -23401,6 +23401,10 @@ async function synchroniserControlesManquants(force) {
   if (typeof ETAB_ID === 'undefined' || !ETAB_ID) return;
   if (typeof localStorage === 'undefined') return;
   if (String(ETAB_ID) === 'local-test') return; // mode test : pas de cloud (CONC-6)
+  // Comptes DÉMO / LOCAUX (RTH75, local-…) : pas de cloud par conception (données en
+  // local uniquement, depuis la sécurisation de controles_haccp). On n'essaie PAS de
+  // synchroniser → plus d'erreur 401/RLS trompeuse.
+  if (String(ETAB_ID).indexOf('local-') === 0 || (typeof MODE_LOCAL !== 'undefined' && MODE_LOCAL)) return;
   // CONC-4 — sortie anticipée SANS appel réseau si tout est déjà confirmé au cloud.
   // En mode FORCÉ (force=true) on ignore ce raccourci ET le flag cloudOk : on
   // re-vérifie TOUS les contrôles locaux contre l'état réel du cloud, pour rattraper
@@ -23769,6 +23773,12 @@ function fermerInfosLegales() {
 async function forcerSynchroComplete(btn) {
   if (typeof ETAB_ID === 'undefined' || !ETAB_ID) { if (typeof showToast === 'function') showToast('Se connecter d\'abord.', 'warn', 3000); return; }
   if (navigator.onLine === false) { if (typeof showToast === 'function') showToast('Pas de connexion internet — réessayez en ligne.', 'err', 4000); return; }
+  // Compte DÉMO / LOCAL (RTH75, local-…) : pas de synchro cloud (par conception).
+  // On informe gentiment au lieu de tenter un envoi qui serait refusé (401 RLS).
+  if (String(ETAB_ID).indexOf('local-') === 0 || (typeof MODE_LOCAL !== 'undefined' && MODE_LOCAL)) {
+    if (typeof showToast === 'function') showToast('ℹ️ Compte démo local — vos données restent sur cet appareil (pas de synchronisation cloud).', 'info', 5000);
+    return;
+  }
   var _old = btn && btn.textContent;
   if (btn) { btn.disabled = true; btn.textContent = '⏳ Synchro…'; }
   if (typeof showToast === 'function') showToast('⏳ Synchronisation forcée en cours…', 'info', 4000);
