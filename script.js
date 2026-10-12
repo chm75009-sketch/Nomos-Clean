@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v482';
+var APP_BUILD = 'v483';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -16084,9 +16084,40 @@ async function chargerHistoriqueControlesCloud() {
 }
 
 // V118 — Réimpression d'un contrôle depuis le contenu complet stocké dans Supabase
+// Repli : retrouver un contrôle dans le localStorage par son horodatage, quand l'index
+// mémoire `_histoCloudRows` a été écrasé (rafraîchissement cloud) ou est vide (compte
+// local/démo qui ne lit pas le cloud). Évite le faux « Contrôle introuvable » au clic.
+function _retrouverControleLocalParTs(ts) {
+  try {
+    if (typeof localStorage === 'undefined' || !ts) return null;
+    var cible = String(ts), cibleMin = cible.substring(0, 16);
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (!k || k.indexOf('haccp_module_data_page-') !== 0) continue;
+      var arr = [];
+      try { arr = JSON.parse(localStorage.getItem(k) || '[]'); } catch(e) { continue; }
+      if (!Array.isArray(arr)) continue;
+      for (var j = 0; j < arr.length; j++) {
+        var entry = arr[j];
+        var data = (entry && entry.data) ? entry.data : entry;
+        if (!data) continue;
+        var tsL = (entry && entry.timestamp) || data.timestamp || '';
+        if (!tsL) continue;
+        if (String(tsL) === cible || String(tsL).substring(0, 16) === cibleMin) {
+          var mod = data.module || (data.pageId ? String(data.pageId).replace('page-', '') : 'Contrôle');
+          return { module: mod, contenu: data, photos: [] };
+        }
+      }
+    }
+  } catch(e) {}
+  return null;
+}
+
 function reimprimerControleCloud(ts) {
   try {
     var row = window._histoCloudRows && window._histoCloudRows[ts];
+    // Repli localStorage si l'index mémoire a été vidé/écrasé (évite un faux « introuvable »).
+    if (!(row && row.contenu)) { row = _retrouverControleLocalParTs(ts); }
     if (row && row.contenu) {
       var pageId = row.contenu.pageId || '';
       var titre = row.module || (row.contenu && row.contenu.module) || '';
