@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v483';
+var APP_BUILD = 'v484';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15279,7 +15279,11 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
     var b = document.createElement('button');
     b.textContent = o[1];
     b.style.cssText = 'border:none;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:11px;' + (_curTs===o[0] ? 'background:#22d3ee;color:#06283d' : 'background:rgba(255,255,255,.15);color:#fff');
-    b.onclick = function(){ try { if (typeof setTempSourceFiltre==='function') setTempSourceFiltre(o[0]); } catch(e){} try { lancerPackDDPP(dateFrom, dateTo, selectionIds); } catch(e){} };
+    b.onclick = function(){ try { if (typeof setTempSourceFiltre==='function') setTempSourceFiltre(o[0]); } catch(e){}
+      // FIX — re-générer AVEC photos : un simple lancerPackDDPP re-rendait le Pack
+      // sans ré-injecter les photos (déjà posées dans le DOM) → les photos de
+      // réception disparaissaient dès qu'on touchait ce filtre température.
+      try { if (typeof lancerPackDDPPAvecPhotos==='function') lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds); else lancerPackDDPP(dateFrom, dateTo, selectionIds); } catch(e){} };
     tb2.appendChild(b);
   });
   var ct = document.createElement('div');
