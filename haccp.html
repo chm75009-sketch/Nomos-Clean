@@ -183,11 +183,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
      emailjs + dexie passés en defer pour ne plus bloquer le rendu initial de la page. -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer onerror="console.warn('CDN non chargé: emailjs')"></script>
 <script src="https://cdn.jsdelivr.net/npm/dexie@3.2.7/dist/dexie.min.js" defer onerror="console.warn('CDN non chargé: dexie')"></script>
-    <link rel="stylesheet" href="style.css?v=485">
-    <script src="pms_secteurs.js?v=485" defer></script>
-    <script src="script.js?v=485" defer></script>
-<script src="patch_photo_bl.js?v=485" defer></script>
-<script src="pms_generateur.js?v=485" defer></script>
+    <link rel="stylesheet" href="style.css?v=486">
+    <script src="pms_secteurs.js?v=486" defer></script>
+    <script src="script.js?v=486" defer></script>
+<script src="patch_photo_bl.js?v=486" defer></script>
+<script src="pms_generateur.js?v=486" defer></script>
 </head>
 <body>
 <div id="toastNotif" class="toast-notif"></div>
@@ -790,6 +790,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
         <h1 style="color:white;font-size:19px;font-weight:900;margin-bottom:4px;font-family:Outfit,sans-serif">Que voulez-vous faire ?</h1>
         <p style="color:rgba(255,255,255,.5);font-size:12px">Choisir une action — nous vous guidons directement</p>
       </div>
+      <!-- Recherche « je veux… » (voix ou texte) — remplie par script.js -->
+      <div id="irZone-guide" style="background:#f8f9fc;padding:1px 0"></div>
       <div style="padding:12px 16px 80px;background:#f8f9fc">
         <!-- BAROMÈTRE TEMPS RÉEL — activité de contrôle du jour -->
         <div id="barometreHaccp" style="margin-bottom:14px"></div>
@@ -965,6 +967,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
           <div style="color:rgba(255,255,255,.7);font-size:20px">›</div>
         </div>
       </div>
+      <!-- Recherche « je veux… » (voix ou texte) — remplie par script.js -->
+      <div id="irZone-home" style="padding:1px 0"></div>
       <div class="alert-wrap">
         <div class="alert" style="opacity:.75">
           <div class="alert-ico">✅</div>

@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v485';
+var APP_BUILD = 'v486';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -27551,3 +27551,232 @@ try {
     else { window.addEventListener('load', function(){ setTimeout(_openEssai, 700); }); }
   }
 } catch(e){}
+
+// ══════════════════════════════════════════════════════════════════
+// RECHERCHE « JE VEUX… » (voix ou texte) — accueil guidé + tableau de bord
+// L'utilisateur dit ou écrit ce qu'il veut faire (« j'ai une livraison »,
+// « relever les frigos », « l'inspecteur est là »…) → on propose le module
+// et le bouton ouvre le VRAI module (openModule / mode inspecteur).
+// Ajout pur : aucun module existant n'est modifié.
+//  • PC / Android / Safari iPhone : reconnaissance vocale directe (Web Speech API).
+//  • Sinon (app iPhone installée sans l'API) : on ouvre le clavier → 🎤 du clavier.
+// ══════════════════════════════════════════════════════════════════
+(function () {
+  function _norm(s) {
+    s = String(s || '').toLowerCase();
+    try { s = s.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
+    return ' ' + s.replace(/[^a-z0-9]+/g, ' ').trim() + ' ';
+  }
+  function _mod(id) { return function () { openModule(id); }; }
+  function _nav(key, page) {
+    return function () {
+      try { navTo(key); } catch (e) { try { showPage(page); } catch (_) {} }
+    };
+  }
+  // kw : mots-clés (sans accents). Un mot-clé de plusieurs mots compte double.
+  var INTENTS = [
+    { id: 'temperatures', ico: '🌡️', label: 'Relever les températures (frigos, congélateurs)', run: _mod('temperatures'),
+      kw: ['frigo', 'frigos', 'refrigerateur', 'congelateur', 'congelo', 'chambre froide', 'enceinte', 'temperature', 'temperatures', 'releve', 'relever', 'vitrine', 'froid', 'degre', 'degres', 'frais'] },
+    { id: 'reception', ico: '📦', label: 'Réception d\'une livraison', run: _mod('reception'),
+      kw: ['reception', 'livraison', 'livre', 'livreur', 'fournisseur', 'camion', 'bon de livraison', 'bl', 'marchandise', 'arrivage', 'commande', 'colis', 'tracabilite'] },
+    { id: 'hygiene', ico: '🖐️', label: 'Hygiène & tenue du personnel', run: _mod('hygiene'),
+      kw: ['hygiene', 'tenue', 'mains', 'lavage des mains', 'bijoux', 'tablier', 'charlotte', 'sante'] },
+    { id: 'ouverture', ico: '🌅', label: 'Nettoyage d\'ouverture', run: _mod('ouverture'),
+      kw: ['ouverture', 'j ouvre', 'on ouvre', 'matin'] },
+    { id: 'fermeture', ico: '🌙', label: 'Nettoyage de fermeture', run: _mod('fermeture'),
+      kw: ['fermeture', 'je ferme', 'on ferme', 'soir'] },
+    { id: 'nettoyage', ico: '🧹', label: 'Nettoyage', run: _mod('nettoyage'),
+      kw: ['nettoyage', 'nettoyer', 'menage', 'desinfection', 'desinfecter', 'laver', 'propre', 'plan de nettoyage'] },
+    { id: 'cuisson', ico: '🍳', label: 'Cuisson & remise en température', run: _mod('cuisson'),
+      kw: ['cuisson', 'cuire', 'cuit', 'a coeur', 'sonde', 'four', 'remise en temperature', 'rechauffer', 'plat chaud'] },
+    { id: 'refroidissement', ico: '❄️', label: 'Refroidissement rapide', run: _mod('refroidissement'),
+      kw: ['refroidir', 'refroidissement', 'cellule', 'refroidi'] },
+    { id: 'huiles', ico: '🫒', label: 'Huile de friture', run: _mod('huiles'),
+      kw: ['huile', 'huiles', 'friture', 'friteuse', 'frites', 'bain d huile'] },
+    { id: 'etiquetage', ico: '🏷️', label: 'Étiquetage / DLC secondaires', run: _mod('etiquetage'),
+      kw: ['etiquette', 'etiquettes', 'etiqueter', 'etiquetage', 'dlc', 'date limite', 'produit ouvert', 'preparation'] },
+    { id: 'pertes', ico: '🗑️', label: 'Pertes & invendus', run: _mod('pertes'),
+      kw: ['perte', 'pertes', 'invendu', 'invendus', 'jete', 'jeter', 'gaspillage', 'don', 'perime'] },
+    { id: 'dechets', ico: '♻️', label: 'Déchets & biodéchets', run: _mod('dechets'),
+      kw: ['dechet', 'dechets', 'biodechet', 'biodechets', 'poubelle', 'poubelles', 'tri', 'compost'] },
+    { id: 'nuisibles', ico: '🐀', label: 'Suivi nuisibles', run: _mod('nuisibles'),
+      kw: ['nuisible', 'nuisibles', 'rat', 'rats', 'souris', 'cafard', 'cafards', 'blatte', 'insecte', 'insectes', 'rongeur', 'deratisation', 'mouche', 'mouches'] },
+    { id: 'documents', ico: '📄', label: 'Mes documents obligatoires', run: _mod('documents'),
+      kw: ['document', 'documents', 'attestation', 'agrement', 'contrat', 'certificat', 'papiers'] },
+    { id: 'affichage', ico: '📌', label: 'Affichages réglementaires', run: _mod('affichage'),
+      kw: ['affichage', 'affichages', 'affiche', 'panneau'] },
+    { id: 'nc', ico: '⚡', label: 'J\'ai un problème — non-conformité', run: _mod('nc'),
+      kw: ['probleme', 'non conformite', 'nc', 'anomalie', 'incident', 'panne', 'souci', 'action corrective', 'casse', 'en panne'] },
+    { id: 'allergenes', ico: '🥜', label: 'Allergènes de ma carte', run: _mod('allergenes'),
+      kw: ['allergene', 'allergenes', 'allergie', 'allergies', 'gluten', 'arachide'] },
+    { id: 'equipe', ico: '👥', label: 'Mon équipe', run: _mod('equipe'),
+      kw: ['equipe', 'salarie', 'salaries', 'employe', 'employes', 'personne', 'collegue'] },
+    { id: 'inspecteur', ico: '📋', label: 'J\'ai un contrôle DDPP (mode inspecteur)', run: function () { ouvrirModeInspecteur('page-guide'); },
+      kw: ['inspecteur', 'inspectrice', 'inspection', 'controle ddpp', 'ddpp', 'dgal', 'controleur', 'veterinaire', 'services veterinaires', 'controle sanitaire'] },
+    { id: 'exports', ico: '🗂️', label: 'Générer le Pack DDPP / exports PDF', run: _mod('exports'),
+      kw: ['pack', 'export', 'exporter', 'pdf', 'imprimer', 'registre', 'telecharger'] },
+    { id: 'historique', ico: '📂', label: 'Historique de mes contrôles', run: _nav('history', 'page-history'),
+      kw: ['historique', 'anciens', 'ancien', 'mes controles', 'deja fait', 'retrouver'] },
+    { id: 'rapports', ico: '📊', label: 'Rapports', run: _nav('reports', 'page-reports'),
+      kw: ['rapport', 'rapports', 'bilan', 'statistique', 'statistiques', 'tableau de bord', 'score'] },
+    { id: 'plat-temoin', ico: '🍽️', label: 'Plat témoin', run: _mod('plat-temoin'), secteurs: ['collective'],
+      kw: ['plat temoin', 'temoin', 'echantillon'] },
+    { id: 'liaison-thermique', ico: '🌡️', label: 'Liaison chaude / froide', run: _mod('liaison-thermique'), secteurs: ['collective'],
+      kw: ['liaison', 'liaison chaude', 'liaison froide', 'distribution'] },
+    { id: 'registre-convives', ico: '👥', label: 'Registre des convives', run: _mod('registre-convives'), secteurs: ['collective'],
+      kw: ['convive', 'convives', 'grammage', 'grammages', 'nombre de repas'] },
+    { id: 'analyses-micro', ico: '🔬', label: 'Analyses microbiologiques', run: _mod('analyses-micro'), secteurs: ['collective'],
+      kw: ['analyse', 'analyses', 'microbio', 'microbiologique', 'laboratoire', 'prelevement'] }
+  ];
+  // Les modules réservés à un secteur (ex. huiles hors boucherie) suivent MODULES.
+  function _visible(it) {
+    var sect = (typeof SECTEUR_ACTIF !== 'undefined' && SECTEUR_ACTIF) ? SECTEUR_ACTIF : '';
+    var secteurs = it.secteurs;
+    if (!secteurs) {
+      try { MODULES.forEach(function (m) { if (m.id === it.id && m.secteurs) secteurs = m.secteurs; }); } catch (e) {}
+    }
+    if (!secteurs || !sect) return !it.secteurs;
+    return secteurs.indexOf(sect) > -1;
+  }
+  function irAnalyser(texte) {
+    var t = _norm(texte);
+    var res = [];
+    INTENTS.forEach(function (it) {
+      if (!_visible(it)) return;
+      var score = 0;
+      it.kw.forEach(function (k) {
+        if (t.indexOf(' ' + k + ' ') > -1) score += (k.indexOf(' ') > -1 ? 2 : 1);
+      });
+      if (score > 0) res.push({ it: it, score: score });
+    });
+    res.sort(function (a, b) { return b.score - a.score; });
+    return res.map(function (r) { return r.it; });
+  }
+  window.irAnalyser = irAnalyser;
+
+  var _ir = {}; // suffixe → { input, res, mic }
+  function _byId(id) { for (var i = 0; i < INTENTS.length; i++) if (INTENTS[i].id === id) return INTENTS[i]; return null; }
+  function _btnIntent(it, principal) {
+    return principal
+      ? '<button type="button" onclick="irOuvrir(\'' + it.id + '\')" style="width:100%;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#4338ca,#6366f1);color:white;border:none;border-radius:14px;padding:14px 16px;cursor:pointer;font-family:Outfit,sans-serif;text-align:left;box-shadow:0 4px 14px rgba(67,56,202,.3)"><span style="font-size:26px">' + it.ico + '</span><span style="flex:1;font-size:15px;font-weight:800;line-height:1.25">' + _echap(it.label) + '</span><span style="font-size:13px;font-weight:800;background:rgba(255,255,255,.18);border-radius:20px;padding:6px 12px">Ouvrir ›</span></button>'
+      : '<button type="button" onclick="irOuvrir(\'' + it.id + '\')" style="background:white;border:1px solid #e0e7ff;color:#3730a3;border-radius:20px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;margin:6px 6px 0 0">' + it.ico + ' ' + _echap(it.label) + '</button>';
+  }
+  function irAfficher(suf, texte) {
+    var o = _ir[suf]; if (!o) return;
+    var t = String(texte || '').trim();
+    if (t.length < 2) { o.res.innerHTML = ''; return; }
+    var liste = irAnalyser(t);
+    var h;
+    if (liste.length) {
+      h = '<div style="font-size:11px;font-weight:800;color:#16a34a;margin:12px 0 8px">✓ J\'ai compris :</div>' + _btnIntent(liste[0], true);
+      if (liste.length > 1) {
+        h += '<div style="font-size:11px;color:#6b7280;margin-top:10px">Pas ça ?</div><div>';
+        liste.slice(1, 4).forEach(function (it) { h += _btnIntent(it, false); });
+        h += '</div>';
+      }
+    } else {
+      h = '<div style="font-size:12px;color:#b45309;font-weight:700;margin:12px 0 4px">Je n\'ai pas compris « ' + _echap(t) + ' ». Vous vouliez peut-être :</div><div>';
+      ['temperatures', 'reception', 'nettoyage', 'nc', 'inspecteur'].forEach(function (id) { var it = _byId(id); if (it && _visible(it)) h += _btnIntent(it, false); });
+      h += '</div>';
+    }
+    o.res.innerHTML = h;
+  }
+  window.irOuvrir = function (id) {
+    var it = _byId(id); if (!it) return;
+    Object.keys(_ir).forEach(function (s) { _ir[s].input.value = ''; _ir[s].res.innerHTML = ''; });
+    try { it.run(); } catch (e) { if (typeof showToast === 'function') showToast('Ouverture impossible : ' + it.label, 'warn', 3000); }
+  };
+  window.irExemple = function (suf, phrase) {
+    var o = _ir[suf]; if (!o) return;
+    o.input.value = phrase; irAfficher(suf, phrase);
+  };
+
+  var _rec = null;
+  function _micEtat(o, actif) {
+    o.mic.textContent = actif ? '⏹' : '🎤';
+    o.mic.style.background = actif ? 'linear-gradient(135deg,#dc2626,#ef4444)' : 'linear-gradient(135deg,#4338ca,#6366f1)';
+    o.aide.textContent = actif ? 'Je vous écoute… parlez maintenant' : 'Touchez 🎤 et dites ce que vous voulez faire';
+  }
+  window.irMicro = function (suf) {
+    var o = _ir[suf]; if (!o) return;
+    if (_rec) { try { _rec.stop(); } catch (e) {} return; } // 2ᵉ appui = arrêter
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var repliClavier = function (msg) {
+      try { o.input.focus(); } catch (e) {}
+      if (typeof showToast === 'function') showToast(msg || 'Touchez le 🎤 du clavier (en bas) et dites ce que vous voulez faire.', 'info', 5000);
+    };
+    if (!SR) { repliClavier(); return; }
+    var rec;
+    try { rec = new SR(); } catch (e) { repliClavier(); return; }
+    rec.lang = 'fr-FR';
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    try { rec.continuous = false; } catch (e) {}
+    _rec = rec; _micEtat(o, true);
+    var fini = false, dit = '';
+    var garde = setTimeout(function () { try { rec.stop(); } catch (e) {} }, 10000);
+    var fin = function () {
+      if (fini) return; fini = true;
+      clearTimeout(garde); _rec = null; _micEtat(o, false);
+      if (dit) irAfficher(suf, dit);
+    };
+    rec.onresult = function (e) {
+      dit = '';
+      try { for (var i = 0; i < e.results.length; i++) dit += e.results[i][0].transcript; } catch (er) {}
+      o.input.value = dit;
+      irAfficher(suf, dit);
+    };
+    rec.onerror = function (ev) {
+      var err = (ev && ev.error) || '';
+      if (err === 'not-allowed' || err === 'service-not-allowed') {
+        fin(); repliClavier('🎤 Micro non autorisé pour Nomos. Autorisez le micro dans les réglages, ou utilisez le 🎤 du clavier.');
+        return;
+      }
+      if (err === 'no-speech' && typeof showToast === 'function') showToast('🎤 Rien entendu — réappuyez et parlez près du micro.', 'warn', 3500);
+      else if (err === 'network') { fin(); repliClavier('🎤 Reconnaissance vocale injoignable (réseau). Utilisez le 🎤 du clavier.'); return; }
+      else if (err === 'audio-capture' && typeof showToast === 'function') showToast('🎤 Aucun micro détecté.', 'warn', 3500);
+      fin();
+    };
+    rec.onend = fin;
+    try { rec.start(); } catch (e) { fin(); repliClavier(); }
+  };
+
+  function _rendre(suf, cible, avant) {
+    if (!cible || _ir[suf]) return;
+    var d = document.createElement('div');
+    d.className = 'ir-bloc';
+    d.style.cssText = 'background:white;border-radius:16px;padding:14px;margin:12px 16px 4px;box-shadow:0 4px 18px rgba(67,56,202,.12);border:1px solid #e0e7ff';
+    d.innerHTML =
+      '<div style="display:flex;align-items:center;gap:10px">'
+      + '<button type="button" class="ir-mic" aria-label="Dire ce que je veux faire" onclick="irMicro(\'' + suf + '\')" style="flex-shrink:0;width:58px;height:58px;border-radius:50%;border:none;color:white;font-size:26px;cursor:pointer;background:linear-gradient(135deg,#4338ca,#6366f1);box-shadow:0 4px 14px rgba(67,56,202,.35)">🎤</button>'
+      + '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:900;color:#1f2937;font-family:Outfit,sans-serif">Dites ou écrivez ce que vous voulez faire</div>'
+      + '<div class="ir-aide" style="font-size:11px;color:#6b7280;margin-top:2px">Touchez 🎤 et dites ce que vous voulez faire</div></div></div>'
+      + '<form onsubmit="return false" style="display:flex;gap:8px;margin-top:10px">'
+      + '<input type="search" class="ir-input" enterkeyhint="go" autocomplete="off" placeholder="Ex. : j\'ai une livraison" aria-label="Ce que je veux faire" style="flex:1;min-width:0;border:1px solid #e5e7eb;border-radius:12px;padding:12px;font-size:16px;font-family:inherit;background:#f9fafb">'
+      + '<button type="submit" class="ir-ok" style="border:none;border-radius:12px;padding:0 16px;background:#1e1b4b;color:white;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">OK</button></form>'
+      + '<div style="margin-top:4px">'
+      + ['Relever les frigos', 'J\'ai une livraison', 'L\'inspecteur est là', 'J\'ai un problème'].map(function (p) {
+          return '<button type="button" onclick="irExemple(\'' + suf + '\',\'' + p.replace(/'/g, '\\\'') + '\')" style="background:#f3f4f6;border:none;color:#374151;border-radius:20px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;margin:6px 6px 0 0;font-family:inherit">' + _echap(p) + '</button>';
+        }).join('')
+      + '</div><div class="ir-res"></div>';
+    cible.insertBefore(d, avant || null);
+    var o = { input: d.querySelector('.ir-input'), res: d.querySelector('.ir-res'), mic: d.querySelector('.ir-mic'), aide: d.querySelector('.ir-aide') };
+    _ir[suf] = o;
+    var tmr = null;
+    o.input.addEventListener('input', function () {
+      clearTimeout(tmr);
+      tmr = setTimeout(function () { irAfficher(suf, o.input.value); }, 450);
+    });
+    d.querySelector('form').addEventListener('submit', function () { clearTimeout(tmr); irAfficher(suf, o.input.value); try { o.input.blur(); } catch (e) {} });
+  }
+  function _init() {
+    try {
+      var g = document.getElementById('irZone-guide');
+      if (g) _rendre('guide', g, null);
+      var h = document.getElementById('irZone-home');
+      if (h) _rendre('home', h, null);
+    } catch (e) {}
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _init);
+  else _init();
+})();
