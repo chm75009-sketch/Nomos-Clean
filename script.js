@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v484';
+var APP_BUILD = 'v485';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -15264,7 +15264,43 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   btnFerm.textContent = 'Fermer';
   btnFerm.style.cssText = 'background:#dc2626;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
   btnFerm.onclick = function() { var el = document.getElementById('printOverlay'); if (el) el.remove(); };
-  tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnFerm);
+  // ✏️ Modifier — rend le document éditable sur place (correction d'une faute, d'un
+  // nom…) AVANT d'enregistrer en PDF ou en Word. Ne modifie PAS les données enregistrées.
+  var btnEdit = document.createElement('button');
+  btnEdit.textContent = '✏️ Modifier';
+  btnEdit.style.cssText = 'background:#7c3aed;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
+  btnEdit.onclick = function() {
+    var c = document.getElementById('packDDPPContenu'); if (!c) return;
+    var on = c.getAttribute('contenteditable') !== 'true';
+    c.setAttribute('contenteditable', on ? 'true' : 'false');
+    c.style.outline = on ? '3px dashed #7c3aed' : '';
+    btnEdit.textContent = on ? '✅ Terminer' : '✏️ Modifier';
+    try { if (typeof showToast==='function') showToast(on ? 'Touchez le texte pour le corriger, puis « Terminer ». (Le document seul est modifié, pas vos données.)' : 'Modifications prêtes : 💾 Sauvegarder (PDF) ou 📝 Word.', 'ok', 5000); } catch(e){}
+  };
+  // 📝 Word — télécharge le document affiché (avec vos corrections) au format Word (.doc),
+  // ouvrable et modifiable dans Word / Pages / LibreOffice. Les photos sont incluses par lien.
+  var btnWord = document.createElement('button');
+  btnWord.textContent = '📝 Word';
+  btnWord.style.cssText = 'background:#2563eb;color:white;border:none;border-radius:8px;padding:8px 14px;font-weight:700;cursor:pointer;font-size:12px';
+  btnWord.onclick = function() {
+    try {
+      var c = document.getElementById('packDDPPContenu'); if (!c) return;
+      var nomF = ((window._sqNomPerso && String(window._sqNomPerso)) || ('Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_'))) + '.doc';
+      var doc = '<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40">' +
+        '<head><meta charset="utf-8"><title>Pack DDPP</title>' +
+        '<style>body{font-family:Arial,sans-serif;font-size:10pt}img{max-width:15cm;height:auto}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:3px 6px}</style>' +
+        '</head><body>' + c.innerHTML + '</body></html>';
+      var blob = new Blob(['﻿', doc], { type: 'application/msword' });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = nomF;
+      document.body.appendChild(a); a.click();
+      setTimeout(function(){ try { document.body.removeChild(a); URL.revokeObjectURL(url); } catch(e){} }, 1500);
+      try { if (typeof showToast==='function') showToast('📝 Fichier Word téléchargé : ' + nomF, 'ok', 4000); } catch(e){}
+    } catch(eW) { alert('Export Word impossible : ' + (eW && eW.message ? eW.message : eW)); }
+  };
+  tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnEdit); tbBtns.appendChild(btnWord); tbBtns.appendChild(btnFerm);
+  tbBtns.style.flexWrap = 'wrap';
   tb.appendChild(tbTitle); tb.appendChild(tbBtns);
   // Barre de choix de source température — TOUJOURS visible, quel que soit le bouton qui a ouvert le Pack
   var tb2 = document.createElement('div');
@@ -15287,6 +15323,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
     tb2.appendChild(b);
   });
   var ct = document.createElement('div');
+  ct.id = 'packDDPPContenu';
   ct.innerHTML = html;
   overlay.appendChild(tb); overlay.appendChild(tb2); overlay.appendChild(ct);
   document.body.appendChild(overlay);
@@ -22155,34 +22192,44 @@ function testEffacerDonnees() {
           if (window.ETAB) window.ETAB.nom = nom;
           SECTEUR_ACTIF = '';                 // '' = aucun filtre secteur → on montre TOUS ses contrôles
           var rows = null;
-          // VOIE PRINCIPALE — RPC admin SECURITY DEFINER : contourne RLS (chaque
-          // établissement ne pouvant lire QUE ses propres contrôles via son jeton,
-          // l'admin doit passer par cette fonction serveur protégée par mot de passe).
-          if (window._supabase && typeof _adminPwd !== 'undefined') {
-            try {
-              var rc = await window._supabase.rpc('admin_list_controles', { p_pwd: _adminPwd, p_etab: String(id || code || '') });
-              if (!rc.error && Array.isArray(rc.data) && rc.data.length > 0) {
-                window._adminCtrlOverride = rc.data;
-                rows = await _charger(String(id || code || ''));
-              }
-            } catch(eRpcCtrl) {}
-            finally { window._adminCtrlOverride = null; }
-          }
-          // REPLI — lecture directe (utile si la base n'a pas RLS, ou pas encore la RPC).
-          for (var i = 0; i < candidats.length && !rows; i++) { rows = await _charger(candidats[i]); }
-          // Dernier recours : retrouver le vrai id d'établissement via le code d'accès.
-          if (!rows && code && window._supabase && typeof _adminPwd !== 'undefined') {
+          var _errRpc = '';
+          // 1) Résoudre le VRAI id d'établissement. L'onglet « Clients » fournit l'id
+          //    de la fiche commerciale (comptes_clients), alors que les contrôles sont
+          //    rangés sous code_client = etablissements.id → on le retrouve via le code
+          //    d'accès et on le place EN TÊTE des identifiants à essayer.
+          if (code && window._supabase && typeof _adminPwd !== 'undefined') {
             try {
               var rEt = await window._supabase.rpc('admin_list_etablissements', { p_pwd: _adminPwd });
               var match = ((rEt && rEt.data) || []).filter(function(x){ return String(x.code_acces) === String(code); })[0];
-              if (match && match.id && candidats.indexOf(String(match.id)) === -1) { rows = await _charger(String(match.id)); }
+              if (match && match.id) {
+                var _mid = String(match.id);
+                candidats = [_mid].concat(candidats.filter(function(k){ return k !== _mid; }));
+              }
             } catch(eRpc) {}
           }
+          // 2) VOIE PRINCIPALE — RPC admin SECURITY DEFINER (contourne RLS), essayée sur
+          //    CHAQUE identifiant (avant : un seul essai, puis repli en lecture directe
+          //    bloquée par RLS → faux « Aucun contrôle trouvé »).
+          if (window._supabase && typeof _adminPwd !== 'undefined') {
+            for (var j = 0; j < candidats.length && !rows; j++) {
+              try {
+                var rc = await window._supabase.rpc('admin_list_controles', { p_pwd: _adminPwd, p_etab: candidats[j] });
+                if (rc.error) { _errRpc = rc.error.message || String(rc.error); continue; }
+                if (Array.isArray(rc.data) && rc.data.length > 0) {
+                  window._adminCtrlOverride = rc.data;
+                  try { rows = await _charger(candidats[j]); } finally { window._adminCtrlOverride = null; }
+                }
+              } catch(eRpcCtrl) { _errRpc = (eRpcCtrl && eRpcCtrl.message) || String(eRpcCtrl); }
+            }
+          }
+          // 3) REPLI — lecture directe (utile si la base n'a pas RLS, ou pas encore la RPC).
+          for (var i = 0; i < candidats.length && !rows; i++) { rows = await _charger(candidats[i]); }
           if (!rows) {
             try { if (typeof _packHideLoading === 'function') _packHideLoading(); } catch(e){}
             alert('Aucun contrôle trouvé dans le cloud pour « ' + nom + ' ».\n\n' +
                   'Ce client n\'a probablement pas encore enregistré de contrôle.\n' +
-                  '(Si vous êtes certain du contraire, la lecture est peut-être bloquée par la base / RLS.)');
+                  '(Si vous êtes certain du contraire, la lecture est peut-être bloquée par la base / RLS.)' +
+                  (_errRpc ? '\n\nDétail technique : ' + _errRpc : ''));
             return;
           }
           // Réutilise le générateur officiel → document IDENTIQUE à celui du client.
