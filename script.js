@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v487';
+var APP_BUILD = 'v488';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -27856,4 +27856,84 @@ try {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _init);
   else _init();
+})();
+
+// ══════════════════════════════════════════════════════════════════
+// CLOISONNEMENT DES LISTES LOCALES PAR COMPTE (appareil partagé)
+// Les listes « déjà saisies » et réglages (fournisseurs, produits, plats,
+// friteuses, enceintes, capteurs…) sont gardées dans le téléphone. Elles n'étaient
+// pas rattachées à un compte : en changeant de compte sur le même appareil, le
+// nouveau compte héritait des listes de l'ancien (et pouvait les recopier dans son
+// cloud). On mémorise désormais à quel compte elles appartiennent :
+//  • autre compte connu → on vide ces listes puis on recharge celles du compte ;
+//  • propriétaire inconnu (1ʳᵉ fois après la mise à jour) → le cloud du compte fait
+//    foi : on vide le local et on recharge depuis le cloud. Si le réseau ne répond
+//    pas, on ne touche à rien et on réessaie au prochain démarrage.
+// Ne concerne PAS les contrôles enregistrés (haccp_module_data_*), jamais effacés.
+// ══════════════════════════════════════════════════════════════════
+var _LISTES_PROPRIO_KEY = 'haccp_listes_etab';
+var _LISTES_LOCALES = [
+  'haccp_fournisseurs', 'haccp_fournisseurs_cloudsig',
+  'haccp_plats_memo', 'haccp_plats_memo_cloudsig',
+  'haccp_produits_reception', 'haccp_produits_reception_cloudsig',
+  'haccp_memo_etiq', 'haccp_memo_etiq_sig', 'haccp_memo_pt', 'haccp_memo_pt_sig',
+  'haccp_memo_lt', 'haccp_memo_lt_sig', 'haccp_memo_am', 'haccp_memo_am_sig',
+  'haccp_memo_perte', 'haccp_memo_perte_sig',
+  'haccp_friteuses_config', 'haccp_friteuses_config_cloudsig',
+  'haccp_enceintes_config', 'haccp_enceintes_config_maj', 'haccp_enceintes_config_cloudsig',
+  'haccp_sondes_config', 'haccp_sondes_maj', 'haccp_ubibot_key', 'haccp_releves_config'
+];
+function _viderListesLocales() {
+  _LISTES_LOCALES.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+  try { _memoSimplesPulled = false; } catch (e) {}
+}
+function _rechargerListesCompte() {
+  [function () { pullFournisseurs(); }, function () { pullPlats(); }, function () { pullProduitsReception(); },
+   function () { pullAllMemoSimples(); }, function () { pullFriteusesCloud(); }, function () { pullEncCfgCloud(); },
+   function () { pullSondesCloud(); }, function () { syncFournisseursDatalist(); }, function () { renderAllMemoChips(); }
+  ].forEach(function (f) { try { f(); } catch (e) {} });
+}
+function _cloisonnerListesLocales() {
+  try {
+    if (window._adminPackMode) return; // l'admin emprunte un instant l'id d'un client
+    var id = (typeof ETAB_ID !== 'undefined' && ETAB_ID) ? String(ETAB_ID) : '';
+    if (!id) return;
+    var proprio = lsGet(_LISTES_PROPRIO_KEY) || '';
+    if (proprio === id) return;
+    if (proprio) {
+      _viderListesLocales();
+      lsSet(_LISTES_PROPRIO_KEY, id);
+      _rechargerListesCompte();
+      return;
+    }
+    // Propriétaire inconnu : y a-t-il quelque chose en local ?
+    var aDesListes = _LISTES_LOCALES.some(function (k) { var v = lsGet(k); return v && v !== '[]' && v !== 'null'; });
+    if (!aDesListes) { lsSet(_LISTES_PROPRIO_KEY, id); return; }
+    if (_cloisonnerListesLocales._enCours) return;
+    if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') return;
+    _cloisonnerListesLocales._enCours = true;
+    // Test réseau : le cloud du compte répond-il ? (une ligne suffit)
+    fetch(SUPABASE_URL + '/rest/v1/controles_haccp?code_client=eq.' + encodeURIComponent(id) + '&select=id&limit=1',
+      { cache: 'no-store', headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + _sbBearer() } })
+      .then(function (r) {
+        _cloisonnerListesLocales._enCours = false;
+        if (!r.ok) return; // pas de réponse fiable → on ne touche à rien
+        if (String(ETAB_ID) !== id) return; // compte changé entre-temps
+        _viderListesLocales();
+        lsSet(_LISTES_PROPRIO_KEY, id);
+        _rechargerListesCompte();
+      })
+      .catch(function () { _cloisonnerListesLocales._enCours = false; });
+  } catch (e) {}
+}
+// Vérifié au démarrage puis à chaque changement d'écran (coût nul si déjà à jour).
+(function () {
+  function _go() { setTimeout(_cloisonnerListesLocales, 400); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', _go); else _go();
+  try {
+    var _sp = window.showPage;
+    if (typeof _sp === 'function') {
+      window.showPage = function () { try { _cloisonnerListesLocales(); } catch (e) {} return _sp.apply(this, arguments); };
+    }
+  } catch (e) {}
 })();
