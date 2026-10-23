@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v486';
+var APP_BUILD = 'v487';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -13519,6 +13519,64 @@ function _packSauvegarderFichier(innerHtml, dateLabel){
   } catch(e){ try{ window.print(); }catch(_){} }
 }
 
+// 📤 Pack DDPP → vrai fichier PDF partageable (html2pdf chargé à la demande).
+var _H2PDF_URL = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+function _chargerHtml2pdf() {
+  if (window.html2pdf) return Promise.resolve(window.html2pdf);
+  if (window._h2pdfPromesse) return window._h2pdfPromesse;
+  window._h2pdfPromesse = new Promise(function(resolve, reject) {
+    var sc = document.createElement('script');
+    sc.src = _H2PDF_URL; sc.async = true;
+    sc.onload = function(){ window.html2pdf ? resolve(window.html2pdf) : reject(new Error('html2pdf absent')); };
+    sc.onerror = function(){ window._h2pdfPromesse = null; reject(new Error('Chargement impossible (réseau ?)')); };
+    document.head.appendChild(sc);
+  });
+  return window._h2pdfPromesse;
+}
+function _packEnvoyerPDF(contenu, nom, btn) {
+  if (!contenu) return;
+  var lblBtn = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Création du PDF…'; }
+  var fin = function(){ if (btn) { btn.disabled = false; btn.textContent = lblBtn; } };
+  try { if (typeof showToast==='function') showToast('Création du PDF en cours… (quelques secondes)', 'info', 6000); } catch(e){}
+  // Copie hors écran à largeur fixe (≈ A4) : même mise en page sur téléphone et PC,
+  // sans la bordure « mode Modifier ».
+  var hote = document.createElement('div');
+  hote.style.cssText = 'position:absolute;left:-10000px;top:0;width:760px;background:#fff';
+  var copie = contenu.cloneNode(true);
+  copie.removeAttribute('id'); copie.removeAttribute('contenteditable');
+  copie.style.outline = ''; copie.style.overflowX = 'visible';
+  hote.appendChild(copie);
+  document.body.appendChild(hote);
+  var nettoyer = function(){ try { hote.remove(); } catch(e){} };
+  _chargerHtml2pdf().then(function(h2p) {
+    var opt = {
+      margin: [8, 6, 10, 6],
+      filename: nom,
+      image: { type: 'jpeg', quality: 0.85 },
+      html2canvas: { scale: 1.6, useCORS: true, backgroundColor: '#ffffff', logging: false },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['css', 'legacy'], avoid: ['tr', 'img'] }
+    };
+    return h2p().set(opt).from(copie).outputPdf('blob');
+  }).then(function(blob) {
+    nettoyer(); fin();
+    var fichier = null;
+    try { fichier = new File([blob], nom, { type: 'application/pdf' }); } catch(e){}
+    if (fichier && navigator.canShare && navigator.share && navigator.canShare({ files: [fichier] })) {
+      navigator.share({ files: [fichier], title: nom.replace(/\.pdf$/, '') }).catch(function(err){
+        if (err && err.name === 'AbortError') return; // l'utilisateur a fermé le menu
+        _packTelechargerBlob(blob, nom);
+      });
+      return;
+    }
+    _packTelechargerBlob(blob, nom);
+  }).catch(function(err) {
+    nettoyer(); fin();
+    try { if (typeof showToast==='function') showToast('PDF impossible (' + (err && err.message ? err.message : 'erreur') + ') — utilisez « 💾 Sauvegarder ».', 'warn', 6000); } catch(e){}
+  });
+}
+
 // V116 — Livraison 3 : wrapper qui récupère les photos de la période avant de lancer le Pack DDPP,
 // puis les injecte directement dans chaque bloc de contrôle après le rendu.
 async function lancerPackDDPPAvecPhotos(dateFrom, dateTo, selectionIds) {
@@ -15240,7 +15298,7 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
 
   var tb = document.createElement('div');
   tb.className = 'no-print';
-  tb.style.cssText = 'background:#1e1b4b;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:1';
+  tb.style.cssText = 'background:#1e1b4b;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px';
   var tbTitle = document.createElement('div');
   tbTitle.style.cssText = 'color:white;font-weight:800;font-size:13px';
   tbTitle.textContent = 'Pack DDPP — ' + dateLabel;
@@ -15299,13 +15357,23 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
       try { if (typeof showToast==='function') showToast('📝 Fichier Word téléchargé : ' + nomF, 'ok', 4000); } catch(e){}
     } catch(eW) { alert('Export Word impossible : ' + (eW && eW.message ? eW.message : eW)); }
   };
-  tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnEdit); tbBtns.appendChild(btnWord); tbBtns.appendChild(btnFerm);
+  // 📤 Envoyer en PDF — fabrique un VRAI fichier PDF et ouvre le menu de partage
+  // (Mail, WhatsApp, Fichiers…). Indispensable sur iPhone où « Imprimer » ne donne
+  // pas de fichier transférable. Repli : téléchargement du PDF, sinon impression.
+  var btnPdf = document.createElement('button');
+  btnPdf.textContent = '📤 Envoyer en PDF';
+  btnPdf.style.cssText = 'background:#f59e0b;color:#1e1b4b;border:none;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer;font-size:12px';
+  btnPdf.onclick = function() {
+    var nomP = ((window._sqNomPerso && String(window._sqNomPerso)) || ('Pack-DDPP-' + String(dateLabel||'').replace(/[^0-9A-Za-z-]+/g,'_'))) + '.pdf';
+    _packEnvoyerPDF(document.getElementById('packDDPPContenu'), nomP, btnPdf);
+  };
+  tbBtns.appendChild(btnPdf); tbBtns.appendChild(btnImpr); tbBtns.appendChild(btnSave); tbBtns.appendChild(btnEdit); tbBtns.appendChild(btnWord); tbBtns.appendChild(btnFerm);
   tbBtns.style.flexWrap = 'wrap';
   tb.appendChild(tbTitle); tb.appendChild(tbBtns);
   // Barre de choix de source température — TOUJOURS visible, quel que soit le bouton qui a ouvert le Pack
   var tb2 = document.createElement('div');
   tb2.className = 'no-print';
-  tb2.style.cssText = 'background:#312e81;padding:8px 16px;display:flex;align-items:center;gap:6px;position:sticky;top:44px;z-index:1;flex-wrap:wrap';
+  tb2.style.cssText = 'background:#312e81;padding:8px 16px;display:flex;align-items:center;gap:6px;flex-wrap:wrap';
   var _tsLbl = document.createElement('span');
   _tsLbl.textContent = 'Relevés température :';
   _tsLbl.style.cssText = 'color:#c7d2fe;font-size:11px;font-weight:700';
@@ -15325,7 +15393,16 @@ function lancerPackDDPP(dateFrom, dateTo, selectionIds) {
   var ct = document.createElement('div');
   ct.id = 'packDDPPContenu';
   ct.innerHTML = html;
-  overlay.appendChild(tb); overlay.appendChild(tb2); overlay.appendChild(ct);
+  // Les deux barres dans UN SEUL en-tête collant (avant : la 2ᵉ barre, collée à 44 px,
+  // recouvrait les boutons quand la 1ʳᵉ passait sur deux lignes — cas de l'iPhone),
+  // décalé sous l'encoche / la barre d'état de l'iPhone.
+  var tete = document.createElement('div');
+  tete.className = 'no-print';
+  tete.style.cssText = 'position:sticky;top:0;left:0;z-index:2;background:#1e1b4b;padding-top:env(safe-area-inset-top,0px)';
+  tete.appendChild(tb); tete.appendChild(tb2);
+  ct.style.overflowX = 'auto';
+  overlay.style.overflowX = 'hidden';
+  overlay.appendChild(tete); overlay.appendChild(ct);
   document.body.appendChild(overlay);
   overlay.scrollTop = 0;
   showToast('Pack DDPP généré — ' + modules.length + ' modules', 'ok', 3000);
