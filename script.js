@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v490';
+var APP_BUILD = 'v491';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2196,10 +2196,12 @@ async function connexion() {
     btn.textContent = '🔑 Se connecter'; btn.disabled = false;
   }
   if (!result || !result.ok) {
+    try { journalNomos('echec_connexion', (result && result.msg) || 'Erreur inconnue', code); } catch(eJ) {}
     errEl.textContent = (result && result.msg) ? result.msg : 'Erreur inconnue.'; errEl.style.display = 'block'; return;
   }
   // Connexion réussie
   var d = result.data;
+  try { if (!result.local) { window._journalConnexionFaite = true; journalNomos(result.offline ? 'connexion_hors_ligne' : 'connexion', '', code); } } catch(eJ) {}
   // V105 — Mémoriser le code d'accès pour la prochaine session (pas le mot de passe)
   try { lsSet('haccp_last_code', code); } catch(e) {}
   // DATA-5 — empreinte hors-ligne (30 j) : permet de rouvrir l'app sans réseau.
@@ -4448,6 +4450,7 @@ function changerDeCompte() {
 
 function deconnecterConfirme() {
   try { _trace('deconnecterConfirme (bouton)'); } catch(e){}
+  try { journalNomos('deconnexion', ''); } catch(eJ){}
   ETAB_ID = null; SB_READY = false;
   CLIENT_MODE = false;
   // Marqueur de déconnexion (lu en direct → résiste à l'instantané bfcache iOS au
@@ -21917,6 +21920,97 @@ function testEffacerDonnees() {
       // persisté. Effacé à la déconnexion.
       var _adminPwd = '';
 
+      // ── JOURNAL DES CONNEXIONS & INCIDENTS (essais et clients) ──
+      // Lu via admin_journal / admin_journal_resume (protégées par le mot de passe admin).
+      var _JRN_LIB = {
+        connexion: ['🟢', 'Connexion'], connexion_hors_ligne: ['📴', 'Connexion hors ligne'],
+        reprise: ['🔄', 'Ouverture de l\'app (déjà connecté)'], deconnexion: ['🚪', 'Déconnexion'],
+        echec_connexion: ['🔴', 'Échec de connexion'], erreur: ['⚠️', 'Erreur dans l\'app'],
+        synchro_echec: ['☁️', 'Échec d\'enregistrement dans le cloud'],
+        controle: ['✅', 'Contrôle enregistré'], module: ['📂', 'Module ouvert'], export: ['📄', 'Export / document']
+      };
+      window.adminJournal = function(code, nom) {
+        if (!window._supabase) return;
+        var ex = document.getElementById('journalOverlay'); if (ex) ex.remove();
+        var ov = document.createElement('div');
+        ov.id = 'journalOverlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,26,.75);z-index:99999;overflow:auto;padding:16px;box-sizing:border-box';
+        ov.innerHTML = '<div style="max-width:560px;margin:24px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4);font-family:Outfit,sans-serif">'
+          + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px"><h3 style="margin:0;color:#0f172a">📜 Journal — ' + escapeHtml(nom || code) + '</h3>'
+          + '<button onclick="document.getElementById(\'journalOverlay\').remove()" style="background:#e2e8f0;border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer">Fermer</button></div>'
+          + '<div style="font-size:12px;color:#64748b;margin-bottom:12px">' + escapeHtml(code) + ' — 300 derniers événements (connexions, contrôles, actions, incidents)</div>'
+          + '<div id="journalListe" style="font-size:13px;color:#334155">Chargement…</div></div>';
+        document.body.appendChild(ov);
+        window._supabase.rpc('admin_journal', { p_pwd: _adminPwd, p_code: code, p_limit: 300 }).then(function(res) {
+          var box = document.getElementById('journalListe'); if (!box) return;
+          if (res.error) { box.innerHTML = '<div style="color:#b91c1c">Journal indisponible : ' + escapeHtml(res.error.message) + '</div>'; return; }
+          var rows = Array.isArray(res.data) ? res.data : [];
+          if (!rows.length) { box.innerHTML = '<div style="color:#64748b;padding:12px 0">Aucun événement enregistré pour l\'instant. Le journal se remplit à partir de la version 491 de l\'app.</div>'; return; }
+          var nbInc = rows.filter(function(x){ return x.type === 'echec_connexion' || x.type === 'erreur' || x.type === 'synchro_echec'; }).length;
+          var h = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
+            + '<span style="background:#dcfce7;color:#166534;border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + rows.filter(function(x){ return /^connexion|^reprise/.test(x.type); }).length + ' connexion(s)/ouverture(s)</span>'
+            + '<span style="background:#e0e7ff;color:#3730a3;border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + rows.filter(function(x){ return x.type === 'controle'; }).length + ' contrôle(s)</span>'
+            + '<span style="background:' + (nbInc ? '#fee2e2;color:#991b1b' : '#f1f5f9;color:#475569') + ';border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + nbInc + ' incident(s)</span></div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="journalFiltres">'
+            + [['tout','Tout'],['connexions','Connexions'],['controles','Contrôles & actions'],['incidents','Incidents']].map(function(f, i){ return '<button type="button" data-f="' + f[0] + '" style="border:1px solid #cbd5e1;background:' + (i ? '#fff' : '#0f172a') + ';color:' + (i ? '#334155' : '#fff') + ';border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">' + f[1] + '</button>'; }).join('')
+            + '</div>';
+          rows.forEach(function(x) {
+            var lib = _JRN_LIB[x.type] || ['•', x.type];
+            var inc = (x.type === 'echec_connexion' || x.type === 'erreur' || x.type === 'synchro_echec');
+            var d = new Date(x.created_at);
+            var grp = inc ? 'incidents' : ((x.type === 'controle' || x.type === 'module' || x.type === 'export') ? 'controles' : 'connexions');
+            h += '<div class="jrnLigne" data-g="' + grp + '" style="border-top:1px solid #f1f5f9;padding:8px 0;' + (inc ? 'background:#fff7f7;' : '') + '">'
+              + '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:' + (inc ? '#b91c1c' : '#0f172a') + '">' + lib[0] + ' ' + escapeHtml(lib[1]) + '</span>'
+              + '<span style="color:#64748b;font-size:12px">' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</span></div>'
+              + (x.detail ? '<div style="font-size:12px;color:#475569;margin-top:2px;word-break:break-word">' + escapeHtml(x.detail) + '</div>' : '')
+              + '<div style="font-size:11px;color:#94a3b8;margin-top:2px">' + escapeHtml(x.appareil || '') + (x.version ? ' · ' + escapeHtml(x.version) : '') + '</div></div>';
+          });
+          box.innerHTML = h;
+          box.querySelectorAll('#journalFiltres button').forEach(function(b) {
+            b.onclick = function() {
+              var f = b.getAttribute('data-f');
+              box.querySelectorAll('#journalFiltres button').forEach(function(o){ var on = (o === b); o.style.background = on ? '#0f172a' : '#fff'; o.style.color = on ? '#fff' : '#334155'; });
+              box.querySelectorAll('.jrnLigne').forEach(function(l){ l.style.display = (f === 'tout' || l.getAttribute('data-g') === f) ? '' : 'none'; });
+            };
+          });
+        }, function(e) { var box = document.getElementById('journalListe'); if (box) box.textContent = 'Journal indisponible.'; });
+      };
+      // Session admin ouverte sur cet appareil → le journal client n'enregistre rien (pas d'actions admin notées au nom d'un client).
+      window._adminConnecte = function() { return !!_adminPwd; };
+      // Complète chaque fiche (essai / client) : dernière connexion + incidents des 7 derniers jours.
+      var _jrnResumeEnCours = false;
+      function _remplirResumesJournal() {
+        if (_jrnResumeEnCours || !window._supabase || !_adminPwd) return;
+        var els = document.querySelectorAll('.jrnResume:not([data-ok])');
+        if (!els.length) return;
+        _jrnResumeEnCours = true;
+        window._supabase.rpc('admin_journal_resume', { p_pwd: _adminPwd }).then(function(res) {
+          _jrnResumeEnCours = false;
+          if (res.error || !Array.isArray(res.data)) { els.forEach(function(el){ el.setAttribute('data-ok', '1'); }); return; }
+          var map = {}; res.data.forEach(function(x){ map[String(x.code_acces || '').toUpperCase()] = x; });
+          document.querySelectorAll('.jrnResume:not([data-ok])').forEach(function(el) {
+            el.setAttribute('data-ok', '1');
+            var x = map[el.getAttribute('data-code')];
+            if (!x) { if (/…/.test(el.textContent)) el.textContent = '🔴 Jamais connecté (depuis la mise en place du journal)'; return; }
+            var h = '';
+            if (x.derniere_connexion) {
+              var d = new Date(x.derniere_connexion);
+              var j = Math.max(0, Math.floor((Date.now() - d.getTime()) / 86400000));
+              var col = j <= 3 ? '#4ade80' : (j <= 14 ? '#fbbf24' : '#fca5a5');
+              h += '<span style="color:' + col + '">🕒 Dernière connexion : ' + (j === 0 ? 'aujourd\'hui' : (j === 1 ? 'hier' : 'il y a ' + j + ' jours')) + ' (' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + ')</span>';
+            } else {
+              h += '<span style="color:#fca5a5;font-weight:700">🔴 Jamais connecté</span>';
+            }
+            if (x.incidents_7j > 0) h += ' <span style="color:#fca5a5;font-weight:700">· ⚠️ ' + x.incidents_7j + ' incident(s) sur 7 jours</span>';
+            el.innerHTML = h;
+          });
+        }, function(){ _jrnResumeEnCours = false; });
+      }
+      try {
+        new MutationObserver(function() { clearTimeout(_remplirResumesJournal._t); _remplirResumesJournal._t = setTimeout(_remplirResumesJournal, 300); })
+          .observe(document.documentElement, { childList: true, subtree: true });
+      } catch(eMo) {}
+
       window.loginAdmin = function() {
         var pwd = (document.getElementById('adminPwd') || {}).value || '';
         var err = document.getElementById('adminLoginErr');
@@ -22226,7 +22320,9 @@ function testEffacerDonnees() {
               if (r.motif_desactivation) html += '<div style="font-size:11px;color:rgba(255,255,255,0.55);font-style:italic">Motif: ' + escapeHtml(r.motif_desactivation) + '</div>';
               html += '<button onclick="reactiverClient(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.3);padding:8px 16px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;margin-top:6px">✅ Réactiver</button>';
             }
-            html += '<div style="display:flex;gap:6px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">';
+            html += '<div class="jrnResume" data-code="' + escapeHtml(String(r.code_acces || '').toUpperCase()) + '" style="font-size:11px;color:rgba(255,255,255,0.45);margin:2px 0 6px">🕒 Dernière connexion : …</div>';
+            html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:8px">';
+            html += '<button onclick="adminJournal(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement || r.code_acces) + '\')" style="background:rgba(148,163,184,0.15);color:#e2e8f0;border:1px solid rgba(148,163,184,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📜 Journal</button>';
             html += '<button onclick="modifierClient(\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(59,130,246,0.12);color:#93c5fd;border:1px solid rgba(59,130,246,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✏️ Modifier</button>';
             html += '<button onclick="previenirClient(\'' + attrJs(r.code_acces) + '\')" style="background:rgba(20,184,166,0.14);color:#5eead4;border:1px solid rgba(20,184,166,0.35);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">✉️ Prévenir</button>';
             html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.etablissement) + '\')" style="background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.3);padding:7px 14px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif">📄 Pack DDPP</button>';
@@ -22568,12 +22664,12 @@ function testEffacerDonnees() {
             }
             html += (function(){
               var dc = r.derniere_connexion;
-              if (!dc) return '<div style="font-size:11px;color:#fca5a5;margin-bottom:8px;font-weight:700">🔴 Jamais connecté</div>';
+              if (!dc) return '<div class="jrnResume" data-code="' + escapeHtml(String(r.code_acces || '').toUpperCase()) + '" style="font-size:11px;color:#fca5a5;margin-bottom:8px;font-weight:700">🔴 Jamais connecté</div>';
               var d = new Date(dc); if (isNaN(d.getTime())) return '';
               var j = Math.max(0, _joursCalendaire(d, new Date()));
               var col = j<=3?'#4ade80':(j<=14?'#fbbf24':'#fca5a5');
               var txt = j===0?"aujourd'hui":(j===1?'hier':'il y a '+j+' jours');
-              return '<div style="font-size:11px;color:'+col+';margin-bottom:8px">🕒 Dernière connexion : '+txt+' ('+d.toLocaleDateString('fr-FR')+')</div>';
+              return '<div class="jrnResume" data-code="' + escapeHtml(String(r.code_acces || '').toUpperCase()) + '" style="font-size:11px;color:'+col+';margin-bottom:8px">🕒 Dernière connexion : '+txt+' ('+d.toLocaleDateString('fr-FR')+')</div>';
             })();
             // Actions : suspendre / réactiver + prolonger
             var bs = 'border:none;padding:7px 13px;border-radius:7px;font-weight:700;font-size:12px;cursor:pointer;font-family:Outfit,sans-serif;margin-right:6px;margin-top:4px';
@@ -22590,6 +22686,7 @@ function testEffacerDonnees() {
             }
             html += '<button onclick="modifierEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(168,85,247,0.18);color:#d8b4fe;' + bs + '">✏️ Modifier</button>';
             html += '<button onclick="adminPackDDPP(\'' + attrJs(r.id) + '\',\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(16,185,129,0.15);color:#6ee7b7;' + bs + '">📄 Pack DDPP</button>';
+            html += '<button onclick="adminJournal(\'' + attrJs(r.code_acces) + '\',\'' + attrJs(r.nom || r.code_acces) + '\')" style="background:rgba(148,163,184,0.15);color:#e2e8f0;' + bs + '">📜 Journal</button>';
             html += '<button onclick="supprimerEtab(\'' + r.id + '\',\'' + escapeHtml(r.code_acces) + '\')" style="background:rgba(127,29,29,0.3);color:#fca5a5;' + bs + '">🗑️ Supprimer</button>';
             html += '</div>';
             html += '</div>';
@@ -28005,4 +28102,145 @@ function _cloisonnerListesLocales() {
       window.showPage = function () { try { _cloisonnerListesLocales(); } catch (e) {} return _sp.apply(this, arguments); };
     }
   } catch (e) {}
+})();
+
+
+// ══════════════════════════════════════════════════════════════════
+// JOURNAL DES CONNEXIONS & INCIDENTS — côté client
+// Note dans la base (fonction journal_evenement) : connexions, ouvertures de l'app,
+// déconnexions, échecs de connexion, erreurs de l'app, échecs d'enregistrement cloud.
+// Sans réseau : mis en attente sur l'appareil et envoyé à la prochaine connexion.
+// Ne bloque JAMAIS l'app (tout est en arrière-plan, erreurs ignorées).
+// ══════════════════════════════════════════════════════════════════
+var _JRN_ATTENTE_KEY = 'haccp_journal_attente';
+function _jrnAppareil() {
+  var ua = navigator.userAgent || '';
+  var os = /iPhone/.test(ua) ? 'iPhone' : /iPad/.test(ua) ? 'iPad' : /Android/.test(ua) ? 'Android' : /Windows/.test(ua) ? 'PC Windows' : /Macintosh/.test(ua) ? 'Mac' : 'Autre';
+  var nav = /Edg\//.test(ua) ? 'Edge' : /Firefox\//.test(ua) ? 'Firefox' : /CriOS|Chrome\//.test(ua) ? 'Chrome' : /Safari\//.test(ua) ? 'Safari' : '';
+  var app = false;
+  try { app = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true; } catch (e) {}
+  return os + (nav ? ' · ' + nav : '') + (app ? ' · app installée' : ' · navigateur');
+}
+function _jrnEnvoyer(ev) {
+  if (typeof SUPABASE_URL === 'undefined' || typeof SUPABASE_ANON === 'undefined') return Promise.reject(new Error('cfg'));
+  return fetch(SUPABASE_URL + '/rest/v1/rpc/journal_evenement', {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + SUPABASE_ANON, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_code: ev.code, p_type: ev.type, p_detail: ev.detail || null, p_appareil: ev.appareil, p_version: ev.version, p_quand: ev.quand })
+  }).then(function (r) { if (!r.ok && r.status >= 500) throw new Error('HTTP ' + r.status); return r; });
+}
+function _jrnMettreEnAttente(ev) {
+  try {
+    var a = JSON.parse(lsGet(_JRN_ATTENTE_KEY) || '[]'); if (!Array.isArray(a)) a = [];
+    a.push(ev); if (a.length > 30) a = a.slice(-30);
+    lsSet(_JRN_ATTENTE_KEY, JSON.stringify(a));
+  } catch (e) {}
+}
+function _jrnViderAttente() {
+  var a = [];
+  try { a = JSON.parse(lsGet(_JRN_ATTENTE_KEY) || '[]'); } catch (e) { a = []; }
+  if (!Array.isArray(a) || !a.length) return;
+  try { lsRemove(_JRN_ATTENTE_KEY); } catch (e) {}
+  a.reduce(function (p, ev) { return p.then(function () { return _jrnEnvoyer(ev).catch(function () { _jrnMettreEnAttente(ev); }); }); }, Promise.resolve());
+}
+function journalNomos(type, detail, codeForce) {
+  try {
+    var code = String(codeForce || lsGet('haccp_last_code') || '').toUpperCase().trim();
+    if (!code) return;
+    if (typeof CODES_LOCAUX !== 'undefined' && CODES_LOCAUX[code]) return; // comptes de démo internes
+    if (window._adminPackMode || (typeof window._adminConnecte === 'function' && window._adminConnecte())) return; // actions de l'admin
+    var ev = { code: code, type: type, detail: String(detail || '').slice(0, 480), appareil: _jrnAppareil(),
+               version: (typeof APP_BUILD !== 'undefined' ? APP_BUILD : ''), quand: new Date().toISOString() };
+    if (navigator.onLine === false) { _jrnMettreEnAttente(ev); return; }
+    _jrnEnvoyer(ev).then(function () { _jrnViderAttente(); }, function () { _jrnMettreEnAttente(ev); });
+  } catch (e) {}
+}
+window.journalNomos = journalNomos;
+function _jrnNomModule(id) {
+  try { for (var i = 0; i < MODULES.length; i++) if (MODULES[i].id === id) return MODULES[i].name + ' (' + id + ')'; } catch (e) {}
+  return String(id || '?');
+}
+(function () {
+  // Erreurs de l'app (3 max par ouverture, pour ne pas inonder le journal)
+  var nbErr = 0;
+  function noterErreur(msg) {
+    if (nbErr >= 3) return;
+    if (!(typeof ETAB_ID !== 'undefined' && ETAB_ID)) return;
+    msg = String(msg || '');
+    if (!msg || /^Script error\.?$/i.test(msg) || /ResizeObserver loop/i.test(msg)) return;
+    nbErr++;
+    journalNomos('erreur', msg + ' — écran : ' + ((document.querySelector('.page.active') || {}).id || '?'));
+  }
+  window.addEventListener('error', function (e) {
+    try { noterErreur((e && e.message ? e.message : 'Erreur') + (e && e.filename ? ' (' + String(e.filename).split('/').pop().split('?')[0] + ':' + e.lineno + ')' : '')); } catch (x) {}
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    try { var r = e && e.reason; noterErreur('Promesse rejetée : ' + (r && r.message ? r.message : String(r))); } catch (x) {}
+  });
+  // Échecs d'enregistrement d'un contrôle dans le cloud (erreur serveur, pas une simple coupure réseau)
+  try {
+    var _orig = window.enregistrerControleHACCP;
+    if (typeof _orig === 'function') {
+      window.enregistrerControleHACCP = function () {
+        var args = arguments, mod = args[0];
+        var p = _orig.apply(this, args);
+        try {
+          Promise.resolve(p).then(function (res) {
+            if (res && res.ok === false && res.status) journalNomos('synchro_echec', 'Module ' + mod + ' — ' + (res.msg || '') + (res.body ? ' — ' + String(res.body).slice(0, 200) : ''));
+            else if (res && res.ok !== false && String(mod || '').indexOf('__') !== 0) journalNomos('controle', _jrnNomModule(mod) + (typeof SECTEUR_ACTIF !== 'undefined' && SECTEUR_ACTIF ? ' — activité : ' + SECTEUR_ACTIF : ''));
+          }, function () {});
+        } catch (x) {}
+        return p;
+      };
+    }
+  } catch (e) {}
+  // Modules ouverts (dédoublonné : le choix « Qui réalise ce contrôle ? » rappelle openModule)
+  try {
+    var _origOpen = window.openModule;
+    if (typeof _origOpen === 'function') {
+      var _dernierOpen = { id: '', t: 0 };
+      window.openModule = function (id) {
+        try {
+          if (!(_dernierOpen.id === id && Date.now() - _dernierOpen.t < 8000)) journalNomos('module', _jrnNomModule(id));
+          _dernierOpen = { id: id, t: Date.now() };
+        } catch (x) {}
+        return _origOpen.apply(this, arguments);
+      };
+      window.openModule._skipInterv = false;
+    }
+  } catch (e) {}
+  // Exports : Pack DDPP généré (hors consultation admin) et PDF envoyé
+  try {
+    var _origPack = window.lancerPackDDPP;
+    if (typeof _origPack === 'function') {
+      window.lancerPackDDPP = function (from, to) {
+        try { if (!window._adminPackMode) journalNomos('export', 'Pack DDPP généré — du ' + (from || '?') + ' au ' + (to || '?')); } catch (x) {}
+        return _origPack.apply(this, arguments);
+      };
+    }
+    var _origPdf = window._packEnvoyerPDF;
+    if (typeof _origPdf === 'function') {
+      window._packEnvoyerPDF = function (c, nom) {
+        try { journalNomos('export', 'PDF créé / envoyé : ' + (nom || '')); } catch (x) {}
+        return _origPdf.apply(this, arguments);
+      };
+    }
+  } catch (e) {}
+  // Ouverture de l'app avec une session déjà active (sans repasser par l'écran de connexion)
+  // — notée au plus une fois toutes les 30 min par appareil.
+  function reprise() {
+    try {
+      _jrnViderAttente();
+      if (window._journalConnexionFaite) return;
+      if (!(typeof ETAB_ID !== 'undefined' && ETAB_ID) || String(ETAB_ID).indexOf('local-') === 0) return;
+      if (lsGet('haccp_deconnecte') === '1') return;
+      var last = parseInt(lsGet('haccp_journal_reprise') || '0', 10) || 0;
+      if (Date.now() - last < 30 * 60 * 1000) return;
+      lsSet('haccp_journal_reprise', String(Date.now()));
+      journalNomos('reprise', '');
+    } catch (e) {}
+  }
+  window.addEventListener('load', function () { setTimeout(reprise, 6000); });
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(reprise, 1500); });
+  window.addEventListener('online', function () { try { _jrnViderAttente(); } catch (e) {} });
 })();
