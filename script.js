@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v489';
+var APP_BUILD = 'v490';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -22515,12 +22515,12 @@ function testEffacerDonnees() {
             return '<label style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:7px 12px;font-size:12px;color:white;cursor:pointer"><input type="checkbox" class="essai_sect" value="' + o[0] + '" style="width:16px;height:16px">' + o[1] + '</label>';
           }).join('') +
           '</div>' +
-          '<div style="display:flex;align-items:center;gap:10px;margin:4px 0 12px"><span style="font-size:13px;color:rgba(255,255,255,0.8)">Durée :</span>' +
+          '<div style="display:' + (estClients ? 'none' : 'flex') + ';align-items:center;gap:10px;margin:4px 0 12px"><span style="font-size:13px;color:rgba(255,255,255,0.8)">Durée de l\'essai :</span>' +
           '<select id="essai_duree" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-size:13px;font-family:Outfit,sans-serif">' +
           [1,2,3,5,7,10,14,15].map(function(n){ return '<option value="'+n+'"'+(n===7?' selected':'')+'>'+n+' jour'+(n>1?'s':'')+'</option>'; }).join('') +
           '</select></div>' +
-          '<label style="display:flex;align-items:flex-start;gap:8px;margin:6px 0 6px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_client"' + (estClients ? ' checked' : '') + ' style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Compte <strong>CLIENT payant</strong> (valable <strong>1 an</strong>, code CLIENT-) au lieu d\'un essai</span></label>' +
-                    '<label style="display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_formule_rth" style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Formule <strong>Contr&ocirc;le RTH</strong> &mdash; version <strong>3 contr&ocirc;les</strong> (R&eacute;ception &middot; Temp&eacute;rature &middot; Huile)</span></label>' +
+          '<input type="checkbox" id="essai_client"' + (estClients ? ' checked' : '') + ' style="display:none">' +
+                    '<label style="display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_formule_rth" style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Version <strong>simplifi&eacute;e</strong> &laquo; Contr&ocirc;le RTH &raquo; : <strong>3 contr&ocirc;les</strong> seulement (R&eacute;ception &middot; Temp&eacute;rature &middot; Huile). <em>Laisser d&eacute;coch&eacute; = version compl&egrave;te.</em></span></label>' +
           '<button id="btnCreerEssai" onclick="creerEssai()" style="width:100%;background:linear-gradient(135deg,#16a34a,#4ade80);color:#0a0e1a;border:none;padding:12px;border-radius:9px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">' + (estClients ? '👥 Créer le compte client' : '🎁 Créer le code d\'essai') + '</button>' +
           '</div>' +
           '<div id="essaisListe"><div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px">Chargement des essais…</div></div>';
