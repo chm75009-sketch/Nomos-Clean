@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v488';
+var APP_BUILD = 'v489';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2257,9 +2257,18 @@ async function connexion() {
     } else {
       // Client verrouillé : le secteur de la base fait foi. On purge un éventuel
       // secteur mémorisé erroné pour cet établissement.
-      SECTEUR_ACTIF = d.secteur || 'resto';
-      ETAB.secteur = d.secteur || 'resto';
-      try { lsSet('haccp_secteur_actif_' + ETAB_ID, ETAB.secteur); } catch(ePurge) {}
+      // Exception : client autorisé sur PLUSIEURS activités (cases cochées par
+      // l'admin) → on reprend la dernière activité choisie si elle est autorisée.
+      try { lsSet('haccp_secteur_base_' + ETAB_ID, d.secteur || 'resto'); } catch(eB) {}
+      var _autLogin = _secteursAutorisesClient();
+      var _savedSect2 = lsGet('haccp_secteur_actif_' + ETAB_ID);
+      if (_autLogin.length > 1 && _savedSect2 && _autLogin.indexOf(_savedSect2) > -1) {
+        SECTEUR_ACTIF = _savedSect2; ETAB.secteur = _savedSect2;
+      } else {
+        SECTEUR_ACTIF = d.secteur || 'resto';
+        ETAB.secteur = d.secteur || 'resto';
+        try { lsSet('haccp_secteur_actif_' + ETAB_ID, ETAB.secteur); } catch(ePurge) {}
+      }
     }
   } catch(eSect) {}
   ETAB.date_expiration = d.date_expiration || '';
@@ -2322,6 +2331,7 @@ async function connexion() {
   // Mémoriser l'état de verrouillage pour pouvoir le restaurer à l'identique lors
   // d'une reprise de session après mise à jour (voir initApp).
   try { lsSet('haccp_client_mode', CLIENT_MODE ? '1' : '0'); try { lsSet('haccp_multi_secteur', (d && d.multi_secteur === true) ? '1' : '0'); } catch(eMs){} } catch(e) {}
+  try { if (CLIENT_MODE && !result.local) _majSecteursAutorises(code, d.secteur || 'resto'); } catch(eAut) {}
   // V101 — Appliquer le grisage immédiatement après l'affichage du choix secteur
   setTimeout(appliquerClientMode, 50);
   var sa=document.getElementById('scrollArea'); if(sa) sa.scrollTop=0; window.scrollTo(0,0);
@@ -2333,9 +2343,43 @@ async function connexion() {
 
 // V80 — Masque les boutons secteurs autres que celui du client connecté
 // V101 — Modifié : grise les autres secteurs au lieu de les cacher, avec popup au clic
+// Activités autorisées pour le compte connecté (cases cochées dans l'admin).
+// Toujours au moins l'activité principale du compte.
+var _SECTEURS_VALIDES = ['resto', 'bp', 'rapide', 'boucherie', 'collective'];
+function _secteursAutorisesClient() {
+  var id = (typeof ETAB_ID !== 'undefined' && ETAB_ID) ? ETAB_ID : '';
+  var base = (id && lsGet('haccp_secteur_base_' + id)) || (ETAB && ETAB.secteur) || 'resto';
+  var l = [];
+  try { l = JSON.parse((id && lsGet('haccp_secteurs_autorises_' + id)) || '[]'); } catch (e) { l = []; }
+  if (!Array.isArray(l)) l = [];
+  l = l.filter(function (x) { return _SECTEURS_VALIDES.indexOf(x) > -1; });
+  if (l.indexOf(base) < 0) l.unshift(base);
+  return l;
+}
+// Relit la liste en base (fonction get_secteurs_autorises) et réapplique le verrouillage.
+// Sans réseau ou si la fonction n'existe pas encore : on garde la dernière liste connue.
+function _majSecteursAutorises(code, base) {
+  if (!window._supabase || !code) return;
+  var id = ETAB_ID;
+  try {
+    window._supabase.rpc('get_secteurs_autorises', { p_code: String(code) }).then(function (res) {
+      if (!res || res.error || String(ETAB_ID) !== String(id)) return;
+      var l = Array.isArray(res.data) ? res.data : [];
+      try { lsSet('haccp_secteurs_autorises_' + id, JSON.stringify(l)); } catch (e) {}
+      var aut = _secteursAutorisesClient();
+      if (aut.indexOf(SECTEUR_ACTIF) < 0) {
+        SECTEUR_ACTIF = base; ETAB.secteur = base;
+        try { lsSet('haccp_secteur_actif_' + id, base); } catch (e) {}
+      }
+      try { appliquerClientMode(); } catch (e) {}
+    }, function () {});
+  } catch (e) {}
+}
+
 function appliquerClientMode() {
   if (!CLIENT_MODE || !ETAB.secteur) return;
   var secteurClient = ETAB.secteur;
+  var _aut = _secteursAutorisesClient();
   var btns = document.querySelectorAll('#onb_step1 .onb-secteur-btn');
   btns.forEach(function(btn) {
     // IDEMPOTENT — la fonction peut tourner PLUSIEURS fois (reprise de session puis
@@ -2356,7 +2400,7 @@ function appliquerClientMode() {
     var ob = btn.querySelector('.badge-mon-secteur'); if (ob) ob.remove();
     var ol = btn.querySelector('.cadenas-lock'); if (ol) ol.remove();
     btn.style.position = 'relative';
-    if (secteurBtn === secteurClient) {
+    if (secteurBtn === secteurClient || _aut.indexOf(secteurBtn) > -1) {
       // Secteur autorisé : on RESTAURE l'action d'origine + mise en valeur.
       btn.setAttribute('onclick', "choisirSecteur('" + secteurBtn + "')");
       btn.style.opacity = '1';
@@ -2393,7 +2437,7 @@ function appliquerClientMode() {
 window.secteurVerrouille = function(secteur) {
   // FILET DE SÉCURITÉ — un compte ne doit JAMAIS être bloqué sur SON PROPRE secteur.
   // Si malgré tout le clic arrive ici pour le secteur du compte, on entre normalement.
-  if (secteur && typeof ETAB !== 'undefined' && ETAB && ETAB.secteur === secteur) {
+  if (secteur && typeof ETAB !== 'undefined' && ETAB && (ETAB.secteur === secteur || _secteursAutorisesClient().indexOf(secteur) > -1)) {
     try { choisirSecteur(secteur); return; } catch(e) {}
   }
   var noms = {
@@ -22372,10 +22416,11 @@ function testEffacerDonnees() {
         var tel  = (document.getElementById('essai_tel') || {}).value || '';
         var mail = (document.getElementById('essai_email') || {}).value || '';
         var adr  = (document.getElementById('essai_adresse') || {}).value || '';
-        var secteurEssai = ((document.getElementById('essai_secteur') || {}).value || '').trim();
+        var secteursEssai = Array.prototype.map.call(document.querySelectorAll('.essai_sect:checked'), function(cb){ return cb.value; });
+        var secteurEssai = secteursEssai[0] || '';
         var duree = parseInt((document.getElementById('essai_duree') || {}).value || '0', 10);
         var estClient = !!((document.getElementById('essai_client') || {}).checked);
-        var multiSect = !!((document.getElementById('essai_multi') || {}).checked);
+        var multiSect = false; // remplacé par les cases « Activités accessibles »
         var formuleRTH = !!((document.getElementById('essai_formule_rth') || {}).checked);
 
         etab = etab.trim(); resp = resp.trim(); tel = tel.trim(); mail = mail.trim(); adr = adr.trim();
@@ -22383,7 +22428,7 @@ function testEffacerDonnees() {
           alert('Merci de remplir TOUS les champs :\n• Établissement\n• Nom + prénom\n• Adresse\n• Téléphone\n• E-mail');
           return;
         }
-        if (!secteurEssai && !multiSect) { alert('Merci de choisir le SECTEUR d\'activité (le compte essai sera verrouillé dessus), ou cochez « accès à tous les secteurs ».'); return; }
+        if (!secteurEssai) { alert('Merci de cocher au moins une ACTIVITÉ accessible (les autres seront bloquées pour ce client).'); return; }
         if (!estClient && !(duree >= 1 && duree <= 15)) { alert('La durée doit être comprise entre 1 et 15 jours.'); return; }
 
         var code = genererCodeEssai();
@@ -22439,6 +22484,12 @@ function testEffacerDonnees() {
             if (btn) { btn.disabled = false; btn.textContent = '🎁 Créer le code d\'essai'; }
             return;
           }
+          // Plusieurs activités cochées → enregistrer la liste (fonction admin_set_secteurs).
+          if (secteursEssai.length > 1) {
+            window._supabase.rpc('admin_set_secteurs', { p_pwd: _adminPwd, p_code: code, p_secteurs: secteursEssai }).then(function(r2){
+              if (r2.error || !r2.data || r2.data.ok !== true) alert('⚠️ Compte créé, mais seule l\'activité « ' + secteurEssai + ' » est ouverte (liste des activités non enregistrée' + (r2.error ? ' : ' + r2.error.message : '') + ').');
+            }, function(){});
+          }
           tracerEtFinaliser();
         });
       };
@@ -22458,21 +22509,18 @@ function testEffacerDonnees() {
           '<input id="essai_adresse" placeholder="Adresse complète *" style="' + inputStyle + '">' +
           '<input id="essai_tel" placeholder="Téléphone *" style="' + inputStyle + '">' +
           '<input id="essai_email" placeholder="E-mail *" style="' + inputStyle + '">' +
-          '<select id="essai_secteur" style="' + inputStyle + '">' +
-            '<option value="">— Secteur d\'activité * (verrouillé) —</option>' +
-            '<option value="resto">Restauration traditionnelle</option>' +
-            '<option value="bp">Boulangerie &amp; Pâtisserie</option>' +
-            '<option value="rapide">Restauration rapide</option>' +
-            '<option value="boucherie">Boucherie &amp; Charcuterie</option>' +
-            '<option value="collective">Restauration collective</option>' +
-          '</select>' +
+          '<div style="font-size:12px;color:rgba(255,255,255,0.8);font-weight:700;margin:4px 0 6px">Activités accessibles * <span style="font-weight:400;color:rgba(255,255,255,0.5)">(cochez une ou plusieurs — les autres seront bloquées)</span></div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">' +
+          [['rapide','Restauration rapide'],['resto','Restauration traditionnelle'],['bp','Boulangerie &amp; Pâtisserie'],['boucherie','Boucherie &amp; Charcuterie'],['collective','Restauration collective']].map(function(o){
+            return '<label style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);border-radius:20px;padding:7px 12px;font-size:12px;color:white;cursor:pointer"><input type="checkbox" class="essai_sect" value="' + o[0] + '" style="width:16px;height:16px">' + o[1] + '</label>';
+          }).join('') +
+          '</div>' +
           '<div style="display:flex;align-items:center;gap:10px;margin:4px 0 12px"><span style="font-size:13px;color:rgba(255,255,255,0.8)">Durée :</span>' +
           '<select id="essai_duree" style="flex:1;padding:10px 12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:white;font-size:13px;font-family:Outfit,sans-serif">' +
           [1,2,3,5,7,10,14,15].map(function(n){ return '<option value="'+n+'"'+(n===7?' selected':'')+'>'+n+' jour'+(n>1?'s':'')+'</option>'; }).join('') +
           '</select></div>' +
           '<label style="display:flex;align-items:flex-start;gap:8px;margin:6px 0 6px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_client"' + (estClients ? ' checked' : '') + ' style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Compte <strong>CLIENT payant</strong> (valable <strong>1 an</strong>, code CLIENT-) au lieu d\'un essai</span></label>' +
-          '<label style="display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;font-size:12px;color:rgba(255,255,255,0.6);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_multi" style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Compte <strong>test</strong> &mdash; acc&egrave;s &agrave; <strong>tous les secteurs</strong> (sinon verrouill&eacute; sur le secteur choisi)</span></label>' +
-          '<label style="display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_formule_rth" style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Formule <strong>Contr&ocirc;le RTH</strong> &mdash; version <strong>3 contr&ocirc;les</strong> (R&eacute;ception &middot; Temp&eacute;rature &middot; Huile)</span></label>' +
+                    '<label style="display:flex;align-items:flex-start;gap:8px;margin:2px 0 12px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer;line-height:1.4"><input type="checkbox" id="essai_formule_rth" style="width:16px;height:16px;margin-top:1px;flex-shrink:0"><span>Formule <strong>Contr&ocirc;le RTH</strong> &mdash; version <strong>3 contr&ocirc;les</strong> (R&eacute;ception &middot; Temp&eacute;rature &middot; Huile)</span></label>' +
           '<button id="btnCreerEssai" onclick="creerEssai()" style="width:100%;background:linear-gradient(135deg,#16a34a,#4ade80);color:#0a0e1a;border:none;padding:12px;border-radius:9px;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">' + (estClients ? '👥 Créer le compte client' : '🎁 Créer le code d\'essai') + '</button>' +
           '</div>' +
           '<div id="essaisListe"><div style="text-align:center;color:rgba(255,255,255,0.5);padding:20px">Chargement des essais…</div></div>';
@@ -22730,15 +22778,18 @@ function testEffacerDonnees() {
             + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
             + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifier les champs puis enregistrez.</div>'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Nom de l\'établissement</label><input id="mod_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
-            + '<label style="font-size:12px;color:#334155;font-weight:600">Secteur</label><select id="mod_secteur" style="' + inp + '">' + opts + '</select>'
+            + '<div style="font-size:12px;color:#334155;font-weight:600;margin-bottom:6px">Activités accessibles <span style="font-weight:400;color:#64748b">(cochez une ou plusieurs — les autres sont bloquées)</span></div>'
+            + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">' + SEC.map(function(o){ return '<label style="display:flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:20px;padding:7px 12px;font-size:13px;color:#0f172a;cursor:pointer"><input type="checkbox" class="mod_sect" value="' + o[0] + '"' + ((r.multi_secteur || r.secteur === o[0]) ? ' checked' : '') + ' style="width:16px;height:16px">' + o[1] + '</label>'; }).join('') + '</div>'
+            + '<input type="hidden" id="mod_sect_base" value="' + escapeHtml(r.secteur || 'resto') + '">'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Mot de passe</label><input id="mod_pwd" value="" placeholder="(laisser vide = inchangé)" style="' + inp + '">'
             + '<label style="font-size:12px;color:#334155;font-weight:600">Date d\'expiration</label><input id="mod_exp" type="date" value="' + (r.date_expiration || '') + '" style="' + inp + '">'
-            + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0 10px;cursor:pointer"><input type="checkbox" id="mod_multi" ' + (r.multi_secteur ? 'checked' : '') + ' style="width:16px;height:16px"> Accès à TOUS les secteurs (compte test)</label>'
             + '<label style="display:flex;align-items:center;gap:8px;font-size:13px;color:#334155;margin:4px 0 14px;cursor:pointer"><input type="checkbox" id="mod_sauv" ' + (r.sauvegarde_off ? 'checked' : '') + ' style="width:16px;height:16px"> Désactiver la sauvegarde quotidienne pour ce client</label>'
             + '<div style="display:flex;gap:8px"><button onclick="sauverModifEtab(\'' + id + '\',\'' + escapeHtml(code) + '\')" style="flex:1;background:#16a34a;color:#fff;border:none;padding:11px;border-radius:9px;font-weight:700;cursor:pointer">💾 Enregistrer</button>'
             + '<button onclick="document.getElementById(\'modifEtabOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer">Annuler</button></div>'
             + '</div>';
           document.body.appendChild(ov);
+          // Coche les activités supplémentaires enregistrées (si la fonction existe).
+          try { if (!r.multi_secteur) window._supabase.rpc('get_secteurs_autorises', { p_code: code }).then(function(rs){ try { if (rs && Array.isArray(rs.data)) rs.data.forEach(function(v){ var cb = document.querySelector('.mod_sect[value="' + v + '"]'); if (cb) cb.checked = true; }); } catch(e){} }, function(){}); } catch(e){}
           // Cale la case « sauvegarde désactivée » sur l'état réel en base (au cas où
           // admin_get_etab ne renvoie pas encore ce champ). Sans effet si la fonction
           // get_sauvegarde_off n'est pas encore déployée.
@@ -22748,12 +22799,15 @@ function testEffacerDonnees() {
       window.sauverModifEtab = function(id, code) {
         if (!window._supabase) return;
         var nom = ((document.getElementById('mod_nom') || {}).value || '').trim();
-        var secteur = (document.getElementById('mod_secteur') || {}).value || 'resto';
+        var secteursMod = Array.prototype.map.call(document.querySelectorAll('.mod_sect:checked'), function(cb){ return cb.value; });
+        var baseMod = (document.getElementById('mod_sect_base') || {}).value || '';
+        var secteur = (secteursMod.indexOf(baseMod) > -1) ? baseMod : (secteursMod[0] || '');
         var pwd = ((document.getElementById('mod_pwd') || {}).value || '').trim();
         var exp = (document.getElementById('mod_exp') || {}).value || '';
-        var multi = !!((document.getElementById('mod_multi') || {}).checked);
+        var multi = false; // remplacé par les cases « Activités accessibles »
         var sauvOff = !!((document.getElementById('mod_sauv') || {}).checked);
         if (!nom) { alert('Le nom ne peut pas être vide.'); return; }
+        if (!secteur) { alert('Cochez au moins une activité accessible.'); return; }
         var patch = { nom: nom, secteur: secteur, multi_secteur: multi };
         if (pwd) patch.mot_de_passe = pwd; // ne touche au mot de passe que si un nouveau est saisi
         if (exp) patch.date_expiration = exp;
@@ -22763,6 +22817,10 @@ function testEffacerDonnees() {
           // Écriture SÉPARÉE du flag « sauvegarde désactivée » : best-effort, pour ne pas
           // faire échouer la modification si la colonne sauvegarde_off n'existe pas encore.
           try { window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: [code], p_off: sauvOff, p_all: false }).then(function(){}, function(){}); } catch(e){}
+          // Liste des activités accessibles (une seule → liste vide : l'activité principale suffit).
+          try { window._supabase.rpc('admin_set_secteurs', { p_pwd: _adminPwd, p_code: code, p_secteurs: secteursMod.length > 1 ? secteursMod : [] }).then(function(r2){
+            if (secteursMod.length > 1 && (r2.error || !r2.data || r2.data.ok !== true)) alert('⚠️ Seule l\'activité « ' + secteur + ' » est ouverte : la liste des activités n\'a pas pu être enregistrée' + (r2.error ? ' (' + r2.error.message + ')' : '') + '.');
+          }, function(){}); } catch(e){}
           try { window._supabase.from('historique_admin').insert([{ action: 'Modification compte', code_concerne: code }]).then(function(){}); } catch(e){}
           var ov = document.getElementById('modifEtabOverlay'); if (ov) ov.remove();
           alert('✅ Compte ' + code + ' modifié.');
@@ -23011,7 +23069,9 @@ function testEffacerDonnees() {
             + '<h3 style="margin:0 0 2px;color:#0f172a">✏️ Modifier ' + escapeHtml(code) + '</h3>'
             + '<div style="font-size:12px;color:#64748b;margin-bottom:14px">Modifier les informations puis enregistrez.</div>'
             + '<label style="'+lab+'">Nom de l\'établissement</label><input id="mc_nom" value="' + escapeHtml(r.nom || '') + '" style="' + inp + '">'
-            + '<label style="'+lab+'">Secteur d\'activité</label><select id="mc_secteur" style="' + inp + '">' + opts + '</select>'
+            + '<div style="font-size:12px;color:#334155;font-weight:600;margin-bottom:6px">Activités accessibles <span style="font-weight:400;color:#64748b">(cochez une ou plusieurs — les autres sont bloquées)</span></div>'
+            + '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">' + SEC.map(function(o){ return '<label style="display:flex;align-items:center;gap:6px;background:#f1f5f9;border:1px solid #cbd5e1;border-radius:20px;padding:7px 12px;font-size:13px;color:#0f172a;cursor:pointer"><input type="checkbox" class="mc_sect" value="' + o[0] + '"' + ((r.multi_secteur || r.secteur === o[0]) ? ' checked' : '') + ' style="width:16px;height:16px">' + o[1] + '</label>'; }).join('') + '</div>'
+            + '<input type="hidden" id="mc_sect_base" value="' + escapeHtml(r.secteur || 'resto') + '">'
             + '<label style="'+lab+'">Responsable</label><input id="mc_resp" value="' + escapeHtml(r.responsable || '') + '" style="' + inp + '">'
             + '<label style="'+lab+'">Email</label><input id="mc_email" type="email" value="' + escapeHtml(r.email || '') + '" style="' + inp + '">'
             + '<label style="'+lab+'">Téléphone</label><input id="mc_tel" type="tel" value="' + escapeHtml(r.telephone || '') + '" style="' + inp + '">'
@@ -23021,6 +23081,8 @@ function testEffacerDonnees() {
             + '<button onclick="document.getElementById(\'modifClientOverlay\').remove()" style="flex:1;background:#e2e8f0;color:#0f172a;border:none;padding:11px;border-radius:9px;cursor:pointer;font-family:Outfit,sans-serif">Annuler</button></div>'
             + '</div>';
           document.body.appendChild(ov);
+          // Coche les activités supplémentaires enregistrées (si la fonction existe).
+          try { if (!r.multi_secteur) window._supabase.rpc('get_secteurs_autorises', { p_code: code }).then(function(rs){ try { if (rs && Array.isArray(rs.data)) rs.data.forEach(function(v){ var cb = document.querySelector('.mc_sect[value="' + v + '"]'); if (cb) cb.checked = true; }); } catch(e){} }, function(){}); } catch(e){}
           // Cale la case « sauvegarde désactivée » sur l'état réel en base.
           try { if (window._supabase) window._supabase.rpc('get_sauvegarde_off', { p_code: code }).then(function(rr){ try { var cb = document.getElementById('mc_sauv'); if (cb && rr && rr.data === true) cb.checked = true; } catch(e){} }, function(){}); } catch(e){}
         });
@@ -23028,7 +23090,10 @@ function testEffacerDonnees() {
       window.sauverModifClient = function(code) {
         if (!window._supabase) return;
         var nom = ((document.getElementById('mc_nom') || {}).value || '').trim();
-        var sect = (document.getElementById('mc_secteur') || {}).value || 'resto';
+        var secteursMc = Array.prototype.map.call(document.querySelectorAll('.mc_sect:checked'), function(cb){ return cb.value; });
+        var baseMc = (document.getElementById('mc_sect_base') || {}).value || '';
+        var sect = (secteursMc.indexOf(baseMc) > -1) ? baseMc : (secteursMc[0] || '');
+        if (!sect) { alert('Cochez au moins une activité accessible.'); return; }
         var resp = ((document.getElementById('mc_resp') || {}).value || '').trim();
         var email = ((document.getElementById('mc_email') || {}).value || '').trim();
         var tel = ((document.getElementById('mc_tel') || {}).value || '').trim();
@@ -23038,6 +23103,10 @@ function testEffacerDonnees() {
           if (u.error || !u.data || u.data.ok !== true) { alert('Erreur modification : ' + ((u.error && u.error.message) || 'opération refusée')); return; }
           // Écriture SÉPARÉE du flag « sauvegarde désactivée » (best-effort, par code d'accès).
           try { window._supabase.rpc('admin_set_sauvegarde', { p_pwd: _adminPwd, p_codes: [code], p_off: sauvOff, p_all: false }).then(function(){}, function(){}); } catch(e){}
+          // Liste des activités accessibles (une seule → liste vide : l'activité principale suffit).
+          try { window._supabase.rpc('admin_set_secteurs', { p_pwd: _adminPwd, p_code: code, p_secteurs: secteursMc.length > 1 ? secteursMc : [] }).then(function(r2){
+            if (secteursMc.length > 1 && (r2.error || !r2.data || r2.data.ok !== true)) alert('⚠️ Seule l\'activité « ' + sect + ' » est ouverte : la liste des activités n\'a pas pu être enregistrée' + (r2.error ? ' (' + r2.error.message + ')' : '') + '.');
+          }, function(){}); } catch(e){}
           var ov = document.getElementById('modifClientOverlay'); if (ov) ov.remove();
           alert('✅ Client modifié.');
           loadAdminClients();
