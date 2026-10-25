@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v492';
+var APP_BUILD = 'v493';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -4030,14 +4030,28 @@ document.getElementById('heroDate').textContent = ds.charAt(0).toUpperCase()+ds.
     if (sessionStorage.getItem('haccp_admin_ok') === '1' && sessionStorage.getItem('haccp_maj_reprise') !== '1') {
       if (typeof showPage === 'function') showPage('page-admin');
       setTimeout(function(){
-        try {
-          var _b = document.getElementById('adminLoginBox'); var _d = document.getElementById('adminDashboard');
-          if (_b) _b.style.display = 'none';
-          if (_d) _d.style.display = 'block';
-          var _av = document.getElementById('adminVersion'); if (_av) _av.textContent = (typeof APP_BUILD !== 'undefined' ? APP_BUILD : '?');
-          if (typeof adminTab === 'function') adminTab('demandes');
-          window.scrollTo(0, 0);
-        } catch(e){}
+        var _b = document.getElementById('adminLoginBox'); var _d = document.getElementById('adminDashboard');
+        var _k = ''; try { _k = sessionStorage.getItem('haccp_admin_k') || ''; } catch(e){}
+        var _ouvrir = function() {
+          try {
+            if (_b) _b.style.display = 'none';
+            if (_d) _d.style.display = 'block';
+            var _av = document.getElementById('adminVersion'); if (_av) _av.textContent = (typeof APP_BUILD !== 'undefined' ? APP_BUILD : '?');
+            if (typeof adminTab === 'function') adminTab('demandes');
+            window.scrollTo(0, 0);
+          } catch(e){}
+        };
+        // Sans mot de passe valide en mémoire, le tableau de bord afficherait « Accès admin
+        // refusé » partout → on redemande plutôt le mot de passe.
+        var _redemander = function() {
+          try {
+            sessionStorage.removeItem('haccp_admin_ok'); sessionStorage.removeItem('haccp_admin_k');
+            if (_d) _d.style.display = 'none';
+            if (_b) _b.style.display = 'block';
+            var _p = document.getElementById('adminPwd'); if (_p) _p.focus();
+          } catch(e){}
+        };
+        if (typeof window._adminReprendre === 'function') window._adminReprendre(_k, _ouvrir, _redemander); else _redemander();
       }, 120);
       return;
     }
@@ -22053,7 +22067,7 @@ function testEffacerDonnees() {
               dash.insertBefore(_ba, dash.firstChild);
             }
           } catch(e){}
-          try { sessionStorage.setItem('haccp_admin_ok', '1'); } catch(e){}
+          try { sessionStorage.setItem('haccp_admin_ok', '1'); sessionStorage.setItem('haccp_admin_k', pwd); } catch(e){}
           setTimeout(function(){ try { _scrollHaut(document.getElementById('adminDashboard')); } catch(e){} }, 60);
           adminTab('demandes');
         }
@@ -22069,6 +22083,16 @@ function testEffacerDonnees() {
         }
       };
 
+      // Reprise après rechargement de la page : le mot de passe (gardé dans CET onglet
+      // seulement, effacé à la déconnexion ou à la fermeture de l'onglet) est revérifié
+      // auprès du serveur avant de rouvrir le tableau de bord.
+      window._adminReprendre = function(k, ok, ko) {
+        if (!k || !window._supabase || !window._supabase.rpc) { ko(); return; }
+        window._supabase.rpc('admin_check', { p_pwd: k }).then(function(res) {
+          if (!res.error && res.data === true) { _adminPwd = k; ok(); } else ko();
+        }, function() { ko(); });
+      };
+
       window.logoutAdmin = function() {
         var box = document.getElementById('adminLoginBox');
         var dash = document.getElementById('adminDashboard');
@@ -22077,7 +22101,7 @@ function testEffacerDonnees() {
         if (dash) dash.style.display = 'none';
         if (pwd) pwd.value = '';
         _adminPwd = '';
-        try { sessionStorage.removeItem('haccp_admin_ok'); lsRemove('haccp_admin_ok'); } catch(e){}
+        try { sessionStorage.removeItem('haccp_admin_ok'); sessionStorage.removeItem('haccp_admin_k'); lsRemove('haccp_admin_ok'); } catch(e){}
         // Option 2 : ferme la session Auth admin ouverte au login.
         try { if (window._supabase && window._supabase.auth) window._supabase.auth.signOut(); } catch(e){}
         showPage('page-presentation');
