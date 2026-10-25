@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v491';
+var APP_BUILD = 'v492';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21929,6 +21929,14 @@ function testEffacerDonnees() {
         synchro_echec: ['☁️', 'Échec d\'enregistrement dans le cloud'],
         controle: ['✅', 'Contrôle enregistré'], module: ['📂', 'Module ouvert'], export: ['📄', 'Export / document']
       };
+      // « Module reception — activité : rapide » → nom du module en clair.
+      var _JRN_SECT = { resto: 'Restauration traditionnelle', bp: 'Boulangerie-Pâtisserie', rapide: 'Restauration rapide', boucherie: 'Boucherie', collective: 'Restauration collective' };
+      function _jrnDetailLisible(t) {
+        return String(t || '').replace(/^Module ([\w-]+)/, function(m, id) {
+          try { for (var i = 0; i < MODULES.length; i++) if (MODULES[i].id === id) return MODULES[i].name; } catch(e) {}
+          return 'Module ' + id;
+        }).replace(/activité : (\w+)/, function(m, k) { return 'activité : ' + (_JRN_SECT[k] || k); });
+      }
       window.adminJournal = function(code, nom) {
         if (!window._supabase) return;
         var ex = document.getElementById('journalOverlay'); if (ex) ex.remove();
@@ -21945,7 +21953,7 @@ function testEffacerDonnees() {
           var box = document.getElementById('journalListe'); if (!box) return;
           if (res.error) { box.innerHTML = '<div style="color:#b91c1c">Journal indisponible : ' + escapeHtml(res.error.message) + '</div>'; return; }
           var rows = Array.isArray(res.data) ? res.data : [];
-          if (!rows.length) { box.innerHTML = '<div style="color:#64748b;padding:12px 0">Aucun événement enregistré pour l\'instant. Le journal se remplit à partir de la version 491 de l\'app.</div>'; return; }
+          if (!rows.length) { box.innerHTML = '<div style="color:#64748b;padding:12px 0">Aucun événement pour l\'instant (ni contrôle enregistré, ni connexion depuis la version 491).</div>'; return; }
           var nbInc = rows.filter(function(x){ return x.type === 'echec_connexion' || x.type === 'erreur' || x.type === 'synchro_echec'; }).length;
           var h = '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">'
             + '<span style="background:#dcfce7;color:#166534;border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + rows.filter(function(x){ return /^connexion|^reprise/.test(x.type); }).length + ' connexion(s)/ouverture(s)</span>'
@@ -21962,7 +21970,7 @@ function testEffacerDonnees() {
             h += '<div class="jrnLigne" data-g="' + grp + '" style="border-top:1px solid #f1f5f9;padding:8px 0;' + (inc ? 'background:#fff7f7;' : '') + '">'
               + '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:' + (inc ? '#b91c1c' : '#0f172a') + '">' + lib[0] + ' ' + escapeHtml(lib[1]) + '</span>'
               + '<span style="color:#64748b;font-size:12px">' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</span></div>'
-              + (x.detail ? '<div style="font-size:12px;color:#475569;margin-top:2px;word-break:break-word">' + escapeHtml(x.detail) + '</div>' : '')
+              + (x.detail ? '<div style="font-size:12px;color:#475569;margin-top:2px;word-break:break-word">' + escapeHtml(_jrnDetailLisible(x.detail)) + '</div>' : '')
               + '<div style="font-size:11px;color:#94a3b8;margin-top:2px">' + escapeHtml(x.appareil || '') + (x.version ? ' · ' + escapeHtml(x.version) : '') + '</div></div>';
           });
           box.innerHTML = h;
