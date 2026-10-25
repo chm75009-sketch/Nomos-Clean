@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v493';
+var APP_BUILD = 'v494';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21992,7 +21992,11 @@ function testEffacerDonnees() {
             b.onclick = function() {
               var f = b.getAttribute('data-f');
               box.querySelectorAll('#journalFiltres button').forEach(function(o){ var on = (o === b); o.style.background = on ? '#0f172a' : '#fff'; o.style.color = on ? '#fff' : '#334155'; });
-              box.querySelectorAll('.jrnLigne').forEach(function(l){ l.style.display = (f === 'tout' || l.getAttribute('data-g') === f) ? '' : 'none'; });
+              var nbVis = 0;
+              box.querySelectorAll('.jrnLigne').forEach(function(l){ var v = (f === 'tout' || l.getAttribute('data-g') === f); l.style.display = v ? '' : 'none'; if (v) nbVis++; });
+              var vide = document.getElementById('journalVide');
+              if (!vide) { vide = document.createElement('div'); vide.id = 'journalVide'; vide.style.cssText = 'color:#64748b;font-size:13px;padding:12px 0'; box.appendChild(vide); }
+              vide.textContent = nbVis ? '' : ({ connexions: 'Aucune connexion enregistrée pour l\'instant. Elles sont notées à chaque ouverture de l\'app à partir de la version 491.', incidents: 'Aucun incident : tout va bien ✅', controles: 'Aucun contrôle ni action.' }[f] || 'Rien à afficher.');
             };
           });
         }, function(e) { var box = document.getElementById('journalListe'); if (box) box.textContent = 'Journal indisponible.'; });
