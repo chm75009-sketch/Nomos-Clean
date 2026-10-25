@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v494';
+var APP_BUILD = 'v495';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21959,10 +21959,42 @@ function testEffacerDonnees() {
         ov.style.cssText = 'position:fixed;inset:0;background:rgba(10,14,26,.75);z-index:99999;overflow:auto;padding:16px;box-sizing:border-box';
         ov.innerHTML = '<div style="max-width:560px;margin:24px auto;background:#fff;border-radius:14px;padding:18px;box-shadow:0 10px 40px rgba(0,0,0,.4);font-family:Outfit,sans-serif">'
           + '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px"><h3 style="margin:0;color:#0f172a">📜 Journal — ' + escapeHtml(nom || code) + '</h3>'
-          + '<button onclick="document.getElementById(\'journalOverlay\').remove()" style="background:#e2e8f0;border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer">Fermer</button></div>'
+          + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+          + '<button id="jrnBtnImpr" style="background:#10b981;color:#fff;border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer">🖨️ Imprimer</button>'
+          + '<button id="jrnBtnPdf" style="background:#f59e0b;color:#1e1b4b;border:none;border-radius:8px;padding:8px 12px;font-weight:800;cursor:pointer">📄 PDF</button>'
+          + '<button onclick="document.getElementById(\'journalOverlay\').remove()" style="background:#e2e8f0;border:none;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer">Fermer</button></div></div>'
           + '<div style="font-size:12px;color:#64748b;margin-bottom:12px">' + escapeHtml(code) + ' — 300 derniers événements (connexions, contrôles, actions, incidents)</div>'
           + '<div id="journalListe" style="font-size:13px;color:#334155">Chargement…</div></div>';
         document.body.appendChild(ov);
+        // Document à imprimer / enregistrer : titre + lignes VISIBLES (respecte le filtre choisi).
+        var _jrnDoc = function() {
+          var d = document.createElement('div');
+          d.style.cssText = 'font-family:Arial,sans-serif;color:#0f172a;padding:10px;background:#fff';
+          var f = document.querySelector('#journalFiltres button[data-on="1"]');
+          var compteurs = document.querySelector('#journalListe > div');
+          d.innerHTML = '<h2 style="margin:0 0 4px;font-size:18px">Journal — ' + escapeHtml(nom || code) + '</h2>'
+            + '<div style="font-size:12px;color:#475569;margin-bottom:10px">' + escapeHtml(code) + ' · Filtre : ' + escapeHtml(f ? f.textContent : 'Tout') + ' · Édité le ' + new Date().toLocaleDateString('fr-FR') + ' à ' + new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</div>'
+            + (compteurs ? '<div style="margin-bottom:8px">' + compteurs.innerHTML + '</div>' : '');
+          document.querySelectorAll('#journalListe .jrnLigne').forEach(function(l) { if (l.style.display !== 'none') d.appendChild(l.cloneNode(true)); });
+          var v = document.getElementById('journalVide'); if (v && v.textContent) { var vv = document.createElement('div'); vv.textContent = v.textContent; vv.style.cssText = 'font-size:13px;color:#64748b'; d.appendChild(vv); }
+          return d;
+        };
+        var _nomFichier = 'Journal-' + String(nom || code).replace(/[^0-9A-Za-z-]+/g, '_') + '-' + new Date().toISOString().slice(0, 10);
+        document.getElementById('jrnBtnPdf').onclick = function() {
+          if (typeof _packEnvoyerPDF === 'function') _packEnvoyerPDF(_jrnDoc(), _nomFichier + '.pdf', this);
+        };
+        document.getElementById('jrnBtnImpr').onclick = function() {
+          try {
+            var ifr = document.createElement('iframe');
+            ifr.style.cssText = 'position:fixed;right:0;bottom:0;width:0;height:0;border:0';
+            document.body.appendChild(ifr);
+            var w = ifr.contentWindow, dd = w.document;
+            dd.open();
+            dd.write('<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>' + escapeHtml(_nomFichier) + '</title><style>body{margin:12mm;font-family:Arial,sans-serif}.jrnLigne{break-inside:avoid}</style></head><body>' + _jrnDoc().outerHTML + '</body></html>');
+            dd.close();
+            setTimeout(function() { try { w.focus(); w.print(); } catch(e) { window.print(); } setTimeout(function(){ try { ifr.remove(); } catch(e){} }, 2000); }, 300);
+          } catch(e) { window.print(); }
+        };
         window._supabase.rpc('admin_journal', { p_pwd: _adminPwd, p_code: code, p_limit: 300 }).then(function(res) {
           var box = document.getElementById('journalListe'); if (!box) return;
           if (res.error) { box.innerHTML = '<div style="color:#b91c1c">Journal indisponible : ' + escapeHtml(res.error.message) + '</div>'; return; }
@@ -21974,7 +22006,7 @@ function testEffacerDonnees() {
             + '<span style="background:#e0e7ff;color:#3730a3;border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + rows.filter(function(x){ return x.type === 'controle'; }).length + ' contrôle(s)</span>'
             + '<span style="background:' + (nbInc ? '#fee2e2;color:#991b1b' : '#f1f5f9;color:#475569') + ';border-radius:20px;padding:4px 10px;font-weight:700;font-size:12px">' + nbInc + ' incident(s)</span></div>'
             + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px" id="journalFiltres">'
-            + [['tout','Tout'],['connexions','Connexions'],['controles','Contrôles & actions'],['incidents','Incidents']].map(function(f, i){ return '<button type="button" data-f="' + f[0] + '" style="border:1px solid #cbd5e1;background:' + (i ? '#fff' : '#0f172a') + ';color:' + (i ? '#334155' : '#fff') + ';border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">' + f[1] + '</button>'; }).join('')
+            + [['tout','Tout'],['connexions','Connexions'],['controles','Contrôles & actions'],['incidents','Incidents']].map(function(f, i){ return '<button type="button" data-f="' + f[0] + '"' + (i ? '' : ' data-on="1"') + ' style="border:1px solid #cbd5e1;background:' + (i ? '#fff' : '#0f172a') + ';color:' + (i ? '#334155' : '#fff') + ';border-radius:20px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer">' + f[1] + '</button>'; }).join('')
             + '</div>';
           rows.forEach(function(x) {
             var lib = _JRN_LIB[x.type] || ['•', x.type];
@@ -21991,7 +22023,7 @@ function testEffacerDonnees() {
           box.querySelectorAll('#journalFiltres button').forEach(function(b) {
             b.onclick = function() {
               var f = b.getAttribute('data-f');
-              box.querySelectorAll('#journalFiltres button').forEach(function(o){ var on = (o === b); o.style.background = on ? '#0f172a' : '#fff'; o.style.color = on ? '#fff' : '#334155'; });
+              box.querySelectorAll('#journalFiltres button').forEach(function(o){ var on = (o === b); o.style.background = on ? '#0f172a' : '#fff'; o.style.color = on ? '#fff' : '#334155'; o.setAttribute('data-on', on ? '1' : ''); });
               var nbVis = 0;
               box.querySelectorAll('.jrnLigne').forEach(function(l){ var v = (f === 'tout' || l.getAttribute('data-g') === f); l.style.display = v ? '' : 'none'; if (v) nbVis++; });
               var vide = document.getElementById('journalVide');
