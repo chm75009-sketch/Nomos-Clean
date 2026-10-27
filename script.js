@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v497';
+var APP_BUILD = 'v498';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -2340,6 +2340,17 @@ async function connexion() {
   // FORMULE RTH : court-circuiter l'onboarding → accueil simplifié 3 contrôles
   // (avec engagement signé au 1er accès). La version complète passe par l'onboarding.
   if (FORMULE_ACTIVE === 'rth') { try { demarrerRTH(); return; } catch(eRth){ console.warn('RTH:', eRth); } }
+  // ÉTAPE A — aller directement à l'accueil quand il n'y a rien à choisir :
+  // client limité à UNE activité → pas d'écran « choix d'activité » ; mode (simple /
+  // expert) déjà connu pour ce compte → pas d'écran « choix du mode ».
+  try {
+    if (CLIENT_MODE && typeof _secteursAutorisesClient === 'function' && _secteursAutorisesClient().length === 1) {
+      choisirSecteur(SECTEUR_ACTIF || ETAB.secteur || 'resto'); // → écran du choix du mode
+      var _pref = lsGet('haccp_mode_pref_' + ETAB_ID);
+      if (_pref === 'guide' || _pref === 'expert') entrerModeAccueil(_pref);
+      return;
+    }
+  } catch(eDirect) { console.warn('Accès direct accueil:', eDirect); }
   showPage('page-onboarding');
 }
 
@@ -28834,3 +28845,142 @@ function faqHtml(texte, suf) {
   return h + '</div>';
 }
 window.faqChercher = faqChercher;
+
+// ══════════════════════════════════════════════════════════════════
+// MODE SIMPLE / EXPERT — interrupteur toujours visible + astuce unique
+// « Simple » = accueil guidé (tuiles), « Expert » = tableau de bord avec tous les
+// modules en grille. Le choix est mémorisé PAR COMPTE (haccp_mode_pref_<id>),
+// y compris après une déconnexion, pour arriver directement au bon écran.
+// ══════════════════════════════════════════════════════════════════
+function entrerModeAccueil(mode) {
+  mode = (mode === 'expert') ? 'expert' : 'guide';
+  try { lsSet('haccp_mode', mode); } catch (e) {}
+  try {
+    var _s = { etabId: ETAB_ID || lsGet('haccp_etab_id') || 'local', etabNom: ETAB.nom || 'Mon établissement', secteur: SECTEUR_ACTIF || 'resto', pwdOk: true, loginAt: Date.now() };
+    sessionWrite(JSON.stringify(_s));
+  } catch (e) {}
+  if (mode === 'expert') { showPage('page-home'); try { renderMods('quotidien'); } catch (e) {} }
+  else { showPage('page-guide'); }
+}
+(function () {
+  // Mémoriser le mode par compte à chaque fois qu'il est choisi (écran de choix,
+  // réglages, interrupteur…) : tous ces chemins passent par lsSet('haccp_mode', …).
+  try {
+    var _lsSetOrig = window.lsSet;
+    if (typeof _lsSetOrig === 'function') {
+      window.lsSet = function (k, v) {
+        var r = _lsSetOrig.apply(this, arguments);
+        try { if (k === 'haccp_mode' && (v === 'guide' || v === 'expert') && typeof ETAB_ID !== 'undefined' && ETAB_ID) _lsSetOrig('haccp_mode_pref_' + ETAB_ID, v); } catch (e) {}
+        return r;
+      };
+    }
+  } catch (e) {}
+
+  function interrupteur(actif, sombre) {
+    var d = document.createElement('div');
+    d.className = 'mode-switch';
+    d.style.cssText = 'display:inline-flex;background:' + (sombre ? 'rgba(255,255,255,.12)' : '#e5e7eb') + ';border-radius:999px;padding:3px;margin-top:10px';
+    [['guide', '🌱 Simple'], ['expert', '⚡ Expert']].forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = m[1];
+      var on = (m[0] === actif);
+      b.style.cssText = 'border:none;border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:Outfit,sans-serif;'
+        + (on ? 'background:#fff;color:#1e1b4b;box-shadow:0 1px 4px rgba(0,0,0,.15)' : 'background:transparent;color:' + (sombre ? 'rgba(255,255,255,.75)' : '#475569'));
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      b.onclick = function () { if (!on) entrerModeAccueil(m[0]); };
+      d.appendChild(b);
+    });
+    return d;
+  }
+  function installer() {
+    try {
+      // Accueil guidé : sous « Que voulez-vous faire ? »
+      var h1 = document.querySelector('#page-guide h1');
+      if (h1 && !document.querySelector('#page-guide .mode-switch')) {
+        var p = h1.parentNode;
+        p.appendChild(interrupteur('guide', true));
+      }
+      // Le gros bandeau « MODE EXPERT » est remplacé par l'interrupteur (sauf ancien écran)
+      var classique = false; try { classique = localStorage.getItem('haccp_accueil_classique') === '1'; } catch (e) {}
+      var big = document.getElementById('modeExpertBtn');
+      if (big && !classique) big.style.display = 'none';
+      // Tableau de bord expert : en haut
+      var hero = document.querySelector('#page-home .hero');
+      if (hero && !document.querySelector('#page-home .mode-switch')) {
+        var w = document.createElement('div');
+        w.style.cssText = 'text-align:center;padding-bottom:6px';
+        w.appendChild(interrupteur('expert', true));
+        hero.insertBefore(w, hero.firstChild);
+      }
+      // Lien en bas de l'accueil simplifié
+      var cont = document.getElementById('barometreHaccp');
+      cont = cont && cont.parentNode;
+      if (cont && cont.getAttribute('data-simple') === '1' && !document.getElementById('lienModeExpert')) {
+        var l = document.createElement('button');
+        l.type = 'button'; l.id = 'lienModeExpert';
+        l.style.cssText = 'width:100%;display:flex;align-items:center;gap:12px;background:#fff;border:1px solid #e0e7ff;border-radius:14px;padding:14px 16px;margin:4px 0 10px;cursor:pointer;text-align:left;font-family:Outfit,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.05)';
+        l.innerHTML = '<span style="font-size:22px">⚡</span><span style="flex:1"><span style="display:block;font-size:14px;font-weight:800;color:#1e1b4b">Mode expert</span><span style="display:block;font-size:11.5px;color:#6b7280;margin-top:2px">Tous les modules en grille, tableau de bord et exports</span></span><span style="color:#9ca3af;font-size:18px">›</span>';
+        l.onclick = function () { entrerModeAccueil('expert'); };
+        var ancien = Array.prototype.filter.call(cont.children, function (c) { return /Afficher l.ancien écran/.test(c.textContent || ''); })[0];
+        cont.insertBefore(l, ancien || null);
+      }
+    } catch (e) { try { console.warn('[Mode switch]', e); } catch (_) {} }
+  }
+  // Astuce unique après 10 contrôles enregistrés en mode simple
+  function astuce() {
+    try {
+      if (lsGet('haccp_astuce_expert_vue') === '1') return;
+      if ((lsGet('haccp_mode') || 'guide') !== 'guide') return;
+      if ((parseInt(lsGet('haccp_nb_controles_faits') || '0', 10) || 0) < 10) return;
+      var pg = document.getElementById('page-guide');
+      if (!pg || !pg.classList.contains('active') || document.getElementById('astuceExpert')) return;
+      var c = document.getElementById('barometreHaccp'); if (!c) return;
+      var d = document.createElement('div');
+      d.id = 'astuceExpert';
+      d.style.cssText = 'background:#eef2ff;border:1px solid #c7d2fe;border-radius:14px;padding:14px;margin:0 0 12px;font-family:Outfit,sans-serif';
+      d.innerHTML = '<div style="font-size:13.5px;color:#1e1b4b;line-height:1.45">💡 Vous utilisez Nomos tous les jours ? Le <strong>mode expert</strong> affiche tous vos modules sur un seul écran, avec le tableau de bord.</div>'
+        + '<div style="display:flex;gap:8px;margin-top:10px"><button type="button" data-a="oui" style="flex:1;background:#4338ca;color:#fff;border:none;border-radius:10px;padding:10px;font-weight:800;cursor:pointer;font-family:inherit">Essayer</button>'
+        + '<button type="button" data-a="non" style="flex:1;background:#fff;color:#475569;border:1px solid #cbd5e1;border-radius:10px;padding:10px;font-weight:700;cursor:pointer;font-family:inherit">Plus tard</button></div>';
+      d.querySelectorAll('button').forEach(function (b) {
+        b.onclick = function () { try { lsSet('haccp_astuce_expert_vue', '1'); } catch (e) {} d.remove(); if (b.getAttribute('data-a') === 'oui') entrerModeAccueil('expert'); };
+      });
+      c.parentNode.insertBefore(d, c);
+    } catch (e) {}
+  }
+  // Compteur de contrôles enregistrés (pour l'astuce)
+  try {
+    var _origEnr = window.enregistrerControleHACCP;
+    if (typeof _origEnr === 'function') {
+      window.enregistrerControleHACCP = function (mod) {
+        var p = _origEnr.apply(this, arguments);
+        try {
+          if (String(mod || '').indexOf('__') !== 0) {
+            var n = (parseInt(lsGet('haccp_nb_controles_faits') || '0', 10) || 0) + 1;
+            lsSet('haccp_nb_controles_faits', String(n));
+          }
+        } catch (e) {}
+        return p;
+      };
+    }
+  } catch (e) {}
+  try {
+    var _sp = window.showPage;
+    if (typeof _sp === 'function') {
+      window.showPage = function (id) {
+        var r = _sp.apply(this, arguments);
+        if (id === 'page-guide') setTimeout(astuce, 600);
+        return r;
+      };
+    }
+  } catch (e) {}
+  // Comptes déjà connectés avant cette version : reprendre leur mode actuel comme préférence.
+  function migrer() {
+    try {
+      var m = lsGet('haccp_mode');
+      if (typeof ETAB_ID !== 'undefined' && ETAB_ID && (m === 'guide' || m === 'expert') && !lsGet('haccp_mode_pref_' + ETAB_ID)) lsSet('haccp_mode_pref_' + ETAB_ID, m);
+    } catch (e) {}
+  }
+  function go() { installer(); setTimeout(function () { installer(); migrer(); }, 800); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', go); else go();
+})();
