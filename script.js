@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v495';
+var APP_BUILD = 'v496';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -28311,4 +28311,134 @@ function _jrnNomModule(id) {
   window.addEventListener('load', function () { setTimeout(reprise, 6000); });
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') setTimeout(reprise, 1500); });
   window.addEventListener('online', function () { try { _jrnViderAttente(); } catch (e) {} });
+})();
+
+// ══════════════════════════════════════════════════════════════════
+// ACCUEIL SIMPLIFIÉ (écran « Que voulez-vous faire ? ») — affichage progressif
+// 4 grandes tuiles pour les contrôles de tous les jours + le bouton DDPP bien
+// visible ; tout le reste est rangé dans des groupes qui se déplient au toucher.
+// Aucune carte n'est supprimée ni modifiée : on les RANGE (mêmes boutons, mêmes
+// actions, même filtrage par activité). Lien en bas pour revenir à la liste complète.
+// ══════════════════════════════════════════════════════════════════
+(function () {
+  var CLE_CLASSIQUE = 'haccp_accueil_classique';
+  var TUILES = [
+    ['temperatures', '🌡️', 'Températures', 'Frigos & congélateurs', '#eff6ff', '#1d4ed8'],
+    ['reception', '📦', 'Réception', 'Une livraison arrive', '#fff7ed', '#c2410c'],
+    ['nettoyage', '🧹', 'Nettoyage', 'Ouverture / fermeture', '#f0fdf4', '#15803d'],
+    ['cuisson', '🍳', 'Cuisson', 'Température à cœur', '#fef3c7', '#b45309']
+  ];
+  var GROUPES = {
+    'Au quotidien': ['📋', 'Tous les contrôles du quotidien'],
+    'Moins souvent': ['🗓️', 'De temps en temps'],
+    'Restauration collective': ['🍽️', 'Restauration collective'],
+    'Audit & conformité': ['🔍', 'Audit hygiène'],
+    'Mon équipe': ['👥', 'Mon équipe']
+  };
+  function css() {
+    if (document.getElementById('accSimpleCss')) return;
+    var st = document.createElement('style');
+    st.id = 'accSimpleCss';
+    st.textContent =
+      '.acc-tuiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 12px}'
+      + '.acc-tuile{border:none;border-radius:16px;padding:16px 12px;text-align:left;cursor:pointer;font-family:Outfit,sans-serif;box-shadow:0 2px 8px rgba(0,0,0,.06);min-height:104px;display:flex;flex-direction:column;justify-content:space-between}'
+      + '.acc-tuile .i{font-size:30px;line-height:1}.acc-tuile .t{font-size:15px;font-weight:900;margin-top:8px}.acc-tuile .s{font-size:11px;opacity:.75;margin-top:2px}'
+      + '.acc-grp{background:#fff;border-radius:14px;margin:0 0 10px;box-shadow:0 2px 8px rgba(0,0,0,.05);overflow:hidden}'
+      + '.acc-grp>summary{list-style:none;cursor:pointer;padding:15px 16px;font-weight:800;font-size:14px;color:#1f2937;display:flex;align-items:center;gap:10px;font-family:Outfit,sans-serif}'
+      + '.acc-grp>summary::-webkit-details-marker{display:none}'
+      + '.acc-grp>summary .ch{margin-left:auto;color:#9ca3af;transition:transform .2s}.acc-grp[open]>summary .ch{transform:rotate(90deg)}'
+      + '.acc-grp>.acc-in{padding:0 10px 6px}';
+    document.head.appendChild(st);
+  }
+  function estEntete(el) {
+    return el && el.tagName === 'DIV' && !el.id && /text-transform:\s*uppercase/.test(el.getAttribute('style') || '') && !el.querySelector('div');
+  }
+  function groupe(titreOrig, noeuds, ouvert) {
+    var g = GROUPES[titreOrig] || ['📁', titreOrig];
+    var d = document.createElement('details');
+    d.className = 'acc-grp';
+    if (ouvert) d.open = true;
+    var s = document.createElement('summary');
+    s.innerHTML = '<span style="font-size:20px">' + g[0] + '</span><span>' + _echap(g[1]) + '</span><span class="ch">›</span>';
+    d.appendChild(s);
+    var inn = document.createElement('div'); inn.className = 'acc-in';
+    noeuds.forEach(function (n) { inn.appendChild(n); });
+    d.appendChild(inn);
+    return d;
+  }
+  function simplifier() {
+    try {
+      var baro = document.getElementById('barometreHaccp');
+      var cont = baro && baro.parentNode;
+      if (!cont || cont.getAttribute('data-simple')) return;
+      var classique = false; try { classique = localStorage.getItem(CLE_CLASSIQUE) === '1'; } catch (e) {}
+      css();
+      if (classique) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.textContent = '✨ Essayer l\'accueil simplifié';
+        b.style.cssText = 'width:100%;margin:0 0 12px;background:#eef2ff;color:#4338ca;border:1px dashed #a5b4fc;border-radius:12px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif';
+        b.onclick = function () { try { localStorage.removeItem(CLE_CLASSIQUE); } catch (e) {} location.reload(); };
+        cont.insertBefore(b, cont.firstChild);
+        cont.setAttribute('data-simple', 'classique');
+        return;
+      }
+      cont.setAttribute('data-simple', '1');
+      var enfants = Array.prototype.slice.call(cont.children);
+      var ancre = document.getElementById('tdbPerio') || baro;
+      // 1) Tuiles
+      var tu = document.createElement('div'); tu.className = 'acc-tuiles';
+      TUILES.forEach(function (t) {
+        var bt = document.createElement('button');
+        bt.type = 'button'; bt.className = 'acc-tuile';
+        bt.style.background = t[4]; bt.style.color = t[5];
+        bt.innerHTML = '<span class="i">' + t[1] + '</span><span><div class="t">' + t[2] + '</div><div class="s">' + t[3] + '</div></span>';
+        bt.onclick = function () { openModule(t[0]); };
+        tu.appendChild(bt);
+      });
+      // 2) Ranger les sections en groupes repliables
+      var apres = [], courant = null, ddpp = [], equipe = null;
+      enfants.forEach(function (el) {
+        if (el === baro || el.id === 'tdbAfaire' || el.id === 'tdbPerio') return;
+        var oc = el.getAttribute('onclick') || '';
+        if (!courant && /openModule\('equipe'\)/.test(oc)) { equipe = el; return; }
+        if (el.id === 'guideblock-collective') {
+          // Bloc propre à la restauration collective (affiché/masqué selon l'activité) :
+          // on le garde tel quel, en rangeant son contenu dans un groupe.
+          var kids = Array.prototype.slice.call(el.children);
+          var h = kids[0] && estEntete(kids[0]) ? kids.shift() : null;
+          if (h) h.remove();
+          el.appendChild(groupe('Restauration collective', kids, false));
+          apres.push({ bloc: el });
+          courant = null;
+          return;
+        }
+        if (estEntete(el)) {
+          var titre = (el.textContent || '').trim();
+          el.remove();
+          if (titre === 'Contrôle DDPP') { courant = { ddpp: true }; return; }
+          courant = { titre: titre, noeuds: [] };
+          apres.push(courant);
+          return;
+        }
+        if (courant && courant.ddpp) { ddpp.push(el); return; }
+        if (courant) courant.noeuds.push(el);
+      });
+      // Ordre final : baromètre / à faire → tuiles → DDPP → groupes → mon équipe → lien liste complète
+      var ref = ancre.nextSibling;
+      cont.insertBefore(tu, ref);
+      ddpp.forEach(function (n) { cont.insertBefore(n, ref); });
+      apres.forEach(function (g) {
+        if (g.bloc) { cont.insertBefore(g.bloc, ref); return; }
+        if (g.noeuds.length) cont.insertBefore(groupe(g.titre, g.noeuds, false), ref);
+      });
+      if (equipe) cont.insertBefore(groupe('Mon équipe', [equipe], false), ref);
+      var lien = document.createElement('div');
+      lien.style.cssText = 'text-align:center;margin:14px 0 4px';
+      lien.innerHTML = '<button type="button" style="background:none;border:none;color:#6b7280;font-size:12px;text-decoration:underline;cursor:pointer;font-family:Outfit,sans-serif">Afficher l\'ancien écran (liste complète)</button>';
+      lien.firstChild.onclick = function () { try { localStorage.setItem(CLE_CLASSIQUE, '1'); } catch (e) {} location.reload(); };
+      cont.insertBefore(lien, ref);
+    } catch (e) { try { console.warn('[Accueil simplifié]', e); } catch (_) {} }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', simplifier); else simplifier();
 })();
