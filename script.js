@@ -2,7 +2,7 @@
 // SW-7 — Jeton de version unique côté application. DOIT correspondre au nom de
 // cache du Service Worker (sw.js : 'haccp-pro-vXX'). Centralisé ici pour éviter
 // des numéros de version désynchronisés affichés dans l'app.
-var APP_BUILD = 'v496';
+var APP_BUILD = 'v497';
 try { if (window.history && 'scrollRestoration' in window.history) window.history.scrollRestoration = 'manual'; } catch(e){}
 // MISE À JOUR FIABLE & UNIVERSELLE — on lit la version RÉELLEMENT déployée (ver.txt,
 // sans cache) et on compare à la version qui tourne. Si l'appareil est sur un vieux
@@ -21941,7 +21941,7 @@ function testEffacerDonnees() {
         reprise: ['🔄', 'Ouverture de l\'app (déjà connecté)'], deconnexion: ['🚪', 'Déconnexion'],
         echec_connexion: ['🔴', 'Échec de connexion'], erreur: ['⚠️', 'Erreur dans l\'app'],
         synchro_echec: ['☁️', 'Échec d\'enregistrement dans le cloud'],
-        controle: ['✅', 'Contrôle enregistré'], module: ['📂', 'Module ouvert'], export: ['📄', 'Export / document']
+        controle: ['✅', 'Contrôle enregistré'], module: ['📂', 'Module ouvert'], export: ['📄', 'Export / document'], question: ['❓', 'Question posée']
       };
       // « Module reception — activité : rapide » → nom du module en clair.
       var _JRN_SECT = { resto: 'Restauration traditionnelle', bp: 'Boulangerie-Pâtisserie', rapide: 'Restauration rapide', boucherie: 'Boucherie', collective: 'Restauration collective' };
@@ -22012,7 +22012,7 @@ function testEffacerDonnees() {
             var lib = _JRN_LIB[x.type] || ['•', x.type];
             var inc = (x.type === 'echec_connexion' || x.type === 'erreur' || x.type === 'synchro_echec');
             var d = new Date(x.created_at);
-            var grp = inc ? 'incidents' : ((x.type === 'controle' || x.type === 'module' || x.type === 'export') ? 'controles' : 'connexions');
+            var grp = inc ? 'incidents' : ((x.type === 'controle' || x.type === 'module' || x.type === 'export' || x.type === 'question') ? 'controles' : 'connexions');
             h += '<div class="jrnLigne" data-g="' + grp + '" style="border-top:1px solid #f1f5f9;padding:8px 0;' + (inc ? 'background:#fff7f7;' : '') + '">'
               + '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap"><span style="font-weight:700;color:' + (inc ? '#b91c1c' : '#0f172a') + '">' + lib[0] + ' ' + escapeHtml(lib[1]) + '</span>'
               + '<span style="color:#64748b;font-size:12px">' + d.toLocaleDateString('fr-FR') + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) + '</span></div>'
@@ -27972,10 +27972,16 @@ try {
       ? '<button type="button" onclick="irOuvrir(\'' + it.id + '\')" style="width:100%;display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#4338ca,#6366f1);color:white;border:none;border-radius:14px;padding:14px 16px;cursor:pointer;font-family:Outfit,sans-serif;text-align:left;box-shadow:0 4px 14px rgba(67,56,202,.3)"><span style="font-size:26px">' + it.ico + '</span><span style="flex:1;font-size:15px;font-weight:800;line-height:1.25">' + _echap(it.label) + '</span><span style="font-size:13px;font-weight:800;background:rgba(255,255,255,.18);border-radius:20px;padding:6px 12px">Ouvrir ›</span></button>'
       : '<button type="button" onclick="irOuvrir(\'' + it.id + '\')" style="background:white;border:1px solid #e0e7ff;color:#3730a3;border-radius:20px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:Outfit,sans-serif;margin:6px 6px 0 0">' + it.ico + ' ' + _echap(it.label) + '</button>';
   }
+  // Ressemble à une question (« à quelle température… ? », « combien de temps… »)
+  function _estQuestion(t) {
+    var n = ' ' + String(t || '').toLowerCase() + ' ';
+    return /\?\s*$/.test(String(t || '').trim()) || /^\s*(a|à) quel|^\s*quel|^\s*combien|^\s*comment|^\s*pourquoi|^\s*est[- ]ce|^\s*peut[- ]on|^\s*faut[- ]il|^\s*doit[- ]on|^\s*qu.est[- ]ce|^\s*que faire|^\s*quand /.test(n);
+  }
   function irAfficher(suf, texte) {
     var o = _ir[suf]; if (!o) return;
     var t = String(texte || '').trim();
     if (t.length < 2) { o.res.innerHTML = ''; return; }
+    if (o.mode === 'question') { o.res.innerHTML = (typeof faqHtml === 'function') ? faqHtml(t, suf) : ''; return; }
     var liste = irAnalyser(t);
     var h;
     if (liste.length) {
@@ -27990,7 +27996,56 @@ try {
       ['temperatures', 'reception', 'nettoyage', 'nc', 'inspecteur'].forEach(function (id) { var it = _byId(id); if (it && _visible(it)) h += _btnIntent(it, false); });
       h += '</div>';
     }
+    // On dirait une question → proposer de basculer vers « Poser une question »
+    if (_estQuestion(t) && typeof faqChercher === 'function' && faqChercher(t).length) {
+      h = '<button type="button" onclick="irMode(\'' + suf + '\',\'question\')" style="width:100%;margin-top:12px;background:#fffbeb;border:1px solid #fcd34d;color:#92400e;border-radius:12px;padding:11px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif;text-align:left">❓ C\'est une question ? Voir la réponse ›</button>' + h;
+    }
     o.res.innerHTML = h;
+  }
+  var MODES = {
+    controle: { titre: 'Quel contrôle voulez-vous faire ?', aide: 'Touchez 🎤 et dites le contrôle à faire', ph: 'Ex. : j\'ai une livraison',
+                ex: ['Relever les frigos', 'J\'ai une livraison', 'L\'inspecteur est là', 'J\'ai un problème'] },
+    question: { titre: 'Posez votre question d\'hygiène', aide: 'Touchez 🎤 et posez votre question', ph: 'Ex. : à quelle température garder le poisson ?',
+                ex: ['Température du poisson en vitrine ?', 'Combien de temps garder un produit ouvert ?', 'Quels sont les 14 allergènes ?', 'Que regarde l\'inspecteur ?'] }
+  };
+  function _majMode(suf) {
+    var o = _ir[suf]; if (!o) return;
+    var m = MODES[o.mode];
+    o.titre.textContent = m.titre;
+    if (!_rec) o.aide.textContent = m.aide;
+    o.input.placeholder = m.ph;
+    o.chips.innerHTML = m.ex.map(function (p) {
+      return '<button type="button" onclick="irExemple(\'' + suf + '\',\'' + p.replace(/'/g, '\\\'') + '\')" style="background:#f3f4f6;border:none;color:#374151;border-radius:20px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;margin:6px 6px 0 0;font-family:inherit">' + _echap(p) + '</button>';
+    }).join('');
+    o.tabs.forEach(function (b) {
+      var on = b.getAttribute('data-mode') === o.mode;
+      b.style.background = on ? '#1e1b4b' : '#f1f5f9';
+      b.style.color = on ? '#fff' : '#475569';
+    });
+  }
+  window.irMode = function (suf, mode) {
+    var o = _ir[suf]; if (!o || !MODES[mode]) return;
+    o.mode = mode; _majMode(suf);
+    irAfficher(suf, o.input.value);
+    if (mode === 'question' && o.input.value) _noterQuestion(suf);
+  };
+  window.faqVoir = function (suf, id) {
+    var o = _ir[suf]; var f = (typeof _faqParId === 'function') ? _faqParId(id) : null; if (!o || !f) return;
+    if (o.mode !== 'question') { o.mode = 'question'; _majMode(suf); }
+    o.input.value = f.q;
+    var autres = faqChercher(f.q).filter(function (a) { return a.id !== f.id; }).slice(0, 3);
+    o.res.innerHTML = faqHtmlReponse(f, suf, autres);
+  };
+  // Questions posées → journal (pour enrichir la base, surtout celles sans réponse)
+  var _derniereQ = '';
+  function _noterQuestion(suf) {
+    try {
+      var o = _ir[suf]; var t = String(o.input.value || '').trim();
+      if (o.mode !== 'question' || t.length < 4 || t === _derniereQ) return;
+      _derniereQ = t;
+      var l = faqChercher(t);
+      if (typeof journalNomos === 'function') journalNomos('question', t + ' → ' + (l.length ? 'réponse : ' + l[0].id : 'SANS RÉPONSE'));
+    } catch (e) {}
   }
   window.irOuvrir = function (id) {
     var it = _byId(id); if (!it) return;
@@ -28000,13 +28055,14 @@ try {
   window.irExemple = function (suf, phrase) {
     var o = _ir[suf]; if (!o) return;
     o.input.value = phrase; irAfficher(suf, phrase);
+    _noterQuestion(suf);
   };
 
   var _rec = null;
   function _micEtat(o, actif) {
     o.mic.textContent = actif ? '⏹' : '🎤';
     o.mic.style.background = actif ? 'linear-gradient(135deg,#dc2626,#ef4444)' : 'linear-gradient(135deg,#4338ca,#6366f1)';
-    o.aide.textContent = actif ? 'Je vous écoute… parlez maintenant' : 'Touchez 🎤 et dites ce que vous voulez faire';
+    o.aide.textContent = actif ? 'Je vous écoute… parlez maintenant' : MODES[o.mode].aide;
   }
   window.irMicro = function (suf) {
     var o = _ir[suf]; if (!o) return;
@@ -28029,7 +28085,7 @@ try {
     var fin = function () {
       if (fini) return; fini = true;
       clearTimeout(garde); _rec = null; _micEtat(o, false);
-      if (dit) irAfficher(suf, dit);
+      if (dit) { irAfficher(suf, dit); _noterQuestion(suf); }
     };
     rec.onresult = function (e) {
       dit = '';
@@ -28058,27 +28114,29 @@ try {
     d.className = 'ir-bloc';
     d.style.cssText = 'background:white;border-radius:16px;padding:14px;margin:12px 16px 4px;box-shadow:0 4px 18px rgba(67,56,202,.12);border:1px solid #e0e7ff';
     d.innerHTML =
-      '<div style="display:flex;align-items:center;gap:10px">'
+      '<div style="display:flex;gap:6px;margin-bottom:12px">'
+      + '<button type="button" class="ir-tab" data-mode="controle" onclick="irMode(\'' + suf + '\',\'controle\')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">🧭 Faire un contrôle</button>'
+      + '<button type="button" class="ir-tab" data-mode="question" onclick="irMode(\'' + suf + '\',\'question\')" style="flex:1;border:none;border-radius:10px;padding:10px 6px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">❓ Poser une question</button>'
+      + '</div>'
+      + '<div style="display:flex;align-items:center;gap:10px">'
       + '<button type="button" class="ir-mic" aria-label="Dire ce que je veux faire" onclick="irMicro(\'' + suf + '\')" style="flex-shrink:0;width:58px;height:58px;border-radius:50%;border:none;color:white;font-size:26px;cursor:pointer;background:linear-gradient(135deg,#4338ca,#6366f1);box-shadow:0 4px 14px rgba(67,56,202,.35)">🎤</button>'
-      + '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:900;color:#1f2937;font-family:Outfit,sans-serif">Dites ou écrivez ce que vous voulez faire</div>'
+      + '<div style="flex:1;min-width:0"><div class="ir-titre" style="font-size:14px;font-weight:900;color:#1f2937;font-family:Outfit,sans-serif">Quel contrôle voulez-vous faire ?</div>'
       + '<div class="ir-aide" style="font-size:11px;color:#6b7280;margin-top:2px">Touchez 🎤 et dites ce que vous voulez faire</div></div></div>'
       + '<form onsubmit="return false" style="display:flex;gap:8px;margin-top:10px">'
       + '<input type="search" class="ir-input" enterkeyhint="go" autocomplete="off" placeholder="Ex. : j\'ai une livraison" aria-label="Ce que je veux faire" style="flex:1;min-width:0;border:1px solid #e5e7eb;border-radius:12px;padding:12px;font-size:16px;font-family:inherit;background:#f9fafb">'
       + '<button type="submit" class="ir-ok" style="border:none;border-radius:12px;padding:0 16px;background:#1e1b4b;color:white;font-weight:800;font-size:14px;cursor:pointer;font-family:Outfit,sans-serif">OK</button></form>'
-      + '<div style="margin-top:4px">'
-      + ['Relever les frigos', 'J\'ai une livraison', 'L\'inspecteur est là', 'J\'ai un problème'].map(function (p) {
-          return '<button type="button" onclick="irExemple(\'' + suf + '\',\'' + p.replace(/'/g, '\\\'') + '\')" style="background:#f3f4f6;border:none;color:#374151;border-radius:20px;padding:6px 11px;font-size:11.5px;font-weight:700;cursor:pointer;margin:6px 6px 0 0;font-family:inherit">' + _echap(p) + '</button>';
-        }).join('')
-      + '</div><div class="ir-res"></div>';
+      + '<div class="ir-chips" style="margin-top:4px"></div><div class="ir-res"></div>';
     cible.insertBefore(d, avant || null);
-    var o = { input: d.querySelector('.ir-input'), res: d.querySelector('.ir-res'), mic: d.querySelector('.ir-mic'), aide: d.querySelector('.ir-aide') };
+    var o = { input: d.querySelector('.ir-input'), res: d.querySelector('.ir-res'), mic: d.querySelector('.ir-mic'), aide: d.querySelector('.ir-aide'),
+              titre: d.querySelector('.ir-titre'), chips: d.querySelector('.ir-chips'), tabs: Array.prototype.slice.call(d.querySelectorAll('.ir-tab')), mode: 'controle' };
     _ir[suf] = o;
+    _majMode(suf);
     var tmr = null;
     o.input.addEventListener('input', function () {
       clearTimeout(tmr);
       tmr = setTimeout(function () { irAfficher(suf, o.input.value); }, 450);
     });
-    d.querySelector('form').addEventListener('submit', function () { clearTimeout(tmr); irAfficher(suf, o.input.value); try { o.input.blur(); } catch (e) {} });
+    d.querySelector('form').addEventListener('submit', function () { clearTimeout(tmr); irAfficher(suf, o.input.value); _noterQuestion(suf); try { o.input.blur(); } catch (e) {} });
   }
   function _init() {
     try {
@@ -28442,3 +28500,337 @@ function _jrnNomModule(id) {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', simplifier); else simplifier();
 })();
+
+// ══════════════════════════════════════════════════════════════════
+// QUESTIONS-RÉPONSES HACCP (base intégrée, fonctionne hors ligne)
+// Réponses rédigées à l'avance, avec leur source. Toujours affichées avec une
+// réserve : aide indicative, ne remplace ni la réglementation ni le PMS ni la DDPP.
+// m = module à ouvrir (bouton « Ouvrir le module »), k = mots-clés (sans accents).
+// ══════════════════════════════════════════════════════════════════
+var FAQ_HACCP = [
+  { id: "poisson-temp", q: "À quelle température garder le poisson frais (vitrine, présentoir, chambre froide) ?",
+    r: ["Entre 0 °C et +2 °C : c'est la température de la glace fondante.",
+        "• Vaut pour le poisson frais entier ou en filets, les produits de la mer non transformés (même décongelés), les crustacés et mollusques cuits.",
+        "• Sur un présentoir : lit de glace pilée renouvelée souvent, eau de fonte évacuée (le poisson ne doit jamais baigner), protection contre les clients et les autres aliments.",
+        "• En fin de service : retour immédiat en chambre froide entre 0 et +2 °C, ou destruction si le produit a été trop exposé ou manipulé."],
+    s: "Arrêté du 21 décembre 2009 (températures de conservation), annexe I", m: "temperatures",
+    k: ["poisson", "poissons", "vitrine", "presentoir", "etal", "glace pilee", "lit de glace", "fruits de mer", "crustace", "crevette", "saumon", "cabillaud", "produit de la mer", "temperature", "degre", "garder", "conserver"] },
+  { id: "poisson-duree", q: "Combien de temps peut-on garder le poisson frais au réfrigérateur ?",
+    r: ["La loi ne fixe pas de durée : c'est à vous de la fixer dans votre plan HACCP, sans jamais dépasser la DLC du fournisseur.",
+        "Repères courants, entre 0 et +2 °C :",
+        "• Poisson entier vidé, très frais : 2 à 3 jours après réception.",
+        "• Filets, pavés, poisson découpé : 1 à 2 jours.",
+        "• Poisson cru préparé (tartare, carpaccio) : le jour même.",
+        "• Fruits de mer cuits : 1 à 2 jours, ou selon la DLC s'ils sont emballés.",
+        "À jeter si l'œil est terne, les ouïes brunes, la chair molle ou l'odeur forte."],
+    s: "Bonnes pratiques (guides de bonnes pratiques d'hygiène) — aucune durée fixée par la réglementation", m: "etiquetage",
+    k: ["poisson", "poissons", "filet", "fruits de mer", "combien de temps", "combien de jour", "duree", "jour", "garder", "conserver", "conservation"] },
+  { id: "poisson-cru", q: "Poisson servi cru (sushi, tartare, ceviche) : faut-il le congeler ?",
+    r: ["Oui. Le poisson servi cru ou presque cru doit être congelé avant, pour détruire les parasites (Anisakis) :",
+        "• au moins 24 h à −20 °C à cœur,",
+        "• ou au moins 15 h à −35 °C à cœur.",
+        "Exception : le fournisseur garantit par écrit que le poisson a déjà subi ce traitement (ou provient d'une espèce / d'un élevage dispensé). Gardez ce document."],
+    s: "Règlement (CE) n° 853/2004, annexe III, section VIII", m: "",
+    k: ["cru", "crus", "sushi", "sashimi", "maki", "tartare", "carpaccio", "ceviche", "gravlax", "marine", "anisakis", "parasite", "ver"] },
+  { id: "viande-temp", q: "À quelle température conserver les viandes ?",
+    r: ["Températures maximales de conservation :",
+        "• Viande hachée : +2 °C.",
+        "• Abats : +3 °C.",
+        "• Volaille, lapin, préparations de viande (saucisses, merguez, brochettes, viande marinée) : +4 °C.",
+        "• Pièces de bœuf, veau, porc, agneau : +4 °C conseillé en cuisine (la réglementation tolère jusqu'à +7 °C pour les carcasses et grosses pièces).",
+        "• Viandes congelées : −12 °C ; viandes surgelées : −18 °C."],
+    s: "Arrêté du 21 décembre 2009, annexe I", m: "temperatures",
+    k: ["viande", "viandes", "boeuf", "veau", "porc", "agneau", "volaille", "poulet", "dinde", "abat", "abats", "saucisse", "merguez", "brochette", "hachee", "steak", "temperature", "conserver", "frigo"] },
+  { id: "cuisson-coeur", q: "Quelle température à cœur pour la cuisson ?",
+    r: ["Repères recommandés (à mesurer avec une sonde propre, au centre de la pièce la plus épaisse) :",
+        "• Steak haché / viande hachée : +70 °C à cœur, surtout pour les enfants et les personnes fragiles (risque E. coli).",
+        "• Volaille : cuisson complète, jus clair, au moins +70 °C à cœur.",
+        "• Plats cuisinés, remise en température : au moins +63 °C à cœur.",
+        "• Porc et préparations de porc : cuisson complète.",
+        "Notez la température dans le module Cuisson."],
+    s: "Recommandations sanitaires (DGAL / ANSES) et guides de bonnes pratiques d'hygiène", m: "cuisson",
+    k: ["cuisson", "cuire", "cuit", "a coeur", "coeur", "sonde", "steak hache", "burger", "hamburger", "saignant", "volaille", "poulet", "temperature de cuisson"] },
+  { id: "chaud", q: "À quelle température maintenir les plats chauds ?",
+    r: ["Au moins +63 °C jusqu'au service (bain-marie, étuve, vitrine chaude).",
+        "Un plat chaud qui est descendu sous +63 °C ne doit pas être remis en vente le lendemain : il est consommé dans la journée ou jeté."],
+    s: "Arrêté du 21 décembre 2009", m: "cuisson",
+    k: ["chaud", "chauds", "maintien", "maintenir", "bain marie", "etuve", "liaison chaude", "63", "plat chaud"] },
+  { id: "refroidissement", q: "Comment refroidir un plat cuisiné à l'avance ?",
+    r: ["Refroidissement rapide : passer de +63 °C à moins de +10 °C à cœur en moins de 2 heures (cellule de refroidissement de préférence), puis stocker entre 0 et +3 °C.",
+        "• Jamais à température ambiante sur le plan de travail.",
+        "• Répartir en petites quantités, dans des bacs peu profonds.",
+        "• Noter heure et température de début et de fin dans le module Refroidissement."],
+    s: "Arrêté du 21 décembre 2009 (obligation explicite en restauration collective, référence de bonne pratique en restauration commerciale)", m: "refroidissement",
+    k: ["refroidir", "refroidissement", "cellule", "refroidi", "deux heure", "2 h", "10 degre", "plat a l avance", "liaison froide"] },
+  { id: "remise-temp", q: "Comment réchauffer (remettre en température) un plat ?",
+    r: ["Atteindre au moins +63 °C à cœur en moins d'une heure, puis servir ou maintenir à +63 °C.",
+        "• Une seule remise en température : ce qui a été réchauffé et non consommé ne se garde pas.",
+        "• Ne jamais resservir un plat déjà servi à un client."],
+    s: "Arrêté du 21 décembre 2009 et guides de bonnes pratiques", m: "cuisson",
+    k: ["rechauffer", "remise en temperature", "remettre en temperature", "rechauffe", "reste", "restes", "micro onde"] },
+  { id: "plats-avance", q: "Combien de temps garder un plat cuisiné à l'avance ?",
+    r: ["Température : entre 0 et +3 °C après refroidissement rapide.",
+        "Durée : fixée par votre plan HACCP. Repère courant : 3 jours, jour de fabrication compris (J+3). Au-delà, il faut l'avoir validé (analyses).",
+        "Étiquetez chaque bac : nom du plat, date de fabrication, date limite."],
+    s: "Arrêté du 21 décembre 2009 (température) — durée : bonne pratique", m: "etiquetage",
+    k: ["plat cuisine", "plats cuisines", "a l avance", "preparation", "combien de temps", "garder", "conserver", "j+3", "sauce", "soupe", "reste"] },
+  { id: "surgeles", q: "À quelle température conserver les surgelés et produits congelés ?",
+    r: ["• Produits surgelés, glaces et crèmes glacées, poisson congelé : −18 °C ou moins.",
+        "• Viandes congelées et autres denrées congelées : −12 °C ou moins.",
+        "À réception, de brèves remontées sont tolérées jusqu'à −15 °C pour les surgelés ; au-delà, refuser la livraison."],
+    s: "Arrêté du 21 décembre 2009, annexe I — Règlement (CE) n° 37/2005", m: "temperatures",
+    k: ["surgele", "surgeles", "congele", "congeles", "congelateur", "congelo", "glace", "glaces", "creme glacee", "-18", "moins 18"] },
+  { id: "decongelation", q: "Comment décongeler un produit ?",
+    r: ["• Au réfrigérateur (0 à +4 °C), dans un bac qui recueille le jus, sur une étagère basse.",
+        "• Ou directement à la cuisson, ou au four micro-ondes (programme décongélation) si le produit est cuit aussitôt.",
+        "• Jamais à température ambiante, ni dans l'eau stagnante.",
+        "• Ne jamais recongeler un produit décongelé cru (possible seulement après l'avoir cuit).",
+        "• Étiqueter la date de décongélation et utiliser rapidement (durée à fixer dans votre plan HACCP)."],
+    s: "Guides de bonnes pratiques d'hygiène", m: "etiquetage",
+    k: ["decongeler", "decongelation", "decongele", "recongeler", "recongele", "degeler"] },
+  { id: "congeler-soi", q: "Peut-on congeler soi-même des produits au restaurant ?",
+    r: ["Oui, à condition de le faire proprement et de pouvoir le prouver :",
+        "• uniquement des produits frais, en bon état, bien avant leur DLC (idéalement le jour de la réception ou de la fabrication) ;",
+        "• congélation rapide (cellule de congélation de préférence), stockage à −18 °C ;",
+        "• étiquette sur chaque produit : nom, date de congélation, date limite d'utilisation ;",
+        "• le décrire dans votre plan de maîtrise sanitaire."],
+    s: "Règlement (CE) n° 852/2004 et guides de bonnes pratiques", m: "etiquetage",
+    k: ["congeler", "congelation", "congeler soi meme", "mettre au congelateur", "cellule de congelation"] },
+  { id: "dlc-ddm", q: "Quelle différence entre DLC et DDM ?",
+    r: ["• DLC (« à consommer jusqu'au ») : date impérative. Après, le produit ne doit plus être utilisé ni servi : il est jeté.",
+        "• DDM (« à consommer de préférence avant ») : après la date, le produit peut encore être utilisé s'il est en bon état et bien stocké (qualité moindre, pas de danger)."],
+    s: "Règlement (UE) n° 1169/2011 (INCO)", m: "etiquetage",
+    k: ["dlc", "ddm", "dluo", "date limite", "date de peremption", "perime", "perimee", "depasse", "a consommer"] },
+  { id: "dlc-ouvert", q: "Combien de temps garder un produit après ouverture (DLC secondaire) ?",
+    r: ["• Si l'emballage indique « après ouverture, à consommer sous X jours » : respectez-le.",
+        "• Sinon, la durée est fixée par vous dans le plan HACCP. Repère courant pour un produit frais ouvert : 3 jours, sans dépasser la DLC d'origine.",
+        "• Étiquetez dès l'ouverture : nom, date d'ouverture, nouvelle date limite (module Étiquetage)."],
+    s: "Guides de bonnes pratiques d'hygiène", m: "etiquetage",
+    k: ["ouvert", "ouverture", "apres ouverture", "dlc secondaire", "entame", "entamee", "deconditionne", "etiquette", "etiqueter", "boite ouverte"] },
+  { id: "frigo-temp", q: "À quelle température régler le réfrigérateur et combien de fois la relever ?",
+    r: ["• Réfrigérateurs et chambres froides positives : entre 0 et +4 °C (0 à +3 °C pour les plats cuisinés à l'avance ; 0 à +2 °C pour le poisson et la viande hachée).",
+        "• Congélateurs : −18 °C ou moins.",
+        "• Relever et noter au moins 2 fois par jour (ouverture et fermeture). En cas d'écart : action corrective et non-conformité.",
+        "• Vérifier régulièrement les thermomètres (dans de la glace fondante, ils doivent indiquer 0 °C)."],
+    s: "Arrêté du 21 décembre 2009 (températures) — fréquence : bonne pratique", m: "temperatures",
+    k: ["frigo", "frigos", "refrigerateur", "chambre froide", "enceinte", "regler", "temperature du frigo", "releve", "relever", "combien de fois", "thermometre"] },
+  { id: "frigo-panne", q: "Mon frigo est en panne ou trop chaud : que faire ?",
+    r: ["1. Vérifier la température avec un 2e thermomètre.",
+        "2. Transférer tout de suite les produits dans une autre enceinte froide.",
+        "3. Évaluer : si les produits très périssables (viande hachée, poisson, plats cuisinés, préparations à base d'œufs crus, desserts à la crème) ont dépassé leur température depuis un temps inconnu ou longtemps, les jeter.",
+        "4. Faire réparer, puis vérifier la température avant de remettre les produits.",
+        "5. Enregistrer une non-conformité avec l'action corrective."],
+    s: "Règlement (CE) n° 852/2004 — guides de bonnes pratiques", m: "nc",
+    k: ["panne", "en panne", "trop chaud", "frigo chaud", "ne refroidit plus", "coupure", "coupure de courant", "temperature haute", "depassement", "probleme frigo"] },
+  { id: "reception", q: "Que contrôler à la réception d'une livraison ?",
+    r: ["• Température des produits frais et surgelés (sonde ou thermomètre infrarouge).",
+        "• État des emballages, propreté du camion et des caisses.",
+        "• DLC suffisantes, étiquetage, estampille sanitaire pour les produits animaux.",
+        "• Bon de livraison conforme à la commande — gardez le BL et les étiquettes (photo possible).",
+        "Rangement immédiat : surgelés d'abord, puis produits frais."],
+    s: "Règlement (CE) n° 852/2004 et n° 178/2002 (traçabilité)", m: "reception",
+    k: ["reception", "livraison", "livreur", "fournisseur", "camion", "controler", "bon de livraison", "bl", "marchandise"] },
+  { id: "refus", q: "Quand refuser une livraison ?",
+    r: ["Refusez (ou mettez de côté) si :",
+        "• température non conforme (ex. viande hachée > +2 °C, frais > +4 °C, surgelés plus chauds que −15 °C) ;",
+        "• emballage abîmé, produit décongelé, odeur ou aspect anormal ;",
+        "• DLC dépassée ou trop courte, étiquette ou estampille absente.",
+        "Notez le motif sur le bon de livraison, prenez une photo et enregistrez une non-conformité."],
+    s: "Bonnes pratiques d'hygiène", m: "reception",
+    k: ["refuser", "refus", "livraison non conforme", "renvoyer", "retour fournisseur", "colis abime", "mauvaise temperature"] },
+  { id: "tracabilite", q: "Combien de temps garder les étiquettes et bons de livraison (traçabilité) ?",
+    r: ["Repères de l'administration :",
+        "• produits très périssables (DLC courte) : 6 mois après la date de livraison ;",
+        "• produits avec une date de durabilité longue : la durée de vie du produit + 6 mois ;",
+        "• produits sans date : 5 ans.",
+        "Vous devez pouvoir dire, pour chaque produit, qui vous l'a fourni (BL, factures, étiquettes ou photos)."],
+    s: "Règlement (CE) n° 178/2002 (art. 18) — orientations de la DGAL", m: "reception",
+    k: ["tracabilite", "etiquette", "etiquettes", "bon de livraison", "garder", "archiver", "combien de temps", "conserver les documents", "facture"] },
+  { id: "plat-temoin", q: "Le plat témoin est-il obligatoire ?",
+    r: ["• Obligatoire en restauration collective : un échantillon de chaque plat servi (environ 100 g), conservé au moins 5 jours après la dernière présentation au consommateur, entre 0 et +3 °C, identifié (date, plat, service).",
+        "• En restauration commerciale : non obligatoire, mais très utile en cas d'intoxication alimentaire."],
+    s: "Arrêté du 21 décembre 2009", m: "plat-temoin",
+    k: ["plat temoin", "temoin", "echantillon", "5 jours", "cinq jour", "cantine", "collective"] },
+  { id: "huile", q: "Quand changer l'huile de friture ?",
+    r: ["• Changer l'huile dès que les composés polaires (TPM) dépassent 25 % (testeur ou bandelettes).",
+        "• Signes d'usure : huile foncée, odeur forte, fumée, mousse persistante.",
+        "• Ne pas dépasser +175 °C de cuisson ; filtrer chaque jour ; ne pas mélanger huile neuve et usagée.",
+        "Notez le résultat dans le module Huiles."],
+    s: "Réglementation sur les huiles de friture (seuil de 25 % de composés polaires) — température : bonne pratique", m: "huiles",
+    k: ["huile", "huiles", "friture", "friteuse", "tpm", "composes polaires", "frite", "frites", "changer l huile"] },
+  { id: "allergenes-liste", q: "Quels sont les 14 allergènes obligatoires ?",
+    r: ["Gluten (blé, seigle, orge, avoine…), crustacés, œufs, poissons, arachides, soja, lait, fruits à coque (amande, noisette, noix, cajou, pécan, pistache…), céleri, moutarde, graines de sésame, anhydride sulfureux et sulfites (> 10 mg/kg), lupin, mollusques."],
+    s: "Règlement (UE) n° 1169/2011, annexe II", m: "allergenes",
+    k: ["allergene", "allergenes", "14 allergene", "liste des allergene", "gluten", "arachide", "sesame", "sulfite", "lupin", "fruits a coque", "lait", "oeuf"] },
+  { id: "allergenes-info", q: "Comment informer les clients sur les allergènes ?",
+    r: ["L'information sur les 14 allergènes présents dans chaque plat est obligatoire et doit être donnée par écrit : sur la carte, un classeur ou une affiche, consultable par le client.",
+        "Formez l'équipe pour répondre et éviter les contaminations croisées. Le module « Matrice allergènes » prépare ce document."],
+    s: "Décret n° 2015-447 du 17 avril 2015", m: "allergenes",
+    k: ["allergene", "allergenes", "informer", "information", "carte", "menu", "client allergique", "allergie", "allergique", "obligatoire"] },
+  { id: "formation", q: "La formation hygiène est-elle obligatoire ?",
+    r: ["En restauration commerciale (restaurant, snack, food truck…) : oui, au moins une personne de l'équipe doit avoir suivi une formation en hygiène alimentaire adaptée (14 heures).",
+        "Dispensés : les titulaires de certains diplômes de cuisine/hôtellerie et les personnes justifiant de 3 ans d'expérience comme gestionnaire ou exploitant d'une entreprise du secteur alimentaire.",
+        "Gardez l'attestation : elle est demandée lors d'un contrôle."],
+    s: "Décret n° 2011-731 du 24 juin 2011", m: "documents",
+    k: ["formation", "formation hygiene", "obligatoire", "14 heure", "14h", "attestation", "diplome", "cap"] },
+  { id: "declaration", q: "Faut-il déclarer son restaurant aux services vétérinaires ?",
+    r: ["Oui. Avant l'ouverture (et à chaque changement d'exploitant, d'adresse ou d'activité), il faut déclarer l'établissement à la DDPP, avec le formulaire Cerfa n° 13984 ou en ligne (mesdemarches.agriculture.gouv.fr)."],
+    s: "Règlement (CE) n° 852/2004 (art. 6) et Code rural", m: "documents",
+    k: ["declarer", "declaration", "cerfa", "13984", "ouverture du restaurant", "ouvrir un restaurant", "ddpp", "services veterinaires", "enregistrement"] },
+  { id: "controle-ddpp", q: "Que regarde l'inspecteur lors d'un contrôle DDPP ?",
+    r: ["• L'état et la propreté des locaux et du matériel.",
+        "• Le plan de maîtrise sanitaire (PMS) et sa mise en œuvre : relevés de températures, plan de nettoyage, traçabilité (BL, étiquettes), gestion des non-conformités.",
+        "• La formation hygiène, la tenue du personnel, la lutte contre les nuisibles.",
+        "• Les températures réelles des frigos et des produits, les DLC.",
+        "• L'information allergènes et les affichages obligatoires.",
+        "Le bouton « J'ai un contrôle DDPP » regroupe vos preuves (Pack DDPP)."],
+    s: "Règlement (UE) 2017/625 (contrôles officiels) — Règlement (CE) n° 852/2004", m: "inspecteur",
+    k: ["inspecteur", "inspection", "controle ddpp", "ddpp", "dgal", "controleur", "visite", "services veterinaires", "que regarde", "controle sanitaire", "alim confiance"] },
+  { id: "pms", q: "Qu'est-ce que le plan de maîtrise sanitaire (PMS) ?",
+    r: ["C'est le dossier qui décrit comment vous garantissez la sécurité des aliments :",
+        "• bonnes pratiques d'hygiène (personnel, nettoyage, nuisibles, eau, températures, maintenance) ;",
+        "• analyse des dangers et points critiques (HACCP) ;",
+        "• traçabilité et gestion des produits non conformes (retrait, rappel) ;",
+        "• les enregistrements qui le prouvent (relevés, fiches, photos).",
+        "Les contrôles enregistrés dans Nomos en sont les preuves."],
+    s: "Règlement (CE) n° 852/2004", m: "",
+    k: ["pms", "plan de maitrise sanitaire", "plan haccp", "haccp", "dossier", "methode haccp"] },
+  { id: "nettoyage", q: "Comment organiser le nettoyage et la désinfection ?",
+    r: ["Un plan de nettoyage écrit précise pour chaque zone / équipement : quoi, quand (fréquence), comment (produit, dosage, temps de contact, rinçage) et qui.",
+        "• Produits adaptés au contact alimentaire.",
+        "• Du plus propre au plus sale, du haut vers le bas.",
+        "• Enregistrer les nettoyages faits (modules Ouverture / Fermeture)."],
+    s: "Règlement (CE) n° 852/2004, annexe II", m: "nettoyage",
+    k: ["nettoyage", "nettoyer", "desinfection", "desinfecter", "plan de nettoyage", "produit menager", "detergent", "javel", "propre"] },
+  { id: "mains", q: "Quand faut-il se laver les mains ?",
+    r: ["• À la prise de poste et après chaque pause.",
+        "• Après les toilettes, après s'être mouché, après avoir touché le visage, les cheveux, le téléphone.",
+        "• Après avoir manipulé des produits crus, des œufs, des emballages, des déchets ou des produits de nettoyage.",
+        "• Entre deux tâches différentes et avant de toucher des aliments prêts à consommer.",
+        "Lave-mains à commande non manuelle conseillé, savon, essuie-mains à usage unique."],
+    s: "Règlement (CE) n° 852/2004 — guides de bonnes pratiques", m: "hygiene",
+    k: ["main", "mains", "lavage des mains", "laver les mains", "lave main", "savon", "se laver"] },
+  { id: "tenue", q: "Quelle tenue en cuisine ?",
+    r: ["• Tenue propre, réservée au travail, changée aussi souvent que nécessaire.",
+        "• Cheveux entièrement couverts (charlotte, calot), barbe protégée si besoin.",
+        "• Pas de bijoux (bagues, montres, bracelets), ongles courts sans vernis.",
+        "• Plaie aux mains : pansement étanche + gant.",
+        "• Chaussures de travail propres."],
+    s: "Règlement (CE) n° 852/2004, annexe II, chapitre VIII", m: "hygiene",
+    k: ["tenue", "charlotte", "coiffe", "bijou", "bijoux", "tablier", "veste", "ongle", "ongles", "chaussure", "pansement", "barbe"] },
+  { id: "malade", q: "Un salarié est malade : peut-il travailler en cuisine ?",
+    r: ["Une personne qui a une diarrhée, des vomissements, de la fièvre avec ces symptômes, une plaie infectée ou une infection de la peau ne doit pas manipuler les aliments tant que le risque existe. Elle doit prévenir son responsable.",
+        "Retour au poste après guérison (avis médical si besoin)."],
+    s: "Règlement (CE) n° 852/2004, annexe II, chapitre VIII", m: "hygiene",
+    k: ["malade", "maladie", "diarrhee", "vomissement", "gastro", "fievre", "plaie", "infection", "salarie malade"] },
+  { id: "gants", q: "Les gants sont-ils obligatoires ?",
+    r: ["Non, sauf en cas de plaie aux mains (pansement + gant). Des mains bien lavées suffisent.",
+        "Si vous utilisez des gants : les changer souvent (entre deux tâches, après les produits crus, les déchets, l'argent), et se laver les mains avant de les mettre. Un gant sale contamine comme une main sale."],
+    s: "Guides de bonnes pratiques d'hygiène", m: "hygiene",
+    k: ["gant", "gants", "porter des gants", "gants obligatoire"] },
+  { id: "nuisibles", q: "Lutte contre les nuisibles : qu'est-ce qui est obligatoire ?",
+    r: ["Vous devez prévenir et maîtriser les nuisibles (rongeurs, cafards, mouches…) :",
+        "• locaux fermés, moustiquaires, pas de déchets qui traînent ;",
+        "• plan de lutte (postes d'appâts, contrôles, actions) ;",
+        "• garder les rapports d'intervention.",
+        "Le contrat avec un prestataire n'est pas obligatoire mais fortement conseillé."],
+    s: "Règlement (CE) n° 852/2004, annexe II", m: "nuisibles",
+    k: ["nuisible", "nuisibles", "rat", "rats", "souris", "cafard", "cafards", "blatte", "mouche", "insecte", "rongeur", "deratisation", "desinsectisation"] },
+  { id: "biodechets", q: "Le tri des biodéchets est-il obligatoire ?",
+    r: ["Oui : depuis le 1er janvier 2024, tous les professionnels qui produisent des biodéchets (restes alimentaires, épluchures…) doivent les trier à la source et les faire valoriser (collecte par un prestataire ou compostage)."],
+    s: "Loi AGEC — Code de l'environnement (art. L. 541-21-1)", m: "dechets",
+    k: ["biodechet", "biodechets", "dechet", "dechets", "tri", "trier", "compost", "poubelle", "agec"] },
+  { id: "oeufs", q: "Comment utiliser les œufs (mayonnaise maison, œufs crus) ?",
+    r: ["• Stocker les œufs au frais, à température stable, sans les laver.",
+        "• Casser les œufs à part (pas sur le bord du récipient de préparation), se laver les mains après.",
+        "• Préparations à base d'œufs crus (mayonnaise, mousse au chocolat, tiramisu) : préparer au plus près du service, conserver à +4 °C maximum, consommer dans la journée.",
+        "• Pour plus de sécurité : ovoproduits pasteurisés."],
+    s: "Guides de bonnes pratiques d'hygiène", m: "",
+    k: ["oeuf", "oeufs", "mayonnaise", "mayo", "oeuf cru", "tiramisu", "mousse au chocolat", "ovoproduit", "coquille"] },
+  { id: "origine-viande", q: "Faut-il afficher l'origine des viandes ?",
+    r: ["Oui. En restauration, l'origine des viandes de bœuf, porc, volaille et agneau/mouton achetées crues doit être indiquée au client (carte, menu ou affiche) : pays de naissance, d'élevage et d'abattage, ou « Origine France » si tout est en France."],
+    s: "Décret n° 2002-1465 (bœuf) et décret n° 2022-65 du 26 janvier 2022", m: "affichage",
+    k: ["origine", "origine des viande", "afficher l origine", "provenance", "viande francaise", "affichage", "affiche", "affichages obligatoire"] },
+  { id: "glacons", q: "Glaçons et machine à glace : quelles règles ?",
+    r: ["• Glaçons fabriqués avec de l'eau potable.",
+        "• Machine nettoyée et détartrée régulièrement (selon le fabricant), bac fermé.",
+        "• Pelle à glace dédiée, rangée hors du bac ; jamais les mains ni un verre pour servir la glace."],
+    s: "Règlement (CE) n° 852/2004 — bonnes pratiques", m: "",
+    k: ["glacon", "glacons", "machine a glace", "glace pilee", "eau potable"] },
+  { id: "restes", q: "Peut-on réutiliser les restes ?",
+    r: ["• Jamais un aliment déjà servi à un client (assiette, pain, beurre, sauce entamée).",
+        "• Un plat préparé, jamais présenté, refroidi rapidement et gardé à 0/+3 °C peut être utilisé dans sa durée de conservation.",
+        "• Un plat déjà remis en température ou resté en vitrine chaude ne se garde pas."],
+    s: "Arrêté du 21 décembre 2009 et guides de bonnes pratiques", m: "pertes",
+    k: ["reste", "restes", "reutiliser", "resservir", "invendu", "invendus", "lendemain", "recycler"] }
+];
+
+// Réserve affichée sous chaque réponse.
+var FAQ_RESERVE = "Réponse indicative, donnée à titre d'aide. Elle ne remplace pas la réglementation en vigueur, votre plan de maîtrise sanitaire (PMS) ni l'avis des services officiels (DDPP). En cas de doute, renseignez-vous auprès de votre DDPP.";
+
+function _faqNorm(s) {
+  s = String(s || '').toLowerCase();
+  try { s = s.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
+  s = s.replace(/[^a-z0-9+\-]+/g, ' ').trim();
+  // pluriels simples : « poissons » → « poisson », « frigos » → « frigo »
+  return ' ' + s.split(/\s+/).map(function (w) { return (w.length > 3 && /[sx]$/.test(w)) ? w.slice(0, -1) : w; }).join(' ') + ' ';
+}
+function faqChercher(texte) {
+  var t = _faqNorm(texte);
+  var res = [];
+  FAQ_HACCP.forEach(function (f) {
+    var sc = 0, vus = {};
+    f.k.forEach(function (k) {
+      var kn = _faqNorm(k).trim();
+      if (!kn || vus[kn]) return; vus[kn] = 1;
+      if (t.indexOf(' ' + kn + ' ') > -1) sc += (kn.indexOf(' ') > -1 ? 3 : 2);
+    });
+    // Les mots de la question elle-même comptent un peu (départage)
+    _faqNorm(f.q).trim().split(' ').forEach(function (w) { if (w.length > 4 && t.indexOf(' ' + w + ' ') > -1) sc += 0.5; });
+    if (sc >= 2) res.push({ f: f, sc: sc });
+  });
+  res.sort(function (a, b) { return b.sc - a.sc; });
+  return res.map(function (r) { return r.f; });
+}
+function _faqParId(id) { for (var i = 0; i < FAQ_HACCP.length; i++) if (FAQ_HACCP[i].id === id) return FAQ_HACCP[i]; return null; }
+function _faqNomModule(id) {
+  if (id === 'inspecteur') return 'Mode inspecteur (Pack DDPP)';
+  try { for (var i = 0; i < MODULES.length; i++) if (MODULES[i].id === id) return MODULES[i].name; } catch (e) {}
+  return id;
+}
+function faqHtmlReponse(f, suf, autres) {
+  var h = '<div style="margin-top:12px;border:1px solid #e0e7ff;border-radius:14px;padding:14px;background:#fafbff">'
+    + '<div style="font-size:11px;font-weight:800;color:#4338ca;margin-bottom:6px">❓ Réponse</div>'
+    + '<div style="font-size:15px;font-weight:900;color:#1e1b4b;line-height:1.3;margin-bottom:8px;font-family:Outfit,sans-serif">' + _echap(f.q) + '</div>';
+  f.r.forEach(function (l) {
+    var puce = /^[•\d]/.test(l);
+    h += '<div style="font-size:13.5px;color:#1f2937;line-height:1.5;margin:' + (puce ? '3px 0 3px 4px' : '6px 0') + '">' + _echap(l) + '</div>';
+  });
+  h += '<div style="font-size:11.5px;color:#64748b;margin-top:8px"><strong>Source :</strong> ' + _echap(f.s) + '</div>'
+    + '<div style="margin-top:10px;background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:9px 11px;font-size:11.5px;color:#92400e;line-height:1.45">⚠️ ' + _echap(FAQ_RESERVE) + '</div>';
+  if (f.m) {
+    var act = f.m === 'inspecteur' ? "ouvrirModeInspecteur('page-guide')" : "openModule('" + f.m + "')";
+    h += '<button type="button" onclick="' + act + '" style="margin-top:10px;width:100%;background:linear-gradient(135deg,#4338ca,#6366f1);color:#fff;border:none;border-radius:12px;padding:12px;font-weight:800;font-size:13px;cursor:pointer;font-family:Outfit,sans-serif">Ouvrir : ' + _echap(_faqNomModule(f.m)) + ' ›</button>';
+  }
+  h += '</div>';
+  if (autres && autres.length) {
+    h += '<div style="font-size:11px;color:#6b7280;margin-top:10px">Questions proches :</div><div>';
+    autres.forEach(function (a) {
+      h += '<button type="button" onclick="faqVoir(\'' + suf + '\',\'' + a.id + '\')" style="background:#fff;border:1px solid #e0e7ff;color:#3730a3;border-radius:20px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;margin:6px 6px 0 0;text-align:left;font-family:Outfit,sans-serif">❓ ' + _echap(a.q) + '</button>';
+    });
+    h += '</div>';
+  }
+  return h;
+}
+function faqHtml(texte, suf) {
+  var liste = faqChercher(texte);
+  if (liste.length) return faqHtmlReponse(liste[0], suf, liste.slice(1, 4));
+  var h = '<div style="font-size:12.5px;color:#b45309;font-weight:700;margin:12px 0 4px">Je n\'ai pas encore de réponse vérifiée à « ' + _echap(texte) + ' ».</div>'
+    + '<div style="font-size:12px;color:#6b7280;margin-bottom:4px">Votre question est transmise à Nomos Traça pour enrichir la base. En attendant, voici des questions fréquentes :</div><div>';
+  ['frigo-temp', 'reception', 'dlc-ouvert', 'allergenes-info', 'controle-ddpp'].forEach(function (id) {
+    var a = _faqParId(id);
+    if (a) h += '<button type="button" onclick="faqVoir(\'' + suf + '\',\'' + a.id + '\')" style="background:#fff;border:1px solid #e0e7ff;color:#3730a3;border-radius:20px;padding:8px 12px;font-size:12px;font-weight:700;cursor:pointer;margin:6px 6px 0 0;text-align:left;font-family:Outfit,sans-serif">❓ ' + _echap(a.q) + '</button>';
+  });
+  return h + '</div>';
+}
+window.faqChercher = faqChercher;
